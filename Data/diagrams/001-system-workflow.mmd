@@ -1,0 +1,75 @@
+---
+config:
+  look: neo
+---
+flowchart TD
+    Start([Start Planning Process])
+    ImportTeachers([Import or Update Teacher Pool via Excel or Web Form])
+    DefineInternships([Define Internship Types and Budgets])
+    UpdateSchoolData([Input or Update School and Zone Data])
+    UpdateSubjects([Configure Subject Groups and Quotas])
+    ReviewPrefs([Review Teacher Preferences and Availability])
+    DraftPlan([Create New Plan Version or Draft])
+    ViewDrafts([View or Restore Previous Drafts])
+    RunEngine([Run Automated Allocation Engine])
+    AssignSFP([Assign SFP - Main Subject, Full Coverage, Region Spread])
+    AssignZSP([Assign ZSP - Subject Quotas and Alternatives])
+    AssignPDP([Assign PDP1 and PDP2 - Fill Remaining Teachers])
+    CheckAssigned([Check All Teachers Assigned Two Internships])
+    Validate([Validate Subject, School, Zone, Budget Constraints])
+    ConstraintOk([No Constraint Violations])
+    ConstraintIssues([Constraint Violations - System Suggests Solutions])
+    ManualAdjust([Manual Adjustment by Admin])
+    ConfirmPrompt([System Prompts for Confirmation and Warns])
+    TrackCredit([Track Over or Under Assignment])
+    CheckUnassigned([Check for Unassigned or Surplus Teachers])
+    ListUnassigned([List and Suggest Assignments for Surplus Teachers])
+    Finalize([Finalize Allocation])
+    ExportExcel([Export Plans or Overviews to Excel or PDF])
+    Dashboard([Dashboard View - Filter by Subject, Internship, School, Zone])
+    SubmitPlans([Submit Plans to Teachers or Ministry])
+    ArchivePlan([Archive Current Plan Year])
+    End([End Process])
+    TeacherMgmt([Teacher Management])
+    InternshipMgmt([Internship Type Management])
+    SchoolMgmt([School and Zone Management])
+    ImportExport([Data Import or Export Tools])
+    Reporting([Reporting and Dashboard])
+    WaitingList([Waiting List or Swap Handling])
+    Versioning([Plan Versioning and Rollback])
+    Start --> ImportTeachers
+    ImportTeachers --> DefineInternships
+    DefineInternships --> UpdateSchoolData
+    UpdateSchoolData --> UpdateSubjects
+    UpdateSubjects --> ReviewPrefs
+    ReviewPrefs --> DraftPlan
+    DraftPlan --> RunEngine
+    ViewDrafts --> DraftPlan
+    RunEngine --> AssignSFP
+    AssignSFP --> AssignZSP
+    AssignZSP --> AssignPDP
+    AssignPDP --> CheckAssigned
+    CheckAssigned -->|Yes| Validate
+    CheckAssigned -->|No| ManualAdjust
+    ManualAdjust --> ConfirmPrompt
+    ConfirmPrompt --> TrackCredit
+    TrackCredit --> Validate
+    Validate --> ConstraintOk
+    Validate --> ConstraintIssues
+    ConstraintIssues --> ManualAdjust
+    ConstraintOk --> CheckUnassigned
+    CheckUnassigned -->|Yes| ListUnassigned
+    ListUnassigned --> ManualAdjust
+    CheckUnassigned -->|No| Finalize
+    Finalize --> ExportExcel
+    ExportExcel --> Dashboard
+    Dashboard --> SubmitPlans
+    SubmitPlans --> ArchivePlan
+    ArchivePlan --> End
+    ImportTeachers --- TeacherMgmt
+    DefineInternships --- InternshipMgmt
+    UpdateSchoolData --- SchoolMgmt
+    ExportExcel --- ImportExport
+    Dashboard --- Reporting
+    DraftPlan --- Versioning
+    WaitingList -.-> Finalize

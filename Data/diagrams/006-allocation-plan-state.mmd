@@ -1,0 +1,10 @@
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Automated_Allocated: "Run Allocation Engine"
+    Automated_Allocated --> Manually_Adjusted: "Manual Adjustments"
+    Manually_Adjusted --> Automated_Allocated: "Undo Adjustment"
+    Automated_Allocated --> Locked: "Lock Plan (June Deadline)"
+    Manually_Adjusted --> Locked: "Lock Plan (June Deadline)"
+    Locked --> Archived: "Archive at Year End"
+    Archived --> [*]
+    Draft --> [*]: "Delete"

@@ -1,0 +1,36 @@
+flowchart TB
+    subgraph Admin Interface
+        A1[Web Dashboard]
+        A2[Excel Import/Export]
+    end
+    subgraph Core System
+        B1[Teacher Management Module]
+        B2[Internship Type Management]
+        B3[School & Zone Management]
+        B4[Allocation Engine]
+        B5[Manual Adjustment Tool]
+        B6[Plan Versioning & History]
+        B7[Reports & Dashboards]
+    end
+    subgraph Data Storage
+        C1[(Teacher Data)]
+        C2[(Internship Definitions)]
+        C3[(School & Zone Data)]
+        C4[(Allocation Plans)]
+        C5[(History/Archives)]
+    end
+
+    A1-->|"Manage, View, Adjust"|B1
+    A1-->|"Plan, Adjust, Export"|B4
+    A2-->|"Import/Export Data"|B1
+    A2-->|"Export Plans/Reports"|B7
+
+    B1-->|"CRUD"|C1
+    B2-->|"CRUD"|C2
+    B3-->|"CRUD"|C3
+    B4-->|"Read/Write Plans"|C4
+    B5-->|"Override Allocations"|C4
+    B6-->|"Save/Restore Drafts"|C5
+    B7-->|"Read Data"|C1
+    B7-->|"Read Allocations/History"|C4
+    B7-->|"Read Archives"|C5

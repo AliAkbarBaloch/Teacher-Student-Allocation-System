@@ -1,0 +1,59 @@
+erDiagram
+    TEACHER {
+        string TeacherID PK
+        string Name
+        string Email
+        string SchoolID FK
+        string[] Subjects
+        string[] Preferences
+        string[] Availability
+        int Zone
+        int CreditHours
+        string Turnus
+        string Status
+    }
+    SCHOOL {
+        string SchoolID PK
+        string Name
+        string Address
+        int Zone
+        string Accessibility
+    }
+    INTERNSHIP_TYPE {
+        string InternshipTypeID PK
+        string Code
+        string FullName
+        string Timing
+        string Type
+        boolean SubjectSpecific
+    }
+    ALLOCATION {
+        string AllocationID PK
+        string TeacherID FK
+        string InternshipTypeID FK
+        string SchoolID FK
+        string Subject
+        string Semester
+        int AssignedHours
+        string Status
+    }
+    PLAN {
+        string PlanID PK
+        string Version
+        string Status
+        date CreatedAt
+        string CreatedBy
+    }
+    HISTORY {
+        string HistoryID PK
+        string PlanID FK
+        date Date
+        string ChangeLog
+    }
+
+    TEACHER ||--o{ ALLOCATION: "supervises"
+    TEACHER }|..|{ SCHOOL: "assigned_to"
+    SCHOOL ||--o{ ALLOCATION: "hosts"
+    INTERNSHIP_TYPE ||--o{ ALLOCATION: "is_of_type"
+    PLAN ||--o{ ALLOCATION: "contains"
+    PLAN ||--o{ HISTORY: "has"

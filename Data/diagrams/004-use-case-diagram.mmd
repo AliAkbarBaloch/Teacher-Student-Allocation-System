@@ -1,0 +1,19 @@
+%% Use Case Diagram for Admin
+usecase
+  actor Admin as A
+  rectangle System {
+    A -- (Import Teacher Pool)
+    A -- (Configure Budget & Internship Types)
+    A -- (Run Automated Allocation)
+    A -- (Manual Adjustment of Allocations)
+    A -- (Handle Teacher Dropouts/Swaps)
+    A -- (Export/Import Plans to Excel)
+    A -- (View Reports/Dashboards)
+    A -- (Save/Restore Plan Versions)
+    A -- (Update Teacher/School Data)
+    A -- (View Historical Data)
+    A -- (List Surplus/Unassigned Teachers)
+    (Run Automated Allocation) -- (Suggest Solutions for Gaps)
+    (Manual Adjustment of Allocations) -- (Trigger Warnings & Confirmations)
+    (Handle Teacher Dropouts/Swaps) -- (Reassign Only Affected Allocations)
+  }

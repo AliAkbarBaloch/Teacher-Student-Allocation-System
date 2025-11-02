@@ -1,0 +1,12 @@
+flowchart TD
+    U[Admin] -->|Teacher/School Data| S(System)
+    U -->|View/Export Plans| S
+    U -->|Manual Adjustments| S
+    S -->|Exported Reports/Plans| U
+    S -->|Excel Exports| U
+    S -->|Notifications/Warnings| U
+    subgraph System
+        S[Teacher Allocation System]
+    end
+    E[Excel Files] -- Import/Export --> S
+    M[Ministry/Internship Office] -- Budget, Quotas --> S

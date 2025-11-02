@@ -1,0 +1,27 @@
+graph TD
+    UI("Admin UI (Dashboard, Import/Export, Manual Adjustments)")
+    AllocationEngine("Allocation Engine")
+    TeacherMgmt("Teacher Management")
+    SchoolMgmt("School & Zone Management")
+    InternshipMgmt("Internship Type Management")
+    Versioning("Plan Versioning & History")
+    Reporting("Reporting & Dashboard")
+    DataStore((Data Storage))
+
+    UI --> TeacherMgmt
+    UI --> SchoolMgmt
+    UI --> InternshipMgmt
+    UI --> AllocationEngine
+    UI --> Versioning
+    UI --> Reporting
+    AllocationEngine --> TeacherMgmt
+    AllocationEngine --> SchoolMgmt
+    AllocationEngine --> InternshipMgmt
+    AllocationEngine --> Reporting
+    AllocationEngine --> Versioning
+    TeacherMgmt --> DataStore
+    SchoolMgmt --> DataStore
+    InternshipMgmt --> DataStore
+    AllocationEngine --> DataStore
+    Versioning --> DataStore
+    Reporting --> DataStore
