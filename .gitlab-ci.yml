@@ -1,0 +1,49 @@
+stages:
+  - build
+  - test
+
+backend-build:
+  stage: build
+  script:
+    - cd AllocationSystemBackend
+    - ./gradlew build
+  artifacts:
+    paths:
+      - AllocationSystemBackend/build/
+  rules:
+    - changes:
+        - AllocationSystemBackend/**
+
+backend-test:
+  stage: test
+  script:
+    - cd AllocationSystemBackend
+    - ./gradlew test
+  rules:
+    - changes:
+        - AllocationSystemBackend/**
+
+frontend-build:
+  stage: build
+  image: node:20
+  script:
+    - cd AllocationSystemFrontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - AllocationSystemFrontend/dist/
+  rules:
+    - changes:
+        - AllocationSystemFrontend/**
+
+frontend-test:
+  stage: test
+  image: node:20
+  script:
+    - cd AllocationSystemFrontend
+    - npm ci
+    - npm test -- --watchAll=false
+  rules:
+    - changes:
+        - AllocationSystemFrontend/**
