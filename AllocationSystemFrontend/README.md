@@ -1,73 +1,205 @@
-# React + TypeScript + Vite
+# Internship Allocation System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Frontend Architecture
 
-Currently, two official plugins are available:
+The frontend follows a feature-based, domain-driven architecture with clear separation of concerns:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+src/
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+├── app/                          # Root application setup
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── routes.tsx                # Central route definitions
+│
+├── components/                   # Reusable and shared components
+│   ├── ui/                       # UI components (buttons, inputs, modals, etc.)
+│   │   ├── Button/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Button.test.tsx
+│   │   │   └── index.ts
+│   │   └── Input/
+│   ├── layout/                   # Layout components
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   └── Sidebar.tsx
+│   └── common/                   # Other shared components (not part of UI library)
+│       ├── ThemeToggle.tsx
+│       ├── LanguageSwitcher.tsx
+│       └── Loader.tsx
+│
+├── features/                     # Domain-driven feature modules
+│   ├── auth/
+│   │   ├── components/
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── RegisterForm.tsx
+│   │   ├── hooks/
+│   │   │   └── useAuth.ts
+│   │   ├── services/
+│   │   │   └── authService.ts
+│   │   ├── types/
+│   │   │   └── auth.types.ts
+│   │   └── index.ts
+│   └── products/
+│       ├── components/
+│       │   └── ProductCard.tsx
+│       ├── hooks/
+│       │   └── useProducts.ts
+│       ├── services/
+│       │   └── productService.ts
+│       └── types/
+│           └── product.types.ts
+│
+├── hooks/                        # Global custom hooks (non-feature specific)
+│   ├── useTheme.ts
+│   ├── useMediaQuery.ts
+│   └── useLocalStorage.ts
+│
+├── lib/                          # Library setup, utilities, and global helpers
+│   ├── i18n/                     # Multi-language setup
+│   │   ├── index.ts
+│   │   ├── locales/
+│   │   │   ├── de/translation.json
+│   │   │   └── en/translation.json
+│   ├── theme/                    # Theme handling (light/dark)
+│   │   ├── index.ts
+│   │   └── useThemeMode.ts
+│   ├── axios.ts                  # Configured Axios instance
+│   └── utils.ts                  # Global utility functions
+│
+├── providers/                    # React context providers
+│   ├── ThemeProvider.tsx
+│   ├── AuthProvider.tsx
+│   └── I18nProvider.tsx
+│
+├── pages/                        # Page-level route components
+│   ├── Home/
+│   │   ├── HomePage.tsx
+│   │   └── HomePage.test.tsx
+│   ├── Profile/
+│   │   └── ProfilePage.tsx
+│   └── Settings/
+│       └── SettingsPage.tsx
+│
+├── store/                        # State management (Zustand, Redux, or Context)
+│   ├── slices/
+│   │   ├── userSlice.ts
+│   │   └── appSlice.ts
+│   └── index.ts
+│
+├── types/                        # Shared TypeScript type definitions
+│   ├── user.types.ts
+│   ├── api.types.ts
+│   └── common.types.ts
+│
+│
+├── assets/                       # Static assets
+│   ├── images/
+│   ├── icons/
+│   └── fonts/
+│
+├── tests/                        # Integration and e2e test setup
+│   ├── setup.ts
+│   └── mocks/
+│
+└── config/                       # App configuration files (env, constants, etc.)
+    ├── env.ts
+    ├── constants.ts
+    └── routes.ts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Architecture Principles
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Feature-based organization**: Each feature module is self-contained with its own components, hooks, services, and types
+- **Separation of concerns**: Clear boundaries between UI components, business logic, and data fetching
+- **Reusability**: Shared components and utilities are organized in dedicated directories
+- **Type safety**: TypeScript types are defined at feature and global levels
+- **Scalability**: Structure supports growth and easy addition of new features
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Dependencies
+
+### Core
+- **React** 19.1.1 - UI library
+- **TypeScript** 5.9.3 - Type safety
+- **Vite** 7.1.7 - Build tool and dev server
+
+### Styling
+- **Tailwind CSS** 4.1.17 - Utility-first CSS framework
+- **tailwind-merge** - Tailwind class merging utility
+- **clsx** - Conditional class names
+
+### UI Components
+- **lucide-react** - Icon library
+
+### Development Tools
+- **ESLint** - Code linting
+- **TypeScript ESLint** - TypeScript-specific linting rules
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- npm or yarn package manager
+
+### Installation
+
+1. Navigate to the frontend directory:
+```bash
+cd AllocationSystemFrontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+## Development
+
+### Run Development Server
+
+Start the development server with hot module replacement:
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173` (or the next available port).
+
+### Build for Production
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+This command:
+1. Type-checks the code using TypeScript (`tsc -b`)
+2. Builds optimized production bundles using Vite
+
+The output will be in the `dist/` directory.
+
+### Preview Production Build
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+This serves the production build from the `dist/` directory.
+
+### Lint Code
+
+Run ESLint to check for code quality issues:
+
+```bash
+npm run lint
+```
+
+To automatically fix linting issues (if supported by your ESLint configuration):
+
+```bash
+npm run lint -- --fix
 ```

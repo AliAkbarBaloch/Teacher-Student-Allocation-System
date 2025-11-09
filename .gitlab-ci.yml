@@ -47,7 +47,7 @@ frontend-test:
   script:
     - cd AllocationSystemFrontend
     - npm ci
-    - npm test -- --watchAll=false
+    - npm test
   rules:
     - changes:
         - AllocationSystemFrontend/**
