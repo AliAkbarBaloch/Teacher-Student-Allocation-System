@@ -4,8 +4,10 @@ stages:
 
 backend-build:
   stage: build
+  image: openjdk:17-ea-slim
   script:
     - cd AllocationSystemBackend
+    - chmod +x gradlew
     - ./gradlew build
   artifacts:
     paths:
@@ -16,8 +18,10 @@ backend-build:
 
 backend-test:
   stage: test
+  image: openjdk:17-ea-slim
   script:
     - cd AllocationSystemBackend
+    - chmod +x gradlew
     - ./gradlew test
   rules:
     - changes:
