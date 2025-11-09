@@ -4,6 +4,7 @@ stages:
 
 backend-build:
   stage: build
+  image: openjdk:17-jdk
   script:
     - cd AllocationSystemBackend
     - chmod +x gradlew
@@ -17,6 +18,7 @@ backend-build:
 
 backend-test:
   stage: test
+  image: openjdk:17-jdk
   script:
     - cd AllocationSystemBackend
     - chmod +x gradlew
