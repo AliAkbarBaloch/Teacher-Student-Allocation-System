@@ -56,24 +56,22 @@ frontend-lint:
     - changes:
         - AllocationSystemFrontend/**
 
-# Run GitLab dependency scanning for JS/TS deps (frontend) on MRs and default branches
-dependency_scanning: 
+snyk_test:
   stage: test
-  image: 
-    name: registry.gitlab.com/security-products/dependency-scanning:5
-    entrypoint: [""]
-  script: 
+  image: node:20
+  script:
     - cd AllocationSystemFrontend
-    - /analyzer run 
-  rules: 
-  # Run on merge requests that touch frontend or root package files 
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    changes: 
+    - npm ci
+    - npm install -g snyk 
+    - snyk auth $SNYK_TOKEN 
+    - snyk test --severity-threshold=medium 
+  rule: 
+    -if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    changes:
       - AllocationSystemFrontend/**
       - package.json
-      - package-lock.json 
-  # Also run the default branch (development)
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      - package-lock.json
+    -if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # Check for accidentally commited secrets in diffs and default branch 
 
