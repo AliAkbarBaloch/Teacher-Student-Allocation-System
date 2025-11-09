@@ -59,6 +59,12 @@ frontend-lint:
 # Run GitLab dependency scanning for JS/TS deps (frontend) on MRs and default branches
 dependency_scanning: 
   stage: test
+  variables:
+    DS_DISABLE_DIND: "true"
+    DS_IMAGE: "registry.gitlab.com/security-products/dependency-scanning:5"
+  script: 
+    - cd AllocationSystemFrontend
+    - /analyzer run 
   rules: 
   # Run on merge requests that touch frontend or root package files 
   - if: $CI_PIPELINE_SOURCE == "merge_request_event"
