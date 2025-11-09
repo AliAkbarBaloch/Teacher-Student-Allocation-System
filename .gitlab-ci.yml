@@ -52,6 +52,7 @@ frontend-lint:
     - cd AllocationSystemFrontend
     - npm ci
     - npm run lint
+    - npm test
   rules:
     - changes:
         - AllocationSystemFrontend/**
