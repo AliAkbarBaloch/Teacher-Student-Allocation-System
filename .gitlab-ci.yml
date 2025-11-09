@@ -6,6 +6,7 @@ backend-build:
   stage: build
   script:
     - cd AllocationSystemBackend
+    - chmod +x gradlew
     - ./gradlew build
   artifacts:
     paths:
@@ -18,6 +19,7 @@ backend-test:
   stage: test
   script:
     - cd AllocationSystemBackend
+    - chmod +x gradlew
     - ./gradlew test
   rules:
     - changes:
