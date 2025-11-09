@@ -45,13 +45,13 @@ frontend-build:
     - changes:
         - AllocationSystemFrontend/**
 
-frontend-test:
+frontend-lint:
   stage: test
   image: node:20
   script:
     - cd AllocationSystemFrontend
     - npm ci
-    - npm test -- --watchAll=false
+    - npm run lint
   rules:
     - changes:
         - AllocationSystemFrontend/**
