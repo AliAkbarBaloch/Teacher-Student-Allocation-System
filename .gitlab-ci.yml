@@ -59,9 +59,9 @@ frontend-lint:
 # Run GitLab dependency scanning for JS/TS deps (frontend) on MRs and default branches
 dependency_scanning: 
   stage: test
-  variables:
-    DS_DISABLE_DIND: "true"
-    DS_IMAGE: "registry.gitlab.com/security-products/dependency-scanning:5"
+  image: 
+    name: registry.gitlab.com/security-products/dependency-scanning:5
+    entrypoint: [""]
   script: 
     - cd AllocationSystemFrontend
     - /analyzer run 
