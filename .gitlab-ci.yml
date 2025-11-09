@@ -1,3 +1,7 @@
+include: 
+- template: Security/Dependency-Scanning.gitlab-ci.yml
+- template: Security/Secret-Detection.gitlab-ci.yml 
+
 stages:
   - build
   - test
@@ -51,3 +55,24 @@ frontend-test:
   rules:
     - changes:
         - AllocationSystemFrontend/**
+
+# Run GitLab dependency scanning for JS/TS deps (frontend) on MRs and default branches
+dependency_scanning: 
+  stage: test
+  rules: 
+  # Run on merge requests that touch frontend or root package files 
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    changes: 
+      - AllocationSystemFrontend/**
+      - package.json
+      - package-lock.json 
+  # Also run the default branch (development)
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Check for accidentally commited secrets in diffs and default branch 
+
+secret_detection:
+  stage: test 
+  rules: 
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
