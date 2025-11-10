@@ -1,3 +1,7 @@
+include: 
+- template: Security/Dependency-Scanning.gitlab-ci.yml
+- template: Security/Secret-Detection.gitlab-ci.yml 
+
 stages:
   - build
   - test
@@ -41,13 +45,42 @@ frontend-build:
     - changes:
         - AllocationSystemFrontend/**
 
-frontend-test:
+frontend-lint:
   stage: test
   image: node:20
   script:
     - cd AllocationSystemFrontend
     - npm ci
+    - npm run lint
     - npm test
   rules:
     - changes:
         - AllocationSystemFrontend/**
+
+snyk_test:
+  stage: test
+  image: node:20
+  script:
+    - cd AllocationSystemFrontend
+    - npm ci
+    # fail fast if token is missing
+    - 'test -n "$SNYK_TOKEN" || (echo "ERROR: SNYK_TOKEN is not set in CI/CD Variables" && exit 1)'
+    # use npx so we don't need global install
+    - npx snyk@latest auth "$SNYK_TOKEN"
+    # scan; fail on medium+ issues (tune if you want)
+    - npx snyk@latest test --severity-threshold=medium
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - AllocationSystemFrontend/**
+        - package.json
+        - package-lock.json
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Check for accidentally commited secrets in diffs and default branch 
+
+secret_detection:
+  stage: test 
+  rules: 
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
