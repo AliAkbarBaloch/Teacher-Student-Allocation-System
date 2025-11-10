@@ -73,12 +73,12 @@ src/
 │   └── I18nProvider.tsx
 │
 ├── pages/                        # Page-level route components
-│   ├── Home/
+│   ├── home/
 │   │   ├── HomePage.tsx
 │   │   └── HomePage.test.tsx
-│   ├── Profile/
+│   ├── profile/
 │   │   └── ProfilePage.tsx
-│   └── Settings/
+│   └── settings/
 │       └── SettingsPage.tsx
 │
 ├── store/                        # State management (Zustand, Redux, or Context)
