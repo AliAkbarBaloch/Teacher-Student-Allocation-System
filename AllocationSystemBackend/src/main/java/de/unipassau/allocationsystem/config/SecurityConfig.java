@@ -11,11 +11,7 @@ import org.springframework.context.annotation.Bean;
  * Do NOT enable this in production.
  */
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
@@ -25,22 +21,12 @@ public class SecurityConfig {
         http
             // Allow frames for H2 console
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-            // Disable CSRF for H2 console so the console can post forms
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+            // Disable CSRF globally for local/dev testing so Swagger UI and forms can call POST/PUT without token
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // permit H2 console paths
                 .requestMatchers("/h2-console/**").permitAll()
-                // require authentication for other requests (default)
-                .anyRequest().authenticated()
-            )
-            // keep default form login / http basic for other endpoints
-            .formLogin()
-            .and()
-            .httpBasic();
-            // disable CSRF for local testing so Swagger UI can call POST/PUT without token
-            .csrf(csrf -> csrf.disable())
-            // allow anonymous access to swagger and OpenAPI endpoints for dev
-            .authorizeHttpRequests(auth -> auth
+                // allow anonymous access to swagger and OpenAPI endpoints for dev
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
@@ -52,8 +38,10 @@ public class SecurityConfig {
                 ).permitAll()
                 // allow anonymous access to API endpoints for local testing
                 .requestMatchers("/api/**").permitAll()
+                // require authentication for other requests (default)
                 .anyRequest().authenticated()
             )
+            // keep default form login / http basic for other endpoints
             .httpBasic(Customizer.withDefaults())
             .formLogin(Customizer.withDefaults());
 
