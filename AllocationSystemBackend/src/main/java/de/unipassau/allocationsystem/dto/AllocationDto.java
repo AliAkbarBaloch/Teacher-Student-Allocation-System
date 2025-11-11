@@ -6,8 +6,6 @@ public class AllocationDto {
     private String roomId;
     private String timestamp;
 
-    public AllocationDto() {}
-
     public AllocationDto(String id, String studentId, String roomId, String timestamp) {
         this.id = id;
         this.studentId = studentId;
@@ -15,15 +13,35 @@ public class AllocationDto {
         this.timestamp = timestamp;
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getRoomId() { return roomId; }
-    public void setRoomId(String roomId) { this.roomId = roomId; }
+    public String getStudentId() {
+        return studentId;
+    }
 
-    public String getTimestamp() { return timestamp; }
-    public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
 }

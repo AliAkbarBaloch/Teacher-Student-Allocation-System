@@ -6,6 +6,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+    private static final int MAX_CACHE_AGE = 3600;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -27,6 +28,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")
                 .allowCredentials(true)
-                .maxAge(3600);
+                .maxAge(MAX_CACHE_AGE);
     }
 } 

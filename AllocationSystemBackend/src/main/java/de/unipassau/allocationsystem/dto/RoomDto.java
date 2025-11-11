@@ -7,20 +7,33 @@ public class RoomDto {
     private int capacity;
     private List<String> features;
 
-    public RoomDto() {}
-
     public RoomDto(String id, int capacity, List<String> features) {
         this.id = id;
         this.capacity = capacity;
         this.features = features;
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public int getCapacity() { return capacity; }
-    public void setCapacity(int capacity) { this.capacity = capacity; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public List<String> getFeatures() { return features; }
-    public void setFeatures(List<String> features) { this.features = features; }
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public List<String> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<String> features) {
+        this.features = features;
+    }
 }
