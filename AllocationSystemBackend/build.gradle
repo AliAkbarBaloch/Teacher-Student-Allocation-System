@@ -10,9 +10,7 @@ description = 'AllocationSystemBackend'
 
 java {
     toolchain {
-        // Use Java 21 in development environments where JDK 21 is available.
-        // Adjust to 17 if you specifically need to enforce Java 17 toolchain downloads.
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(21) //Adding 21 for my enviroment
     }
 }
 
@@ -30,6 +28,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.flywaydb:flyway-core'
     // OpenAPI / Swagger UI (springdoc) to serve a browsable API UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     compileOnly 'org.projectlombok:lombok'
