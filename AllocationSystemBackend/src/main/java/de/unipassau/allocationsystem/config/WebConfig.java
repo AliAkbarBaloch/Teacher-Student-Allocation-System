@@ -1,4 +1,4 @@
-package com.example.ecommerce.config;
+package de.unipassau.allocationsystem.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
