@@ -10,7 +10,7 @@ description = 'AllocationSystemBackend'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21) //Adding 21 for my enviroment
+        languageVersion = JavaLanguageVersion.of(17) //Adding 21 for my enviroment
     }
 }
 
