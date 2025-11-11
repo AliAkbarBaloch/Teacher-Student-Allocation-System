@@ -1,49 +1,55 @@
 package de.unipassau.allocationsystem.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Development-friendly security configuration to allow using the H2 console.
- * This permits access to /h2-console/** and relaxes frame options and CSRF for that path.
- * Do NOT enable this in production.
- */
-
-import org.springframework.security.config.Customizer;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Allow frames for H2 console
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-            // Disable CSRF globally for local/dev testing so Swagger UI and forms can call POST/PUT without token
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // permit H2 console paths
-                .requestMatchers("/h2-console/**").permitAll()
-                // allow anonymous access to swagger and OpenAPI endpoints for dev
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/v3/api-docs.yaml",
-                    "/v3/api-docs",
-                    "/openapi.yaml",
-                    "/openapi.yaml/**"
-                ).permitAll()
-                // allow anonymous access to API endpoints for local testing
-                .requestMatchers("/api/**").permitAll()
-                // require authentication for other requests (default)
-                .anyRequest().authenticated()
-            )
-            // keep default form login / http basic for other endpoints
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(Customizer.withDefaults());
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .authorizeHttpRequests(authz -> authz
+                        /*Then, allow specific API endpoints without auth*/
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/api/h2-console/**").permitAll()
+                        .requestMatchers("/api/events/share/**").permitAll()
+                        /*First, secure API endpoints*/
+                        .requestMatchers("/api/**").authenticated()
+                        /*Allow H2 console*/
+                        .requestMatchers("/h2-console/**").permitAll()
+                        /*Allow all other routes for the frontend SPA*/
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

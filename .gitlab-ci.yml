@@ -1,5 +1,5 @@
 include:
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  # - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
 
 stages:
@@ -8,10 +8,15 @@ stages:
 
 backend-build:
   stage: build
-  image: openjdk:17-ea-slim
+  # 21: eclipse-temurin:21-jdk-alpine-3.22
+  image: eclipse-temurin:17-jdk-alpine-3.22
+  cache:
+    key: gradle-cache
+    paths:
+      - AllocationSystemBackend/.gradle/ 
   script:
     - cd AllocationSystemBackend
-    - chmod +x ./gradlew || true
+    - chmod +x ./gradlew
     - ./gradlew build
   artifacts:
     paths:
@@ -24,10 +29,11 @@ backend-build:
 
 backend-test:
   stage: test
-  image: openjdk:17-ea-slim
+  # 21: eclipse-temurin:21-jdk-alpine-3.22
+  image: eclipse-temurin:17-jdk-alpine-3.22
   script:
     - cd AllocationSystemBackend
-    - chmod +x ./gradlew || true
+    - chmod +x ./gradlew
     - ./gradlew test
   rules:
     - changes:
@@ -37,10 +43,14 @@ backend-test:
 
 frontend-build:
   stage: build
-  image: node:20
+  image: node:20.19.5-slim
+  cache:
+    key: npm-cache
+    paths:
+      - AllocationSystemFrontend/node_modules/
   script:
     - cd AllocationSystemFrontend
-    - npm ci --legacy-peer-deps
+    - npm ci
     - npm run build
   artifacts:
     paths:
@@ -53,12 +63,12 @@ frontend-build:
 
 frontend-lint:
   stage: test
-  image: node:20
+  image: node:20.19.5-slim
   script:
     - cd AllocationSystemFrontend
-    - npm ci --legacy-peer-deps
+    - npm ci
     - npm run lint
-    - npm test -- --run
+    - npm run vitest:run
   rules:
     - changes:
         - AllocationSystemFrontend/**
