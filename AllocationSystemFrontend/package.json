@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "vitest": "vitest",
+    "test": "vitest",
     "vitest:run": "vitest run",
     "preview": "vite preview",
     "test:watch": "vitest"

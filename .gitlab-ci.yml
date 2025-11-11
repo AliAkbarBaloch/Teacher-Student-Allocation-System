@@ -68,7 +68,7 @@ frontend-lint:
     - cd AllocationSystemFrontend
     - npm ci
     - npm run lint
-    - npm test -- --run
+    - npm run vitest:run
   rules:
     - changes:
         - AllocationSystemFrontend/**
