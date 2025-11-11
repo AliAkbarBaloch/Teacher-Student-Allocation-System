@@ -41,6 +41,22 @@ backend-test:
         - .gitlab-ci.yml
         - Data/**
 
+backend-checkstyle:
+  stage: test
+  image: eclipse-temurin:17-jdk-alpine-3.22
+  script:
+    - cd AllocationSystemBackend
+    - chmod +x ./gradlew
+    - ./gradlew checkstyleMain
+  artifacts:
+    paths:
+      - AllocationSystemBackend/build/reports/checkstyle/
+  rules:
+    - changes:
+        - AllocationSystemBackend/**
+        - .gitlab-ci.yml
+        - Data/**
+
 frontend-build:
   stage: build
   image: node:20.19.5-slim
