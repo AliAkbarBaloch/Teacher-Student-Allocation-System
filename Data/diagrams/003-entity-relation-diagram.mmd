@@ -1,59 +1,276 @@
 erDiagram
-    TEACHER {
-        string TeacherID PK
-        string Name
-        string Email
-        string SchoolID FK
-        string[] Subjects
-        string[] Preferences
-        string[] Availability
-        int Zone
-        int CreditHours
-        string Turnus
-        string Status
-    }
-    SCHOOL {
-        string SchoolID PK
-        string Name
-        string Address
-        int Zone
-        string Accessibility
-    }
-    INTERNSHIP_TYPE {
-        string InternshipTypeID PK
-        string Code
-        string FullName
-        string Timing
-        string Type
-        boolean SubjectSpecific
-    }
-    ALLOCATION {
-        string AllocationID PK
-        string TeacherID FK
-        string InternshipTypeID FK
-        string SchoolID FK
-        string Subject
-        string Semester
-        int AssignedHours
-        string Status
-    }
-    PLAN {
-        string PlanID PK
-        string Version
-        string Status
-        date CreatedAt
-        string CreatedBy
-    }
-    HISTORY {
-        string HistoryID PK
-        string PlanID FK
-        date Date
-        string ChangeLog
+    %% User Management
+    PERMISSION {
+        int id PK
+        string title
+        string description
+        date created_at
+        date updated_at
     }
 
-    TEACHER ||--o{ ALLOCATION: "supervises"
-    TEACHER }|..|{ SCHOOL: "assigned_to"
-    SCHOOL ||--o{ ALLOCATION: "hosts"
-    INTERNSHIP_TYPE ||--o{ ALLOCATION: "is_of_type"
-    PLAN ||--o{ ALLOCATION: "contains"
-    PLAN ||--o{ HISTORY: "has"
+    ROLE {
+        int id PK
+        string title
+        string description
+        date created_at
+        date updated_at
+    }
+
+    ROLE_PERMISSION {
+        int id PK
+        int role_id FK
+        int permission_id FK
+        string access_level
+        date created_at
+        date updated_at
+    }
+
+    USER {
+        int id PK
+        int role_id FK
+        string full_name
+        string email
+        string password
+        boolean is_active
+        date password_update_date
+        int login_attempt
+        date created_at
+        date updated_at
+    }
+
+    AUDIT_LOG {
+        int id PK
+        int user_id FK
+        date event_time
+        string action
+        string table_name
+        string record_id
+        string old_value
+        string new_value
+        date created_at
+        date updated_at
+    }
+
+    %% Base Data of System
+    ACADEMIC_YEAR {
+        int id PK
+        string year_name
+        int total_credit_hours
+        int elementary_school_hours
+        int middle_school_hours
+        date budget_announcement_date
+        date allocation_deadline
+        boolean is_locked
+        date created_at
+        date updated_at
+    }
+
+    SUBJECT_CATEGORY {
+        int id PK
+        string category_title
+        date created_at
+        data updated_at
+    }
+
+    SUBJECT {
+        int id PK
+        string subject_code
+        string subject_title
+        string subject_category_id FK
+        string school_type
+        boolean is_active
+        data created_at
+        data updated_at
+    }
+    
+    SCHOOL {
+        int id PK
+        string school_name
+        string school_type
+        int zone_number
+        string address
+        int latitude
+        int longtitude
+        float distance_from_center
+        string transport_accessibility
+        string contact_email
+        string contact_phone
+        boolean is_active
+        date created_at
+        data updated_at
+    }
+
+    TEACHER {
+        int id PK
+        int school_id FK
+        string first_name
+        string last_name
+        string email
+        string phone
+        boolean is_part_time
+        string employment_status
+        string usage_cycle
+        boolean is_active
+        date created_at
+        date updated_at
+    }
+
+    TEACHER_SUBJECT {
+        int id PK
+        int year_id FK
+        int teacher_id FK
+        int subject_id FK
+        string availability_status
+        int grade_level_from
+        int grade_level_to
+        string notes
+        date created_at
+        data updated_at
+    }
+
+    TEACHER_AVAILABILITY {
+        int availability_id PK
+        int teacher_id FK
+        int year_id FK
+        int internship_type_id FK
+        boolean is_available
+        int preference_rank
+        string notes
+    }
+
+    TEACHER_FORM_SUBMISSION {
+        int id PK
+        int teacher_id FK
+        int year_id FK
+        string form_token
+        date submitted_at
+        string submission_data
+        boolean is_processed
+    }
+
+    INTERNSHIP_TYPE {
+        int id PK
+        string internship_code
+        string full_name
+        string timing
+        string period_type
+        string semester
+        boolean is_subject_specific
+        int priority_order
+        date created_at
+        date updated_at
+    }
+
+    %% Allocation
+    INTERNSHIP_DEMAND {
+        int id PK
+        int year_id FK
+        int internship_type_id FK
+        string school_type
+        int subject_id FK
+        int required_teachers
+        int student_count
+        boolean is_forecasted
+        date last_updated
+    }
+
+    ALLOCATION_PLAN {
+        int id PK
+        int year_id FK
+        string plan_name
+        string plan_version
+        string status
+        int created_by_user_id
+        date created_at
+        date last_modified
+        boolean is_current
+        string notes
+    }
+
+    TEACHER_ASSIGNMENT {
+        int id PK
+        int plan_id FK
+        int teacher_id FK
+        int internship_type_id FK
+        int subject_id FK
+        int student_group_size
+        string assignment_status
+        boolean is_manual_override
+        string notes
+        date assigned_at
+    }
+
+    CREDIT_HOUR_TRACKING {
+        int id PK
+        int teacher_id FK
+        int year_id FK
+        int assignments_count
+        decimal credit_hours_allocated
+        decimal credit_balance
+        string notes
+    }
+
+    ZONE_CONSTRAINT {
+        int id PK
+        int zone_number
+        int internship_type_id FK
+        boolean is_allowed
+        string description
+    }
+    
+    PLAN_CHANGE_LOG {
+        int id PK
+        int plan_id FK
+        int user_id FK
+        string change_type
+        string entity_type
+        int entity_id
+        string old_value
+        string new_value
+        date timestamp
+        string reason
+    }
+
+    INTERNSHIP_COMBINATION_RULE {
+        int id PK
+        int internship_type_1_id FK
+        int internship_type_2_id FK
+        boolean is_valid_combination
+    }
+
+    %% Relationships
+    ROLE_PERMISSION ||--o{ ROLE : "has"
+    ROLE_PERMISSION ||--o{ PERMISSION: "has"
+
+    ROLE ||--o{ USER : "assigned"
+    USER ||--o{ AUDIT_LOG : "logs"
+    USER ||--o{ ALLOCATION_PLAN : "creates"
+    USER ||--o{ PLAN_CHANGE_LOG : "makes"
+
+    ACADEMIC_YEAR ||--o{ INTERNSHIP_DEMAND : "defines"
+    ACADEMIC_YEAR ||--o{ ALLOCATION_PLAN : "has"
+    ACADEMIC_YEAR ||--o{ TEACHER_AVAILABILITY : "specifies"
+    ACADEMIC_YEAR ||--o{ TEACHER_SUBJECT : "defines"
+    ACADEMIC_YEAR ||--o{ CREDIT_HOUR_TRACKING : "tracks"
+
+    SCHOOL ||--o{ TEACHER : "employs"
+    TEACHER ||--o{ TEACHER_SUBJECT : "teaches"
+    TEACHER ||--o{ TEACHER_AVAILABILITY : "specifies"
+    TEACHER ||--o{ TEACHER_ASSIGNMENT : "assigned_to"
+    TEACHER ||--o{ CREDIT_HOUR_TRACKING : "tracked_for"
+    TEACHER ||--o{ TEACHER_FORM_SUBMISSION : "submits"
+
+    SUBJECT_CATEGORY ||--o{ SUBJECT : "groups"
+    SUBJECT ||--o{ TEACHER_SUBJECT : "taught_by"
+    SUBJECT ||--o{ INTERNSHIP_DEMAND : "required_for"
+    SUBJECT ||--o{ TEACHER_ASSIGNMENT : "supervised_in"
+
+    INTERNSHIP_TYPE ||--o{ TEACHER_AVAILABILITY : "preferences"
+    INTERNSHIP_TYPE ||--o{ INTERNSHIP_DEMAND : "requires"
+    INTERNSHIP_TYPE ||--o{ TEACHER_ASSIGNMENT : "type_of"
+    INTERNSHIP_TYPE ||--o{ ZONE_CONSTRAINT : "constrained_by"
+    INTERNSHIP_TYPE ||--o{ INTERNSHIP_COMBINATION_RULE : "type_1"
+    INTERNSHIP_TYPE ||--o{ INTERNSHIP_COMBINATION_RULE : "type_2"
+
+    ALLOCATION_PLAN ||--o{ TEACHER_ASSIGNMENT : "contains"
+    ALLOCATION_PLAN ||--o{ PLAN_CHANGE_LOG : "logged_for"
