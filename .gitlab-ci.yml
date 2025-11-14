@@ -1,6 +1,6 @@
-include: 
-- template: Security/Dependency-Scanning.gitlab-ci.yml
-- template: Security/Secret-Detection.gitlab-ci.yml 
+include:
+  # - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
 
 stages:
   - build
@@ -8,10 +8,15 @@ stages:
 
 backend-build:
   stage: build
-  image: openjdk:17-ea-slim
+  # 21: eclipse-temurin:21-jdk-alpine-3.22
+  image: eclipse-temurin:17-jdk-alpine-3.22
+  cache:
+    key: gradle-cache
+    paths:
+      - AllocationSystemBackend/.gradle/ 
   script:
     - cd AllocationSystemBackend
-    - chmod +x gradlew
+    - chmod +x ./gradlew
     - ./gradlew build
   artifacts:
     paths:
@@ -19,21 +24,47 @@ backend-build:
   rules:
     - changes:
         - AllocationSystemBackend/**
+        - .gitlab-ci.yml
+        - Data/**
 
 backend-test:
   stage: test
-  image: openjdk:17-ea-slim
+  # 21: eclipse-temurin:21-jdk-alpine-3.22
+  image: eclipse-temurin:17-jdk-alpine-3.22
   script:
     - cd AllocationSystemBackend
-    - chmod +x gradlew
+    - chmod +x ./gradlew
     - ./gradlew test
   rules:
     - changes:
         - AllocationSystemBackend/**
+        - .gitlab-ci.yml
+        - Data/**
+
+backend-checkstyle:
+  stage: test
+  image: eclipse-temurin:17-jdk-alpine-3.22
+  script:
+    - cd AllocationSystemBackend
+    - chmod +x ./gradlew
+    - ./gradlew checkstyleMain
+  artifacts:
+    paths:
+      - AllocationSystemBackend/build/reports/checkstyle/
+  rules:
+    - changes:
+        - AllocationSystemBackend/**
+        - .gitlab-ci.yml
+        - Data/**
+        - AllocationSystemBackend/config/checkstyle/checkstyle.xml
 
 frontend-build:
   stage: build
-  image: node:20
+  image: node:20.19.5-slim
+  cache:
+    key: npm-cache
+    paths:
+      - AllocationSystemFrontend/node_modules/
   script:
     - cd AllocationSystemFrontend
     - npm ci
@@ -44,18 +75,22 @@ frontend-build:
   rules:
     - changes:
         - AllocationSystemFrontend/**
+        - .gitlab-ci.yml
+        - Data/**
 
 frontend-lint:
   stage: test
-  image: node:20
+  image: node:20.19.5-slim
   script:
     - cd AllocationSystemFrontend
     - npm ci
     - npm run lint
-    - npm test
+    - npm run vitest:run
   rules:
     - changes:
         - AllocationSystemFrontend/**
+        - .gitlab-ci.yml
+        - Data/**
 
 snyk_test:
   stage: test
@@ -77,10 +112,10 @@ snyk_test:
         - package-lock.json
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-# Check for accidentally commited secrets in diffs and default branch 
+# Check for accidentally commited secrets in diffs and default branch
 
 secret_detection:
-  stage: test 
-  rules: 
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

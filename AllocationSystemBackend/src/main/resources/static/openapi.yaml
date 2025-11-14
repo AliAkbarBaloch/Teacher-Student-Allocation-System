@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: Allocation System API
+  version: 0.1.0
+  description: "Initial REST API contract for the Allocation System (draft). Contains a few dummy endpoints for testing."
+servers:
+  - url: /
+paths:
+  /api/v1/allocations:
+    get:
+      summary: List allocations
+      operationId: listAllocations
+      tags:
+        - allocations
+      responses:
+        "200":
+          description: A list of allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Allocation"
+    post:
+      summary: Create allocation (dummy)
+      operationId: createAllocation
+      tags:
+        - allocations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AllocationCreateRequest"
+      responses:
+        "201":
+          description: Created allocation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Allocation"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/students/{studentId}:
+    get:
+      summary: Get student by id (dummy)
+      operationId: getStudent
+      tags:
+        - students
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/rooms:
+    get:
+      summary: List rooms (dummy)
+      operationId: listRooms
+      tags:
+        - rooms
+      responses:
+        "200":
+          description: A list of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+
+components:
+  schemas:
+    Allocation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: alloc-1
+        studentId:
+          type: string
+          example: stu-123
+        roomId:
+          type: string
+          example: room-A
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-11-08T12:00:00Z"
+
+    AllocationCreateRequest:
+      type: object
+      required: [studentId, roomId]
+      properties:
+        studentId:
+          type: string
+          example: stu-123
+        roomId:
+          type: string
+          example: room-A
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          example: stu-123
+        name:
+          type: string
+          example: Alice Example
+        email:
+          type: string
+          format: email
+          example: alice@example.edu
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          example: room-A
+        capacity:
+          type: integer
+          example: 2
+        features:
+          type: array
+          items:
+            type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: INVALID_INPUT
+        message:
+          type: string
+          example: "Validation failed: roomId is required"
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  securitySchemes: {}
+
+tags:
+  - name: allocations
+    description: Operations about allocations
+  - name: students
+    description: Student-related operations
+  - name: rooms
+    description: Room-related operations
