@@ -1,7 +1,6 @@
 import {useTranslation} from "react-i18next"; // import translation hook
 
 function App() {
-
   // call the hook 
   const {t} = useTranslation();
 
