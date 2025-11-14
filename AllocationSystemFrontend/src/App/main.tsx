@@ -1,4 +1,4 @@
-import 'src/i18n'; // run i18n setup (index.ts) once at startup
+import '../i18n'; // run i18n setup (index.ts) once at startup
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
