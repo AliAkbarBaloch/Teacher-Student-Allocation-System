@@ -17,24 +17,26 @@ export const resources = {
 // Confiure i18next 
 
 i18n
-.use(LanguageDetector)
-.use(initReactI18next)
+.use(LanguageDetector) // use browser language detector 
+.use(initReactI18next) // plug i18n into React 
 
 // Call init with options 
 .init(
     {
-        resources,
-        fallbackLng: "en",
+        resources, // all translations we just defined
+        fallbackLng: "en", // if language detection fails, use english
         supportedLngs: ["en", "de"],
-        defaultNS: "common",
-        ns: ["common"],
-        detection:{
+        defaultNS: "common", // default namespace 
+        ns: ["common"], // list of namespaces we use 
+        detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",
-            caches: ["localStorage"]
+            caches: ["localStorage"] // remember chosen lanauge in localStorage 
         },
-        interpolation: {escapeValue: false},
-        returnNull:false
+        interpolation: { // how to handle value replacement 
+        escapeValue: false // React already escapes values, so no double escaping 
+        }, 
+        returnNull:false // if a key is missing, show the key instead of null
     }
 );
 
