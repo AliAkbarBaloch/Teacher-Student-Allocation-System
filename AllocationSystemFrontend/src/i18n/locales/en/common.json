@@ -1,5 +1,7 @@
 {
     "app": {
-        "title":"Welcome to the Allocation System"
+        "title":"Hello world!",
+        "name":"Allocation System",
+        "tagline":"Move fast, break things"
     }
 }

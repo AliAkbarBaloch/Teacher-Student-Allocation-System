@@ -1,5 +1,7 @@
 {
     "app":{
-        "title": "Willkommen im Zuteilungssystem"
+        "title": "Hallo Welt",
+        "name": "Allocation System",
+        "tagline": "Zack zack"
     }
 }
