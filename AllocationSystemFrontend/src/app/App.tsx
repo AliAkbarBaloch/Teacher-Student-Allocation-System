@@ -1,18 +1,16 @@
-import { Outlet } from "react-router-dom";
-import Header from "@/components/layout/Header";
+import {useTranslation} from "react-i18next"; // import translation hook
 
-import Footer from "@/components/layout/Footer";
+function App() {
+  // call the hook 
+  const {t} = useTranslation();
 
-export default function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <div className="flex flex-1">
-        <main className="flex-1 p-4">
-          <Outlet />
-        </main>
-      </div>
-      <Footer />
-    </div>
+    <>
+      <h1 className="text-3xl min-h-screen flex items-center justify-center font-bold underline">
+        {t('app.title')}
+      </h1>
+    </>
   );
 }
+
+export default App

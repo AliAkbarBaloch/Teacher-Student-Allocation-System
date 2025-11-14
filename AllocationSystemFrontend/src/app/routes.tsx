@@ -12,7 +12,7 @@ const withSuspense = (node: React.ReactNode) => (
 
 export const router = createBrowserRouter([
   {
-    path: ROUTES.main.home,
+    path: ROUTES.main.home, 
     element: <App />,
     children: [
       { index: true, element: withSuspense(<HomePage />) },
