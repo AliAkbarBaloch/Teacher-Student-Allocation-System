@@ -27,10 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { ColumnConfig, DataTableActions, FieldType } from "@/types/datatable.types";
 
-interface DataTableDialogProps<TData, TValue> {
+interface DataTableDialogProps<TData> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedRow: TData | null;
@@ -38,7 +37,6 @@ interface DataTableDialogProps<TData, TValue> {
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
   setEditingRow: React.Dispatch<React.SetStateAction<Partial<TData>>>;
-  columns?: ColumnDef<TData, TValue>[];
   columnConfig?: ColumnConfig[];
   actions?: DataTableActions<TData>;
   onSave: () => Promise<void>;
@@ -50,7 +48,7 @@ interface DataTableDialogProps<TData, TValue> {
   isSaving?: boolean;
 }
 
-export function DataTableDialog<TData, TValue>({
+export function DataTableDialog<TData>({
   open,
   onOpenChange,
   selectedRow,
@@ -58,7 +56,6 @@ export function DataTableDialog<TData, TValue>({
   isEditing,
   setIsEditing,
   setEditingRow,
-  columns,
   columnConfig,
   actions,
   onSave,
@@ -68,7 +65,7 @@ export function DataTableDialog<TData, TValue>({
   onConfirmDelete,
   validationError,
   isSaving = false,
-}: DataTableDialogProps<TData, TValue>) {
+}: DataTableDialogProps<TData>) {
   const renderField = (
     field: string,
     value: unknown,
@@ -226,8 +223,6 @@ export function DataTableDialog<TData, TValue>({
     }
   };
 
-  if (!actions || !selectedRow) return null;
-
   // Prevent main dialog from closing when delete dialog is open
   const handleMainDialogChange = React.useCallback((isOpen: boolean) => {
     if (!isOpen && deleteDialogOpen) {
@@ -236,6 +231,8 @@ export function DataTableDialog<TData, TValue>({
     }
     onOpenChange(isOpen);
   }, [deleteDialogOpen, onOpenChange]);
+
+  if (!actions || !selectedRow) return null;
 
   return (
     <>

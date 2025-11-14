@@ -21,7 +21,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -317,8 +316,6 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               {actions.onView && (
                 <DropdownMenuItem
                   onClick={(e) => {
@@ -518,7 +515,6 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           setEditingRow={setEditingRow}
-          columns={columns}
           columnConfig={columnConfig}
           actions={actions}
           onSave={handleSave}
