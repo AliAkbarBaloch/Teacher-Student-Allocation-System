@@ -1,4 +1,5 @@
-import { DataTable, type ColumnConfig } from "@/components/common/DataTable";;
+import { useTranslation } from "react-i18next";
+import { DataTable, type ColumnConfig } from "@/components/common/DataTable";
 
 
 // Example: Define your data
@@ -87,25 +88,27 @@ const columns: ColumnConfig[] = [
 ];
 
 export default function HomePage() {
+  const { t } = useTranslation("common");
 
   const handleEdit = () => {
     console.log("Edit permission:");
     // Add edit logic here
   };
 
-  const handleDelete = (row: typeof data[0]) => {
+  const handleDelete = (row: (typeof data)[0]) => {
     console.log("Delete permission:", row);
     // Add your delete logic here
   };
 
-  const handleUpdate = async (row: typeof data[0]) => {
+  const handleUpdate = async (row: (typeof data)[0]) => {
     console.log("Update permission:", row);
     // Add your update logic here
     // await updateRecord(row);
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
+      <h1 className="text-2xl font-bold mb-6">{t("app.title")}</h1>
       <DataTable
         columnConfig={columns}
         data={data}
