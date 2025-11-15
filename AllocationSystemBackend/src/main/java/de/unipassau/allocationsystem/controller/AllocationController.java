@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/allocations")
+@RequestMapping("/v1/allocations")
 public class AllocationController {
 
     private final List<AllocationDto> memory = new ArrayList<>();
