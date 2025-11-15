@@ -100,7 +100,7 @@ public class UserService {
         log.info("Deleting user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         // Capture user state before deletion
         Map<String, Object> previousValue = new HashMap<>();
@@ -343,7 +343,7 @@ public class UserService {
      * Reset user password (admin function).
      */
     @Transactional
-    public void resetUserPassword(Long userId, PasswordResetDto dto) {
+    public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
         log.info("Admin resetting password for user: {}", userId);
 
         User user = userRepository.findById(userId)
@@ -351,13 +351,15 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         auditLogService.logAction(
             AuditAction.PASSWORD_CHANGE,
             "User",
             "Admin reset password for user: " + userId
         );
+        
+        return mapToResponseDto(savedUser);
     }
 
     /**
