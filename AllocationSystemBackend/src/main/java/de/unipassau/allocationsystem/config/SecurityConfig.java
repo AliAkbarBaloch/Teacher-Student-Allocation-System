@@ -45,7 +45,7 @@ import java.util.List;
  * The configuration ensures robust security for RESTful endpoints, while maintaining flexibility for public routes and development tools.
 */
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 //@EnableMethodSecurity
 //@RequiredArgsConstructor
 public class SecurityConfig {
@@ -114,7 +114,9 @@ public class SecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
                     .csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/api/**").permitAll()
+                            .anyRequest().permitAll())
                     .formLogin(form -> form.disable())
                     .httpBasic(basic -> basic.disable());
             return http.build();

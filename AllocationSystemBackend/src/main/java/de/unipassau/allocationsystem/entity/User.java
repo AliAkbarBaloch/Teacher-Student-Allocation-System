@@ -46,6 +46,29 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "account_locked")
+    private boolean accountLocked = false;
+
+    @Column(name = "failed_login_attempts")
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "last_login_date")
+    private LocalDateTime lastLoginDate;
+
+    @Column(name = "last_password_reset_date")
+    private LocalDateTime lastPasswordResetDate;
+
+    @Column(name = "account_status")
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -76,7 +99,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !accountLocked;
     }
 
     @Override
@@ -86,11 +109,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
-    }
-
-    public enum Role {
-        USER, ADMIN
+        return enabled && !accountLocked && accountStatus == AccountStatus.ACTIVE;
     }
 
     @Override
@@ -98,5 +117,11 @@ public class User implements UserDetails {
         return email;
     }
 
+    public enum UserRole {
+        USER, ADMIN, MODERATOR
+    }
 
+    public enum AccountStatus {
+        ACTIVE, INACTIVE, SUSPENDED, PENDING_VERIFICATION
+    }
 }
