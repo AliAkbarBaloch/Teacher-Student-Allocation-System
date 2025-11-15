@@ -1,8 +1,15 @@
-# Internship Allocation System
+# Internship Allocation System – Frontend
 
-## Frontend Architecture
+## 📌 Overview
 
-The frontend follows a feature-based, domain-driven architecture with clear separation of concerns:
+This frontend is built with **React**, **TypeScript**, and **Vite**, following a modern, scalable, and maintainable architecture.  
+It uses **feature-based organization**, **clean separation of concerns**, and includes a fully configured **testing setup** using **Vitest** and **React Testing Library**.
+
+---
+
+# 🏗️ Frontend Architecture
+
+The project follows a domain-driven, feature-based structure:
 
 ```
 src/
@@ -10,196 +17,233 @@ src/
 ├── app/                          # Root application setup
 │   ├── App.tsx
 │   ├── main.tsx
-│   └── routes.tsx                # Central route definitions
+│   └── routes.tsx
 │
 ├── components/                   # Reusable and shared components
-│   ├── ui/                       # UI components (buttons, inputs, modals, etc.)
-│   │   ├── Button/
-│   │   │   ├── Button.tsx
-│   │   │   ├── Button.test.tsx
-│   │   │   └── index.ts
-│   │   └── Input/
-│   ├── layout/                   # Layout components
-│   │   ├── Header.tsx
-│   │   ├── Footer.tsx
-│   │   └── Sidebar.tsx
-│   └── common/                   # Other shared components (not part of UI library)
-│       ├── ThemeToggle.tsx
-│       ├── LanguageSwitcher.tsx
-│       └── Loader.tsx
+│   ├── ui/                       # UI elements
+│   ├── layout/                   # Header, Footer, Layout components
+│   └── common/                   # Shared utilities like Loader, ThemeToggle
 │
 ├── features/                     # Domain-driven feature modules
 │   ├── auth/
-│   │   ├── components/
-│   │   │   ├── LoginForm.tsx
-│   │   │   └── RegisterForm.tsx
-│   │   ├── hooks/
-│   │   │   └── useAuth.ts
-│   │   ├── services/
-│   │   │   └── authService.ts
-│   │   ├── types/
-│   │   │   └── auth.types.ts
-│   │   └── index.ts
 │   └── products/
-│       ├── components/
-│       │   └── ProductCard.tsx
-│       ├── hooks/
-│       │   └── useProducts.ts
-│       ├── services/
-│       │   └── productService.ts
-│       └── types/
-│           └── product.types.ts
 │
-├── hooks/                        # Global custom hooks (non-feature specific)
-│   ├── useTheme.ts
-│   ├── useMediaQuery.ts
-│   └── useLocalStorage.ts
+├── hooks/                        # Global reusable hooks
 │
-├── lib/                          # Library setup, utilities, and global helpers
-│   ├── i18n/                     # Multi-language setup
-│   │   ├── index.ts
-│   │   ├── locales/
-│   │   │   ├── de/translation.json
-│   │   │   └── en/translation.json
-│   ├── theme/                    # Theme handling (light/dark)
-│   │   ├── index.ts
-│   │   └── useThemeMode.ts
-│   ├── axios.ts                  # Configured Axios instance
-│   └── utils.ts                  # Global utility functions
+├── lib/                          # Setup libraries (i18n, axios, utils)
 │
 ├── providers/                    # React context providers
-│   ├── ThemeProvider.tsx
-│   ├── AuthProvider.tsx
-│   └── I18nProvider.tsx
 │
-├── pages/                        # Page-level route components
-│   ├── home/
-│   │   ├── HomePage.tsx
-│   │   └── HomePage.test.tsx
-│   ├── profile/
-│   │   └── ProfilePage.tsx
-│   └── settings/
-│       └── SettingsPage.tsx
+├── pages/                        # Route-level pages
 │
-├── store/                        # State management (Zustand, Redux, or Context)
-│   ├── slices/
-│   │   ├── userSlice.ts
-│   │   └── appSlice.ts
-│   └── index.ts
+├── store/                        # Zustand / global state
 │
-├── types/                        # Shared TypeScript type definitions
-│   ├── user.types.ts
-│   ├── api.types.ts
-│   └── common.types.ts
+├── types/                        # Shared TypeScript types
 │
+├── assets/                       # Images, fonts, icons
 │
-├── assets/                       # Static assets
-│   ├── images/
-│   ├── icons/
-│   └── fonts/
-│
-├── tests/                        # Integration and e2e test setup
-│   ├── setup.ts
-│   └── mocks/
-│
-└── config/                       # App configuration files (env, constants, etc.)
-    ├── env.ts
-    ├── constants.ts
-    └── routes.ts
+└── config/                       # Environment, constants, route config
 ```
 
-### Architecture Principles
+### 🧭 Architecture Principles
 
-- **Feature-based organization**: Each feature module is self-contained with its own components, hooks, services, and types
-- **Separation of concerns**: Clear boundaries between UI components, business logic, and data fetching
-- **Reusability**: Shared components and utilities are organized in dedicated directories
-- **Type safety**: TypeScript types are defined at feature and global levels
-- **Scalability**: Structure supports growth and easy addition of new features
+- **Feature-based organization**
+- **Strong separation of concerns**
+- **Reusable UI components**
+- **Type safety with TypeScript**
+- **Scalability-first folder structure**
 
-## Dependencies
+---
+
+# 📦 Dependencies
 
 ### Core
-- **React** 19.1.1 - UI library
-- **TypeScript** 5.9.3 - Type safety
-- **Vite** 7.1.7 - Build tool and dev server
+- **React 19**
+- **TypeScript**
+- **Vite**
 
 ### Styling
-- **Tailwind CSS** 4.1.17 - Utility-first CSS framework
-- **tailwind-merge** - Tailwind class merging utility
-- **clsx** - Conditional class names
-
-### UI Components
-- **lucide-react** - Icon library
+- **Tailwind CSS**
+- **clsx**, **tailwind-merge**
+- **lucide-react** icons
 
 ### Development Tools
-- **ESLint** - Code linting
-- **TypeScript ESLint** - TypeScript-specific linting rules
+- **ESLint** + TypeScript ESLint
+- **Vitest + React Testing Library**
+- **jsdom** for browser-like environment
 
-## Getting Started
+---
 
-### Prerequisites
+# 🚀 Getting Started
 
-- Node.js (v18 or higher recommended)
-- npm or yarn package manager
+### 1️⃣ Navigate to frontend directory
 
-### Installation
-
-1. Navigate to the frontend directory:
 ```bash
 cd AllocationSystemFrontend
 ```
 
-2. Install dependencies:
+### 2️⃣ Install dependencies
+
 ```bash
 npm install
 ```
 
-## Development
-
-### Run Development Server
-
-Start the development server with hot module replacement:
+### 3️⃣ Run development server
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (or the next available port).
+App runs at:
 
-### Build for Production
+```
+http://localhost:5173
+```
 
-Build the application for production:
+---
+
+# 🏗️ Build for Production
 
 ```bash
 npm run build
 ```
 
-This command:
-1. Type-checks the code using TypeScript (`tsc -b`)
-2. Builds optimized production bundles using Vite
+Outputs to:
 
-The output will be in the `dist/` directory.
+```
+dist/
+```
 
-### Preview Production Build
-
-Preview the production build locally:
+Preview production build:
 
 ```bash
 npm run preview
 ```
 
-This serves the production build from the `dist/` directory.
+---
 
-### Lint Code
+# 🧹 Linting
 
-Run ESLint to check for code quality issues:
+Run lint:
 
 ```bash
 npm run lint
 ```
 
-To automatically fix linting issues (if supported by your ESLint configuration):
+Auto-fix:
 
 ```bash
 npm run lint -- --fix
 ```
+
+---
+
+# 🧪 Frontend Testing
+
+The project uses:
+
+| Tool | Purpose |
+|------|---------|
+| **Vitest** | Test runner & assertion library |
+| **React Testing Library** | Rendering + interaction |
+| **@testing-library/jest-dom** | Extra DOM matchers |
+| **jsdom** | Browser-like environment |
+
+---
+
+# ⚙️ Test Configuration
+
+### `vitest.config.ts`
+
+Includes:
+- `environment: "jsdom"` — enables DOM APIs
+- `globals: true` — allows `describe`, `it`, `expect` globally
+- `setupFiles: "./src/setupTests.ts"` — global setup
+- Alias support for `"@"` → `src/`
+
+### `src/setupTests.ts`
+
+```ts
+import "@testing-library/jest-dom/vitest";
+```
+
+Provides matchers like:
+- `toBeInTheDocument()`
+- `toHaveTextContent()`
+- `toBeVisible()`
+
+---
+
+# 📁 Test File Structure
+
+Tests live **next to the components they test**:
+
+Patterns:
+```
+src/**/*.test.ts
+src/**/*.test.tsx
+```
+
+Examples:
+```
+src/app/App.test.tsx
+src/components/ui/Button/Button.test.tsx
+src/pages/home/HomePage.test.tsx
+```
+
+---
+
+# 🧪 Example Test (App Component)
+
+```tsx
+import { render, screen } from "@testing-library/react";
+import App from "./App";
+
+vi.mock("@/components/layout/MainLayout", () => ({
+  default: () => <div>Main Layout Rendered</div>,
+}));
+
+describe("App", () => {
+  it("renders the main layout", () => {
+    render(<App />);
+    expect(screen.getByText(/main layout rendered/i)).toBeInTheDocument();
+  });
+});
+```
+
+This verifies that `<App />` correctly renders layout.
+
+---
+
+# ▶️ Running Tests
+
+### Watch mode
+
+```bash
+npm test
+```
+
+### Single run (CI/CD)
+
+```bash
+npm run vitest:run
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+---
+
+# ✅ Summary
+
+This README includes:
+- Full architecture overview  
+- Setup instructions  
+- Testing configuration  
+- Example test  
+- Development workflow  
+
+
