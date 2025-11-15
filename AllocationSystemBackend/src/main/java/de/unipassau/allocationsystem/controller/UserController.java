@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * All endpoints require ADMIN role.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -138,13 +138,13 @@ public class UserController {
      */
     @PostMapping("/{id}/reset-password")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> resetPassword(
+    public ResponseEntity<UserResponseDto> resetPassword(
             @PathVariable Long id,
             @Valid @RequestBody PasswordResetDto dto
     ) {
         log.info("Resetting password for user: {}", id);
-        userService.resetUserPassword(id, dto);
-        return ResponseEntity.ok().build();
+        UserResponseDto user = userService.resetUserPassword(id, dto);
+        return ResponseEntity.ok(user);
     }
 
     /**

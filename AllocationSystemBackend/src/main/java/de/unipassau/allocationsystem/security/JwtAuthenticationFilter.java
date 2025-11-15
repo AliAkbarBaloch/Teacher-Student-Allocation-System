@@ -2,7 +2,7 @@ package de.unipassau.allocationsystem.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.service.CustomUserDetailsService;
-import de.unipassau.allocationsystem.utils.JWTUtil;
+import de.unipassau.allocationsystem.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,7 +46,7 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final int BEARER_PREFIX_LENGTH = 7;
 
-    private final JWTUtil jwtUtil;
+    private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
     @Override
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String username;
 
         try {
-            username = jwtUtil.extractUsername(jwt);
+            username = jwtService.extractUsername(jwt);
         } catch (JwtException e) {
             sendErrorResponse(response, "Invalid JWT token: " + e.getMessage());
             return;
@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
+            if (jwtService.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -91,7 +91,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/auth/");
+        // Skip JWT filter for public auth endpoints only (login, forgot-password, reset-password)
+        // But NOT for protected endpoints like profile, logout, change-password
+        return path.equals("/api/auth/login") || 
+               path.equals("/api/auth/forgot-password") || 
+               path.equals("/api/auth/reset-password");
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
@@ -99,7 +103,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         Map<String, Object> errorDetails = new HashMap<>();
-        errorDetails.put("success", false);
+        errorDetails.put("error", "Unauthorized");
         errorDetails.put("message", message);
 
         new ObjectMapper().writeValue(response.getWriter(), errorDetails);

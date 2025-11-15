@@ -19,7 +19,7 @@ backend-build:
   cache:
     key: gradle-cache
     paths:
-      - AllocationSystemBackend/.gradle/ 
+      - AllocationSystemBackend/.gradle/
   script:
     - cd AllocationSystemBackend
     - chmod +x ./gradlew

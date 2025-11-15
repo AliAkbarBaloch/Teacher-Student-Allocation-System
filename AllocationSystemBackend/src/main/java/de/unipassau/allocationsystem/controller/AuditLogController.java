@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * Access restricted to admin users only.
  */
 @RestController
-@RequestMapping("/api/audit-logs")
+@RequestMapping("/audit-logs")
 @RequiredArgsConstructor
 @Tag(name = "Audit Logs", description = "Audit log management and reporting APIs")
 @SecurityRequirement(name = "bearerAuth")
