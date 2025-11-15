@@ -110,15 +110,30 @@ public class SecurityConfig {
 //        return http.build();
 //    }
 
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http
-                    .csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/**").permitAll()
-                            .anyRequest().permitAll())
-                    .formLogin(form -> form.disable())
-                    .httpBasic(basic -> basic.disable());
-            return http.build();
-        }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // Swagger UI and API documentation endpoints
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+                        // H2 Console (if needed)
+                        .requestMatchers("/h2-console/**").permitAll()
+                        // Your existing API endpoints
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().permitAll())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .headers(headers -> headers
+                        .frameOptions().sameOrigin()); // For H2 Console if needed
+
+        return http.build();
+    }
 }
