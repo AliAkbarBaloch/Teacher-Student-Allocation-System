@@ -29,7 +29,7 @@ public class AcademicYear {
     private Integer totalCreditHours;
 
     @NotBlank(message = "Elementary School Hours is required")
-    @Column(name = "middle_school_hours", nullable = false)
+    @Column(name = "elementary_school_hours", nullable = false)
     private Integer elementarySchoolHours;
 
     @NotBlank(message = "Middle School Hours is required")
