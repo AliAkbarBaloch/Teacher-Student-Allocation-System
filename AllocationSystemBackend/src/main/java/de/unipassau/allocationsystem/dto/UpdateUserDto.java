@@ -2,7 +2,6 @@ package de.unipassau.allocationsystem.dto;
 
 import de.unipassau.allocationsystem.entity.User;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
