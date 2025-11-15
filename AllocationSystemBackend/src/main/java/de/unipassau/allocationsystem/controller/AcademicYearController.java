@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.mapper.AcademicYearMapper;
 import de.unipassau.allocationsystem.service.AcademicYearService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/academic-years")
 @RequiredArgsConstructor
+@Tag(name = "AcademicYears", description = "Academic Year management APIs")
 public class AcademicYearController {
 
     private final AcademicYearService academicYearService;

@@ -31,7 +31,7 @@ public class SwaggerConfig {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8080/api")
+                                .url("http://localhost:8080/")
                                 .description("Development Server - API")))
                 .components(new Components()
                         .addSecuritySchemes("bearer-jwt", new SecurityScheme()

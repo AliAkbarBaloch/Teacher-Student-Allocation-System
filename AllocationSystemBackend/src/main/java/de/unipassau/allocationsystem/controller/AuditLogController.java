@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/audit-logs")
 @RequiredArgsConstructor
-@Tag(name = "Audit Logs", description = "Audit log management and reporting APIs")
+@Tag(name = "AuditLogs", description = "Audit log management and reporting APIs")
 @SecurityRequirement(name = "bearerAuth")
 public class AuditLogController {
 
