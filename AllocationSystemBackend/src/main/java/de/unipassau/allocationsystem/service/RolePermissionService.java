@@ -1,0 +1,126 @@
+package de.unipassau.allocationsystem.service;
+
+
+import de.unipassau.allocationsystem.entity.RolePermission;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.repository.RolePermissionRepository;
+import de.unipassau.allocationsystem.utils.PaginationUtils;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class RolePermissionService {
+
+    private final RolePermissionRepository rolePermissionRepository;
+
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "role.title", "label", "Role"));
+        fields.add(Map.of("key", "permission.title", "label", "Permission"));
+        fields.add(Map.of("key", "accessLevel", "label", "Access Level"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
+
+    private Specification<RolePermission> buildSearchSpecification(String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+
+        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
+        return (root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("role").get("title")), likePattern),
+                cb.like(cb.lower(root.get("permission").get("title")), likePattern),
+                cb.like(cb.lower(root.get("accessLevel")), likePattern)
+        );
+    }
+
+    @Transactional
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+
+        Specification<RolePermission> spec = buildSearchSpecification(searchValue);
+        Page<RolePermission> page = rolePermissionRepository.findAll(spec, pageable);
+
+        return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    public List<RolePermission> getAll() {
+        return rolePermissionRepository.findAll();
+    }
+
+    public Optional<RolePermission> getById(Long id) {
+        return rolePermissionRepository.findById(id);
+    }
+
+    public List<RolePermission> getByRoleId(Long roleId) {
+        return rolePermissionRepository.findByRoleId(roleId);
+    }
+
+    public List<RolePermission> getByPermissionId(Long permissionId) {
+        return rolePermissionRepository.findByPermissionId(permissionId);
+    }
+
+    @Transactional
+    public RolePermission create(RolePermission rolePermission) {
+        if (rolePermissionRepository.findByRoleIdAndPermissionId(
+                rolePermission.getRole().getId(),
+                rolePermission.getPermission().getId()).isPresent()) {
+            throw new DuplicateResourceException("Role permission mapping already exists");
+        }
+        return rolePermissionRepository.save(rolePermission);
+    }
+
+    @Transactional
+    public RolePermission update(Long id, RolePermission data) {
+        RolePermission existing = rolePermissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role permission not found with id: " + id));
+
+        if (data.getRole() != null && data.getPermission() != null) {
+            if (!existing.getRole().getId().equals(data.getRole().getId()) ||
+                    !existing.getPermission().getId().equals(data.getPermission().getId())) {
+
+                Optional<RolePermission> duplicate = rolePermissionRepository.findByRoleIdAndPermissionId(
+                        data.getRole().getId(),
+                        data.getPermission().getId());
+
+                if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
+                    throw new DuplicateResourceException("Role permission mapping already exists");
+                }
+                existing.setRole(data.getRole());
+                existing.setPermission(data.getPermission());
+            }
+        }
+
+        if (data.getAccessLevel() != null) {
+            existing.setAccessLevel(data.getAccessLevel());
+        }
+
+        return rolePermissionRepository.save(existing);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!rolePermissionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Role permission not found with id: " + id);
+        }
+        rolePermissionRepository.deleteById(id);
+    }
+}
