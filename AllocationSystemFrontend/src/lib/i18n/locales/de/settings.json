@@ -1,0 +1,77 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen",
+  "sidebar": {
+    "profile": "Profil",
+    "password": "Passwort",
+    "admin": "Administration"
+  },
+  "profile": {
+    "title": "Profilinformationen",
+    "subtitle": "Aktualisieren Sie Ihre persönlichen Informationen",
+    "avatarHint": "Klicken Sie auf das Kamera-Symbol, um Ihr Profilbild zu ändern",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+    "email": "E-Mail",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+    "fullNameRequired": "Vollständiger Name ist erforderlich",
+    "emailRequired": "E-Mail ist erforderlich",
+    "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "emailExists": "Diese E-Mail wird bereits verwendet",
+    "updateButton": "Profil aktualisieren",
+    "updating": "Aktualisiere...",
+    "updateSuccess": "Profil erfolgreich aktualisiert",
+    "avatarSelected": "Avatar \"{{fileName}}\" erfolgreich ausgewählt!",
+    "avatarSelectedGeneric": "Avatar erfolgreich ausgewählt!",
+    "noChanges": "Keine Änderungen zum Speichern",
+    "avatarError": {
+      "invalidFileType": "Bitte wählen Sie eine Bilddatei aus",
+      "fileTooLarge": "Die Bildgröße muss weniger als 5MB betragen"
+    }
+  },
+  "password": {
+    "title": "Passwort ändern",
+    "subtitle": "Aktualisieren Sie Ihr Passwort, um Ihr Konto sicher zu halten",
+    "oldPassword": "Altes Passwort",
+    "oldPasswordPlaceholder": "Geben Sie Ihr aktuelles Passwort ein",
+    "newPassword": "Neues Passwort",
+    "newPasswordPlaceholder": "Geben Sie Ihr neues Passwort ein",
+    "confirmPassword": "Neues Passwort bestätigen",
+    "confirmPasswordPlaceholder": "Bestätigen Sie Ihr neues Passwort",
+    "oldPasswordRequired": "Altes Passwort ist erforderlich",
+    "newPasswordRequired": "Neues Passwort ist erforderlich",
+    "confirmPasswordRequired": "Bitte bestätigen Sie Ihr neues Passwort",
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+    "incorrectOldPassword": "Falsches altes Passwort",
+    "passwordTooWeak": "Passwort ist zu schwach. Bitte erfüllen Sie die Anforderungen unten.",
+    "passwordSameAsOld": "Das neue Passwort muss sich von Ihrem aktuellen Passwort unterscheiden",
+    "passwordStrength": "Passwortstärke:",
+    "changeButton": "Passwort ändern",
+    "changing": "Ändere...",
+    "changeSuccess": "Passwort erfolgreich geändert",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort ausblenden",
+    "strength": {
+      "weak": "Schwach",
+      "fair": "Ausreichend",
+      "good": "Gut",
+      "strong": "Stark",
+      "minLength": "Mindestens 8 Zeichen",
+      "hasUppercase": "Ein Großbuchstabe",
+      "hasLowercase": "Ein Kleinbuchstabe",
+      "hasNumber": "Eine Zahl",
+      "hasSpecial": "Ein Sonderzeichen"
+    }
+  },
+  "admin": {
+    "title": "Benutzerverwaltung",
+    "subtitle": "Benutzer und Berechtigungen verwalten",
+    "viewUsers": "Alle Benutzer anzeigen",
+    "createUser": "Neuen Benutzer erstellen",
+    "editUser": "Benutzer bearbeiten",
+    "users": "Benutzer",
+    "roles": "Rollen",
+    "permissions": "Berechtigungen"
+  }
+}
+

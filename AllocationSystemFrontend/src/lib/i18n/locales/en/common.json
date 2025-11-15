@@ -1,0 +1,35 @@
+{
+    "app": {
+        "title":"Internship Allocation System",
+        "name":"Allocation System",
+        "tagline":"Streamline internship allocation and management",
+        "description": "Efficiently match students with internship opportunities and track allocations across schools and programs"
+    },
+    "languages": {
+        "en": "English",
+        "de": "German"
+    },
+    "navigation": {
+        "home": "Home",
+        "schools": "Schools",
+        "teachersPools": "Teachers Pools",
+        "teacherManagement": "Teacher Management",
+        "budget": "Budget",
+        "subjects": "Subjects",
+        "internships": "Internships",
+        "allocation": "Allocation",
+        "reports": "Reports",
+        "archives": "Archives"
+    },
+    "userMenu": {
+        "settings": "Settings",
+        "logout": "Logout",
+        "profile": "Profile"
+    },
+    "footer": {
+        "copyright": "Copyright ©",
+        "university": "Universität Passau",
+        "privacyPolicy": "Privacy Policy"
+    }
+}
+

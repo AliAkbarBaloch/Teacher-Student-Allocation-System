@@ -4,17 +4,48 @@ import LanguageDetector from "i18next-browser-languagedetector"; // adds auto la
 
 // Load translation files 
 import enCommon from "./locales/en/common.json";
+import enAuth from "./locales/en/auth.json";
+import enHome from "./locales/en/home.json";
+import enSettings from "./locales/en/settings.json";
 
 import deCommon from "./locales/de/common.json";
+import deAuth from "./locales/de/auth.json";
+import deHome from "./locales/de/home.json";
+import deSettings from "./locales/de/settings.json";
 
-// Build the resourse object 
+// Language metadata configuration
+export const languages = [
+    {
+        code: "en",
+        flag: "🇬🇧",
+    },
+    {
+        code: "de",
+        flag: "🇩🇪",
+    },
+] as const;
+
+// Build the resource object 
 
 export const resources = {
-    en: {common: enCommon},
-    de: {common: deCommon}
+    en: {
+        common: enCommon,
+        auth: enAuth,
+        home: enHome,
+        settings: enSettings,
+    },
+    de: {
+        common: deCommon,
+        auth: deAuth,
+        home: deHome,
+        settings: deSettings,
+    }
 } as const;
 
-// Confiure i18next 
+// Supported language codes
+export const supportedLanguages = languages.map((lang) => lang.code);
+
+// Configure i18next 
 
 i18n
 .use(LanguageDetector) // use browser language detector 
@@ -25,13 +56,13 @@ i18n
     {
         resources, // all translations we just defined
         fallbackLng: "en", // if language detection fails, use english
-        supportedLngs: ["en", "de"],
+        supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",
-            caches: ["localStorage"] // remember chosen lanauge in localStorage 
+            caches: ["localStorage"] // remember chosen language in localStorage 
         },
         interpolation: { // how to handle value replacement 
         escapeValue: false // React already escapes values, so no double escaping 
@@ -42,5 +73,6 @@ i18n
 
 //export i18n instance 
 export default i18n;
+
 
 

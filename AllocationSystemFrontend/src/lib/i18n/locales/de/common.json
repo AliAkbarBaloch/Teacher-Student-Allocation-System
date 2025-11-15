@@ -1,0 +1,34 @@
+{
+    "app": {
+        "title": "Praktikumszuweisungssystem",
+        "name": "Allocation System",
+        "tagline": "Praktikumszuweisung und -verwaltung optimieren",
+        "description": "Effiziente Zuordnung von Studierenden zu Praktikumsmöglichkeiten und Nachverfolgung von Zuweisungen über Schulen und Programme hinweg"
+    },
+    "languages": {
+        "en": "Englisch",
+        "de": "Deutsch"
+    },
+    "navigation": {
+        "home": "Startseite",
+        "schools": "Schulen",
+        "teachersPools": "Lehrerpools",
+        "teacherManagement": "Lehrerverwaltung",
+        "budget": "Budget",
+        "subjects": "Fächer",
+        "internships": "Praktika",
+        "allocation": "Zuweisung",
+        "reports": "Berichte",
+        "archives": "Archive"
+    },
+    "userMenu": {
+        "settings": "Einstellungen",
+        "logout": "Abmelden",
+        "profile": "Profil"
+    },
+    "footer": {
+        "copyright": "Copyright ©",
+        "university": "Universität Passau",
+        "privacyPolicy": "Datenschutzerklärung"
+    }
+}
