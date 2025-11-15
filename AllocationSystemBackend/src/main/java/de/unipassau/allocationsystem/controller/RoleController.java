@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.mapper.RoleMapper;
 import de.unipassau.allocationsystem.service.RoleService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/roles")
 @RequiredArgsConstructor
+@Tag(name = "Roles", description = "Role management APIs")
 public class RoleController {
 
     private final RoleService roleService;

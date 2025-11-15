@@ -45,7 +45,7 @@ import java.util.List;
  * </ul>
  * <p>
  * The configuration ensures robust security for RESTful endpoints, while maintaining flexibility for public routes and development tools.
-*/
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -99,18 +99,27 @@ public class SecurityConfig {
 //                )
 ////                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-////                .authenticationProvider(authenticationProvider())
+
+    /// /                .authenticationProvider(authenticationProvider())
 //                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
 //    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Allow Swagger UI and API documentation endpoints
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         // Allow authentication endpoints without authentication
                         .requestMatchers("/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         // Allow H2 console
@@ -120,13 +129,14 @@ public class SecurityConfig {
                         // All other API endpoints require authentication
                         .requestMatchers("/api/**").authenticated()
                         // Allow all other routes (for frontend SPA)
-                        .anyRequest().permitAll())
+                        .anyRequest().permitAll()
+                )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions(
-                        frame -> frame.sameOrigin()))
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

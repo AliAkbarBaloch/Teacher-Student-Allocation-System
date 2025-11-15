@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.RolePermission;
 import de.unipassau.allocationsystem.mapper.RolePermissionMapper;
 import de.unipassau.allocationsystem.service.RolePermissionService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/role-permissions")
 @RequiredArgsConstructor
+@Tag(name = "RolePermissions", description = "Role Permissions management APIs")
 public class RolePermissionController {
     private final RolePermissionService rolePermissionService;
     private final RolePermissionMapper rolePermissionMapper;

@@ -5,6 +5,12 @@ import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.mapper.PermissionMapper;
 import de.unipassau.allocationsystem.service.PermissionService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,18 +24,35 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
+@Tag(name = "Permissions", description = "Permission management APIs")
 public class PermissionController {
 
     private final PermissionService permissionService;
     private final PermissionMapper permissionMapper;
 
-
+    @Operation(
+            summary = "Get sort fields",
+            description = "Retrieves available fields that can be used for sorting permissions"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
         List<Map<String, String>> result = permissionService.getSortFields();
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    @Operation(
+            summary = "Get paginated permissions",
+            description = "Retrieves permissions with pagination, sorting, and optional search"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Permissions retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
@@ -40,12 +63,37 @@ public class PermissionController {
         return ResponseHandler.success("Permissions retrieved successfully (paginated)", result);
     }
 
+    @Operation(
+            summary = "Get all permissions",
+            description = "Retrieves all permissions without pagination"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Permissions retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = PermissionDto.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         List<PermissionDto> result = permissionMapper.toDtoList(permissionService.getAll());
         return ResponseHandler.success("Permissions retrieved successfully", result);
     }
 
+    @Operation(
+            summary = "Get permission by ID",
+            description = "Retrieves a specific permission by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Permission found",
+                    content = @Content(schema = @Schema(implementation = PermissionDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Permission not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         PermissionDto result = permissionService.getById(id)
@@ -54,6 +102,19 @@ public class PermissionController {
         return ResponseHandler.success("Permission retrieved successfully", result);
     }
 
+    @Operation(
+            summary = "Create new permission",
+            description = "Creates a new permission with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Permission created successfully",
+                    content = @Content(schema = @Schema(implementation = PermissionDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate permission"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PermissionDto dto) {
         try {
@@ -65,6 +126,20 @@ public class PermissionController {
         }
     }
 
+    @Operation(
+            summary = "Update permission",
+            description = "Updates an existing permission with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Permission updated successfully",
+                    content = @Content(schema = @Schema(implementation = PermissionDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate title"),
+            @ApiResponse(responseCode = "404", description = "Permission not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
      @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PermissionDto dto) {
         try {
@@ -78,6 +153,15 @@ public class PermissionController {
         }
     }
 
+    @Operation(
+            summary = "Delete permission",
+            description = "Deletes a permission by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Permission deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Permission not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {

@@ -290,7 +290,7 @@ public class AuditLogService {
     }
 
     /**
-     * Extract client IP address from request, handling proxies and load balancers.
+     * Extract client IP address from request, handling proxies, and load balancers.
      */
     private String getClientIpAddress(HttpServletRequest request) {
         String[] headerNames = {
@@ -311,7 +311,7 @@ public class AuditLogService {
         for (String header : headerNames) {
             String ip = request.getHeader(header);
             if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                // Get first IP if multiple are present
+                // Get first IP if multiple is present
                 return ip.split(",")[0].trim();
             }
         }
