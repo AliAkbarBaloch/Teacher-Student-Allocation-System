@@ -1,4 +1,7 @@
 # env files (do not commit real values) 
 .env
 *.env
-.env.*.local 
+.env.*.local
+
+# macOS
+.DS_Store 
