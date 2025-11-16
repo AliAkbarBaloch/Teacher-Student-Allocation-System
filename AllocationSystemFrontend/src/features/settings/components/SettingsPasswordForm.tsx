@@ -3,52 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
+import { AuthService } from "@/features/auth/services/authService";
 import { cn } from "@/lib/utils";
+import { calculatePasswordStrength } from "@/lib/passwordUtils";
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Check, X } from "lucide-react";
-
-interface PasswordStrength {
-  score: number; // 0-4
-  label: string;
-  color: string;
-  checks: {
-    minLength: boolean;
-    hasUppercase: boolean;
-    hasLowercase: boolean;
-    hasNumber: boolean;
-    hasSpecial: boolean;
-  };
-}
-
-function calculatePasswordStrength(password: string): PasswordStrength {
-  const checks = {
-    minLength: password.length >= 8,
-    hasUppercase: /[A-Z]/.test(password),
-    hasLowercase: /[a-z]/.test(password),
-    hasNumber: /[0-9]/.test(password),
-    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  };
-
-  const score = Object.values(checks).filter(Boolean).length;
-  
-  let label = "";
-  let color = "";
-  
-  if (score <= 1) {
-    label = "weak";
-    color = "text-red-500";
-  } else if (score === 2) {
-    label = "fair";
-    color = "text-orange-500";
-  } else if (score === 3) {
-    label = "good";
-    color = "text-yellow-500";
-  } else {
-    label = "strong";
-    color = "text-green-500";
-  }
-
-  return { score, label, color, checks };
-}
 
 export function SettingsPasswordForm() {
   const { t } = useTranslation("settings");
@@ -144,16 +102,10 @@ export function SettingsPasswordForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call - in real app, this would call the backend
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock old password validation
-      // In real app, backend would return 400 if old password is incorrect
-      // TODO: Replace with actual API call to verify old password
-      const mockCurrentPassword = "password"; // This is just for development/demo
-      if (oldPassword.trim() !== mockCurrentPassword) {
-        throw new Error(t("password.incorrectOldPassword"));
-      }
+      await AuthService.changePassword({
+        currentPassword: oldPassword,
+        newPassword: newPassword,
+      });
 
       setIsSuccess(true);
       setOldPassword("");
@@ -169,7 +121,9 @@ export function SettingsPasswordForm() {
       const errorMessage = err instanceof Error ? err.message : "An error occurred";
       
       // Check if it's an old password error
-      if (errorMessage.includes("old password") || errorMessage.includes("incorrect")) {
+      if (errorMessage.toLowerCase().includes("current password") || 
+          errorMessage.toLowerCase().includes("incorrect") ||
+          errorMessage.toLowerCase().includes("old password")) {
         setFieldErrors((prev) => ({ ...prev, oldPassword: errorMessage }));
       } else {
         setError(errorMessage);
@@ -348,7 +302,7 @@ export function SettingsPasswordForm() {
                   passwordStrength.score === 3 && "bg-yellow-500",
                   passwordStrength.score >= 4 && "bg-green-500"
                 )}
-                style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                  style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
               />
             </div>
             <div className="space-y-1.5 text-sm">
