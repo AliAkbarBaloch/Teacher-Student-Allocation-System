@@ -37,7 +37,7 @@ public class PaginationUtils {
             sortBy = queryParams.get("sortBy");
         }
 
-        if (queryParams.containsKey("sortOrder")) {
+        if (queryParams.containsKey("sortOrder") && queryParams.get("sortOrder") != null) {
             String so = queryParams.get("sortOrder").toLowerCase();
             if ("asc".equals(so)) {
                 sortOrder = Sort.Direction.ASC;
