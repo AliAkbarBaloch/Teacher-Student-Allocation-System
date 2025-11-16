@@ -14,9 +14,12 @@
     "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
     "email": "E-Mail",
     "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+    "phoneNumber": "Telefonnummer",
+    "phoneNumberPlaceholder": "Geben Sie Ihre Telefonnummer ein",
     "fullNameRequired": "Vollständiger Name ist erforderlich",
     "emailRequired": "E-Mail ist erforderlich",
     "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "phoneInvalid": "Bitte geben Sie eine gültige Telefonnummer ein",
     "emailExists": "Diese E-Mail wird bereits verwendet",
     "updateButton": "Profil aktualisieren",
     "updating": "Aktualisiere...",
@@ -71,7 +74,9 @@
     "editUser": "Benutzer bearbeiten",
     "users": "Benutzer",
     "roles": "Rollen",
-    "permissions": "Berechtigungen"
+    "permissions": "Berechtigungen",
+    "accessDenied": "Zugriff verweigert",
+    "accessDeniedMessage": "Sie haben keine Berechtigung, auf diesen Bereich zuzugreifen. Administratorrechte sind erforderlich."
   }
 }
 
