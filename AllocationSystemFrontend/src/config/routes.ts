@@ -2,7 +2,7 @@ export const ROUTES = {
   auth: {
     login: "/login",
     forgotPassword: "/forgot-password",
-    changePassword: "/change-password",
+    resetPassword: "/reset-password",
   },
   main: {
     home: "/home",

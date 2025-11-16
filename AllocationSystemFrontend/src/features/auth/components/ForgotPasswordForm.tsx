@@ -10,6 +10,8 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 // utils
 import { cn } from "@/lib/utils";
+// services
+import { AuthService } from "../services/authService";
 // icons
 import { AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 
@@ -45,10 +47,7 @@ export function ForgotPasswordForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Mock success - in real app, this would be an API call
+      await AuthService.forgotPassword({ email });
       setIsSuccess(true);
     } catch (err) {
       setError(

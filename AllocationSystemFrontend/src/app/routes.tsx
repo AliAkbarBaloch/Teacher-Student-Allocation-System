@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: ROUTES.auth.changePassword,
+    path: ROUTES.auth.resetPassword,
     element: <AuthLayout />,
     children: [
       {
