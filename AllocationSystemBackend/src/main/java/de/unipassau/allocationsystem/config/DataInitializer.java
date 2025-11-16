@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Data initialization for development and testing.
  * Creates default test users if they don't exist.
@@ -27,47 +30,29 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initData() {
         return args -> {
-            // Check if test user already exists
-            if (userRepository.findByEmail("test@example.com").isEmpty()) {
-                // Create test user
-                User testUser = new User();
-                testUser.setEmail("test@example.com");
-                testUser.setPassword(passwordEncoder.encode("password123"));
-                testUser.setFullName("Test User");
-                testUser.setPhoneNumber("1234567890");
-                testUser.setRole(User.UserRole.USER);
-                testUser.setEnabled(true);
-                testUser.setAccountLocked(false);
-                testUser.setFailedLoginAttempts(0);
-                
-                userRepository.save(testUser);
-                log.info("Test user created: test@example.com / password123");
-            } else {
-                log.info("Test user already exists: test@example.com");
-            }
+            String[] rawPasswords = {"password123", "admin123"};
 
-            // Create admin user if doesn't exist
-            if (userRepository.findByEmail("admin@example.com").isEmpty()) {
-                User adminUser = new User();
-                adminUser.setEmail("admin@example.com");
-                adminUser.setPassword(passwordEncoder.encode("admin123"));
-                adminUser.setFullName("Admin User");
-                adminUser.setPhoneNumber("0987654321");
-                adminUser.setRole(User.UserRole.ADMIN);
-                adminUser.setEnabled(true);
-                adminUser.setAccountLocked(false);
-                adminUser.setFailedLoginAttempts(0);
-                
-                userRepository.save(adminUser);
-                log.info("Admin user created: admin@example.com / admin123");
-            } else {
-                log.info("Admin user already exists: admin@example.com");
-            }
+            List<User> users = new ArrayList<>();
+            users.add(new User(null, "test@example.com", passwordEncoder.encode(rawPasswords[0]),
+                    "Test User", true, false, 0, null,
+                    null, User.AccountStatus.ACTIVE, User.UserRole.USER, "1234567890",
+                    null, null
+            ));
+            users.add(new User(null, "admin@example.com", passwordEncoder.encode(rawPasswords[1]),
+                    "Admin User", true, false, 0, null,
+                    null, User.AccountStatus.ACTIVE, User.UserRole.ADMIN, "0987654321",
+                    null, null
+            ));
 
             log.info("=== Data Initialization Complete ===");
             log.info("Test Users Available:");
-            log.info("  - test@example.com / password123 (USER)");
-            log.info("  - admin@example.com / admin123 (ADMIN)");
+            for (int i = 0; i < users.size(); i++) {
+                String rawPassword = rawPasswords[i];
+                if (userRepository.findByEmail(users.get(i).getEmail()).isEmpty()) {
+                    userRepository.save(users.get(i));
+                }
+                log.info("{} user created: {} / {}", users.get(i).getRole(), users.get(i).getEmail(), rawPassword);
+            }
             log.info("====================================");
         };
     }

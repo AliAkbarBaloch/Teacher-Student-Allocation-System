@@ -32,7 +32,7 @@ public class UserController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody CreateUserDto dto) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto dto) {
         log.info("Creating user: {}", dto.getEmail());
         UserResponseDto created = userService.createUserWithDto(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -46,7 +46,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserDto dto
+            @Valid @RequestBody UserUpdateDto dto
     ) {
         log.info("Updating user: {}", id);
         UserResponseDto updated = userService.updateUserWithDto(id, dto);

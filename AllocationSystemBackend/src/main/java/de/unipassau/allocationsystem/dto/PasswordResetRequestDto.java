@@ -7,15 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for authenticated user changing their own password.
+ * DTO for password reset request using token.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangePasswordRequest {
+public class PasswordResetRequestDto {
 
-    @NotBlank(message = "Current password is required")
-    private String currentPassword;
+    @NotBlank(message = "Token is required")
+    private String token;
 
     @NotBlank(message = "New password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")

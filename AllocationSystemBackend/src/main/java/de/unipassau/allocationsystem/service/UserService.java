@@ -199,7 +199,7 @@ public class UserService {
         description = "Admin created new user",
         captureNewValue = true
     )
-    public UserResponseDto createUserWithDto(CreateUserDto dto) {
+    public UserResponseDto createUserWithDto(UserCreateDto dto) {
         log.info("Creating new user with DTO: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -225,7 +225,7 @@ public class UserService {
      * Update user with DTO.
      */
     @Transactional
-    public UserResponseDto updateUserWithDto(Long userId, UpdateUserDto dto) {
+    public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
         log.info("Updating user with DTO: {}", userId);
 
         User user = userRepository.findById(userId)

@@ -88,13 +88,13 @@ class AuthControllerTest {
 
     @Test
     void testLoginSuccess() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(testUser.getEmail());
-        loginRequest.setPassword(testUserPassword);
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail(testUser.getEmail());
+        loginRequestDto.setPassword(testUserPassword);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
@@ -111,13 +111,13 @@ class AuthControllerTest {
 
     @Test
     void testLoginWithInvalidPassword() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(testUser.getEmail());
-        loginRequest.setPassword("wrongpassword");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail(testUser.getEmail());
+        loginRequestDto.setPassword("wrongpassword");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Invalid email or password"));
 
@@ -128,28 +128,28 @@ class AuthControllerTest {
 
     @Test
     void testLoginWithNonExistentEmail() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("nonexistent@example.com");
-        loginRequest.setPassword("password123");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail("nonexistent@example.com");
+        loginRequestDto.setPassword("password123");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Invalid email or password"));
     }
 
     @Test
     void testAccountLockoutAfterFailedAttempts() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(testUser.getEmail());
-        loginRequest.setPassword("wrongpassword");
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail(testUser.getEmail());
+        loginRequestDto.setPassword("wrongpassword");
 
         // Attempt login 5 times with wrong password
         for (int i = 0; i < 5; i++) {
             mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(loginRequest)))
+                            .content(objectMapper.writeValueAsString(loginRequestDto)))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -165,10 +165,10 @@ class AuthControllerTest {
         );
 
         // Try login with correct password - should still fail due to lockout
-        loginRequest.setPassword(testUserPassword);
+        loginRequestDto.setPassword(testUserPassword);
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Account is locked. Please contact administrator or reset your password."));
     }
@@ -178,13 +178,13 @@ class AuthControllerTest {
         testUser.setEnabled(false);
         userRepository.save(testUser);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(testUser.getEmail());
-        loginRequest.setPassword(testUserPassword);
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail(testUser.getEmail());
+        loginRequestDto.setPassword(testUserPassword);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Account is disabled"));
     }
@@ -192,7 +192,7 @@ class AuthControllerTest {
     @Test
     void testLoginValidationErrors() throws Exception {
         // Test empty email
-        LoginRequest emptyEmail = new LoginRequest();
+        LoginRequestDto emptyEmail = new LoginRequestDto();
         emptyEmail.setEmail("");
         emptyEmail.setPassword("password123");
 
@@ -202,7 +202,7 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest());
 
         // Test invalid email format
-        LoginRequest invalidEmail = new LoginRequest();
+        LoginRequestDto invalidEmail = new LoginRequestDto();
         invalidEmail.setEmail("notanemail");
         invalidEmail.setPassword("password123");
 
@@ -212,7 +212,7 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest());
 
         // Test empty password
-        LoginRequest emptyPassword = new LoginRequest();
+        LoginRequestDto emptyPassword = new LoginRequestDto();
         emptyPassword.setEmail("test@example.com");
         emptyPassword.setPassword("");
 
@@ -244,7 +244,7 @@ class AuthControllerTest {
 
     @Test
     void testForgotPasswordSuccess() throws Exception {
-        ForgotPasswordRequest request = new ForgotPasswordRequest();
+        PasswordForgotRequestDto request = new PasswordForgotRequestDto();
         request.setEmail(testUser.getEmail());
 
         mockMvc.perform(post("/api/auth/forgot-password")
@@ -267,7 +267,7 @@ class AuthControllerTest {
 
     @Test
     void testForgotPasswordWithNonExistentEmail() throws Exception {
-        ForgotPasswordRequest request = new ForgotPasswordRequest();
+        PasswordForgotRequestDto request = new PasswordForgotRequestDto();
         request.setEmail("nonexistent@example.com");
 
         mockMvc.perform(post("/api/auth/forgot-password")
@@ -282,7 +282,7 @@ class AuthControllerTest {
 
     @Test
     void testForgotPasswordValidationError() throws Exception {
-        ForgotPasswordRequest request = new ForgotPasswordRequest();
+        PasswordForgotRequestDto request = new PasswordForgotRequestDto();
         request.setEmail("invalid-email");
 
         mockMvc.perform(post("/api/auth/forgot-password")
@@ -309,7 +309,7 @@ class AuthControllerTest {
         testUser.setFailedLoginAttempts(5);
         userRepository.save(testUser);
 
-        ResetPasswordRequest request = new ResetPasswordRequest();
+        PasswordResetRequestDto request = new PasswordResetRequestDto();
         request.setToken(token);
         request.setNewPassword("newpassword123");
 
@@ -334,7 +334,7 @@ class AuthControllerTest {
 
     @Test
     void testResetPasswordWithInvalidToken() throws Exception {
-        ResetPasswordRequest request = new ResetPasswordRequest();
+        PasswordResetRequestDto request = new PasswordResetRequestDto();
         request.setToken("invalid-token");
         request.setNewPassword("newpassword123");
 
@@ -356,7 +356,7 @@ class AuthControllerTest {
         resetToken.setUsed(false);
         passwordResetTokenRepository.save(resetToken);
 
-        ResetPasswordRequest request = new ResetPasswordRequest();
+        PasswordResetRequestDto request = new PasswordResetRequestDto();
         request.setToken(token);
         request.setNewPassword("newpassword123");
 
@@ -378,7 +378,7 @@ class AuthControllerTest {
         resetToken.setUsed(true); // Already used
         passwordResetTokenRepository.save(resetToken);
 
-        ResetPasswordRequest request = new ResetPasswordRequest();
+        PasswordResetRequestDto request = new PasswordResetRequestDto();
         request.setToken(token);
         request.setNewPassword("newpassword123");
 
@@ -400,7 +400,7 @@ class AuthControllerTest {
         passwordResetTokenRepository.save(resetToken);
 
         // Password too short
-        ResetPasswordRequest request = new ResetPasswordRequest();
+        PasswordResetRequestDto request = new PasswordResetRequestDto();
         request.setToken(token);
         request.setNewPassword("short");
 
@@ -416,7 +416,7 @@ class AuthControllerTest {
     void testChangePasswordSuccess() throws Exception {
         String token = jwtService.generateToken(testUser);
 
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword(testUserPassword);
         request.setNewPassword("newpassword123");
 
@@ -437,7 +437,7 @@ class AuthControllerTest {
     void testChangePasswordWithIncorrectCurrentPassword() throws Exception {
         String token = jwtService.generateToken(testUser);
 
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword("wrongpassword");
         request.setNewPassword("newpassword123");
 
@@ -451,7 +451,7 @@ class AuthControllerTest {
 
     @Test
     void testChangePasswordWithoutAuthentication() throws Exception {
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword(testUserPassword);
         request.setNewPassword("newpassword123");
 
@@ -466,7 +466,7 @@ class AuthControllerTest {
         String token = jwtService.generateToken(testUser);
 
         // New password too short
-        ChangePasswordRequest request = new ChangePasswordRequest();
+        PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword(testUserPassword);
         request.setNewPassword("short");
 
@@ -503,7 +503,7 @@ class AuthControllerTest {
     void testUpdateProfileSuccess() throws Exception {
         String token = jwtService.generateToken(testUser);
 
-        UpdateProfileRequest request = new UpdateProfileRequest();
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
         request.setFullName("Updated Name");
         request.setEmail("updated@example.com");
         request.setPhoneNumber("9876543210");
@@ -538,7 +538,7 @@ class AuthControllerTest {
 
         String token = jwtService.generateToken(testUser);
 
-        UpdateProfileRequest request = new UpdateProfileRequest();
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
         request.setFullName("Updated Name");
         request.setEmail("another@example.com"); // Duplicate email
         request.setPhoneNumber("9876543210");
@@ -553,7 +553,7 @@ class AuthControllerTest {
 
     @Test
     void testUpdateProfileWithoutAuthentication() throws Exception {
-        UpdateProfileRequest request = new UpdateProfileRequest();
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
         request.setFullName("Updated Name");
         request.setEmail("updated@example.com");
 
@@ -568,7 +568,7 @@ class AuthControllerTest {
         String token = jwtService.generateToken(testUser);
 
         // Invalid email format
-        UpdateProfileRequest request = new UpdateProfileRequest();
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest();
         request.setFullName("Updated Name");
         request.setEmail("invalid-email");
 
@@ -614,23 +614,23 @@ class AuthControllerTest {
 
     @Test
     void testPublicEndpointsAccessibleWithoutToken() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(testUser.getEmail());
-        loginRequest.setPassword(testUserPassword);
+        LoginRequestDto loginRequestDto = new LoginRequestDto();
+        loginRequestDto.setEmail(testUser.getEmail());
+        loginRequestDto.setPassword(testUserPassword);
 
         // Login endpoint should be accessible
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andExpect(status().isOk());
 
         // Forgot password endpoint should be accessible
-        ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
-        forgotPasswordRequest.setEmail(testUser.getEmail());
+        PasswordForgotRequestDto passwordForgotRequestDto = new PasswordForgotRequestDto();
+        passwordForgotRequestDto.setEmail(testUser.getEmail());
 
         mockMvc.perform(post("/api/auth/forgot-password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(forgotPasswordRequest)))
+                        .content(objectMapper.writeValueAsString(passwordForgotRequestDto)))
                 .andExpect(status().isOk());
     }
 }

@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditLogDto {
-
     private Long id;
+    private long userId;
     private String userIdentifier;
     private LocalDateTime eventTimestamp;
     private AuditAction action;

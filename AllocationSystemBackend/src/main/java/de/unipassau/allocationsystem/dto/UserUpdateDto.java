@@ -1,25 +1,29 @@
 package de.unipassau.allocationsystem.dto;
 
+import de.unipassau.allocationsystem.entity.User;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for updating user profile information.
+ * DTO for updating an existing user.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateProfileRequest {
+public class UserUpdateDto {
 
-    @NotBlank(message = "Full name is required")
-    private String fullName;
-
-    @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
 
+    private String fullName;
+
+    private User.UserRole role;
+
     private String phoneNumber;
+
+    private Boolean enabled;
+
+    private User.AccountStatus accountStatus;
 }
