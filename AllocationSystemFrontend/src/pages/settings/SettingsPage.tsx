@@ -25,13 +25,18 @@ export default function SettingsPage() {
 
   // Reset active section when user changes (e.g., after logout/login)
   useEffect(() => {
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || !user?.id) {
       setActiveSection("profile");
-    } else if (activeSection === "admin" && !isAdmin) {
-      // If user is no longer admin, switch to profile
-      setActiveSection("profile");
+    } else {
+      // If user is no longer admin and currently viewing admin section, switch to profile
+      setActiveSection((currentSection) => {
+        if (currentSection === "admin" && !isAdmin) {
+          return "profile";
+        }
+        return currentSection;
+      });
     }
-  }, [user?.id, isAuthenticated, isAdmin, activeSection]);
+  }, [user?.id, isAuthenticated, isAdmin]);
 
   const handleAvatarChange = (file: File) => {
     setAvatarFile(file);

@@ -198,7 +198,7 @@ export function useAuth() {
         user,
         isAuthenticated: true,
       }));
-    } catch (error) {
+    } catch {
       // If refresh fails, clear auth state
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
