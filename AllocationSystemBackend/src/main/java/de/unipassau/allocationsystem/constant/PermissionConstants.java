@@ -10,6 +10,7 @@ public class PermissionConstants {
         public static final String DASHBOARD = "dashboard";
         public static final String REPORT = "report";
         public static final String SCHOOL = "school";
+        public static final String TEACHER = "teacher";
     }
 
     public static class AccessLevels {
