@@ -196,9 +196,9 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[*].targetEntity", everyItem(is("User"))))
-                .andExpect(jsonPath("$.content[*].targetRecordId", everyItem(is("1"))));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))))
+                .andExpect(jsonPath("$.data.content[*].targetRecordId", everyItem(is("1"))));
     }
 
     @Test
@@ -209,8 +209,8 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[*].userIdentifier", 
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[*].userIdentifier",
                     everyItem(is(testUser.getEmail()))));
     }
 
@@ -220,8 +220,8 @@ class AuditLogControllerTest {
         mockMvc.perform(get("/api/audit-logs/recent"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(lessThanOrEqualTo(100))));
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data", hasSize(lessThanOrEqualTo(100))));
     }
 
     @Test
@@ -236,11 +236,11 @@ class AuditLogControllerTest {
                 .param("endDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.actionStatistics").exists())
-                .andExpect(jsonPath("$.entityStatistics").exists())
-                .andExpect(jsonPath("$.userActivityStatistics").exists())
-                .andExpect(jsonPath("$.totalLogs").exists())
-                .andExpect(jsonPath("$.totalLogs").value(greaterThan(0)));
+                .andExpect(jsonPath("$.data.actionStatistics").exists())
+                .andExpect(jsonPath("$.data.entityStatistics").exists())
+                .andExpect(jsonPath("$.data.userActivityStatistics").exists())
+                .andExpect(jsonPath("$.data.totalLogs").exists())
+                .andExpect(jsonPath("$.data.totalLogs").value(greaterThan(0)));
     }
 
     @Test
@@ -317,7 +317,7 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isEmpty());
+                .andExpect(jsonPath("$.data.content").isEmpty());
     }
 
     @Test
@@ -328,7 +328,7 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isEmpty());
+                .andExpect(jsonPath("$.data.content").isEmpty());
     }
 
     @Test

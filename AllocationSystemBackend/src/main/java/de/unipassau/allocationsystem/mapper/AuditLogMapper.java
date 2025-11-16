@@ -1,0 +1,73 @@
+package de.unipassau.allocationsystem.mapper;
+
+import de.unipassau.allocationsystem.dto.AuditLogDto;
+import de.unipassau.allocationsystem.entity.AuditLog;
+import de.unipassau.allocationsystem.entity.User;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+@RequiredArgsConstructor
+public class AuditLogMapper {
+
+    private final UserRepository userRepository;
+
+    public AuditLog toEntity(AuditLogDto dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
+
+        return AuditLog.builder()
+                .id(dto.getId())
+                .user(user)
+                .userIdentifier(dto.getUserIdentifier())
+                .eventTimestamp(dto.getEventTimestamp())
+                .action(dto.getAction())
+                .targetEntity(dto.getTargetEntity())
+                .targetRecordId(dto.getTargetRecordId())
+                .previousValue(dto.getPreviousValue())
+                .newValue(dto.getNewValue())
+                .description(dto.getDescription())
+                .ipAddress(dto.getIpAddress())
+                .createdAt(dto.getCreatedAt())
+                .build();
+    }
+
+    public AuditLogDto toDto(AuditLog entity) {
+        if (entity == null) {
+            return null;
+        }
+        return AuditLogDto.builder()
+                .id(entity.getId())
+                .userId(entity.getUser().getId())
+                .userIdentifier(entity.getUserIdentifier())
+                .eventTimestamp(entity.getEventTimestamp())
+                .action(entity.getAction())
+                .targetEntity(entity.getTargetEntity())
+                .targetRecordId(entity.getTargetRecordId())
+                .previousValue(entity.getPreviousValue())
+                .newValue(entity.getNewValue())
+                .description(entity.getDescription())
+                .ipAddress(entity.getIpAddress())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public List<AuditLogDto> toDtoList(List<AuditLog> entities) {
+        if (entities == null) {
+            return null;
+        }
+
+        return entities.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+}

@@ -62,7 +62,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createUser_Success() throws Exception {
-        CreateUserDto dto = new CreateUserDto();
+        UserCreateDto dto = new UserCreateDto();
         dto.setEmail("newuser@example.com");
         dto.setPassword("password123");
         dto.setFullName("New User");
@@ -82,7 +82,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createUser_DuplicateEmail_ShouldFail() throws Exception {
-        CreateUserDto dto = new CreateUserDto();
+        UserCreateDto dto = new UserCreateDto();
         dto.setEmail("test@example.com"); // Duplicate email
         dto.setPassword("password123");
         dto.setFullName("Duplicate User");
@@ -97,7 +97,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createUser_InvalidEmail_ShouldFail() throws Exception {
-        CreateUserDto dto = new CreateUserDto();
+        UserCreateDto dto = new UserCreateDto();
         dto.setEmail("invalid-email"); // Invalid email
         dto.setPassword("password123");
         dto.setFullName("Invalid User");
@@ -112,7 +112,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createUser_ShortPassword_ShouldFail() throws Exception {
-        CreateUserDto dto = new CreateUserDto();
+        UserCreateDto dto = new UserCreateDto();
         dto.setEmail("newuser@example.com");
         dto.setPassword("short"); // Too short
         dto.setFullName("New User");
@@ -127,7 +127,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void createUser_WithoutAdminRole_ShouldFail() throws Exception {
-        CreateUserDto dto = new CreateUserDto();
+        UserCreateDto dto = new UserCreateDto();
         dto.setEmail("newuser@example.com");
         dto.setPassword("password123");
         dto.setFullName("New User");
@@ -142,7 +142,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateUser_Success() throws Exception {
-        UpdateUserDto dto = new UpdateUserDto();
+        UserUpdateDto dto = new UserUpdateDto();
         dto.setFullName("Updated Name");
         dto.setPhoneNumber("+1234567890");
 
@@ -158,7 +158,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateUser_ChangeRole_Success() throws Exception {
-        UpdateUserDto dto = new UpdateUserDto();
+        UserUpdateDto dto = new UserUpdateDto();
         dto.setRole(UserRole.ADMIN);
 
         mockMvc.perform(put("/api/users/" + testUser.getId())
@@ -171,7 +171,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateUser_NotFound_ShouldFail() throws Exception {
-        UpdateUserDto dto = new UpdateUserDto();
+        UserUpdateDto dto = new UserUpdateDto();
         dto.setFullName("Updated Name");
 
         mockMvc.perform(put("/api/users/99999")

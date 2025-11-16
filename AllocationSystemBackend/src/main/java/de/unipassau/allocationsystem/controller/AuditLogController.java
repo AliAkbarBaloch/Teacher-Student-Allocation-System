@@ -4,7 +4,9 @@ import de.unipassau.allocationsystem.dto.AuditLogDto;
 import de.unipassau.allocationsystem.dto.AuditLogStatsDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.mapper.AuditLogMapper;
 import de.unipassau.allocationsystem.service.AuditLogService;
+import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
 public class AuditLogController {
 
     private final AuditLogService auditLogService;
+    private final AuditLogMapper auditLogMapper;
 
     /**
      * Get all audit logs with pagination and optional filters.
@@ -90,7 +93,7 @@ public class AuditLogController {
             userId, action, targetEntity, startDate, endDate, pageable
         );
 
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(this::convertToDto);
+        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
         return ResponseEntity.ok(auditLogDtos);
     }
 
@@ -103,7 +106,7 @@ public class AuditLogController {
         summary = "Get audit logs for entity", 
         description = "Retrieve all audit logs for a specific entity and record ID. Admin access required."
     )
-    public ResponseEntity<Page<AuditLogDto>> getAuditLogsForEntity(
+    public ResponseEntity<?> getAuditLogsForEntity(
         @PathVariable String entityName,
         @PathVariable String recordId,
         @RequestParam(defaultValue = "0") int page,
@@ -111,8 +114,9 @@ public class AuditLogController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventTimestamp"));
         Page<AuditLog> auditLogs = auditLogService.getAuditLogsForEntity(entityName, recordId, pageable);
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(this::convertToDto);
-        return ResponseEntity.ok(auditLogDtos);
+        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
+
+        return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
 
     /**
@@ -124,15 +128,16 @@ public class AuditLogController {
         summary = "Get audit logs for user", 
         description = "Retrieve all audit logs for a specific user. Admin access required."
     )
-    public ResponseEntity<Page<AuditLogDto>> getAuditLogsForUser(
+    public ResponseEntity<?> getAuditLogsForUser(
         @PathVariable String userIdentifier,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventTimestamp"));
         Page<AuditLog> auditLogs = auditLogService.getAuditLogsForUser(userIdentifier, pageable);
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(this::convertToDto);
-        return ResponseEntity.ok(auditLogDtos);
+        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
+
+        return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
 
     /**
@@ -144,12 +149,13 @@ public class AuditLogController {
         summary = "Get recent audit logs", 
         description = "Retrieve the 100 most recent audit logs for monitoring. Admin access required."
     )
-    public ResponseEntity<List<AuditLogDto>> getRecentAuditLogs() {
+    public ResponseEntity<?> getRecentAuditLogs() {
         List<AuditLog> auditLogs = auditLogService.getRecentAuditLogs();
         List<AuditLogDto> auditLogDtos = auditLogs.stream()
-            .map(this::convertToDto)
+            .map(auditLogMapper::toDto)
             .collect(Collectors.toList());
-        return ResponseEntity.ok(auditLogDtos);
+
+        return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
 
     /**
@@ -161,7 +167,7 @@ public class AuditLogController {
         summary = "Get audit log statistics", 
         description = "Retrieve statistics about audit logs for a given date range. Admin access required."
     )
-    public ResponseEntity<AuditLogStatsDto> getStatistics(
+    public ResponseEntity<?> getStatistics(
         @Parameter(description = "Start date (ISO format)") 
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
         
@@ -180,7 +186,7 @@ public class AuditLogController {
             .sum();
         stats.setTotalLogs(total);
 
-        return ResponseEntity.ok(stats);
+        return ResponseHandler.success("Audit logs retrieved successfully", stats);
     }
 
     /**
@@ -242,22 +248,6 @@ public class AuditLogController {
     }
 
     // Helper methods
-
-    private AuditLogDto convertToDto(AuditLog auditLog) {
-        return AuditLogDto.builder()
-            .id(auditLog.getId())
-            .userIdentifier(auditLog.getUserIdentifier())
-            .eventTimestamp(auditLog.getEventTimestamp())
-            .action(auditLog.getAction())
-            .targetEntity(auditLog.getTargetEntity())
-            .targetRecordId(auditLog.getTargetRecordId())
-            .previousValue(auditLog.getPreviousValue())
-            .newValue(auditLog.getNewValue())
-            .description(auditLog.getDescription())
-            .ipAddress(auditLog.getIpAddress())
-            .createdAt(auditLog.getCreatedAt())
-            .build();
-    }
 
     private String escapeCSV(String value) {
         if (value == null) {

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Aspect for automatically capturing audit events from service layer operations.
- * Intercepts methods annotated with @Audited and creates audit log entries.
+ * Intercepts methods annotated with @Audited and create audit log entries.
  */
 @Aspect
 @Component

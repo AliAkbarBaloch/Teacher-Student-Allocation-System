@@ -46,7 +46,7 @@ public class AuthService {
      * Authenticate user and generate JWT token.
      */
     @Transactional
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
 
@@ -83,7 +83,7 @@ public class AuthService {
                     String.format("User logged in: %s (ID: %d)", user.getEmail(), user.getId())
             );
 
-            return LoginResponse.builder()
+            return LoginResponseDto.builder()
                     .token(token)
                     .userId(user.getId())
                     .email(user.getEmail())
@@ -141,7 +141,7 @@ public class AuthService {
      * Initiate forgot password flow by generating and sending reset token.
      */
     @Transactional
-    public void forgotPassword(ForgotPasswordRequest request) {
+    public void forgotPassword(PasswordForgotRequestDto request) {
         // Find user by email - don't throw exception if not found (security: don't reveal if email exists)
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         
@@ -177,7 +177,7 @@ public class AuthService {
      * Reset password using valid token.
      */
     @Transactional
-    public void resetPassword(ResetPasswordRequest request) {
+    public void resetPassword(PasswordResetRequestDto request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired password reset token"));
 
@@ -207,7 +207,7 @@ public class AuthService {
      * Change password for authenticated user.
      */
     @Transactional
-    public void changePassword(ChangePasswordRequest request) {
+    public void changePassword(PasswordChangeRequestDto request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
             throw new IllegalStateException("User is not authenticated");
@@ -242,7 +242,7 @@ public class AuthService {
      * Update user profile information.
      */
     @Transactional
-    public UserResponseDto updateProfile(UpdateProfileRequest request) {
+    public UserResponseDto updateProfile(UserProfileUpdateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
             throw new IllegalStateException("User is not authenticated");

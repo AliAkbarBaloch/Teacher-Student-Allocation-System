@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.*;
 import de.unipassau.allocationsystem.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Authentication", description = "Authentication management APIs")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,9 +28,9 @@ public class AuthController {
      * POST /api/auth/login
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
         log.info("Login attempt for email: {}", request.getEmail());
-        LoginResponse response = authService.login(request);
+        LoginResponseDto response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
@@ -48,7 +50,7 @@ public class AuthController {
      * POST /api/auth/forgot-password
      */
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody PasswordForgotRequestDto request) {
         log.info("Forgot password request for email: {}", request.getEmail());
         authService.forgotPassword(request);
         return ResponseEntity.ok(Map.of(
@@ -61,7 +63,7 @@ public class AuthController {
      * POST /api/auth/reset-password
      */
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
         log.info("Reset password request");
         authService.resetPassword(request);
         return ResponseEntity.ok(Map.of("message", "Password has been reset successfully"));
@@ -72,7 +74,7 @@ public class AuthController {
      * POST /api/auth/change-password
      */
     @PostMapping("/change-password")
-    public ResponseEntity<Map<String, String>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<Map<String, String>> changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
         log.info("Change password request");
         authService.changePassword(request);
         return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
@@ -94,7 +96,7 @@ public class AuthController {
      * PUT /api/auth/profile
      */
     @PutMapping("/profile")
-    public ResponseEntity<UserResponseDto> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<UserResponseDto> updateProfile(@Valid @RequestBody UserProfileUpdateRequest request) {
         log.info("Update profile request");
         UserResponseDto updated = authService.updateProfile(request);
         return ResponseEntity.ok(updated);
