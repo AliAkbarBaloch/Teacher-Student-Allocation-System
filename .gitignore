@@ -1,4 +1,18 @@
-# env files (do not commit real values) 
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Node modules if accidentally installed in root
+node_modules/
+
+# Root-level env files (just in case)
 .env
 *.env
 .env.*.local
