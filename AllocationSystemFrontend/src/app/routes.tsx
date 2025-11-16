@@ -8,7 +8,7 @@ import { ROUTES } from "../config/routes";
 import HomePage from "@/pages/home/HomePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
-import ChangePasswordPage from "@/pages/auth/ChangePasswordPage";
+import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 
 const withSuspense = (node: React.ReactNode) => (
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: withSuspense(<ChangePasswordPage />),
+        element: withSuspense(<ResetPasswordPage />),
       },
     ],
   },
