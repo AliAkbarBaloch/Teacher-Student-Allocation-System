@@ -68,7 +68,8 @@ export class AuthService {
   static async logout(): Promise<void> {
     try {
       await apiClient.post("/auth/logout");
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error("Logout error:", error);
       // Even if logout fails on server, we should still clear local storage
       // Silently fail - logout should always succeed from user perspective
     }
