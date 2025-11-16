@@ -1,20 +1,69 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../services/authService";
+import { apiClient } from "@/lib/api-client";
 import type { LoginCredentials, AuthError, AuthState } from "../types/auth.types";
 import { ROUTES } from "@/config/routes";
 
-const initialState: AuthState = {
-  user: AuthService.getCurrentUser(),
-  token: localStorage.getItem("auth_token"),
-  isAuthenticated: !!localStorage.getItem("auth_token"),
-  isLoading: false,
-  error: null,
-};
+/**
+ * Get initial auth state from localStorage
+ */
+function getInitialAuthState(): AuthState {
+  const token = localStorage.getItem("auth_token");
+  const user = AuthService.getCurrentUser();
+  
+  return {
+    user,
+    token,
+    isAuthenticated: !!token && !!user,
+    isLoading: false,
+    error: null,
+  };
+}
 
 export function useAuth() {
-  const [authState, setAuthState] = useState<AuthState>(initialState);
+  const [authState, setAuthState] = useState<AuthState>(getInitialAuthState);
   const navigate = useNavigate();
+
+  // Set up unauthorized handler for API client
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      // Clear auth state and redirect to login
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("remember_me");
+      setAuthState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+      navigate("/login");
+    };
+    apiClient.setUnauthorizedHandler(handleUnauthorized);
+    
+    // Cleanup on unmount
+    return () => {
+      apiClient.setUnauthorizedHandler(() => {});
+    };
+  }, [navigate]);
+
+  // Sync state with localStorage when storage changes (from other tabs)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      // Only handle storage events from other tabs/windows
+      if (e.key === "auth_token" || e.key === "auth_user") {
+        setAuthState(getInitialAuthState());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -70,12 +119,16 @@ export function useAuth() {
 
     try {
       await AuthService.logout();
-      
-      // Clear auth data
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.error("Logout API error:", error);
+    } finally {
+      // Always clear auth data, even if API call fails
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
       localStorage.removeItem("remember_me");
 
+      // Force state reset
       setAuthState({
         user: null,
         token: null,
@@ -85,15 +138,6 @@ export function useAuth() {
       });
 
       navigate("/login");
-    } catch (error) {
-      setAuthState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: {
-          message: error instanceof Error ? error.message : "Logout failed",
-          field: "general",
-        },
-      }));
     }
   }, [navigate]);
 
@@ -101,12 +145,15 @@ export function useAuth() {
     setAuthState((prev) => ({ ...prev, error: null }));
   }, []);
 
-  const updateProfile = useCallback((updates: { name?: string; email?: string }) => {
+  const updateProfile = useCallback((updates: { name?: string; email?: string; fullName?: string }) => {
     if (!authState.user) return;
 
+    // Preserve all existing user properties, especially role
     const updatedUser = {
       ...authState.user,
       ...updates,
+      // Ensure role is preserved
+      role: authState.user.role,
     };
 
     // Update localStorage
@@ -119,12 +166,59 @@ export function useAuth() {
     }));
   }, [authState.user]);
 
+  /**
+   * Refresh user data from backend
+   */
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      setAuthState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+      return;
+    }
+
+    try {
+      const profile = await AuthService.getProfile();
+      const user = {
+        id: String(profile.id),
+        email: profile.email,
+        name: profile.fullName.split(" ")[0] || profile.email.split("@")[0],
+        fullName: profile.fullName,
+        role: profile.role,
+      };
+
+      localStorage.setItem("auth_user", JSON.stringify(user));
+      setAuthState((prev) => ({
+        ...prev,
+        user,
+        isAuthenticated: true,
+      }));
+    } catch (error) {
+      // If refresh fails, clear auth state
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+      setAuthState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    }
+  }, []);
+
   return {
     ...authState,
     login,
     logout,
     clearError,
     updateProfile,
+    refreshUser,
   };
 }
 
