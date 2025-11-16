@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 // utils
 import { cn } from "@/lib/utils";
+import { validateEmail } from "@/lib/validationUtils";
 // services
 import { AuthService } from "../services/authService";
 // icons
@@ -22,11 +23,6 @@ export function ForgotPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

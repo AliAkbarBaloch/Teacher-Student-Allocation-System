@@ -14,6 +14,7 @@ import { useAuth } from "../hooks/useAuth";
 // types
 import type { LoginCredentials } from "../types/auth.types";
 import { cn } from "@/lib/utils";
+import { validateEmail } from "@/lib/validationUtils";
 // translations
 import { useTranslation } from "react-i18next";
 import { ROUTES } from "@/config/routes";
@@ -31,11 +32,6 @@ export function LoginForm() {
     email?: string;
     password?: string;
   }>({});
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const validateForm = (): boolean => {
     const errors: { email?: string; password?: string } = {};
