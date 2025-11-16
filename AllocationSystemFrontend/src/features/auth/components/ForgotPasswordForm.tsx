@@ -10,6 +10,9 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 // utils
 import { cn } from "@/lib/utils";
+import { validateEmail } from "@/lib/validationUtils";
+// services
+import { AuthService } from "../services/authService";
 // icons
 import { AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 
@@ -20,11 +23,6 @@ export function ForgotPasswordForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,10 +43,7 @@ export function ForgotPasswordForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Mock success - in real app, this would be an API call
+      await AuthService.forgotPassword({ email });
       setIsSuccess(true);
     } catch (err) {
       setError(

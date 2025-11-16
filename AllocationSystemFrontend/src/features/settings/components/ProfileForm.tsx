@@ -4,46 +4,81 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { AuthService } from "@/features/auth/services/authService";
 import { cn } from "@/lib/utils";
+import { validateEmail, validatePhoneNumber } from "@/lib/validationUtils";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 export function ProfileForm() {
   const { t } = useTranslation("settings");
   const { user, updateProfile } = useAuth();
   
-  // Store initial values to detect changes
-  const initialValues = useMemo(() => ({
-    fullName: user?.name || "",
-    email: user?.email || "",
-  }), [user?.name, user?.email]);
-  
-  const [fullName, setFullName] = useState(initialValues.fullName);
-  const [email, setEmail] = useState(initialValues.email);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [initialValues, setInitialValues] = useState({ fullName: "", email: "", phoneNumber: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     fullName?: string;
     email?: string;
+    phoneNumber?: string;
   }>({});
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync form fields when user changes
+  // Load profile data on mount and sync form fields when user changes
   useEffect(() => {
-    if (user) {
-      setFullName(user.name || "");
-      setEmail(user.email || "");
-    }
-  }, [user]);
+    const loadProfile = async () => {
+      if (!user) {
+        // Reset form when user is null (logged out)
+        setFullName("");
+        setEmail("");
+        setPhoneNumber("");
+        setInitialValues({ fullName: "", email: "", phoneNumber: "" });
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      setIsLoadingProfile(true);
+      try {
+        const profile = await AuthService.getProfile();
+        const profileFullName = profile.fullName || "";
+        const profileEmail = profile.email || "";
+        const profilePhoneNumber = profile.phoneNumber || "";
+        setFullName(profileFullName);
+        setEmail(profileEmail);
+        setPhoneNumber(profilePhoneNumber);
+        setInitialValues({ fullName: profileFullName, email: profileEmail, phoneNumber: profilePhoneNumber });
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+        // Fallback to user from auth state
+        const fallbackFullName = user.fullName || user.name || "";
+        const fallbackEmail = user.email || "";
+        const fallbackPhoneNumber = "";
+        setFullName(fallbackFullName);
+        setEmail(fallbackEmail);
+        setPhoneNumber(fallbackPhoneNumber);
+        setInitialValues({ fullName: fallbackFullName, email: fallbackEmail, phoneNumber: fallbackPhoneNumber });
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, user?.email]); // Use specific user properties to detect changes
 
   // Check if form has changes
   const hasChanges = useMemo(() => {
     return fullName.trim() !== initialValues.fullName.trim() || 
-           email.trim() !== initialValues.email.trim();
-  }, [fullName, email, initialValues]);
+           email.trim() !== initialValues.email.trim() ||
+           phoneNumber.trim() !== (initialValues.phoneNumber || "").trim();
+  }, [fullName, email, phoneNumber, initialValues]);
 
   const validateForm = (): boolean => {
-    const errors: { fullName?: string; email?: string } = {};
+    const errors: { fullName?: string; email?: string; phoneNumber?: string } = {};
 
     if (!fullName.trim()) {
       errors.fullName = t("profile.fullNameRequired");
@@ -51,11 +86,13 @@ export function ProfileForm() {
 
     if (!email.trim()) {
       errors.email = t("profile.emailRequired");
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        errors.email = t("profile.emailInvalid");
-      }
+    } else if (!validateEmail(email)) {
+      errors.email = t("profile.emailInvalid");
+    }
+
+    // Phone number is optional, but if provided, validate format
+    if (phoneNumber.trim() && !validatePhoneNumber(phoneNumber)) {
+      errors.phoneNumber = t("profile.phoneInvalid");
     }
 
     setFieldErrors(errors);
@@ -81,18 +118,25 @@ export function ProfileForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call - in real app, this would call the backend
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updatedProfile = await AuthService.updateProfile({
+        email,
+        fullName,
+        phoneNumber: phoneNumber.trim() || undefined,
+      });
 
-      // Mock email uniqueness check
-      // In real app, backend would return 409 if email exists
-      // TODO: Remove this mock when backend is integrated
-      if (email === "existing@example.com") {
-        throw new Error(t("profile.emailExists"));
-      }
+      // Update local auth state (preserve role)
+      updateProfile({ 
+        name: updatedProfile.fullName.split(" ")[0] || updatedProfile.fullName,
+        fullName: updatedProfile.fullName,
+        email: updatedProfile.email 
+      });
 
-      // Update user profile
-      updateProfile({ name: fullName, email });
+      // Update initial values to reflect the saved state
+      setInitialValues({ 
+        fullName: updatedProfile.fullName, 
+        email: updatedProfile.email,
+        phoneNumber: updatedProfile.phoneNumber || ""
+      });
 
       setIsSuccess(true);
       // Clear existing timeout
@@ -104,7 +148,8 @@ export function ProfileForm() {
       const errorMessage = err instanceof Error ? err.message : "An error occurred";
       
       // Check if it's an email uniqueness error
-      if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+      if (errorMessage.toLowerCase().includes("email") || 
+          errorMessage.toLowerCase().includes("already in use")) {
         setFieldErrors((prev) => ({ ...prev, email: errorMessage }));
       } else {
         setError(errorMessage);
@@ -123,11 +168,13 @@ export function ProfileForm() {
     };
   }, []);
 
-  const handleInputChange = (field: "fullName" | "email", value: string) => {
+  const handleInputChange = (field: "fullName" | "email" | "phoneNumber", value: string) => {
     if (field === "fullName") {
       setFullName(value);
-    } else {
+    } else if (field === "email") {
       setEmail(value);
+    } else {
+      setPhoneNumber(value);
     }
 
     // Clear field error when user starts typing
@@ -205,6 +252,7 @@ export function ProfileForm() {
             value={fullName}
             onChange={(e) => handleInputChange("fullName", e.target.value)}
             placeholder={t("profile.fullNamePlaceholder")}
+            disabled={isLoadingProfile || isLoading}
             className={cn(
               "transition-all duration-200",
               fieldErrors.fullName && "border-destructive focus-visible:ring-destructive"
@@ -229,6 +277,7 @@ export function ProfileForm() {
             value={email}
             onChange={(e) => handleInputChange("email", e.target.value)}
             placeholder={t("profile.emailPlaceholder")}
+            disabled={isLoadingProfile || isLoading}
             className={cn(
               "transition-all duration-200",
               fieldErrors.email && "border-destructive focus-visible:ring-destructive"
@@ -242,9 +291,34 @@ export function ProfileForm() {
           )}
         </div>
 
+        {/* Phone Number Field */}
+        <div className="space-y-2">
+          <Label htmlFor="phoneNumber" className="text-sm font-medium">
+            {t("profile.phoneNumber")}
+          </Label>
+          <Input
+            id="phoneNumber"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            placeholder={t("profile.phoneNumberPlaceholder")}
+            disabled={isLoadingProfile || isLoading}
+            className={cn(
+              "transition-all duration-200",
+              fieldErrors.phoneNumber && "border-destructive focus-visible:ring-destructive"
+            )}
+          />
+          {fieldErrors.phoneNumber && (
+            <p className="text-sm text-destructive flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+              <AlertCircle className="h-3.5 w-3.5" />
+              {fieldErrors.phoneNumber}
+            </p>
+          )}
+        </div>
+
         {/* Submit Button */}
-        <Button type="submit" disabled={isLoading || !hasChanges} className="min-w-[140px]">
-          {isLoading ? t("profile.updating") : t("profile.updateButton")}
+        <Button type="submit" disabled={isLoadingProfile || isLoading || !hasChanges} className="min-w-[140px]">
+          {isLoadingProfile ? t("profile.loading") : isLoading ? t("profile.updating") : t("profile.updateButton")}
         </Button>
       </div>
     </form>

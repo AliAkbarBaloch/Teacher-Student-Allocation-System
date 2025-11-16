@@ -14,4 +14,8 @@ node_modules/
 
 # Root-level env files (just in case)
 .env
-.env.*
+*.env
+.env.*.local
+
+# macOS
+.DS_Store 

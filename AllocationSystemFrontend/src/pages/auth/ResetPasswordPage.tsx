@@ -1,13 +1,13 @@
 // react
 import { useState } from "react";
 // components
-import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm";
+import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";
 // icons
 import { GraduationCap } from "lucide-react";
 // translations
 import { useTranslation } from "react-i18next";
 
-export default function ChangePasswordPage() {
+export default function ResetPasswordPage() {
   const { t } = useTranslation();
   const [imageError, setImageError] = useState(false);
   
@@ -29,15 +29,15 @@ export default function ChangePasswordPage() {
               {/* Welcome Section */}
               <div className="w-full max-w-md mb-8">
                 <h1 className="text-3xl font-bold tracking-tight mb-2">
-                  {t("auth:changePassword.title")}
+                  {t("auth:resetPassword.title")}
                 </h1>
                 <p className="text-muted-foreground">
-                  {t("auth:changePassword.subtitle")}
+                  {t("auth:resetPassword.subtitle")}
                 </p>
               </div>
 
               {/* Change Password Form */}
-              <ChangePasswordForm />
+              <ResetPasswordForm />
 
               {/* Footer */}
               <div className="mt-12 text-center text-sm text-muted-foreground">

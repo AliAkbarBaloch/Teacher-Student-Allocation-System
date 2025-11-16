@@ -14,9 +14,12 @@
     "fullNamePlaceholder": "Enter your full name",
     "email": "Email",
     "emailPlaceholder": "Enter your email",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Enter your phone number",
     "fullNameRequired": "Full name is required",
     "emailRequired": "Email is required",
     "emailInvalid": "Please enter a valid email address",
+    "phoneInvalid": "Please enter a valid phone number",
     "emailExists": "This email is already in use",
     "updateButton": "Update Profile",
     "updating": "Updating...",
@@ -71,7 +74,9 @@
     "editUser": "Edit User",
     "users": "Users",
     "roles": "Roles",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "accessDenied": "Access Denied",
+    "accessDeniedMessage": "You do not have permission to access this section. Admin privileges are required."
   }
 }
 

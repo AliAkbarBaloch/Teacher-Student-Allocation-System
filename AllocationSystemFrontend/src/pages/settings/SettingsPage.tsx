@@ -13,15 +13,30 @@ import type { SettingsSection } from "@/features/settings/types/settings.types";
 
 export default function SettingsPage() {
   const { t } = useTranslation("settings");
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [activeSection, setActiveSection] = useState<SettingsSection>("profile");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarSuccess, setAvatarSuccess] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Check if user has admin role (placeholder - extend when role system is implemented)
-  const isAdmin = false; // TODO: Replace with actual role check: user?.role === "admin" || user?.permissions?.includes("admin")
+  // Check if user has admin role (backend returns "ADMIN" or "USER")
+  const isAdmin = user?.role === "ADMIN";
+
+  // Reset active section when user changes (e.g., after logout/login)
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) {
+      setActiveSection("profile");
+    } else {
+      // If user is no longer admin and currently viewing admin section, switch to profile
+      setActiveSection((currentSection) => {
+        if (currentSection === "admin" && !isAdmin) {
+          return "profile";
+        }
+        return currentSection;
+      });
+    }
+  }, [user?.id, isAuthenticated, isAdmin]);
 
   const handleAvatarChange = (file: File) => {
     setAvatarFile(file);
@@ -98,7 +113,8 @@ export default function SettingsPage() {
                 <div className="p-8 border-b bg-gradient-to-br from-muted/50 to-muted/20">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                     <Avatar
-                      name={user?.name}
+                      key={user?.id || "no-user"}
+                      name={user?.fullName || user?.name}
                       email={user?.email}
                       size="lg"
                       showEditButton
@@ -106,8 +122,8 @@ export default function SettingsPage() {
                       onError={handleAvatarError}
                     />
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-semibold">{user?.name || "User"}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
+                      <h3 className="text-xl font-semibold">{user?.fullName || user?.name || "User"}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{user?.email || ""}</p>
                       <p className="text-xs text-muted-foreground mt-3">
                         {t("profile.avatarHint")}
                       </p>
@@ -191,41 +207,55 @@ export default function SettingsPage() {
           )}
 
           {/* Admin Section */}
-          {activeSection === "admin" && isAdmin && (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight">{t("admin.title")}</h2>
-                <p className="text-muted-foreground text-sm mt-1">{t("admin.subtitle")}</p>
+          {activeSection === "admin" && (
+            isAdmin ? (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-semibold tracking-tight">{t("admin.title")}</h2>
+                  <p className="text-muted-foreground text-sm mt-1">{t("admin.subtitle")}</p>
+                </div>
+                <div className="rounded-xl border bg-card shadow-sm p-6">
+                  <nav className="space-y-2">
+                    <Link
+                      to={ROUTES.admin.users}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg",
+                        "transition-all duration-200",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "text-sm font-medium"
+                      )}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>{t("admin.viewUsers")}</span>
+                    </Link>
+                    <Link
+                      to={ROUTES.admin.createUser}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg",
+                        "transition-all duration-200",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        "text-sm font-medium"
+                      )}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      <span>{t("admin.createUser")}</span>
+                    </Link>
+                  </nav>
+                </div>
               </div>
-              <div className="rounded-xl border bg-card shadow-sm p-6">
-                <nav className="space-y-2">
-                  <Link
-                    to={ROUTES.admin.users}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg",
-                      "transition-all duration-200",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      "text-sm font-medium"
-                    )}
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>{t("admin.viewUsers")}</span>
-                  </Link>
-                  <Link
-                    to={ROUTES.admin.createUser}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg",
-                      "transition-all duration-200",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      "text-sm font-medium"
-                    )}
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>{t("admin.createUser")}</span>
-                  </Link>
-                </nav>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-xl border bg-card shadow-sm p-8">
+                  <div className="flex flex-col items-center justify-center text-center py-8">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">{t("admin.accessDenied")}</h3>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      {t("admin.accessDeniedMessage")}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            )
           )}
         </div>
       </div>
