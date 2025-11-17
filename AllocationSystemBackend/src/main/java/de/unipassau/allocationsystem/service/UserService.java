@@ -19,13 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * Service for managing users with integrated audit logging.
- * This is an example service demonstrating how to use the audit logging system.
+ * Service for managing users with automatic audit logging via @Audited annotation.
  */
 @Service
 @RequiredArgsConstructor
@@ -34,7 +31,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuditLogService auditLogService;
 
     /**
      * Create a new user with automatic audit logging using @Audited annotation.
@@ -42,7 +38,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "User",
+        entityName = "USER",
         description = "Created new user",
         captureNewValue = true
     )
@@ -62,77 +58,59 @@ public class UserService {
     }
 
     /**
-     * Update user with manual audit logging (for more control over captured values).
+     * Update user with automatic audit logging using @Audited annotation.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Updated user",
+        captureNewValue = true
+    )
     public User updateUser(Long userId, String newEmail, String newFullName) {
         log.info("Updating user: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Capture previous state
-        Map<String, Object> previousValue = new HashMap<>();
-        previousValue.put("email", user.getEmail());
-        previousValue.put("fullName", user.getFullName());
-
         // Update user
         user.setEmail(newEmail);
         user.setFullName(newFullName);
         User updatedUser = userRepository.save(user);
 
-        // Capture new state
-        Map<String, Object> newValue = new HashMap<>();
-        newValue.put("email", updatedUser.getEmail());
-        newValue.put("fullName", updatedUser.getFullName());
-
-        // Manually log the update with before/after values
-        auditLogService.logUpdate("User", userId.toString(), previousValue, newValue);
-
         return updatedUser;
     }
 
     /**
-     * Delete user with audit logging.
+     * Delete user with automatic audit logging using @Audited annotation.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.DELETE,
+        entityName = "USER",
+        description = "Deleted user",
+        captureNewValue = false
+    )
     public void deleteUser(Long userId) {
         log.info("Deleting user: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        // Capture user state before deletion
-        Map<String, Object> previousValue = new HashMap<>();
-        previousValue.put("id", user.getId());
-        previousValue.put("email", user.getEmail());
-        previousValue.put("fullName", user.getFullName());
-        previousValue.put("enabled", user.isEnabled());
-
         // Delete user
         userRepository.delete(user);
-
-        // Log the deletion
-        auditLogService.logDelete("User", userId.toString(), previousValue);
     }
 
     /**
-     * Get user by ID (optionally with view logging for sensitive operations).
+     * Get user by ID.
      */
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(Long userId, boolean logView) {
-        Optional<User> user = userRepository.findById(userId);
-
-        // Optionally log view operations for compliance
-        if (logView && user.isPresent()) {
-            auditLogService.logView("User", userId.toString());
-        }
-
-        return user;
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
     /**
-     * Change user password with audit logging.
+     * Change user password.
      */
     @Transactional
     public void changePassword(Long userId, String oldPassword, String newPassword) {
@@ -143,46 +121,32 @@ public class UserService {
 
         // Verify old password
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            // Log failed attempt
-            auditLogService.logAction(
-                AuditAction.PASSWORD_CHANGE,
-                "User",
-                "Failed password change attempt for user: " + userId
-            );
             throw new RuntimeException("Invalid old password");
         }
 
         // Update password
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-
-        // Log successful password change (without storing passwords)
-        auditLogService.logAction(
-            AuditAction.PASSWORD_CHANGE,
-            "User",
-            "Successfully changed password for user: " + userId
-        );
     }
 
     /**
      * Enable or disable user account.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Updated user enabled status",
+        captureNewValue = true
+    )
     public User setUserEnabled(Long userId, boolean enabled) {
         log.info("Setting user {} enabled status to: {}", userId, enabled);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        boolean previousEnabled = user.isEnabled();
         user.setEnabled(enabled);
         User updatedUser = userRepository.save(user);
-
-        // Log the status change
-        Map<String, Object> previousValue = Map.of("enabled", previousEnabled);
-        Map<String, Object> newValue = Map.of("enabled", enabled);
-
-        auditLogService.logUpdate("User", userId.toString(), previousValue, newValue);
 
         return updatedUser;
     }
@@ -195,7 +159,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "User",
+        entityName = "USER",
         description = "Admin created new user",
         captureNewValue = true
     )
@@ -225,54 +189,41 @@ public class UserService {
      * Update user with DTO.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Updated user with DTO",
+        captureNewValue = true
+    )
     public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
         log.info("Updating user with DTO: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        Map<String, Object> previousValue = new HashMap<>();
-        Map<String, Object> newValue = new HashMap<>();
-
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(dto.getEmail())) {
                 throw new DuplicateResourceException("User with email " + dto.getEmail() + " already exists");
             }
-            previousValue.put("email", user.getEmail());
             user.setEmail(dto.getEmail());
-            newValue.put("email", dto.getEmail());
         }
         if (dto.getFullName() != null) {
-            previousValue.put("fullName", user.getFullName());
             user.setFullName(dto.getFullName());
-            newValue.put("fullName", dto.getFullName());
         }
         if (dto.getRole() != null) {
-            previousValue.put("role", user.getRole());
             user.setRole(dto.getRole());
-            newValue.put("role", dto.getRole());
         }
         if (dto.getPhoneNumber() != null) {
-            previousValue.put("phoneNumber", user.getPhoneNumber());
             user.setPhoneNumber(dto.getPhoneNumber());
-            newValue.put("phoneNumber", dto.getPhoneNumber());
         }
         if (dto.getEnabled() != null) {
-            previousValue.put("enabled", user.isEnabled());
             user.setEnabled(dto.getEnabled());
-            newValue.put("enabled", dto.getEnabled());
         }
         if (dto.getAccountStatus() != null) {
-            previousValue.put("accountStatus", user.getAccountStatus());
             user.setAccountStatus(dto.getAccountStatus());
-            newValue.put("accountStatus", dto.getAccountStatus());
         }
 
         User updatedUser = userRepository.save(user);
-
-        if (!previousValue.isEmpty()) {
-            auditLogService.logUpdate("User", userId.toString(), previousValue, newValue);
-        }
 
         return mapToResponseDto(updatedUser);
     }
@@ -281,17 +232,17 @@ public class UserService {
      * Activate user account.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Activated user account",
+        captureNewValue = true
+    )
     public UserResponseDto activateUser(Long userId) {
         log.info("Activating user: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        Map<String, Object> previousValue = Map.of(
-            "enabled", user.isEnabled(),
-            "accountStatus", user.getAccountStatus(),
-            "accountLocked", user.isAccountLocked()
-        );
 
         user.setEnabled(true);
         user.setAccountStatus(User.AccountStatus.ACTIVE);
@@ -300,13 +251,6 @@ public class UserService {
 
         User updatedUser = userRepository.save(user);
 
-        Map<String, Object> newValue = Map.of(
-            "enabled", true,
-            "accountStatus", User.AccountStatus.ACTIVE,
-            "accountLocked", false
-        );
-
-        auditLogService.logUpdate("User", userId.toString(), previousValue, newValue);
         return mapToResponseDto(updatedUser);
     }
 
@@ -314,28 +258,23 @@ public class UserService {
      * Deactivate user account.
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Deactivated user account",
+        captureNewValue = true
+    )
     public UserResponseDto deactivateUser(Long userId) {
         log.info("Deactivating user: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        Map<String, Object> previousValue = Map.of(
-            "enabled", user.isEnabled(),
-            "accountStatus", user.getAccountStatus()
-        );
-
         user.setEnabled(false);
         user.setAccountStatus(User.AccountStatus.INACTIVE);
 
         User updatedUser = userRepository.save(user);
 
-        Map<String, Object> newValue = Map.of(
-            "enabled", false,
-            "accountStatus", User.AccountStatus.INACTIVE
-        );
-
-        auditLogService.logUpdate("User", userId.toString(), previousValue, newValue);
         return mapToResponseDto(updatedUser);
     }
 
@@ -343,6 +282,12 @@ public class UserService {
      * Reset user password (admin function).
      */
     @Transactional
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = "USER",
+        description = "Admin reset user password",
+        captureNewValue = true
+    )
     public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
         log.info("Admin resetting password for user: {}", userId);
 
@@ -352,12 +297,6 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
         User savedUser = userRepository.save(user);
-
-        auditLogService.logAction(
-            AuditAction.PASSWORD_CHANGE,
-            "User",
-            "Admin reset password for user: " + userId
-        );
         
         return mapToResponseDto(savedUser);
     }
