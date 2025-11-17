@@ -63,6 +63,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 10,
   validateOnUpdate,
+  disableInternalDialog = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -90,28 +91,43 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
 
   // Handler to open dialog with row data
   const handleViewRow = React.useCallback((row: TData) => {
+    if (disableInternalDialog) {
+      // If internal dialog is disabled, just call the callback
+      actions?.onView?.(row);
+      return;
+    }
     setSelectedRow(row);
     setEditingRow({ ...row });
     setIsEditing(false);
     setDialogOpen(true);
     actions?.onView?.(row);
-  }, [actions]);
+  }, [actions, disableInternalDialog]);
 
   // Handler to open dialog in edit mode
   const handleEditRow = React.useCallback((row: TData) => {
+    if (disableInternalDialog) {
+      // If internal dialog is disabled, just call the callback
+      actions?.onEdit?.(row);
+      return;
+    }
     setSelectedRow(row);
     setEditingRow({ ...row });
     setIsEditing(true);
     setValidationError(null);
     setDialogOpen(true);
     actions?.onEdit?.(row);
-  }, [actions]);
+  }, [actions, disableInternalDialog]);
 
   // Handler to open delete confirmation
   const handleDeleteClick = React.useCallback((row: TData) => {
+    if (disableInternalDialog) {
+      // If internal dialog is disabled, just call the callback
+      actions?.onDelete?.(row);
+      return;
+    }
     setSelectedRow(row);
     setDeleteDialogOpen(true);
-  }, []);
+  }, [actions, disableInternalDialog]);
 
   // Handler to confirm delete
   const handleConfirmDelete = React.useCallback(() => {
@@ -505,8 +521,8 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         />
       )}
 
-      {/* View/Edit Dialog */}
-      {actions && (
+      {/* View/Edit Dialog - Only render if internal dialog is enabled */}
+      {actions && !disableInternalDialog && (
         <DataTableDialog
           open={dialogOpen}
           onOpenChange={handleCloseDialog}

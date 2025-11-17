@@ -4,7 +4,8 @@
   "sidebar": {
     "profile": "Profile",
     "password": "Password",
-    "admin": "Admin"
+    "users": "Users",
+    "roles": "Roles"
   },
   "profile": {
     "title": "Profile Information",
@@ -66,15 +67,11 @@
       "hasSpecial": "One special character"
     }
   },
-  "admin": {
+  "users": {
     "title": "User Management",
-    "subtitle": "Manage users and permissions",
-    "viewUsers": "View All Users",
-    "createUser": "Create New User",
-    "editUser": "Edit User",
-    "users": "Users",
-    "roles": "Roles",
-    "permissions": "Permissions",
+    "subtitle": "Manage users and their accounts"
+  },
+  "admin": {
     "accessDenied": "Access Denied",
     "accessDeniedMessage": "You do not have permission to access this section. Admin privileges are required."
   }

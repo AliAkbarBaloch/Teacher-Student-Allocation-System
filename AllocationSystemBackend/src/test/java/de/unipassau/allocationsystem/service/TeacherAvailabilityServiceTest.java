@@ -46,9 +46,6 @@ class TeacherAvailabilityServiceTest {
     @Mock
     private TeacherAvailabilityMapper teacherAvailabilityMapper;
 
-    @Mock
-    private AuditLogService auditLogService;
-
     @InjectMocks
     private TeacherAvailabilityService teacherAvailabilityService;
 
@@ -270,7 +267,7 @@ class TeacherAvailabilityServiceTest {
         verify(academicYearRepository).findById(1L);
         verify(internshipTypeRepository).findById(1L);
         verify(teacherAvailabilityRepository).save(any(TeacherAvailability.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER_AVAILABILITY"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -421,7 +418,7 @@ class TeacherAvailabilityServiceTest {
         assertNotNull(result);
         verify(teacherAvailabilityRepository).findByAvailabilityIdAndTeacherId(1L, 1L);
         verify(teacherAvailabilityRepository).save(any(TeacherAvailability.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER_AVAILABILITY"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -567,7 +564,7 @@ class TeacherAvailabilityServiceTest {
         // Assert
         verify(teacherAvailabilityRepository).findByAvailabilityIdAndTeacherId(1L, 1L);
         verify(teacherAvailabilityRepository).delete(testAvailability);
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER_AVAILABILITY"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test

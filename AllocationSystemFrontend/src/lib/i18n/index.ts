@@ -7,11 +7,13 @@ import enCommon from "./locales/en/common.json";
 import enAuth from "./locales/en/auth.json";
 import enHome from "./locales/en/home.json";
 import enSettings from "./locales/en/settings.json";
+import enRoles from "./locales/en/roles.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
 import deHome from "./locales/de/home.json";
 import deSettings from "./locales/de/settings.json";
+import deRoles from "./locales/de/roles.json";
 
 // Language metadata configuration
 export const languages = [
@@ -33,12 +35,14 @@ export const resources = {
         auth: enAuth,
         home: enHome,
         settings: enSettings,
+        roles: enRoles,
     },
     de: {
         common: deCommon,
         auth: deAuth,
         home: deHome,
         settings: deSettings,
+        roles: deRoles,
     }
 } as const;
 
@@ -58,7 +62,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",

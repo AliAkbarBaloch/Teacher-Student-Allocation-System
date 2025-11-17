@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { User, Lock, Shield, type LucideIcon } from "lucide-react";
+import { User, Lock, type LucideIcon } from "lucide-react";
 import type { SettingsSection } from "@/features/settings/types/settings.types";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+
 
 interface SettingsSidebarProps {
   activeSection: SettingsSection;
@@ -11,15 +11,11 @@ interface SettingsSidebarProps {
 
 export function SettingsSidebar({ activeSection, onSectionChange }: SettingsSidebarProps) {
   const { t } = useTranslation("settings");
-  const { user } = useAuth();
-  
-  // Check if user has admin role (backend returns "ADMIN" or "USER")
-  const isAdmin = user?.role === "ADMIN";
+
 
   const sections: { id: SettingsSection; icon: LucideIcon; translationKey: string }[] = [
     { id: "profile", icon: User, translationKey: "sidebar.profile" },
     { id: "password", icon: Lock, translationKey: "sidebar.password" },
-    ...(isAdmin ? [{ id: "admin" as SettingsSection, icon: Shield, translationKey: "sidebar.admin" }] : []),
   ];
 
   return (

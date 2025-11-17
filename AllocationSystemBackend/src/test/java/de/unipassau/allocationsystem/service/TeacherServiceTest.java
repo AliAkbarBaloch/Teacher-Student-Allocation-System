@@ -45,9 +45,6 @@ class TeacherServiceTest {
     @Mock
     private TeacherMapper teacherMapper;
 
-    @Mock
-    private AuditLogService auditLogService;
-
     @InjectMocks
     private TeacherService teacherService;
 
@@ -257,7 +254,7 @@ class TeacherServiceTest {
         verify(teacherRepository).existsByEmail(createDto.getEmail());
         verify(schoolRepository).findById(1L);
         verify(teacherRepository).save(any(Teacher.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -336,7 +333,7 @@ class TeacherServiceTest {
         verify(teacherRepository).findById(1L);
         verify(teacherMapper).updateEntityFromDto(any(Teacher.class), eq(updateDto));
         verify(teacherRepository).save(any(Teacher.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -408,7 +405,7 @@ class TeacherServiceTest {
         assertNotNull(result);
         verify(teacherRepository).findById(1L);
         verify(teacherRepository).save(any(Teacher.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -455,7 +452,7 @@ class TeacherServiceTest {
         // Assert
         verify(teacherRepository).findById(1L);
         verify(teacherRepository).save(any(Teacher.class));
-        verify(auditLogService).logAsync(any(), any(), eq("TEACHER"), any(), any(), any(), any());
+        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test

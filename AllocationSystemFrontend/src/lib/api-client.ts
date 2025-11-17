@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config";
+import i18n from "@/lib/i18n";
 
 /**
  * API Client for making HTTP requests to the backend
@@ -30,15 +31,22 @@ class ApiClient {
    */
   private isTokenExpired(token: string): boolean {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1])) as { exp?: number };
-      if (typeof payload.exp === "number") {
-        const exp = payload.exp * 1000; // Convert to milliseconds
-        return Date.now() >= exp;
+      const [, payloadSegment] = token.split(".");
+      if (!payloadSegment) {
+        return true;
       }
-      return false;
+
+      const payload = JSON.parse(atob(payloadSegment)) as { exp?: number };
+
+      if (typeof payload.exp !== "number") {
+        return true;
+      }
+
+      const exp = payload.exp * 1000; // Convert to milliseconds
+      return Date.now() >= exp;
     } catch {
-      // If we can't parse, let backend handle it
-      return false;
+      // Treat any malformed token as expired to force a refresh
+      return true;
     }
   }
 
@@ -69,21 +77,26 @@ class ApiClient {
     const token = this.getAuthToken();
     if (token && !this.isAuthEndpoint(endpoint) && this.isTokenExpired(token)) {
       this.handleExpiredToken();
-      throw new Error("Your session has expired. Please log in again.");
+      throw new Error(i18n.t("common:errors.sessionExpired"));
     }
   }
 
   /**
    * Build request headers with authentication token
    */
-  private buildHeaders(options?: RequestInit): Record<string, string> {
+  private buildHeaders(
+    options?: RequestInit,
+    extraOptions?: { omitJsonContentType?: boolean }
+  ): Record<string, string> {
     const token = this.getAuthToken();
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options?.headers && typeof options.headers === "object" && !(options.headers instanceof Headers)
-        ? (options.headers as Record<string, string>)
-        : {}),
-    };
+    const headers: Record<string, string> =
+      options?.headers && typeof options.headers === "object" && !(options.headers instanceof Headers)
+        ? { ...(options.headers as Record<string, string>) }
+        : {};
+
+    if (!extraOptions?.omitJsonContentType && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
 
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -97,10 +110,10 @@ class ApiClient {
    */
   private handleNetworkError(error: unknown): never {
     if (error instanceof TypeError && error.message === "Failed to fetch") {
-      throw new Error("Network error. Please check your connection and try again.");
+      throw new Error(i18n.t("common:errors.networkError"));
     }
     if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) {
-      throw new Error("Request timeout. Please try again.");
+      throw new Error(i18n.t("common:errors.requestTimeout"));
     }
     // Re-throw the error if it's not a network error
     throw error;
@@ -196,7 +209,7 @@ class ApiClient {
           this.onUnauthorized();
         }
         
-        errorMessage = "Your session has expired. Please log in again.";
+        errorMessage = i18n.t("common:errors.sessionExpired");
       }
     }
 
@@ -239,14 +252,18 @@ class ApiClient {
    */
   async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options);
+    const isFormData =
+      typeof FormData !== "undefined" && data instanceof FormData;
+    const headers = this.buildHeaders(options, {
+      omitJsonContentType: isFormData,
+    });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "POST",
         headers,
-        body: data ? JSON.stringify(data) : undefined,
+        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
         ...options,
         signal: options?.signal || signal,
       });
@@ -268,14 +285,18 @@ class ApiClient {
    */
   async put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options);
+    const isFormData =
+      typeof FormData !== "undefined" && data instanceof FormData;
+    const headers = this.buildHeaders(options, {
+      omitJsonContentType: isFormData,
+    });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PUT",
         headers,
-        body: data ? JSON.stringify(data) : undefined,
+        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
         ...options,
         signal: options?.signal || signal,
       });

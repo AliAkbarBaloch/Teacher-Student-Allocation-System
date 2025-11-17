@@ -10,16 +10,44 @@
         "de": "Deutsch"
     },
     "navigation": {
-        "home": "Startseite",
-        "schools": "Schulen",
-        "teachersPools": "Lehrerpools",
+        "groups": {
+            "overview": "Übersicht",
+            "userManagement": "Benutzerverwaltung",
+            "dataManagement": "Datenverwaltung",
+            "planning": "Planung & Zuweisung",
+            "reports": "Berichte",
+            "settings": "Einstellungen"
+        },
+        "dashboard": "Dashboard",
+        "userAccess": "Zugriffsverwaltung",
+        "userAccessUsers": "Benutzer",
+        "userAccessRoles": "Rollen",
+        "userAccessPermissions": "Berechtigungen",
+        "userAccessAuditLogs": "Audit-Protokolle",
+        "baseData": "Stammdatenverwaltung",
+        "baseDataAcademicYears": "Studienjahre",
+        "baseDataSubjectCategories": "Fachkategorien",
+        "baseDataSubjects": "Fächer",
+        "baseDataSchools": "Schulen",
+        "baseDataTeachers": "Lehrer",
+        "baseDataInternshipTypes": "Praktikumstypen",
         "teacherManagement": "Lehrerverwaltung",
-        "budget": "Budget",
-        "subjects": "Fächer",
-        "internships": "Praktika",
-        "allocation": "Zuweisung",
+        "teacherManagementTeacherSubjects": "Lehrerfächer",
+        "teacherManagementTeacherAvailability": "Lehrerverfügbarkeit",
+        "teacherManagementTeacherFormSubmissions": "Lehrerformular-Einreichungen",
+        "internshipDemand": "Praktikumsnachfrage",
+        "internshipDemandDemandPerYear": "Praktikumsnachfrage pro Jahr",
+        "allocationPlanning": "Zuweisungsplanung",
+        "allocationPlanningAllocationPlans": "Zuweisungspläne",
+        "allocationPlanningTeacherAssignments": "Lehrerzuweisungen",
+        "allocationPlanningCreditHourTracking": "Leistungspunkte-Verfolgung",
+        "allocationPlanningZoneConstraints": "Zonenbeschränkungen",
+        "allocationPlanningPlanChangeLogs": "Planänderungsprotokolle",
         "reports": "Berichte",
-        "archives": "Archive"
+        "reportsAllocationReports": "Zuweisungsberichte",
+        "reportsTeacherReports": "Lehrerberichte",
+        "reportsSchoolReports": "Schulberichte",
+        "reportsAuditReports": "Audit-Berichte"
     },
     "userMenu": {
         "settings": "Einstellungen",
@@ -30,5 +58,10 @@
         "copyright": "Copyright ©",
         "university": "Universität Passau",
         "privacyPolicy": "Datenschutzerklärung"
+    },
+    "errors": {
+        "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        "requestTimeout": "Anfrage-Timeout. Bitte versuchen Sie es erneut.",
+        "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
     }
 }

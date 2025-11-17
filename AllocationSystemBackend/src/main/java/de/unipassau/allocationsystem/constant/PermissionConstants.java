@@ -13,6 +13,7 @@ public class PermissionConstants {
         public static final String TEACHER = "teacher";
         public static final String TEACHER_AVAILABILITY = "teacherAvailability";
         public static final String INTERNSHIP_TYPE = "internshipType";
+        public static final String TEACHER_FORM_SUBMISSION = "teacherFormSubmission";
     }
 
     public static class AccessLevels {
