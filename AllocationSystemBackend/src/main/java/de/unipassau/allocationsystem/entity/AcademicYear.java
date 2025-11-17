@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,19 +25,19 @@ public class AcademicYear {
     @Column(name = "year_name", nullable = false, unique = true)
     private String yearName;
 
-    @NotBlank(message = "Total Credit Hours is required")
+    @NotNull(message = "Total Credit Hours is required")
     @Column(name = "total_credit_hours", nullable = false)
     private Integer totalCreditHours;
 
-    @NotBlank(message = "Elementary School Hours is required")
+    @NotNull(message = "Elementary School Hours is required")
     @Column(name = "elementary_school_hours", nullable = false)
     private Integer elementarySchoolHours;
 
-    @NotBlank(message = "Middle School Hours is required")
+    @NotNull(message = "Middle School Hours is required")
     @Column(name = "middle_school_hours", nullable = false)
     private Integer middleSchoolHours;
 
-    @NotBlank(message = "Budget announcement Date is required")
+    @NotNull(message = "Budget announcement Date is required")
     @Column(name = "budget_announcement_date", nullable = false)
     private LocalDateTime budgetAnnouncementDate;
 
