@@ -59,10 +59,18 @@ public class SchoolController {
         
         // Build queryParams map for PaginationUtils
         java.util.Map<String, String> queryParams = new java.util.HashMap<>();
-        if (page != null) queryParams.put("page", String.valueOf(page));
-        if (pageSize != null) queryParams.put("pageSize", String.valueOf(pageSize));
-        if (sortBy != null) queryParams.put("sortBy", sortBy);
-        if (sortOrder != null) queryParams.put("sortOrder", sortOrder);
+        if (page != null) {
+            queryParams.put("page", String.valueOf(page));
+        }
+        if (pageSize != null) {
+            queryParams.put("pageSize", String.valueOf(pageSize));
+        }
+        if (sortBy != null) {
+            queryParams.put("sortBy", sortBy);
+        }
+        if (sortOrder != null) {
+            queryParams.put("sortOrder", sortOrder);
+        }
         
         Map<String, Object> result = schoolService.getAllSchools(queryParams, search, schoolType, zoneNumber, isActive);
         return ResponseHandler.success("Schools retrieved successfully (paginated)", result);
