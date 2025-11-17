@@ -1,5 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -68,6 +70,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.CREATE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Created new InternshipType",
+            captureNewValue = true
+    )
     @Transactional
     public InternshipType create(InternshipType internshipType) {
         if (internshipTypeRepository.findByInternshipCode(internshipType.getInternshipCode()).isPresent()) {
@@ -76,6 +84,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.save(internshipType);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Updated Internship Type information",
+            captureNewValue = true
+    )
     @Transactional
     public InternshipType update(Long id, InternshipType data) {
         InternshipType existing = internshipTypeRepository.findById(id)
@@ -109,6 +123,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.DELETE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Deleted INTERNSHIP_TYPE status",
+            captureNewValue = true
+    )
     @Transactional
     public void delete(Long id) {
         if (!internshipTypeRepository.existsById(id)) {
