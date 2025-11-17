@@ -8,6 +8,7 @@ import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.NoSuchElementException;
 @RequestMapping("/subject-categories")
 @RequiredArgsConstructor
 @Tag(name = "SubjectCategories", description = "Subject Category management APIs")
+@Slf4j
 public class SubjectCategoryController {
 
     private final SubjectCategoryService subjectCategoryService;
@@ -31,6 +33,7 @@ public class SubjectCategoryController {
      */
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
+        log.info("Fetching subject category sort fields");
         List<Map<String, String>> result = subjectCategoryService.getSortFields();
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
@@ -46,6 +49,7 @@ public class SubjectCategoryController {
             @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
+        log.info("Fetching paginated subject categories with params: {}", queryParams);
         Map<String, Object> result = subjectCategoryService.getPaginated(queryParams, includeRelations, searchValue);
         return ResponseHandler.success("Subject categories retrieved successfully (paginated)", result);
     }
@@ -56,6 +60,7 @@ public class SubjectCategoryController {
      */
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
+        log.info("Fetching all subject categories (includeRelations={})", includeRelations);
         List<SubjectCategoryDto> result = subjectCategoryMapper.toDtoList(subjectCategoryService.getAll());
         return ResponseHandler.success("Subject categories retrieved successfully", result);
     }
@@ -66,6 +71,7 @@ public class SubjectCategoryController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
+        log.info("Fetching subject category with id {}", id);
         SubjectCategoryDto result = subjectCategoryService.getById(id)
                 .map(subjectCategoryMapper::toDto)
                 .orElseThrow(() -> new NoSuchElementException("Subject category not found with id: " + id));
@@ -79,6 +85,7 @@ public class SubjectCategoryController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryDto dto) {
         try {
+            log.info("Creating subject category with payload {}", dto);
             SubjectCategory subjectCategory = subjectCategoryMapper.toEntity(dto);
             SubjectCategory created = subjectCategoryService.create(subjectCategory);
             return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toDto(created));
@@ -95,6 +102,7 @@ public class SubjectCategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectCategoryDto dto) {
         try {
+            log.info("Updating subject category {} with payload {}", id, dto);
             SubjectCategory subjectCategory = subjectCategoryMapper.toEntity(dto);
             SubjectCategory updated = subjectCategoryService.update(id, subjectCategory);
             return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toDto(updated));
@@ -112,6 +120,7 @@ public class SubjectCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
+            log.info("Deleting subject category {}", id);
             subjectCategoryService.delete(id);
             return ResponseHandler.noContent();
         } catch (NoSuchElementException e) {
