@@ -1,2 +1,2 @@
-export type SettingsSection = "profile" | "password" | "admin";
+export type SettingsSection = "profile" | "password" | "users" | "roles";
 

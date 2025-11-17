@@ -10,16 +10,44 @@
         "de": "German"
     },
     "navigation": {
-        "home": "Home",
-        "schools": "Schools",
-        "teachersPools": "Teachers Pools",
+        "groups": {
+            "overview": "Overview",
+            "userManagement": "User Management",
+            "dataManagement": "Data Management",
+            "planning": "Planning & Allocation",
+            "reports": "Reports",
+            "settings": "Settings"
+        },
+        "dashboard": "Dashboard",
+        "userAccess": "Access Management",
+        "userAccessUsers": "Users",
+        "userAccessRoles": "Roles",
+        "userAccessPermissions": "Permissions",
+        "userAccessAuditLogs": "Audit Logs",
+        "baseData": "Base Data Management",
+        "baseDataAcademicYears": "Academic Years",
+        "baseDataSubjectCategories": "Subject Categories",
+        "baseDataSubjects": "Subjects",
+        "baseDataSchools": "Schools",
+        "baseDataTeachers": "Teachers",
+        "baseDataInternshipTypes": "Internship Types",
         "teacherManagement": "Teacher Management",
-        "budget": "Budget",
-        "subjects": "Subjects",
-        "internships": "Internships",
-        "allocation": "Allocation",
+        "teacherManagementTeacherSubjects": "Teacher Subjects",
+        "teacherManagementTeacherAvailability": "Teacher Availability",
+        "teacherManagementTeacherFormSubmissions": "Teacher Form Submissions",
+        "internshipDemand": "Internship Demand",
+        "internshipDemandDemandPerYear": "Internship Demand per Year",
+        "allocationPlanning": "Allocation Planning",
+        "allocationPlanningAllocationPlans": "Allocation Plans",
+        "allocationPlanningTeacherAssignments": "Teacher Assignments",
+        "allocationPlanningCreditHourTracking": "Credit Hour Tracking",
+        "allocationPlanningZoneConstraints": "Zone Constraints",
+        "allocationPlanningPlanChangeLogs": "Plan Change Logs",
         "reports": "Reports",
-        "archives": "Archives"
+        "reportsAllocationReports": "Allocation Reports",
+        "reportsTeacherReports": "Teacher Reports",
+        "reportsSchoolReports": "School Reports",
+        "reportsAuditReports": "Audit Reports"
     },
     "userMenu": {
         "settings": "Settings",
@@ -30,6 +58,11 @@
         "copyright": "Copyright ©",
         "university": "Universität Passau",
         "privacyPolicy": "Privacy Policy"
+    },
+    "errors": {
+        "networkError": "Network error. Please check your connection and try again.",
+        "requestTimeout": "Request timeout. Please try again.",
+        "sessionExpired": "Your session has expired. Please log in again."
     }
 }
 

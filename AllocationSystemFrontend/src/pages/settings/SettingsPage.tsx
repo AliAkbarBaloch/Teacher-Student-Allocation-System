@@ -5,9 +5,7 @@ import { SettingsPasswordForm } from "@/features/settings/components/SettingsPas
 import { SettingsSidebar } from "@/features/settings/components/SettingsSidebar";
 import { Avatar } from "@/components/common/Avatar";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { Link } from "react-router-dom";
-import { ROUTES } from "@/config/routes";
-import { Users, UserPlus, CheckCircle2, X, AlertCircle } from "lucide-react";
+import { CheckCircle2, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SettingsSection } from "@/features/settings/types/settings.types";
 
@@ -28,9 +26,9 @@ export default function SettingsPage() {
     if (!isAuthenticated || !user?.id) {
       setActiveSection("profile");
     } else {
-      // If user is no longer admin and currently viewing admin section, switch to profile
+      // If user is no longer admin and currently viewing admin sections, switch to profile
       setActiveSection((currentSection) => {
-        if (currentSection === "admin" && !isAdmin) {
+        if ((currentSection === "users" || currentSection === "roles") && !isAdmin) {
           return "profile";
         }
         return currentSection;
@@ -206,41 +204,13 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Admin Section */}
-          {activeSection === "admin" && (
+          {/* Users Section */}
+          {activeSection === "users" && (
             isAdmin ? (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-semibold tracking-tight">{t("admin.title")}</h2>
-                  <p className="text-muted-foreground text-sm mt-1">{t("admin.subtitle")}</p>
-                </div>
-                <div className="rounded-xl border bg-card shadow-sm p-6">
-                  <nav className="space-y-2">
-                    <Link
-                      to={ROUTES.admin.users}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-lg",
-                        "transition-all duration-200",
-                        "hover:bg-accent hover:text-accent-foreground",
-                        "text-sm font-medium"
-                      )}
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>{t("admin.viewUsers")}</span>
-                    </Link>
-                    <Link
-                      to={ROUTES.admin.createUser}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-lg",
-                        "transition-all duration-200",
-                        "hover:bg-accent hover:text-accent-foreground",
-                        "text-sm font-medium"
-                      )}
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>{t("admin.createUser")}</span>
-                    </Link>
-                  </nav>
+                  <h2 className="text-2xl font-semibold tracking-tight">{t("users.title")}</h2>
+                  <p className="text-muted-foreground text-sm mt-1">{t("users.subtitle")}</p>
                 </div>
               </div>
             ) : (

@@ -4,7 +4,8 @@
   "sidebar": {
     "profile": "Profil",
     "password": "Passwort",
-    "admin": "Administration"
+    "users": "Benutzer",
+    "roles": "Rollen"
   },
   "profile": {
     "title": "Profilinformationen",
@@ -66,15 +67,11 @@
       "hasSpecial": "Ein Sonderzeichen"
     }
   },
-  "admin": {
+  "users": {
     "title": "Benutzerverwaltung",
-    "subtitle": "Benutzer und Berechtigungen verwalten",
-    "viewUsers": "Alle Benutzer anzeigen",
-    "createUser": "Neuen Benutzer erstellen",
-    "editUser": "Benutzer bearbeiten",
-    "users": "Benutzer",
-    "roles": "Rollen",
-    "permissions": "Berechtigungen",
+    "subtitle": "Benutzer und ihre Konten verwalten"
+  },
+  "admin": {
     "accessDenied": "Zugriff verweigert",
     "accessDeniedMessage": "Sie haben keine Berechtigung, auf diesen Bereich zuzugreifen. Administratorrechte sind erforderlich."
   }
