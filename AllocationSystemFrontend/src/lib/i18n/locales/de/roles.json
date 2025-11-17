@@ -1,0 +1,76 @@
+{
+  "title": "Rollenverwaltung",
+  "subtitle": "Benutzerrollen und Berechtigungen verwalten",
+  "table": {
+    "title": "Titel",
+    "description": "Beschreibung",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Rollen gefunden.",
+    "searchPlaceholder": "Rollen suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Rolle erstellen",
+      "edit": "Rolle bearbeiten",
+      "view": "Rollen-Details"
+    },
+    "fields": {
+      "title": "Titel",
+      "description": "Beschreibung"
+    },
+    "placeholders": {
+      "title": "Rollentitel eingeben (z.B. Admin, Manager)",
+      "description": "Rollenbeschreibung eingeben"
+    },
+    "errors": {
+      "titleRequired": "Titel ist erforderlich",
+      "titleMaxLength": "Titel darf maximal 255 Zeichen lang sein",
+      "descriptionRequired": "Beschreibung ist erforderlich",
+      "descriptionMaxLength": "Beschreibung darf maximal 1000 Zeichen lang sein"
+    },
+    "actions": {
+      "create": "Rolle erstellen",
+      "update": "Rolle aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert..."
+    }
+  },
+  "actions": {
+    "create": "Rolle erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen",
+    "managePermissions": "Berechtigungen verwalten"
+  },
+  "delete": {
+    "title": "Rolle löschen",
+    "message": "Möchten Sie diese Rolle wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "systemProtected": "Diese Rolle ist systemgeschützt und kann nicht gelöscht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "protectedTitle": "Keine Berechtigung",
+    "protectedMessage": "Sie können diese Systemrolle nicht löschen. Diese Aktion ist eingeschränkt.",
+    "superAdminInfo": "Nur ein Super-Admin kann Admin-Rollen löschen.",
+    "close": "Schließen",
+    "success": "Rolle erfolgreich gelöscht",
+    "error": "Rolle konnte nicht gelöscht werden"
+  },
+  "create": {
+    "success": "Rolle erfolgreich erstellt",
+    "error": "Rolle konnte nicht erstellt werden"
+  },
+  "update": {
+    "success": "Rolle erfolgreich aktualisiert",
+    "error": "Rolle konnte nicht aktualisiert werden"
+  },
+  "systemProtected": {
+    "warning": "Dies ist eine systemgeschützte Rolle und kann nicht geändert oder gelöscht werden.",
+    "tooltip": "Systemgeschützte Rolle"
+  },
+  "badges": {
+    "systemProtected": "System"
+  }
+}
+
