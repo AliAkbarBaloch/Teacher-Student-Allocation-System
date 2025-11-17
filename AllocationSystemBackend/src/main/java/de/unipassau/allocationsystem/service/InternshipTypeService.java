@@ -1,12 +1,15 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +23,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class InternshipTypeService {
 
-    @Autowired
-    private InternshipTypeRepository internshipTypeRepository;
+    private final InternshipTypeRepository internshipTypeRepository;
 
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
@@ -66,6 +70,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.CREATE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Created new InternshipType",
+            captureNewValue = true
+    )
     @Transactional
     public InternshipType create(InternshipType internshipType) {
         if (internshipTypeRepository.findByInternshipCode(internshipType.getInternshipCode()).isPresent()) {
@@ -74,6 +84,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.save(internshipType);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Updated Internship Type information",
+            captureNewValue = true
+    )
     @Transactional
     public InternshipType update(Long id, InternshipType data) {
         InternshipType existing = internshipTypeRepository.findById(id)
@@ -107,6 +123,12 @@ public class InternshipTypeService {
         return internshipTypeRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.DELETE,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Deleted INTERNSHIP_TYPE status",
+            captureNewValue = true
+    )
     @Transactional
     public void delete(Long id) {
         if (!internshipTypeRepository.existsById(id)) {
