@@ -1,0 +1,47 @@
+{
+  "title": "Audit Logs",
+  "subtitle": "View and filter system activity logs for traceability and compliance",
+  "table": {
+    "timestamp": "Timestamp",
+    "user": "User",
+    "action": "Action",
+    "entity": "Entity",
+    "recordId": "Record ID",
+    "description": "Description",
+    "ipAddress": "IP Address",
+    "valueChanges": "Value Changes",
+    "emptyMessage": "No audit logs found.",
+    "loading": "Loading audit logs..."
+  },
+  "filters": {
+    "title": "Filters",
+    "clearAll": "Clear All",
+    "userSearch": "User (ID or Email)",
+    "userSearchPlaceholder": "Filter by user ID or email",
+    "userSearchLoading": "Searching for user...",
+    "action": "Action",
+    "allActions": "All actions",
+    "entity": "Entity",
+    "allEntities": "All entities",
+    "startDate": "Start Date",
+    "endDate": "End Date"
+  },
+  "actions": {
+    "export": "Export CSV",
+    "exporting": "Exporting..."
+  },
+  "pagination": {
+    "showing": "Showing {{from}} to {{to}} of {{total}} entries",
+    "rowsPerPage": "Rows per page",
+    "page": "Page {{current}} of {{total}}",
+    "first": "First",
+    "previous": "Previous",
+    "next": "Next",
+    "last": "Last"
+  },
+  "errors": {
+    "loadFailed": "Failed to load audit logs. Please try again.",
+    "exportFailed": "Failed to export audit logs. Please try again."
+  }
+}
+

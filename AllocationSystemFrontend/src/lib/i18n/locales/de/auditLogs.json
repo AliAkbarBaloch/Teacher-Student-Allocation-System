@@ -1,0 +1,46 @@
+{
+  "title": "Audit-Protokolle",
+  "subtitle": "Systemaktivitätsprotokolle anzeigen und filtern für Nachverfolgbarkeit und Compliance",
+  "table": {
+    "timestamp": "Zeitstempel",
+    "user": "Benutzer",
+    "action": "Aktion",
+    "entity": "Entität",
+    "recordId": "Datensatz-ID",
+    "description": "Beschreibung",
+    "ipAddress": "IP-Adresse",
+    "valueChanges": "Wertänderungen",
+    "emptyMessage": "Keine Audit-Protokolle gefunden."
+  },
+  "filters": {
+    "title": "Filter",
+    "clearAll": "Alle löschen",
+    "userSearch": "Benutzer (ID oder E-Mail)",
+    "userSearchPlaceholder": "Nach Benutzer-ID oder E-Mail filtern",
+    "userSearchLoading": "Suche nach Benutzer...",
+    "action": "Aktion",
+    "allActions": "Alle Aktionen",
+    "entity": "Entität",
+    "allEntities": "Alle Entitäten",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum"
+  },
+  "actions": {
+    "export": "CSV exportieren",
+    "exporting": "Exportiere..."
+  },
+  "pagination": {
+    "showing": "Zeige {{from}} bis {{to}} von {{total}} Einträgen",
+    "rowsPerPage": "Zeilen pro Seite",
+    "page": "Seite {{current}} von {{total}}",
+    "first": "Erste",
+    "previous": "Vorherige",
+    "next": "Nächste",
+    "last": "Letzte"
+  },
+  "errors": {
+    "loadFailed": "Audit-Protokolle konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "exportFailed": "Audit-Protokolle konnten nicht exportiert werden. Bitte versuchen Sie es erneut."
+  }
+}
+

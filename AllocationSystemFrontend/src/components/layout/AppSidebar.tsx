@@ -1,4 +1,5 @@
-import * as React from "react"
+import React from "react"
+// icons
 import {
   LayoutDashboard,
   Shield,
@@ -6,13 +7,16 @@ import {
   ClipboardList,
   TrendingUp,
   BarChart3,
-  Command,
   Database,
 } from "lucide-react"
+// translations
 import { useTranslation } from "react-i18next"
+// router
 import { useLocation, Link } from "react-router-dom"
+// config
 import { ROUTES } from "@/config/routes"
 
+// components
 import { NavMain, type NavGroup } from "@/components/layout/NavMain"
 import { NavUser } from "@/components/layout/NavUser"
 import {
@@ -24,7 +28,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+// hooks
 import { useAuth } from "@/features/auth/hooks/useAuth"
+// common
+import { Logo } from "../common/Logo"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation("common")
@@ -218,12 +225,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to={ROUTES.main.dashboard}>
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
+                <div className="flex items-center gap-4 lg:gap-8">
+                  <Logo size="sm" showText={false} className="shrink-0" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{t("app.name")}</span>
-                  <span className="truncate text-xs">{t("app.tagline")}</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -237,5 +243,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
