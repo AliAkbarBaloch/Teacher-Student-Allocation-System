@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityCreateDto;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityResponseDto;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
@@ -19,8 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +39,6 @@ public class TeacherAvailabilityService {
     private final AcademicYearRepository academicYearRepository;
     private final InternshipTypeRepository internshipTypeRepository;
     private final TeacherAvailabilityMapper teacherAvailabilityMapper;
-    private final AuditLogService auditLogService;
 
     /**
      * Get all availability entries for a teacher with optional filters and pagination.
@@ -110,6 +108,12 @@ public class TeacherAvailabilityService {
     /**
      * Create a new availability entry.
      */
+    @Audited(
+        action = AuditLog.AuditAction.CREATE,
+        entityName = "TEACHER_AVAILABILITY",
+        description = "Created new teacher availability entry",
+        captureNewValue = true
+    )
     @Transactional
     public TeacherAvailabilityResponseDto createAvailability(Long teacherId, TeacherAvailabilityCreateDto createDto) {
         log.info("Creating availability entry for teacher ID: {}", teacherId);
@@ -163,11 +167,6 @@ public class TeacherAvailabilityService {
 
         TeacherAvailability saved = teacherAvailabilityRepository.save(availability);
 
-        // Audit log
-        logAudit(AuditLog.AuditAction.CREATE, saved.getAvailabilityId().toString(), null, saved,
-                "Created availability: " + teacher.getFirstName() + " " + teacher.getLastName() +
-                        " - " + internshipType.getFullName() + " (" + academicYear.getYearName() + ")");
-
         log.info("Availability entry created successfully with ID: {}", saved.getAvailabilityId());
         return teacherAvailabilityMapper.toDto(saved);
     }
@@ -175,6 +174,12 @@ public class TeacherAvailabilityService {
     /**
      * Update an existing availability entry.
      */
+    @Audited(
+        action = AuditLog.AuditAction.UPDATE,
+        entityName = "TEACHER_AVAILABILITY",
+        description = "Updated teacher availability entry",
+        captureNewValue = true
+    )
     @Transactional
     public TeacherAvailabilityResponseDto updateAvailability(
             Long teacherId, Long availabilityId, TeacherAvailabilityUpdateDto updateDto) {
@@ -184,9 +189,6 @@ public class TeacherAvailabilityService {
                 .findByAvailabilityIdAndTeacherId(availabilityId, teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Availability entry not found with ID: " + availabilityId + " for teacher ID: " + teacherId));
-
-        // Store old values for audit
-        TeacherAvailability oldAvailability = cloneAvailability(availability);
 
         // If year or internship type is being changed, validate uniqueness
         Long newYearId = updateDto.getYearId() != null ? updateDto.getYearId() : availability.getAcademicYear().getId();
@@ -230,10 +232,6 @@ public class TeacherAvailabilityService {
 
         TeacherAvailability updated = teacherAvailabilityRepository.save(availability);
 
-        // Audit log
-        logAudit(AuditLog.AuditAction.UPDATE, updated.getAvailabilityId().toString(), oldAvailability, updated,
-                "Updated availability entry ID: " + availabilityId);
-
         log.info("Availability entry updated successfully with ID: {}", updated.getAvailabilityId());
         return teacherAvailabilityMapper.toDto(updated);
     }
@@ -241,6 +239,12 @@ public class TeacherAvailabilityService {
     /**
      * Delete an availability entry.
      */
+    @Audited(
+        action = AuditLog.AuditAction.DELETE,
+        entityName = "TEACHER_AVAILABILITY",
+        description = "Deleted teacher availability entry",
+        captureNewValue = false
+    )
     @Transactional
     public void deleteAvailability(Long teacherId, Long availabilityId) {
         log.info("Deleting availability ID: {} for teacher ID: {}", availabilityId, teacherId);
@@ -253,14 +257,7 @@ public class TeacherAvailabilityService {
         // todo: Check if availability is used in final allocation before deleting
         // For now, we allow deletion
 
-        // Store for audit
-        TeacherAvailability oldAvailability = cloneAvailability(availability);
-
         teacherAvailabilityRepository.delete(availability);
-
-        // Audit log
-        logAudit(AuditLog.AuditAction.DELETE, availabilityId.toString(), oldAvailability, null,
-                "Deleted availability entry ID: " + availabilityId);
 
         log.info("Availability entry deleted successfully with ID: {}", availabilityId);
     }
@@ -276,35 +273,4 @@ public class TeacherAvailabilityService {
         }
     }
 
-    /**
-     * Clone availability for audit purposes.
-     */
-    private TeacherAvailability cloneAvailability(TeacherAvailability ta) {
-        TeacherAvailability clone = new TeacherAvailability();
-        clone.setAvailabilityId(ta.getAvailabilityId());
-        clone.setTeacher(ta.getTeacher());
-        clone.setAcademicYear(ta.getAcademicYear());
-        clone.setInternshipType(ta.getInternshipType());
-        clone.setIsAvailable(ta.getIsAvailable());
-        clone.setPreferenceRank(ta.getPreferenceRank());
-        clone.setNotes(ta.getNotes());
-        return clone;
-    }
-
-    /**
-     * Log audit event.
-     */
-    private void logAudit(AuditLog.AuditAction action, String recordId, Object oldValue, Object newValue, String description) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = null;
-            if (authentication != null && authentication.getPrincipal() instanceof User) {
-                user = (User) authentication.getPrincipal();
-            }
-
-            auditLogService.logAsync(user, action, "TEACHER_AVAILABILITY", recordId, oldValue, newValue, description);
-        } catch (Exception e) {
-            log.error("Failed to create audit log", e);
-        }
-    }
 }

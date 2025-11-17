@@ -95,7 +95,7 @@ public class SchoolService {
      */
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "School",
+        entityName = "SCHOOL",
         description = "Created new school",
         captureNewValue = true
     )
@@ -120,7 +120,7 @@ public class SchoolService {
      */
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "School",
+        entityName = "SCHOOL",
         description = "Updated school information",
         captureNewValue = true
     )
@@ -151,7 +151,7 @@ public class SchoolService {
      */
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "School",
+        entityName = "SCHOOL",
         description = "Updated school status",
         captureNewValue = true
     )
@@ -174,7 +174,7 @@ public class SchoolService {
      */
     @Audited(
         action = AuditAction.DELETE,
-        entityName = "School",
+        entityName = "SCHOOL",
         description = "Soft deleted school (deactivated)",
         captureNewValue = true
     )

@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.dto.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
@@ -7,7 +8,6 @@ import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.Teacher.EmploymentStatus;
-import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherMapper;
@@ -22,8 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +40,6 @@ public class TeacherService {
     private final TeacherRepository teacherRepository;
     private final SchoolRepository schoolRepository;
     private final TeacherMapper teacherMapper;
-    private final AuditLogService auditLogService;
 
     /**
      * Get all teachers with filtering and pagination.
@@ -138,6 +135,12 @@ public class TeacherService {
     /**
      * Create a new teacher.
      */
+    @Audited(
+        action = AuditLog.AuditAction.CREATE,
+        entityName = "TEACHER",
+        description = "Created new teacher",
+        captureNewValue = true
+    )
     @Transactional
     public TeacherResponseDto createTeacher(TeacherCreateDto createDto) {
         log.info("Creating new teacher with email: {}", createDto.getEmail());
@@ -171,10 +174,6 @@ public class TeacherService {
 
         Teacher saved = teacherRepository.save(teacher);
 
-        // Audit log
-        logAudit(AuditLog.AuditAction.CREATE, saved.getId().toString(), null, saved,
-                "Created teacher: " + saved.getFirstName() + " " + saved.getLastName());
-
         log.info("Teacher created successfully with ID: {}", saved.getId());
         return teacherMapper.toDto(saved);
     }
@@ -182,15 +181,18 @@ public class TeacherService {
     /**
      * Update an existing teacher.
      */
+    @Audited(
+        action = AuditLog.AuditAction.UPDATE,
+        entityName = "TEACHER",
+        description = "Updated teacher information",
+        captureNewValue = true
+    )
     @Transactional
     public TeacherResponseDto updateTeacher(Long id, TeacherUpdateDto updateDto) {
         log.info("Updating teacher with ID: {}", id);
 
         Teacher teacher = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
-
-        // Store old values for audit
-        Teacher oldTeacher = cloneTeacher(teacher);
 
         // Validate email uniqueness if changed
         if (updateDto.getEmail() != null && !updateDto.getEmail().equals(teacher.getEmail())) {
@@ -220,10 +222,6 @@ public class TeacherService {
 
         Teacher updated = teacherRepository.save(teacher);
 
-        // Audit log
-        logAudit(AuditLog.AuditAction.UPDATE, updated.getId().toString(), oldTeacher, updated,
-                "Updated teacher: " + updated.getFirstName() + " " + updated.getLastName());
-
         log.info("Teacher updated successfully with ID: {}", id);
         return teacherMapper.toDto(updated);
     }
@@ -231,6 +229,12 @@ public class TeacherService {
     /**
      * Update teacher status (activate/deactivate).
      */
+    @Audited(
+        action = AuditLog.AuditAction.UPDATE,
+        entityName = "TEACHER",
+        description = "Updated teacher status",
+        captureNewValue = true
+    )
     @Transactional
     public TeacherResponseDto updateTeacherStatus(Long id, Boolean isActive) {
         log.info("Updating teacher status for ID: {} to {}", id, isActive);
@@ -245,18 +249,9 @@ public class TeacherService {
             log.warn("Deactivating teacher with ID: {}. Check for active assignments should be implemented.", id);
         }
 
-        Boolean oldStatus = teacher.getIsActive();
         teacher.setIsActive(isActive);
 
         Teacher updated = teacherRepository.save(teacher);
-
-        // Audit log
-        AuditLog.AuditAction action = isActive ? AuditLog.AuditAction.UPDATE : AuditLog.AuditAction.UPDATE;
-        Map<String, Object> oldValue = Map.of("isActive", oldStatus);
-        Map<String, Object> newValue = Map.of("isActive", isActive);
-
-        logAudit(action, updated.getId().toString(), oldValue, newValue,
-                (isActive ? "Activated" : "Deactivated") + " teacher: " + updated.getFirstName() + " " + updated.getLastName());
 
         log.info("Teacher status updated successfully for ID: {}", id);
         return teacherMapper.toDto(updated);
@@ -265,6 +260,12 @@ public class TeacherService {
     /**
      * Soft delete teacher (deactivate).
      */
+    @Audited(
+        action = AuditLog.AuditAction.DELETE,
+        entityName = "TEACHER",
+        description = "Soft deleted teacher (deactivated)",
+        captureNewValue = false
+    )
     @Transactional
     public void deleteTeacher(Long id) {
         log.info("Soft deleting teacher with ID: {}", id);
@@ -277,10 +278,6 @@ public class TeacherService {
 
         teacher.setIsActive(false);
         teacherRepository.save(teacher);
-
-        // Audit log
-        logAudit(AuditLog.AuditAction.DELETE, teacher.getId().toString(), teacher, null,
-                "Soft deleted teacher: " + teacher.getFirstName() + " " + teacher.getLastName());
 
         log.info("Teacher soft deleted successfully with ID: {}", id);
     }
@@ -297,38 +294,4 @@ public class TeacherService {
         }
     }
 
-    /**
-     * Clone teacher for audit purposes.
-     */
-    private Teacher cloneTeacher(Teacher teacher) {
-        Teacher clone = new Teacher();
-        clone.setId(teacher.getId());
-        clone.setSchool(teacher.getSchool());
-        clone.setFirstName(teacher.getFirstName());
-        clone.setLastName(teacher.getLastName());
-        clone.setEmail(teacher.getEmail());
-        clone.setPhone(teacher.getPhone());
-        clone.setIsPartTime(teacher.getIsPartTime());
-        clone.setEmploymentStatus(teacher.getEmploymentStatus());
-        clone.setUsageCycle(teacher.getUsageCycle());
-        clone.setIsActive(teacher.getIsActive());
-        return clone;
-    }
-
-    /**
-     * Log audit event.
-     */
-    private void logAudit(AuditLog.AuditAction action, String recordId, Object oldValue, Object newValue, String description) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = null;
-            if (authentication != null && authentication.getPrincipal() instanceof User) {
-                user = (User) authentication.getPrincipal();
-            }
-
-            auditLogService.logAsync(user, action, "TEACHER", recordId, oldValue, newValue, description);
-        } catch (Exception e) {
-            log.error("Failed to create audit log", e);
-        }
-    }
 }
