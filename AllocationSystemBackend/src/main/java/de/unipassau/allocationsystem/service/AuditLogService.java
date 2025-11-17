@@ -6,6 +6,7 @@ import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
+import de.unipassau.allocationsystem.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +36,14 @@ import java.util.Map;
 public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     /**
      * Log an audit event asynchronously.
      * Uses a separate transaction to ensure audit logs are persisted even if the main transaction fails.
+     * Captures request context before async execution.
      */
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logAsync(
         User user,
         AuditAction action,
@@ -52,11 +53,13 @@ public class AuditLogService {
         Object newValue,
         String description
     ) {
-        try {
-            log(user, action, targetEntity, targetRecordId, previousValue, newValue, description);
-        } catch (Exception e) {
-            log.error("Failed to create audit log asynchronously", e);
-        }
+        // Capture request context BEFORE async execution
+        String ipAddress = getCurrentIpAddress();
+        String userAgent = getCurrentUserAgent();
+        
+        // Now call async method with captured values
+        logAsyncWithContext(user, action, targetEntity, targetRecordId, 
+                previousValue, newValue, description, ipAddress, userAgent);
     }
 
     /**
@@ -97,9 +100,8 @@ public class AuditLogService {
 
     /**
      * Log an audit event with automatic user detection from security context.
+     * Captures user and request context before async execution.
      */
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logWithCurrentUser(
         AuditAction action,
         String targetEntity,
@@ -108,9 +110,51 @@ public class AuditLogService {
         Object newValue,
         String description
     ) {
+        // Capture user and request context BEFORE async execution
         User currentUser = getCurrentUser();
-        logAsync(currentUser, action, targetEntity, targetRecordId, 
-                previousValue, newValue, description);
+        String ipAddress = getCurrentIpAddress();
+        String userAgent = getCurrentUserAgent();
+        
+        // Now call async method with captured values
+        logAsyncWithContext(currentUser, action, targetEntity, targetRecordId, 
+                previousValue, newValue, description, ipAddress, userAgent);
+    }
+    
+    /**
+     * Async method that receives pre-captured context values.
+     */
+    @Async("auditExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void logAsyncWithContext(
+        User user,
+        AuditAction action,
+        String targetEntity,
+        String targetRecordId,
+        Object previousValue,
+        Object newValue,
+        String description,
+        String ipAddress,
+        String userAgent
+    ) {
+        try {
+            AuditLog auditLog = AuditLog.builder()
+                .user(user)
+                .userIdentifier(user != null ? user.getEmail() : "SYSTEM")
+                .action(action)
+                .targetEntity(targetEntity)
+                .targetRecordId(targetRecordId)
+                .previousValue(serializeValue(previousValue))
+                .newValue(serializeValue(newValue))
+                .description(description)
+                .eventTimestamp(LocalDateTime.now())
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .build();
+
+            auditLogRepository.save(auditLog);
+        } catch (Exception e) {
+            log.error("Failed to create audit log asynchronously", e);
+        }
     }
 
     /**
@@ -263,11 +307,56 @@ public class AuditLogService {
     private User getCurrentUser() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof User) {
-                return (User) authentication.getPrincipal();
+            if (authentication != null && authentication.getPrincipal() != null) {
+                Object principal = authentication.getPrincipal();
+                
+                // If principal is User entity (implements UserDetails)
+                if (principal instanceof User) {
+                    return (User) principal;
+                }
+                
+                // If principal is UserDetails, load User entity from repository
+                if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+                    String email = userDetails.getUsername();
+                    return userRepository.findByEmail(email).orElse(null);
+                }
             }
         } catch (Exception e) {
             log.debug("Could not retrieve current user from security context", e);
+        }
+        return null;
+    }
+    
+    /**
+     * Get current IP address from request context.
+     */
+    private String getCurrentIpAddress() {
+        try {
+            ServletRequestAttributes attributes = 
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                return getClientIpAddress(request);
+            }
+        } catch (Exception e) {
+            log.debug("Could not retrieve IP address from request context", e);
+        }
+        return null;
+    }
+    
+    /**
+     * Get current user agent from request context.
+     */
+    private String getCurrentUserAgent() {
+        try {
+            ServletRequestAttributes attributes = 
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                return request.getHeader("User-Agent");
+            }
+        } catch (Exception e) {
+            log.debug("Could not retrieve user agent from request context", e);
         }
         return null;
     }

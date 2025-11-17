@@ -62,7 +62,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
      * Complex query combining multiple filters.
      */
     @Query("SELECT a FROM AuditLog a WHERE " +
-           "(:userId IS NULL OR a.user.id = :userId) AND " +
+           "(:userId IS NULL OR (a.user IS NOT NULL AND a.user.id = :userId)) AND " +
            "(:action IS NULL OR a.action = :action) AND " +
            "(:targetEntity IS NULL OR a.targetEntity = :targetEntity) AND " +
            "(:startDate IS NULL OR a.eventTimestamp >= :startDate) AND " +

@@ -47,7 +47,7 @@ public class AuditLogMapper {
         }
         return AuditLogDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUser().getId())
+                .userId(entity.getUser() != null ? entity.getUser().getId() : 0L)
                 .userIdentifier(entity.getUserIdentifier())
                 .eventTimestamp(entity.getEventTimestamp())
                 .action(entity.getAction())
