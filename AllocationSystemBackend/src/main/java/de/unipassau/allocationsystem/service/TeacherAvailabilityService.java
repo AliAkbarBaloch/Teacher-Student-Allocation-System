@@ -250,7 +250,7 @@ public class TeacherAvailabilityService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Availability entry not found with ID: " + availabilityId + " for teacher ID: " + teacherId));
 
-        // TODO: Check if availability is used in final allocation before deleting
+        // todo: Check if availability is used in final allocation before deleting
         // For now, we allow deletion
 
         // Store for audit

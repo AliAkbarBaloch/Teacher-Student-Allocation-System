@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InternshipType {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -68,9 +67,6 @@ public class InternshipType {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (this.isSubjectSpecific == null) {
-            this.isSubjectSpecific = false;
-        }
     }
 
     @PreUpdate

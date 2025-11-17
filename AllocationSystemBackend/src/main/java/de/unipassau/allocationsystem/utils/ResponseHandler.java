@@ -24,7 +24,7 @@ public class ResponseHandler {
     }
 
     public static ResponseEntity<?> updated(String message, Object data) {
-        return ResponseEntity.ok(Map.of( //I changed this line from CREATED to OK because update usually returns 200
+        return ResponseEntity.ok(Map.of(
             "success", true,
             "message", message,
             "data", data
