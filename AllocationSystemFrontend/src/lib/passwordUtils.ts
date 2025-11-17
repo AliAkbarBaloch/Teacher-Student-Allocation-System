@@ -15,7 +15,7 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
   const checks = {
     minLength: password.length >= 8,
     hasUppercase: /[A-Z]/.test(password),
-    hasLowercase: /[a-z]/.test(password),
+    hasLowercase: password.split('').some(char => char >= 'a' && char <= 'z'),
     hasNumber: /[0-9]/.test(password),
     hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
   };

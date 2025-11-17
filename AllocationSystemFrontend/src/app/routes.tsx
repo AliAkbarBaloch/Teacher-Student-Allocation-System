@@ -11,6 +11,7 @@ import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import RolesPage from "@/pages/roles/RolesPage";
+import AuditLogsPage from "@/pages/audit-logs/AuditLogsPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -90,7 +91,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.userAccess.auditLogs,
-        element: withSuspense(<div>Audit Logs</div>),
+        element: withSuspense(<AuditLogsPage />),
       },
       // Base Data Management
       {

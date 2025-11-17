@@ -248,6 +248,34 @@ class ApiClient {
   }
 
   /**
+   * Make a GET request that returns a Blob (for file downloads)
+   */
+  async getBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
+    this.validateTokenForRequest(endpoint);
+    const headers = this.buildHeaders(options, { omitJsonContentType: true });
+    const { timeoutId, signal } = this.createTimeoutController();
+
+    try {
+      const response = await fetch(this.buildUrl(endpoint), {
+        method: "GET",
+        headers,
+        ...options,
+        signal: options?.signal || signal,
+      });
+
+      if (!response.ok) {
+        await this.handleError(response, endpoint);
+      }
+
+      return response.blob();
+    } catch (error) {
+      this.handleNetworkError(error);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  /**
    * Make a POST request
    */
   async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {

@@ -77,18 +77,44 @@ public class AuditAspect {
         // Try to extract ID from result if it has an getId() method
         if (result != null) {
             try {
-                return result.getClass().getMethod("getId").invoke(result);
+                java.lang.reflect.Method getIdMethod = result.getClass().getMethod("getId");
+                Object id = getIdMethod.invoke(result);
+                if (id != null) {
+                    return id;
+                }
             } catch (Exception e) {
                 log.debug("Could not extract ID from result", e);
+            }
+            
+            // Try alternative ID field names
+            try {
+                java.lang.reflect.Method getIdMethod = result.getClass().getMethod("id");
+                Object id = getIdMethod.invoke(result);
+                if (id != null) {
+                    return id;
+                }
+            } catch (Exception e) {
+                // Ignore
             }
         }
 
         // Try to extract ID from method arguments
+        // Look for Long/Integer/String arguments that could be IDs
         Object[] args = joinPoint.getArgs();
         if (args != null && args.length > 0) {
+            // First, try to find an ID parameter by name or position
             for (Object arg : args) {
-                if (arg instanceof Long || arg instanceof Integer || arg instanceof String) {
+                if (arg instanceof Long || arg instanceof Integer) {
                     return arg;
+                }
+                // For String, check if it looks like an ID (numeric)
+                if (arg instanceof String strArg && !strArg.isEmpty()) {
+                    try {
+                        Long.parseLong(strArg);
+                        return strArg; // It's a numeric string, likely an ID
+                    } catch (NumberFormatException e) {
+                        // Not a numeric ID
+                    }
                 }
             }
         }
