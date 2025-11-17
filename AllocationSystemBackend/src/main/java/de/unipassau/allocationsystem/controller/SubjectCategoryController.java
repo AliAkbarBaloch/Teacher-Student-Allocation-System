@@ -25,12 +25,21 @@ public class SubjectCategoryController {
     private final SubjectCategoryService subjectCategoryService;
     private final SubjectCategoryMapper subjectCategoryMapper;
 
+    /**
+     * Exposes the allowed sort keys and their labels so the frontend
+     * can build dropdowns without hardcoding backend field names.
+     */
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
         List<Map<String, String>> result = subjectCategoryService.getSortFields();
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Returns a paginated subset of subject categories, optionally
+     * filtered by a case-insensitive search value and sorted by the
+     * requested field/order combination.
+     */
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
@@ -41,12 +50,20 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Subject categories retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Fetches all subject categories without pagination. Useful for
+     * populating dropdowns where the total item count is small.
+     */
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         List<SubjectCategoryDto> result = subjectCategoryMapper.toDtoList(subjectCategoryService.getAll());
         return ResponseHandler.success("Subject categories retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a single subject category by id or returns 404 if the
+     * requested entity is not present in the database.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         SubjectCategoryDto result = subjectCategoryService.getById(id)
@@ -55,6 +72,10 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Subject category retrieved successfully", result);
     }
 
+    /**
+     * Creates a new subject category after validating the request body,
+     * handling duplicate titles via a 400 response instead of a 500.
+     */
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryDto dto) {
         try {
@@ -66,6 +87,11 @@ public class SubjectCategoryController {
         }
     }
 
+    /**
+     * Updates the category title of an existing subject category. When
+     * the target id does not exist a 404 is returned; duplicate titles
+     * yield a 400 with the repository error message.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectCategoryDto dto) {
         try {
@@ -79,6 +105,10 @@ public class SubjectCategoryController {
         }
     }
 
+    /**
+     * Deletes a subject category by id, surfacing a 404 response when
+     * the entity has already been removed or never existed.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
