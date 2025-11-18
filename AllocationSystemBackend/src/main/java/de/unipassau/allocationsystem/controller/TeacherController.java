@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * REST controller for Teacher management endpoints.
@@ -103,8 +104,8 @@ public class TeacherController {
     public ResponseEntity<?> getTeacherById(@PathVariable Long id) {
         log.info("GET /teachers/{} - Fetching teacher", id);
         
-        TeacherResponseDto teacher = teacherService.getTeacherById(id);
-        return ResponseHandler.success("Teacher retrieved successfully", teacher);
+        Optional<TeacherResponseDto> teacher = teacherService.getById(id);
+        return ResponseHandler.success("Teacher retrieved successfully", teacher.get());
     }
 
     /**

@@ -27,13 +27,9 @@ import java.util.Optional;
 @Service
 @Slf4j
 @Transactional
-public class RoleService {
+public class RoleService  implements CrudService<Role, Long>{
 
     private final RoleRepository roleRepository;
-
-    public boolean titleExists(String title) {
-        return roleRepository.findByTitle(title).isPresent();
-    }
 
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
@@ -64,6 +60,15 @@ public class RoleService {
         );
     }
 
+    public boolean titleExists(String title) {
+        return roleRepository.findByTitle(title).isPresent();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return roleRepository.existsById(id);
+    }
+
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.ROLE,
@@ -71,7 +76,8 @@ public class RoleService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -89,6 +95,7 @@ public class RoleService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public List<Role> getAll() {
         return roleRepository.findAll();
     }
@@ -100,6 +107,7 @@ public class RoleService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<Role> getById(Long id) {
         return roleRepository.findById(id);
     }
@@ -111,6 +119,7 @@ public class RoleService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public Role create(Role role) {
         if (roleRepository.findByTitle(role.getTitle()).isPresent()) {
             throw new DuplicateResourceException("Role with title '" + role.getTitle() + "' already exists");
@@ -125,6 +134,7 @@ public class RoleService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public Role update(Long id, Role data) {
         Role existing = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
@@ -150,6 +160,7 @@ public class RoleService {
             captureNewValue = false
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!roleRepository.existsById(id)) {
             throw new ResourceNotFoundException("Role not found with id: " + id);

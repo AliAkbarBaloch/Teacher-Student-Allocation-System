@@ -27,14 +27,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class PermissionService {
+public class PermissionService implements CrudService<Permission, Long> {
 
     private final PermissionRepository permissionRepository;
 
-    public boolean titleExists(String title) {
-        return permissionRepository.findByTitle(title).isPresent();
-    }
-
+    @Override
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
         fields.add(Map.of("key", "id", "label", "ID"));
@@ -64,6 +61,16 @@ public class PermissionService {
         );
     }
 
+
+    public boolean titleExists(String title) {
+        return permissionRepository.findByTitle(title).isPresent();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return permissionRepository.findById(id).isPresent();
+    }
+
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.PERMISSION,
@@ -71,7 +78,8 @@ public class PermissionService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -89,6 +97,7 @@ public class PermissionService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public List<Permission> getAll() {
         return permissionRepository.findAll();
     }
@@ -100,6 +109,7 @@ public class PermissionService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<Permission> getById(Long id) {
         return permissionRepository.findById(id);
     }
@@ -111,6 +121,7 @@ public class PermissionService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public Permission create(Permission permission) {
         if (permissionRepository.findByTitle(permission.getTitle()).isPresent()) {
             throw new DuplicateResourceException("Permission with title '" + permission.getTitle() + "' already exists");
@@ -125,6 +136,7 @@ public class PermissionService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public Permission update(Long id, Permission data) {
         Permission existing = permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
@@ -150,6 +162,7 @@ public class PermissionService {
             captureNewValue = false
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!permissionRepository.existsById(id)) {
             throw new ResourceNotFoundException("Permission not found with id: " + id);

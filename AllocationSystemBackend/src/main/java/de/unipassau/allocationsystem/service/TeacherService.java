@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service for managing teachers.
@@ -37,11 +38,137 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class TeacherService {
+public class TeacherService implements CrudService<TeacherResponseDto, Long>{
 
     private final TeacherRepository teacherRepository;
     private final SchoolRepository schoolRepository;
     private final TeacherMapper teacherMapper;
+
+    @Override
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "firstName", "label", "First Name"));
+        fields.add(Map.of("key", "lastName", "label", "Last Name"));
+        fields.add(Map.of("key", "email", "label", "Email"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return teacherRepository.existsById(id);
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Viewed list of teachers",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
+        log.debug("Getting all teachers with filters: {}", queryParams);
+
+        // Validate pagination parameters
+        PaginationUtils.validatePaginationParams(queryParams);
+
+        // Extract parameters
+        String schoolIdStr = queryParams.get("schoolId");
+        String employmentStatusStr = queryParams.get("employmentStatus");
+        String isActiveStr = queryParams.get("isActive");
+        String searchTerm = queryParams.get("search");
+
+        // Build specification
+        Specification<Teacher> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Filter by school
+            if (schoolIdStr != null && !schoolIdStr.isBlank()) {
+                try {
+                    Long schoolId = Long.parseLong(schoolIdStr);
+                    predicates.add(cb.equal(root.get("school").get("id"), schoolId));
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid schoolId parameter: {}", schoolIdStr);
+                }
+            }
+
+            // Filter by employment status
+            if (employmentStatusStr != null && !employmentStatusStr.isBlank()) {
+                try {
+                    EmploymentStatus status = EmploymentStatus.valueOf(employmentStatusStr.toUpperCase());
+                    predicates.add(cb.equal(root.get("employmentStatus"), status));
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid employmentStatus parameter: {}", employmentStatusStr);
+                }
+            }
+
+            // Filter by active status
+            if (isActiveStr != null && !isActiveStr.isBlank()) {
+                Boolean isActive = Boolean.parseBoolean(isActiveStr);
+                predicates.add(cb.equal(root.get("isActive"), isActive));
+            }
+
+            // Search by name or email
+            if (searchTerm != null && !searchTerm.isBlank()) {
+                String likePattern = "%" + searchTerm.toLowerCase() + "%";
+                Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), likePattern);
+                Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), likePattern);
+                Predicate emailLike = cb.like(cb.lower(root.get("email")), likePattern);
+                predicates.add(cb.or(firstNameLike, lastNameLike, emailLike));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Create pageable
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Pageable pageable = PageRequest.of(
+                params.page() - 1, // Convert to 0-based
+                params.pageSize(),
+                Sort.by(params.sortOrder(), params.sortBy())
+        );
+
+        // Execute query
+        Page<Teacher> page = teacherRepository.findAll(spec, pageable);
+
+        // Convert to DTOs
+        List<TeacherResponseDto> items = page.getContent().stream()
+                .map(teacherMapper::toDto)
+                .toList();
+
+        return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Viewed teacher details",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<TeacherResponseDto> getById(Long id) {
+        Teacher teacher = teacherRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + id));
+        return Optional.of(teacherMapper.toDto(teacher));
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Viewed all teachers",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public List<TeacherResponseDto> getAll() {
+        return teacherRepository.findAll().stream()
+                .map(teacherMapper::toDto)
+                .toList();
+    }
 
     /**
      * Get all teachers with filtering and pagination.
@@ -127,23 +254,17 @@ public class TeacherService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    /**
-     * Get teacher by ID.
-     */
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
+            action = AuditLog.AuditAction.CREATE,
             entityName = AuditEntityNames.TEACHER,
-            description = "Viewed teacher details",
-            captureNewValue = false
+            description = "Created new teacher",
+            captureNewValue = true
     )
-    @Transactional(readOnly = true)
-    public TeacherResponseDto getTeacherById(Long id) {
-        log.debug("Getting teacher by ID: {}", id);
-
-        Teacher teacher = teacherRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
-
-        return teacherMapper.toDto(teacher);
+    @Transactional
+    @Override
+    public TeacherResponseDto create(TeacherResponseDto dto) {
+        // You may adapt this to use DTO → Teacher mapping if needed
+        throw new UnsupportedOperationException("Use createTeacher with TeacherCreateDto");
     }
 
     /**
@@ -240,6 +361,18 @@ public class TeacherService {
         return teacherMapper.toDto(updated);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Updated teacher information",
+            captureNewValue = true
+    )
+    @Transactional
+    @Override
+    public TeacherResponseDto update(Long id, TeacherResponseDto dto) {
+        throw new UnsupportedOperationException("Use updateTeacher with TeacherUpdateDto");
+    }
+
     /**
      * Update teacher status (activate/deactivate).
      */
@@ -269,6 +402,12 @@ public class TeacherService {
 
         log.info("Teacher status updated successfully for ID: {}", id);
         return teacherMapper.toDto(updated);
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        deleteTeacher(id);
     }
 
     /**

@@ -214,12 +214,12 @@ class TeacherServiceTest {
         when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
 
         // Act
-        TeacherResponseDto result = teacherService.getTeacherById(1L);
+        Optional<TeacherResponseDto> result = teacherService.getById(1l);
 
         // Assert
         assertNotNull(result);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        assertEquals("John", result.get().getFirstName());
+        assertEquals("Doe", result.get().getLastName());
         verify(teacherRepository).findById(1L);
         verify(teacherMapper).toDto(testTeacher);
     }
@@ -231,7 +231,7 @@ class TeacherServiceTest {
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.getTeacherById(99L);
+            teacherService.getById(99L);
         });
         verify(teacherRepository).findById(99L);
     }

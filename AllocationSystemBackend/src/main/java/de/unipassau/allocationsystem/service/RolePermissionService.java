@@ -25,7 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class RolePermissionService {
+public class RolePermissionService implements CrudService<RolePermission, Long> {
 
     private final RolePermissionRepository rolePermissionRepository;
 
@@ -53,6 +53,11 @@ public class RolePermissionService {
         );
     }
 
+    @Override
+    public boolean existsById(Long id) {
+        return rolePermissionRepository.existsById(id);
+    }
+
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.ROLE_PERMISSION,
@@ -60,7 +65,8 @@ public class RolePermissionService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -89,6 +95,7 @@ public class RolePermissionService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<RolePermission> getById(Long id) {
         return rolePermissionRepository.findById(id);
     }
@@ -122,6 +129,7 @@ public class RolePermissionService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public RolePermission create(RolePermission rolePermission) {
         if (rolePermissionRepository.findByRoleIdAndPermissionId(
                 rolePermission.getRole().getId(),
@@ -138,6 +146,7 @@ public class RolePermissionService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public RolePermission update(Long id, RolePermission data) {
         RolePermission existing = rolePermissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role permission not found with id: " + id));
@@ -172,6 +181,7 @@ public class RolePermissionService {
             captureNewValue = false
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!rolePermissionRepository.existsById(id)) {
             throw new ResourceNotFoundException("Role permission not found with id: " + id);

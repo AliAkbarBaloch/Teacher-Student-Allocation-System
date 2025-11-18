@@ -38,7 +38,7 @@ public class RoleController {
             @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = roleService.getPaginated(queryParams, includeRelations, searchValue);
+        Map<String, Object> result = roleService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Roles retrieved successfully (paginated)", result);
     }
 

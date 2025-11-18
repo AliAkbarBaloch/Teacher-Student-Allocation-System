@@ -33,10 +33,9 @@ public class InternshipTypeController {
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
-            @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = internshipTypeService.getPaginated(queryParams, includeRelations, searchValue);
+        Map<String, Object> result = internshipTypeService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Internship types retrieved successfully (paginated)", result);
     }
 

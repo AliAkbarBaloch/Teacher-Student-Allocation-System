@@ -37,10 +37,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class SubjectCategoryService {
+public class SubjectCategoryService implements CrudService<SubjectCategory, Long> {
 
     private final SubjectCategoryRepository subjectCategoryRepository;
     private final AuditLogService auditLogService;
+
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "categoryTitle", "label", "Category Title"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
 
     /**
      * Checks whether a subject category with the provided title already exists.
@@ -52,18 +61,9 @@ public class SubjectCategoryService {
         return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
     }
 
-    /**
-     * Returns the fields that callers may sort by along with human-readable labels.
-     *
-     * @return immutable list of key/label descriptors
-     */
-    public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "categoryTitle", "label", "Category Title"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+    @Override
+    public boolean existsById(Long id) {
+        return subjectCategoryRepository.existsById(id);
     }
 
     /**
@@ -87,7 +87,6 @@ public class SubjectCategoryService {
      * optional search directives derived from query parameters.
      *
      * @param queryParams raw request query map containing page/pageSize/sort info
-     * @param includeRelations unused toggle kept for API signature parity
      * @param searchValue optional search string
      * @return pagination metadata along with the current page content
      */
@@ -98,7 +97,8 @@ public class SubjectCategoryService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         log.info("Fetching subject categories with params: {}", queryParams);
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -110,12 +110,6 @@ public class SubjectCategoryService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    /**
-     * Retrieves every subject category without pagination. Intended for scenarios
-     * like dropdown population where the dataset is relatively small.
-     *
-     * @return list of all subject categories
-     */
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.SUBJECT_CATEGORY,
@@ -123,17 +117,12 @@ public class SubjectCategoryService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public List<SubjectCategory> getAll() {
         log.info("Retrieving all subject categories");
         return subjectCategoryRepository.findAll();
     }
 
-    /**
-     * Finds a subject category by identifier.
-     *
-     * @param id database id
-     * @return optional containing the entity when present
-     */
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.SUBJECT_CATEGORY,
@@ -141,18 +130,12 @@ public class SubjectCategoryService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<SubjectCategory> getById(Long id) {
         log.info("Retrieving subject category by id {}", id);
         return subjectCategoryRepository.findById(id);
     }
 
-    /**
-     * Persists a new subject category, enforcing unique titles and emitting an
-     * audit event via the {@link Audited} annotation.
-     *
-     * @param subjectCategory payload to persist
-     * @return stored entity including generated identifiers
-     */
     @Audited(
             action = AuditAction.CREATE,
             entityName = AuditEntityNames.SUBJECT_CATEGORY,
@@ -160,6 +143,7 @@ public class SubjectCategoryService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public SubjectCategory create(SubjectCategory subjectCategory) {
         log.info("Creating subject category with title {}", subjectCategory.getCategoryTitle());
         if (subjectCategoryRepository.findByCategoryTitle(subjectCategory.getCategoryTitle()).isPresent()) {
@@ -168,15 +152,6 @@ public class SubjectCategoryService {
         return subjectCategoryRepository.save(subjectCategory);
     }
 
-    /**
-     * Applies mutable fields from the input entity to the stored category while
-     * guarding against duplicate titles. Whenever a change occurs an audit log
-     * entry is recorded with before/after snapshots.
-     *
-     * @param id   identifier of the category to update
-     * @param data partial entity containing the new values
-     * @return the updated entity
-     */
     @Audited(
             action = AuditAction.UPDATE,
             entityName = AuditEntityNames.SUBJECT_CATEGORY,
@@ -184,6 +159,7 @@ public class SubjectCategoryService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public SubjectCategory update(Long id, SubjectCategory data) {
         log.info("Updating subject category {}", id);
         SubjectCategory existing = subjectCategoryRepository.findById(id)
@@ -210,12 +186,6 @@ public class SubjectCategoryService {
         return updated;
     }
 
-    /**
-     * Removes the subject category identified by {@code id} and records a deletion
-     * audit log that captures the key fields of the removed entity.
-     *
-     * @param id identifier of the category to remove
-     */
     @Audited(
             action = AuditAction.DELETE,
             entityName = AuditEntityNames.SUBJECT_CATEGORY,
@@ -223,6 +193,7 @@ public class SubjectCategoryService {
             captureNewValue = false
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         log.info("Deleting subject category {}", id);
         SubjectCategory existing = subjectCategoryRepository.findById(id)

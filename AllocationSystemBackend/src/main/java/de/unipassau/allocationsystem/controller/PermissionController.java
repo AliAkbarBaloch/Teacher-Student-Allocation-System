@@ -59,7 +59,7 @@ public class PermissionController {
             @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = permissionService.getPaginated(queryParams, includeRelations, searchValue);
+        Map<String, Object> result = permissionService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Permissions retrieved successfully (paginated)", result);
     }
 

@@ -156,7 +156,7 @@ class SubjectCategoryServiceTest {
         params.put("sortBy", "categoryTitle");
         params.put("sortOrder", "asc");
 
-        Map<String, Object> result = subjectCategoryService.getPaginated(params, true, "Alpha");
+        Map<String, Object> result = subjectCategoryService.getPaginated(params, "Alpha");
 
         assertEquals(1, result.get("page"));
         assertEquals(2, result.get("pageSize"));

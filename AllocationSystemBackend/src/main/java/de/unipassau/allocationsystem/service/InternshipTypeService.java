@@ -27,7 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class InternshipTypeService {
+public class InternshipTypeService implements CrudService<InternshipType, Long>{
 
     private final InternshipTypeRepository internshipTypeRepository;
 
@@ -52,6 +52,15 @@ public class InternshipTypeService {
         );
     }
 
+    public boolean isRecordExist(String internshipCode) {
+        return internshipTypeRepository.findByInternshipCode(internshipCode).isPresent();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return internshipTypeRepository.existsById(id);
+    }
+
     @Audited(
             action = AuditLog.AuditAction.VIEW,
             entityName = AuditEntityNames.INTERNSHIP_TYPE,
@@ -59,7 +68,8 @@ public class InternshipTypeService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -77,6 +87,7 @@ public class InternshipTypeService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public List<InternshipType> getAll() {
         return internshipTypeRepository.findAll();
     }
@@ -88,6 +99,7 @@ public class InternshipTypeService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<InternshipType> getById(Long id) {
         return internshipTypeRepository.findById(id);
     }
@@ -99,6 +111,7 @@ public class InternshipTypeService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public InternshipType create(InternshipType internshipType) {
         if (internshipTypeRepository.findByInternshipCode(internshipType.getInternshipCode()).isPresent()) {
             throw new DuplicateResourceException("InternshipType with code '" + internshipType.getInternshipCode() + "' already exists");
@@ -113,6 +126,7 @@ public class InternshipTypeService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public InternshipType update(Long id, InternshipType data) {
         InternshipType existing = internshipTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found with id: " + id));
@@ -152,6 +166,7 @@ public class InternshipTypeService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!internshipTypeRepository.existsById(id)) {
             throw new ResourceNotFoundException("InternshipType not found with id: " + id);

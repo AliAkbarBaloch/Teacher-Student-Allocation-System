@@ -52,7 +52,7 @@ public class SubjectCategoryController {
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         log.info("Fetching paginated subject categories with params: {}", queryParams);
-        Map<String, Object> result = subjectCategoryService.getPaginated(queryParams, includeRelations, searchValue);
+        Map<String, Object> result = subjectCategoryService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Subject categories retrieved successfully (paginated)", result);
     }
 

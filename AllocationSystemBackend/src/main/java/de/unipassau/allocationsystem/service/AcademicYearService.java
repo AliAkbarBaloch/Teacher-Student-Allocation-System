@@ -27,13 +27,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class AcademicYearService {
+public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
     private final AcademicYearRepository academicYearRepository;
-
-    public boolean yearNameExists(String yearName) {
-        return academicYearRepository.findByYearName(yearName).isPresent();
-    }
 
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
@@ -52,6 +48,15 @@ public class AcademicYearService {
         return (root, query, cb) -> cb.like(cb.lower(root.get("yearName")), likePattern);
     }
 
+    public boolean yearNameExists(String yearName) {
+        return academicYearRepository.findByYearName(yearName).isPresent();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return academicYearRepository.existsById(id);
+    }
+
     @Audited(
             action = AuditLog.AuditAction.VIEW,
             entityName = AuditEntityNames.TEACHER,
@@ -59,7 +64,8 @@ public class AcademicYearService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -77,6 +83,7 @@ public class AcademicYearService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public List<AcademicYear> getAll() {
         return academicYearRepository.findAll();
     }
@@ -88,6 +95,7 @@ public class AcademicYearService {
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    @Override
     public Optional<AcademicYear> getById(Long id) {
         return academicYearRepository.findById(id);
     }
@@ -99,6 +107,7 @@ public class AcademicYearService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public AcademicYear create(AcademicYear academicYear) {
         if (academicYearRepository.findByYearName(academicYear.getYearName()).isPresent()) {
             throw new DuplicateResourceException("Academic year with name '" + academicYear.getYearName() + "' already exists");
@@ -113,6 +122,7 @@ public class AcademicYearService {
             captureNewValue = true
     )
     @Transactional
+    @Override
     public AcademicYear update(Long id, AcademicYear data) {
         AcademicYear existing = academicYearRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + id));
@@ -152,6 +162,7 @@ public class AcademicYearService {
             captureNewValue = false
     )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!academicYearRepository.existsById(id)) {
             throw new ResourceNotFoundException("Academic year not found with id: " + id);

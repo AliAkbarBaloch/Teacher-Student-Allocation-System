@@ -36,7 +36,7 @@ public class RolePermissionController {
             @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = rolePermissionService.getPaginated(queryParams, includeRelations, searchValue);
+        Map<String, Object> result = rolePermissionService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Role permissions retrieved successfully (paginated)", result);
     }
 

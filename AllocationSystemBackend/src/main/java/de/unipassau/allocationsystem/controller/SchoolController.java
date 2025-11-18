@@ -34,8 +34,7 @@ public class SchoolController {
 
     /**
      * Get all schools with optional filters and pagination.
-     * 
-     * @param queryParams  Query parameters for pagination (page, pageSize, sortBy, sortOrder)
+     *
      * @param search       Optional text search by school name (case-insensitive, partial match)
      * @param schoolType   Optional filter by school type
      * @param zoneNumber   Optional filter by zone number
