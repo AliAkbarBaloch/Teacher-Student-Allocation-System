@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.dto.*;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
@@ -38,7 +39,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Created new user",
         captureNewValue = true
     )
@@ -63,7 +64,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Updated user",
         captureNewValue = true
     )
@@ -87,7 +88,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.DELETE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Deleted user",
         captureNewValue = false
     )
@@ -135,7 +136,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Updated user enabled status",
         captureNewValue = true
     )
@@ -159,7 +160,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Admin created new user",
         captureNewValue = true
     )
@@ -191,7 +192,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Updated user with DTO",
         captureNewValue = true
     )
@@ -234,7 +235,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Activated user account",
         captureNewValue = true
     )
@@ -260,7 +261,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Deactivated user account",
         captureNewValue = true
     )
@@ -284,7 +285,7 @@ public class UserService {
     @Transactional
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "USER",
+        entityName = AuditEntityNames.USER,
         description = "Admin reset user password",
         captureNewValue = true
     )

@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -50,7 +51,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Viewed list of academic years",
             captureNewValue = false
     )
@@ -68,7 +69,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Viewed all academic years",
             captureNewValue = false
     )
@@ -78,7 +79,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Viewed academic year by id",
             captureNewValue = false
     )
@@ -88,7 +89,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.CREATE,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Created new academic year",
             captureNewValue = true
     )
@@ -102,7 +103,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Updated academic year",
             captureNewValue = true
     )
@@ -141,7 +142,7 @@ public class AcademicYearService {
 
     @Audited(
             action = AuditLog.AuditAction.DELETE,
-            entityName = "ACADEMIC_YEAR",
+            entityName = AuditEntityNames.TEACHER,
             description = "Deleted academic year",
             captureNewValue = false
     )

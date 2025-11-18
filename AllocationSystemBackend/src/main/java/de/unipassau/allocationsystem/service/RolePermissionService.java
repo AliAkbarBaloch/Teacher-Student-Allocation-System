@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.RolePermission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -53,7 +54,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Viewed list of role permissions",
             captureNewValue = false
     )
@@ -71,7 +72,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Viewed all role permissions",
             captureNewValue = false
     )
@@ -81,7 +82,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Viewed role permission by id",
             captureNewValue = false
     )
@@ -91,7 +92,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Viewed role permission by roleId",
             captureNewValue = false
     )
@@ -101,7 +102,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Viewed role permission by permissionId",
             captureNewValue = false
     )
@@ -111,7 +112,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.CREATE,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Created new role permission",
             captureNewValue = true
     )
@@ -127,7 +128,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Updated role permission",
             captureNewValue = true
     )
@@ -161,7 +162,7 @@ public class RolePermissionService {
 
     @Audited(
             action = AuditAction.DELETE,
-            entityName = "ROLE_PERMISSION",
+            entityName = AuditEntityNames.ROLE_PERMISSION,
             description = "Deleted role permission",
             captureNewValue = false
     )

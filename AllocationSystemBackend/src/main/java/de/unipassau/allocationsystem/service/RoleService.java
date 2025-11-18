@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -64,7 +65,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.VIEW.VIEW,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Viewed list of roles",
             captureNewValue = false
     )
@@ -82,7 +83,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Viewed all roles",
             captureNewValue = false
     )
@@ -92,7 +93,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Viewed role by id",
             captureNewValue = false
     )
@@ -102,7 +103,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.CREATE,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Created new role",
             captureNewValue = true
     )
@@ -116,7 +117,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Updated role",
             captureNewValue = true
     )
@@ -141,7 +142,7 @@ public class RoleService {
 
     @Audited(
             action = AuditAction.DELETE,
-            entityName = "ROLE",
+            entityName = AuditEntityNames.ROLE,
             description = "Deleted role",
             captureNewValue = false
     )

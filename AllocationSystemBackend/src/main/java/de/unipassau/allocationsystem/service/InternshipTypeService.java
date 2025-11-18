@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -52,7 +53,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Viewed list of internship types",
             captureNewValue = false
     )
@@ -70,7 +71,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Viewed all internship types",
             captureNewValue = false
     )
@@ -80,7 +81,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Viewed internship type by id",
             captureNewValue = false
     )
@@ -90,7 +91,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.CREATE,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Created new InternshipType",
             captureNewValue = true
     )
@@ -104,7 +105,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Updated Internship Type information",
             captureNewValue = true
     )
@@ -143,7 +144,7 @@ public class InternshipTypeService {
 
     @Audited(
             action = AuditLog.AuditAction.DELETE,
-            entityName = "INTERNSHIP_TYPE",
+            entityName = AuditEntityNames.INTERNSHIP_TYPE,
             description = "Deleted INTERNSHIP_TYPE status",
             captureNewValue = true
     )

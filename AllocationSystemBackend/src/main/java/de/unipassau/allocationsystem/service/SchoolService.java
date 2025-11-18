@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.dto.SchoolCreateDto;
 import de.unipassau.allocationsystem.dto.SchoolResponseDto;
 import de.unipassau.allocationsystem.dto.SchoolUpdateDto;
@@ -41,7 +42,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Viewed list of schools",
             captureNewValue = false
     )
@@ -90,7 +91,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Viewed school information",
             captureNewValue = false
     )
@@ -107,7 +108,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.CREATE,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Created new school",
             captureNewValue = true
     )
@@ -132,7 +133,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Updated school information",
             captureNewValue = true
     )
@@ -163,7 +164,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Updated school status",
             captureNewValue = true
     )
@@ -186,7 +187,7 @@ public class SchoolService {
      */
     @Audited(
             action = AuditAction.DELETE,
-            entityName = "SCHOOL",
+            entityName = AuditEntityNames.SCHOOL,
             description = "Soft deleted school (deactivated)",
             captureNewValue = true
     )

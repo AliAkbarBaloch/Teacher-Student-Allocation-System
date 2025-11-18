@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.dto.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
@@ -46,7 +47,7 @@ public class TeacherService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER",
+            entityName = AuditEntityNames.TEACHER,
             description = "Viewed list of teachers",
             captureNewValue = false
     )
@@ -130,7 +131,7 @@ public class TeacherService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER",
+            entityName = AuditEntityNames.TEACHER,
             description = "Viewed teacher details",
             captureNewValue = false
     )
@@ -149,7 +150,7 @@ public class TeacherService {
      */
     @Audited(
         action = AuditLog.AuditAction.CREATE,
-        entityName = "TEACHER",
+        entityName = AuditEntityNames.TEACHER,
         description = "Created new teacher",
         captureNewValue = true
     )
@@ -195,7 +196,7 @@ public class TeacherService {
      */
     @Audited(
         action = AuditLog.AuditAction.UPDATE,
-        entityName = "TEACHER",
+        entityName = AuditEntityNames.TEACHER,
         description = "Updated teacher information",
         captureNewValue = true
     )
@@ -243,7 +244,7 @@ public class TeacherService {
      */
     @Audited(
         action = AuditLog.AuditAction.UPDATE,
-        entityName = "TEACHER",
+        entityName = AuditEntityNames.TEACHER,
         description = "Updated teacher status",
         captureNewValue = true
     )
@@ -274,7 +275,7 @@ public class TeacherService {
      */
     @Audited(
         action = AuditLog.AuditAction.DELETE,
-        entityName = "TEACHER",
+        entityName = AuditEntityNames.TEACHER,
         description = "Soft deleted teacher (deactivated)",
         captureNewValue = false
     )

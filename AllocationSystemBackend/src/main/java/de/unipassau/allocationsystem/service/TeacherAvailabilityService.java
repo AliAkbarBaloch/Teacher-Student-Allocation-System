@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityCreateDto;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityResponseDto;
 import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
@@ -45,7 +46,7 @@ public class TeacherAvailabilityService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER_AVAILABILITY",
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
             description = "Viewed list of teacher availability entries",
             captureNewValue = false
     )
@@ -101,7 +102,7 @@ public class TeacherAvailabilityService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER_AVAILABILITY",
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
             description = "Viewed teacher availability entry details",
             captureNewValue = false
     )
@@ -122,7 +123,7 @@ public class TeacherAvailabilityService {
      */
     @Audited(
             action = AuditLog.AuditAction.CREATE,
-            entityName = "TEACHER_AVAILABILITY",
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
             description = "Created new teacher availability entry",
             captureNewValue = true
     )
@@ -188,7 +189,7 @@ public class TeacherAvailabilityService {
      */
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
-            entityName = "TEACHER_AVAILABILITY",
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
             description = "Updated teacher availability entry",
             captureNewValue = true
     )
@@ -253,7 +254,7 @@ public class TeacherAvailabilityService {
      */
     @Audited(
             action = AuditLog.AuditAction.DELETE,
-            entityName = "TEACHER_AVAILABILITY",
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
             description = "Deleted teacher availability entry",
             captureNewValue = false
     )

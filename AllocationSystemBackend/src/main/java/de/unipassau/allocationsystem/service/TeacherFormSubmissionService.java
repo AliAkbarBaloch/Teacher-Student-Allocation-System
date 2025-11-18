@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
 import de.unipassau.allocationsystem.dto.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
@@ -45,7 +46,7 @@ public class TeacherFormSubmissionService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER_FORM_SUBMISSION",
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
             description = "Viewed list of teacher form submissions",
             captureNewValue = false
     )
@@ -102,7 +103,7 @@ public class TeacherFormSubmissionService {
      */
     @Audited(
             action = AuditLog.AuditAction.VIEW,
-            entityName = "TEACHER_FORM_SUBMISSION",
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
             description = "Viewed teacher form submission details",
             captureNewValue = false
     )
@@ -121,7 +122,7 @@ public class TeacherFormSubmissionService {
      */
     @Audited(
             action = AuditLog.AuditAction.CREATE,
-            entityName = "TEACHER_FORM_SUBMISSION",
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
             description = "Created new teacher form submission",
             captureNewValue = true
     )
@@ -168,7 +169,7 @@ public class TeacherFormSubmissionService {
      */
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
-            entityName = "TEACHER_FORM_SUBMISSION",
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
             description = "Updated teacher form submission processing status",
             captureNewValue = true
     )

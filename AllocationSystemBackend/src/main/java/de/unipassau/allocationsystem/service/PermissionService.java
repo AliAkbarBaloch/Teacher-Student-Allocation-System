@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -62,7 +63,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Viewed list of permissions",
             captureNewValue = false
     )
@@ -80,7 +81,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Viewed all permissions",
             captureNewValue = false
     )
@@ -90,7 +91,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Viewed permission by id",
             captureNewValue = false
     )
@@ -100,7 +101,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.CREATE,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Created new permission",
             captureNewValue = true
     )
@@ -114,7 +115,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Updated permission",
             captureNewValue = true
     )
@@ -139,7 +140,7 @@ public class PermissionService {
 
     @Audited(
             action = AuditAction.DELETE,
-            entityName = "PERMISSION",
+            entityName = AuditEntityNames.PERMISSION,
             description = "Deleted permission",
             captureNewValue = false
     )

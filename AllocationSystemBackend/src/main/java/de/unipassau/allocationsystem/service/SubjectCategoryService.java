@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -91,7 +92,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Viewed list of subject categories",
             captureNewValue = false
     )
@@ -116,7 +117,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Viewed all subject categories",
             captureNewValue = false
     )
@@ -133,7 +134,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.VIEW,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Viewed subject category by id",
             captureNewValue = false
     )
@@ -151,7 +152,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.CREATE,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Created new subject category",
             captureNewValue = true
     )
@@ -175,7 +176,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.UPDATE,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Updated subject category",
             captureNewValue = true
     )
@@ -200,7 +201,7 @@ public class SubjectCategoryService {
         SubjectCategory updated = subjectCategoryRepository.save(existing);
 
         if (!previousValue.isEmpty()) {
-            auditLogService.logUpdate("SubjectCategory", id.toString(), previousValue, newValue);
+            auditLogService.logUpdate(AuditEntityNames.SUBJECT_CATEGORY, id.toString(), previousValue, newValue);
         }
 
         return updated;
@@ -214,7 +215,7 @@ public class SubjectCategoryService {
      */
     @Audited(
             action = AuditAction.DELETE,
-            entityName = "SubjectCategory",
+            entityName = AuditEntityNames.SUBJECT_CATEGORY,
             description = "Deleted subject category",
             captureNewValue = false
     )
@@ -230,7 +231,7 @@ public class SubjectCategoryService {
         );
 
         subjectCategoryRepository.delete(existing);
-        auditLogService.logDelete("SubjectCategory", id.toString(), previousValue);
+        auditLogService.logDelete(AuditEntityNames.SUBJECT_CATEGORY, id.toString(), previousValue);
     }
 }
 
