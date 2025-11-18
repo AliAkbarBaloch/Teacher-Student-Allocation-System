@@ -1,0 +1,124 @@
+{
+  "title": "Schools",
+  "subtitle": "Configure and audit the school master data used across allocations.",
+  "table": {
+    "columns": {
+      "name": "School Name",
+      "type": "Type",
+      "zone": "Zone",
+      "contactEmail": "Contact Email",
+      "contactPhone": "Contact Phone",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No schools match the selected filters.",
+    "loading": "Loading schools..."
+  },
+  "filters": {
+    "title": "Filters",
+    "subtitle": "Search and refine school records.",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search by school name",
+    "typeLabel": "Type",
+    "typePlaceholder": "All types",
+    "zoneLabel": "Zone",
+    "zonePlaceholder": "Any zone",
+    "statusLabel": "Status",
+    "statusAll": "All",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "reset": "Reset filters"
+  },
+  "typeLabels": {
+    "PRIMARY": "Primary School",
+    "MIDDLE": "Middle School"
+  },
+  "actions": {
+    "create": "Create New School",
+    "view": "View",
+    "edit": "Edit",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "cancel": "Cancel"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "activateTitle": "Activate school",
+    "activateDescription": "Activated schools can be used for future allocations.",
+    "deactivateTitle": "Deactivate school",
+    "deactivateDescription": "Inactive schools will no longer appear in allocations until reactivated."
+  },
+  "form": {
+    "title": {
+      "create": "Create School",
+      "edit": "Edit School",
+      "view": "School Details"
+    },
+    "description": "All changes are tracked in the audit log.",
+    "fields": {
+      "schoolName": "School Name",
+      "schoolType": "School Type",
+      "zoneNumber": "Zone Number",
+      "address": "Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "distanceFromCenter": "Distance from Center (km)",
+      "transportAccessibility": "Transport Accessibility",
+      "contactEmail": "Contact Email",
+      "contactPhone": "Contact Phone",
+      "isActive": "Active"
+    },
+    "placeholders": {
+      "schoolName": "e.g. Passau Primary School",
+      "schoolType": "Select type",
+      "zoneNumber": "Zone number",
+      "addressDetailed": "Street, postal code, city",
+      "latitude": "48.5667",
+      "longitude": "13.4319",
+      "distanceFromCenter": "0",
+      "transportAccessibility": "e.g. Bus line 3 within 5 minutes",
+      "contactEmail": "contact@example.org",
+      "contactPhone": "+49 123 456789"
+    },
+    "helpers": {
+      "isActive": "Only active schools can receive new allocations."
+    },
+    "errors": {
+      "schoolNameRequired": "School name is required.",
+      "schoolTypeRequired": "Please select a school type.",
+      "zoneNumberRequired": "Zone number is required.",
+      "zoneMustBePositive": "Zone number must be a positive number.",
+      "latitudeNumeric": "Latitude must be a numeric value.",
+      "longitudeNumeric": "Longitude must be a numeric value.",
+      "distanceNumeric": "Distance must be numeric.",
+      "emailInvalid": "Enter a valid email address."
+    },
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    }
+  },
+  "notifications": {
+    "createSuccess": "School created successfully.",
+    "updateSuccess": "School updated successfully.",
+    "activateSuccess": "School activated.",
+    "deactivateSuccess": "School deactivated."
+  },
+  "errors": {
+    "load": "Unable to load schools. Please try again.",
+    "submit": "Unable to save the school. Please review the errors and try again."
+  },
+  "permissions": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You can review school data, but only administrators can create or modify records."
+  },
+  "pagination": {
+    "display": "Showing {{from}}-{{to}} of {{total}} schools",
+    "pageSize": "Rows per page",
+    "pageSizeShort": "Rows"
+  }
+}
+
