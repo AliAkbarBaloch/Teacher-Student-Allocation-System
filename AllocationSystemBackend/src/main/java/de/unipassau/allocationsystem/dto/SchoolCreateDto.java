@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * DTO for creating a new school.
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SchoolCreateDto {
+    private Long id;
 
     @NotBlank(message = "School name is required")
     @Size(min = 3, message = "School name must be at least 3 characters")
@@ -50,4 +52,7 @@ public class SchoolCreateDto {
     private String contactPhone;
 
     private Boolean isActive = true;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

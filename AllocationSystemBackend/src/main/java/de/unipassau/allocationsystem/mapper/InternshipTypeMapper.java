@@ -8,26 +8,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class InternshipTypeMapper {
+public class InternshipTypeMapper implements BaseMapper<InternshipType, InternshipTypeDto> {
 
+    @Override
     public InternshipType toEntity(InternshipTypeDto dto) {
         if (dto == null) {
             return null;
         }
-        return new InternshipType(
-                dto.getId(),
-                dto.getInternshipCode(),
-                dto.getFullName(),
-                dto.getTiming(),
-                dto.getPeriodType(),
-                dto.getSemester(),
-                dto.getIsSubjectSpecific(),
-                dto.getPriorityOrder(),
-                dto.getCreatedAt(),
-                dto.getUpdatedAt()
-        );
+        InternshipType entity = new InternshipType();
+        if (dto.getId() != null && dto.getId() > 0) {
+            entity.setId(dto.getId());
+        }
+        entity.setInternshipCode(dto.getInternshipCode());
+        entity.setFullName(dto.getFullName());
+        entity.setTiming(dto.getTiming());
+        entity.setPeriodType(dto.getPeriodType());
+        entity.setSemester(dto.getSemester());
+        entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
+        entity.setPriorityOrder(dto.getPriorityOrder());
+        entity.setCreatedAt(dto.getCreatedAt());
+        entity.setUpdatedAt(dto.getUpdatedAt());
+        return entity;
     }
 
+    @Override
     public InternshipTypeDto toDto(InternshipType entity) {
         if (entity == null) {
             return null;
@@ -46,7 +50,13 @@ public class InternshipTypeMapper {
         );
     }
 
+    @Override
     public List<InternshipTypeDto> toDtoList(List<InternshipType> entities) {
-        return entities.stream().map(this::toDto).collect(Collectors.toList());
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }

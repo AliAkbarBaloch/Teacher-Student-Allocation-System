@@ -8,20 +8,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class SubjectCategoryMapper {
+public class SubjectCategoryMapper implements BaseMapper<SubjectCategory, SubjectCategoryDto> {
 
+    @Override
     public SubjectCategory toEntity(SubjectCategoryDto dto) {
         if (dto == null) {
             return null;
         }
-        return new SubjectCategory(
-                dto.getId(),
-                dto.getCategoryTitle(),
-                dto.getCreatedAt(),
-                dto.getUpdatedAt()
-        );
+        SubjectCategory entity = new SubjectCategory();
+        if (dto.getId() != null && dto.getId() > 0) {
+            entity.setId(dto.getId());
+        }
+        entity.setCategoryTitle(dto.getCategoryTitle());
+        entity.setCreatedAt(dto.getCreatedAt());
+        entity.setUpdatedAt(dto.getUpdatedAt());
+        return entity;
     }
 
+    @Override
     public SubjectCategoryDto toDto(SubjectCategory entity) {
         if (entity == null) {
             return null;
@@ -34,8 +38,14 @@ public class SubjectCategoryMapper {
         );
     }
 
+    @Override
     public List<SubjectCategoryDto> toDtoList(List<SubjectCategory> entities) {
-        return entities.stream().map(this::toDto).collect(Collectors.toList());
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 }
 

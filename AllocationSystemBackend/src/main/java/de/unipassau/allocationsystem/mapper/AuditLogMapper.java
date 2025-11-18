@@ -13,10 +13,11 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class AuditLogMapper {
+public class AuditLogMapper implements BaseMapper<AuditLog, AuditLogDto>{
 
     private final UserRepository userRepository;
 
+    @Override
     public AuditLog toEntity(AuditLogDto dto) {
         if (dto == null) {
             return null;
@@ -25,8 +26,7 @@ public class AuditLogMapper {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
 
-        return AuditLog.builder()
-                .id(dto.getId())
+        AuditLog.AuditLogBuilder builder = AuditLog.builder()
                 .user(user)
                 .userIdentifier(dto.getUserIdentifier())
                 .eventTimestamp(dto.getEventTimestamp())
@@ -37,10 +37,16 @@ public class AuditLogMapper {
                 .newValue(dto.getNewValue())
                 .description(dto.getDescription())
                 .ipAddress(dto.getIpAddress())
-                .createdAt(dto.getCreatedAt())
-                .build();
+                .createdAt(dto.getCreatedAt());
+
+        if (dto.getId() != null && dto.getId() > 0) {
+            builder.id(dto.getId());
+        }
+
+        return builder.build();
     }
 
+    @Override
     public AuditLogDto toDto(AuditLog entity) {
         if (entity == null) {
             return null;
@@ -61,11 +67,11 @@ public class AuditLogMapper {
                 .build();
     }
 
+    @Override
     public List<AuditLogDto> toDtoList(List<AuditLog> entities) {
         if (entities == null) {
             return null;
         }
-
         return entities.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

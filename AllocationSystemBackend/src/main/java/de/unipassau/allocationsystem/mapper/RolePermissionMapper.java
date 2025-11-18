@@ -15,10 +15,11 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RolePermissionMapper {
+public class RolePermissionMapper implements BaseMapper<RolePermission, RolePermissionDto> {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
 
+    @Override
     public RolePermission toEntity(RolePermissionDto dto) {
         if (dto == null) {
             return null;
@@ -30,40 +31,42 @@ public class RolePermissionMapper {
         Permission permission = permissionRepository.findById(dto.getPermissionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + dto.getPermissionId()));
 
-        RolePermission rolePermission = new RolePermission();
-        rolePermission.setId(dto.getId());
-        rolePermission.setRole(role);
-        rolePermission.setPermission(permission);
-        rolePermission.setAccessLevel(dto.getAccessLevel());
-        rolePermission.setCreatedAt(dto.getCreatedAt());
-        rolePermission.setUpdatedAt(dto.getUpdatedAt());
+        RolePermission entity = new RolePermission();
+        if (dto.getId() != null && dto.getId() > 0) {
+            entity.setId(dto.getId());
+        }
+        entity.setRole(role);
+        entity.setPermission(permission);
+        entity.setAccessLevel(dto.getAccessLevel());
+        entity.setCreatedAt(dto.getCreatedAt());
+        entity.setUpdatedAt(dto.getUpdatedAt());
 
-        return rolePermission;
+        return entity;
     }
 
+    @Override
     public RolePermissionDto toDto(RolePermission entity) {
         if (entity == null) {
             return null;
         }
 
-        RolePermissionDto dto = new RolePermissionDto();
-        dto.setId(entity.getId());
-        dto.setRoleId(entity.getRole().getId());
-        dto.setPermissionId(entity.getPermission().getId());
-        dto.setAccessLevel(entity.getAccessLevel());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setRoleTitle(entity.getRole().getTitle());
-        dto.setPermissionTitle(entity.getPermission().getTitle());
-
-        return dto;
+        return RolePermissionDto.builder()
+                .id(entity.getId())
+                .roleId(entity.getRole().getId())
+                .permissionId(entity.getPermission().getId())
+                .accessLevel(entity.getAccessLevel())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .roleTitle(entity.getRole().getTitle())
+                .permissionTitle(entity.getPermission().getTitle())
+                .build();
     }
 
+    @Override
     public List<RolePermissionDto> toDtoList(List<RolePermission> entities) {
         if (entities == null) {
             return null;
         }
-        
         return entities.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
