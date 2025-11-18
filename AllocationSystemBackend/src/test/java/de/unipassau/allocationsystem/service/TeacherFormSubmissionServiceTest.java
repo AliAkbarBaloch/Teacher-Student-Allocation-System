@@ -3,9 +3,9 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherFormSubmission;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherFormSubmissionMapper;
@@ -106,7 +106,7 @@ class TeacherFormSubmissionServiceTest {
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(page);
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         Map<String, Object> result = teacherFormSubmissionService
@@ -129,7 +129,7 @@ class TeacherFormSubmissionServiceTest {
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(page);
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         Map<String, Object> result = teacherFormSubmissionService
@@ -152,7 +152,7 @@ class TeacherFormSubmissionServiceTest {
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(page);
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         Map<String, Object> result = teacherFormSubmissionService
@@ -175,7 +175,7 @@ class TeacherFormSubmissionServiceTest {
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(page);
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         Map<String, Object> result = teacherFormSubmissionService
@@ -193,7 +193,7 @@ class TeacherFormSubmissionServiceTest {
     void shouldGetFormSubmissionByIdSuccessfully() {
         when(teacherFormSubmissionRepository.findById(1L))
                 .thenReturn(Optional.of(submission));
-        when(teacherFormSubmissionMapper.toDto(submission))
+        when(teacherFormSubmissionMapper.toResponseDto(submission))
                 .thenReturn(responseDto);
 
         TeacherFormSubmissionResponseDto result = teacherFormSubmissionService
@@ -204,7 +204,7 @@ class TeacherFormSubmissionServiceTest {
         assertEquals("unique-token-123", result.getFormToken());
 
         verify(teacherFormSubmissionRepository).findById(1L);
-        verify(teacherFormSubmissionMapper).toDto(submission);
+        verify(teacherFormSubmissionMapper).toResponseDto(submission);
     }
 
     @Test
@@ -240,7 +240,7 @@ class TeacherFormSubmissionServiceTest {
                     saved.setId(2L);
                     return saved;
                 });
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         TeacherFormSubmissionResponseDto result = teacherFormSubmissionService
@@ -357,7 +357,7 @@ class TeacherFormSubmissionServiceTest {
                 .thenReturn(Optional.of(submission));
         when(teacherFormSubmissionRepository.save(any(TeacherFormSubmission.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(teacherFormSubmissionMapper.toDto(any(TeacherFormSubmission.class)))
+        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
         TeacherFormSubmissionResponseDto result = teacherFormSubmissionService

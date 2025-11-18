@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.AcademicYearDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearCreateDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearResponseDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import org.springframework.stereotype.Component;
 
@@ -8,17 +10,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYearDto> {
+public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYearCreateDto, AcademicYearUpdateDto, AcademicYearResponseDto> {
 
     @Override
-    public AcademicYear toEntity(AcademicYearDto dto) {
-        if (dto == null) {
-            return null;
-        }
+    public AcademicYear toEntityCreate(AcademicYearCreateDto dto) {
+        if (dto == null) return null;
         AcademicYear entity = new AcademicYear();
-        if (dto.getId() != null && dto.getId() > 0) {
-            entity.setId(dto.getId());
-        }
         entity.setYearName(dto.getYearName());
         entity.setTotalCreditHours(dto.getTotalCreditHours());
         entity.setElementarySchoolHours(dto.getElementarySchoolHours());
@@ -26,17 +23,27 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
         entity.setAllocationDeadline(dto.getAllocationDeadline());
         entity.setIsLocked(dto.getIsLocked());
-        entity.setCreatedAt(dto.getCreatedAt());
-        entity.setUpdatedAt(dto.getUpdatedAt());
         return entity;
     }
 
     @Override
-    public AcademicYearDto toDto(AcademicYear entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new AcademicYearDto(
+    public AcademicYear toEntityUpdate(AcademicYearUpdateDto dto) {
+        if (dto == null) return null;
+        AcademicYear entity = new AcademicYear();
+        entity.setYearName(dto.getYearName());
+        entity.setTotalCreditHours(dto.getTotalCreditHours());
+        entity.setElementarySchoolHours(dto.getElementarySchoolHours());
+        entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
+        entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
+        entity.setAllocationDeadline(dto.getAllocationDeadline());
+        entity.setIsLocked(dto.getIsLocked());
+        return entity;
+    }
+
+    @Override
+    public AcademicYearResponseDto toResponseDto(AcademicYear entity) {
+        if (entity == null) return null;
+        return new AcademicYearResponseDto(
                 entity.getId(),
                 entity.getYearName(),
                 entity.getTotalCreditHours(),
@@ -51,12 +58,22 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
     }
 
     @Override
-    public List<AcademicYearDto> toDtoList(List<AcademicYear> entities) {
-        if (entities == null) {
-            return null;
-        }
+    public List<AcademicYearResponseDto> toResponseDtoList(List<AcademicYear> entities) {
+        if (entities == null) return null;
         return entities.stream()
-                .map(this::toDto)
+                .map(this::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(AcademicYearUpdateDto dto, AcademicYear entity) {
+        if (dto == null || entity == null) return;
+        if (dto.getYearName() != null) entity.setYearName(dto.getYearName());
+        if (dto.getTotalCreditHours() != null) entity.setTotalCreditHours(dto.getTotalCreditHours());
+        if (dto.getElementarySchoolHours() != null) entity.setElementarySchoolHours(dto.getElementarySchoolHours());
+        if (dto.getMiddleSchoolHours() != null) entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
+        if (dto.getBudgetAnnouncementDate() != null) entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
+        if (dto.getAllocationDeadline() != null) entity.setAllocationDeadline(dto.getAllocationDeadline());
+        if (dto.getIsLocked() != null) entity.setIsLocked(dto.getIsLocked());
     }
 }

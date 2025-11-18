@@ -2,7 +2,11 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.user.UserCreateDto;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
+import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
+import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;

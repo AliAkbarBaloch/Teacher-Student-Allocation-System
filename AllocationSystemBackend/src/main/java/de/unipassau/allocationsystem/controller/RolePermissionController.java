@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.RolePermissionDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionCreateDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionResponseDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionUpdateDto;
 import de.unipassau.allocationsystem.entity.RolePermission;
 import de.unipassau.allocationsystem.mapper.RolePermissionMapper;
 import de.unipassau.allocationsystem.service.RolePermissionService;
@@ -42,51 +44,51 @@ public class RolePermissionController {
 
     @GetMapping
     public ResponseEntity<?> getAll() {
-        List<RolePermissionDto> result = rolePermissionMapper.toDtoList(rolePermissionService.getAll());
+        List<RolePermissionResponseDto> result = rolePermissionMapper.toResponseDtoList(rolePermissionService.getAll());
         return ResponseHandler.success("Role permissions retrieved successfully", result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        RolePermissionDto result = rolePermissionService.getById(id)
-                .map(rolePermissionMapper::toDto)
+        RolePermissionResponseDto result = rolePermissionService.getById(id)
+                .map(rolePermissionMapper::toResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("Role permission not found with id: " + id));
         return ResponseHandler.success("Role permission retrieved successfully", result);
     }
 
     @GetMapping("/by-role/{roleId}")
     public ResponseEntity<?> getByRoleId(@PathVariable Long roleId) {
-        List<RolePermissionDto> result = rolePermissionMapper.toDtoList(
+        List<RolePermissionResponseDto> result = rolePermissionMapper.toResponseDtoList(
                 rolePermissionService.getByRoleId(roleId));
         return ResponseHandler.success("Role permissions retrieved successfully", result);
     }
 
     @GetMapping("/by-permission/{permissionId}")
     public ResponseEntity<?> getByPermissionId(@PathVariable Long permissionId) {
-        List<RolePermissionDto> result = rolePermissionMapper.toDtoList(
+        List<RolePermissionResponseDto> result = rolePermissionMapper.toResponseDtoList(
                 rolePermissionService.getByPermissionId(permissionId));
         return ResponseHandler.success("Role permissions retrieved successfully", result);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody RolePermissionDto dto) {
+    public ResponseEntity<?> create(@Valid @RequestBody RolePermissionCreateDto dto) {
         try {
-            RolePermission rolePermission = rolePermissionMapper.toEntity(dto);
+            RolePermission rolePermission = rolePermissionMapper.toEntityCreate(dto);
             RolePermission created = rolePermissionService.create(rolePermission);
             return ResponseHandler.created("Role permission created successfully",
-                    rolePermissionMapper.toDto(created));
+                    rolePermissionMapper.toResponseDto(created));
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody RolePermissionDto dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody RolePermissionUpdateDto dto) {
         try {
-            RolePermission rolePermission = rolePermissionMapper.toEntity(dto);
+            RolePermission rolePermission = rolePermissionMapper.toEntityUpdate(dto);
             RolePermission updated = rolePermissionService.update(id, rolePermission);
             return ResponseHandler.updated("Role permission updated successfully",
-                    rolePermissionMapper.toDto(updated));
+                    rolePermissionMapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("Role permission not found");
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {

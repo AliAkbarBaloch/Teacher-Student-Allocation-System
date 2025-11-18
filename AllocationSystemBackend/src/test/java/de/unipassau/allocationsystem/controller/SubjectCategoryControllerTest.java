@@ -1,8 +1,8 @@
-// src/test/java/de/unipassau/allocationsystem/controller/SubjectCategoryControllerTest.java
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.dto.SubjectCategoryDto;
+import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryCreateDto;
+import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryUpdateDto;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +16,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = true)
@@ -106,7 +108,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createCategory_Success() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
         dto.setCategoryTitle("New Category");
 
         mockMvc.perform(post("/api/subject-categories")
@@ -120,7 +122,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createCategory_DuplicateTitle_ShouldFail() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
         dto.setCategoryTitle("Test Category"); // Duplicate
 
         mockMvc.perform(post("/api/subject-categories")
@@ -132,7 +134,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void createCategory_WithoutAdminRole_ShouldFail() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
         dto.setCategoryTitle("Unauthorized Category");
 
         mockMvc.perform(post("/api/subject-categories")
@@ -145,7 +147,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateCategory_Success() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Updated Category");
 
         mockMvc.perform(put("/api/subject-categories/{id}", testCategory.getId())
@@ -159,7 +161,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateCategory_NotFound_ShouldFail() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Non Existing");
 
         mockMvc.perform(put("/api/subject-categories/{id}", 99999L)
@@ -171,7 +173,7 @@ class SubjectCategoryControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void updateCategory_WithoutAdminRole_ShouldFail() throws Exception {
-        SubjectCategoryDto dto = new SubjectCategoryDto();
+        SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Unauthorized Update");
 
         mockMvc.perform(put("/api/subject-categories/{id}", testCategory.getId())

@@ -2,9 +2,9 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
 import de.unipassau.allocationsystem.entity.*;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;

@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.InternshipTypeDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.mapper.InternshipTypeMapper;
 import de.unipassau.allocationsystem.service.InternshipTypeService;
@@ -41,35 +43,35 @@ public class InternshipTypeController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
-        List<InternshipTypeDto> result = internshipTypeMapper.toDtoList(internshipTypeService.getAll());
+        List<InternshipTypeResponseDto> result = internshipTypeMapper.toResponseDtoList(internshipTypeService.getAll());
         return ResponseHandler.success("Internship types retrieved successfully", result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        InternshipTypeDto result = internshipTypeService.getById(id)
-                .map(internshipTypeMapper::toDto)
+        InternshipTypeResponseDto result = internshipTypeService.getById(id)
+                .map(internshipTypeMapper::toResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("InternshipType not found with id: " + id));
         return ResponseHandler.success("Internship type retrieved successfully", result);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody InternshipTypeDto dto) {
+    public ResponseEntity<?> create(@RequestBody InternshipTypeCreateDto dto) {
         try {
-            InternshipType internshipType = internshipTypeMapper.toEntity(dto);
+            InternshipType internshipType = internshipTypeMapper.toEntityCreate(dto);
             InternshipType created = internshipTypeService.create(internshipType);
-            return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toDto(created));
+            return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toResponseDto(created));
         } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipTypeDto dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipTypeUpdateDto dto) {
         try {
-            InternshipType internshipType = internshipTypeMapper.toEntity(dto);
+            InternshipType internshipType = internshipTypeMapper.toEntityUpdate(dto);
             InternshipType updated = internshipTypeService.update(id, internshipType);
-            return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toDto(updated));
+            return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("InternshipType not found");
         } catch (DataIntegrityViolationException e) {

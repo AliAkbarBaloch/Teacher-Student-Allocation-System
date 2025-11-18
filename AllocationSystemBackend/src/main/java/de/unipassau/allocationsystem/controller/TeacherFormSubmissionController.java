@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
 import de.unipassau.allocationsystem.service.TeacherFormSubmissionService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import jakarta.validation.Valid;

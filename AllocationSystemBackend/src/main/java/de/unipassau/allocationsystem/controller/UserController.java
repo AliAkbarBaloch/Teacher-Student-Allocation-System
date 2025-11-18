@@ -1,6 +1,10 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.user.UserCreateDto;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
+import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
+import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;

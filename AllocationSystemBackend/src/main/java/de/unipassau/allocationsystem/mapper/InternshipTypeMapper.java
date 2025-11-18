@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.InternshipTypeDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import org.springframework.stereotype.Component;
 
@@ -8,17 +10,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class InternshipTypeMapper implements BaseMapper<InternshipType, InternshipTypeDto> {
+public class InternshipTypeMapper implements BaseMapper<InternshipType, InternshipTypeCreateDto, InternshipTypeUpdateDto, InternshipTypeResponseDto> {
 
     @Override
-    public InternshipType toEntity(InternshipTypeDto dto) {
-        if (dto == null) {
-            return null;
-        }
+    public InternshipType toEntityCreate(InternshipTypeCreateDto dto) {
+        if (dto == null) return null;
         InternshipType entity = new InternshipType();
-        if (dto.getId() != null && dto.getId() > 0) {
-            entity.setId(dto.getId());
-        }
         entity.setInternshipCode(dto.getInternshipCode());
         entity.setFullName(dto.getFullName());
         entity.setTiming(dto.getTiming());
@@ -26,17 +23,27 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         entity.setSemester(dto.getSemester());
         entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
         entity.setPriorityOrder(dto.getPriorityOrder());
-        entity.setCreatedAt(dto.getCreatedAt());
-        entity.setUpdatedAt(dto.getUpdatedAt());
         return entity;
     }
 
     @Override
-    public InternshipTypeDto toDto(InternshipType entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new InternshipTypeDto(
+    public InternshipType toEntityUpdate(InternshipTypeUpdateDto dto) {
+        if (dto == null) return null;
+        InternshipType entity = new InternshipType();
+        entity.setInternshipCode(dto.getInternshipCode());
+        entity.setFullName(dto.getFullName());
+        entity.setTiming(dto.getTiming());
+        entity.setPeriodType(dto.getPeriodType());
+        entity.setSemester(dto.getSemester());
+        entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
+        entity.setPriorityOrder(dto.getPriorityOrder());
+        return entity;
+    }
+
+    @Override
+    public InternshipTypeResponseDto toResponseDto(InternshipType entity) {
+        if (entity == null) return null;
+        return new InternshipTypeResponseDto(
                 entity.getId(),
                 entity.getInternshipCode(),
                 entity.getFullName(),
@@ -51,12 +58,22 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
     }
 
     @Override
-    public List<InternshipTypeDto> toDtoList(List<InternshipType> entities) {
-        if (entities == null) {
-            return null;
-        }
+    public List<InternshipTypeResponseDto> toResponseDtoList(List<InternshipType> entities) {
+        if (entities == null) return null;
         return entities.stream()
-                .map(this::toDto)
+                .map(this::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(InternshipTypeUpdateDto dto, InternshipType entity) {
+        if (dto == null || entity == null) return;
+        if (dto.getInternshipCode() != null) entity.setInternshipCode(dto.getInternshipCode());
+        if (dto.getFullName() != null) entity.setFullName(dto.getFullName());
+        if (dto.getTiming() != null) entity.setTiming(dto.getTiming());
+        if (dto.getPeriodType() != null) entity.setPeriodType(dto.getPeriodType());
+        if (dto.getSemester() != null) entity.setSemester(dto.getSemester());
+        if (dto.getIsSubjectSpecific() != null) entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
+        if (dto.getPriorityOrder() != null) entity.setPriorityOrder(dto.getPriorityOrder());
     }
 }

@@ -2,9 +2,9 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.SchoolCreateDto;
-import de.unipassau.allocationsystem.dto.SchoolResponseDto;
-import de.unipassau.allocationsystem.dto.SchoolUpdateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolCreateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
+import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
@@ -121,7 +121,7 @@ public class SchoolService {
                 createDto.getSchoolName() + "' already exists");
         }
 
-        School school = schoolMapper.toEntity(createDto);
+        School school = schoolMapper.toEntityCreate(createDto);
         School savedSchool = schoolRepository.save(school);
         
         log.info("School created successfully with id: {}", savedSchool.getId());

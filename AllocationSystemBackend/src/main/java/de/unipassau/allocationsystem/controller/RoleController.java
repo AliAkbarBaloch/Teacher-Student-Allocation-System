@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.RoleDto;
+import de.unipassau.allocationsystem.dto.role.RoleCreateDto;
+import de.unipassau.allocationsystem.dto.role.RoleResponseDto;
+import de.unipassau.allocationsystem.dto.role.RoleUpdateDto;
 import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.mapper.RoleMapper;
 import de.unipassau.allocationsystem.service.RoleService;
@@ -44,35 +46,35 @@ public class RoleController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
-        List<RoleDto> result = roleMapper.toDtoList(roleService.getAll());
+        List<RoleResponseDto> result = roleMapper.toResponseDtoList(roleService.getAll());
         return ResponseHandler.success("Roles retrieved successfully", result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        RoleDto result = roleService.getById(id)
-                .map(roleMapper::toDto)
+        RoleResponseDto result = roleService.getById(id)
+                .map(roleMapper::toResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("Role not found with id: " + id));
         return ResponseHandler.success("Role retrieved successfully", result);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody RoleDto dto) {
+    public ResponseEntity<?> create(@Valid @RequestBody RoleCreateDto dto) {
         try {
-            Role role = roleMapper.toEntity(dto);
+            Role role = roleMapper.toEntityCreate(dto);
             Role created = roleService.create(role);
-            return ResponseHandler.created("Role created successfully", roleMapper.toDto(created));
+            return ResponseHandler.created("Role created successfully", roleMapper.toResponseDto(created));
         } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RoleDto dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RoleUpdateDto dto) {
         try {
-            Role role = roleMapper.toEntity(dto);
+            Role role = roleMapper.toEntityUpdate(dto);
             Role updated = roleService.update(id, role);
-            return ResponseHandler.updated("Role updated successfully", roleMapper.toDto(updated));
+            return ResponseHandler.updated("Role updated successfully", roleMapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("Role not found");
         } catch (DataIntegrityViolationException e) {

@@ -1,7 +1,7 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
 import de.unipassau.allocationsystem.entity.TeacherAvailability;
 import org.springframework.stereotype.Component;
 

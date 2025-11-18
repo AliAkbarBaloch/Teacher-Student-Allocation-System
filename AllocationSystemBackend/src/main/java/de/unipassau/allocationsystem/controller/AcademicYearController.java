@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.AcademicYearDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearCreateDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearResponseDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.mapper.AcademicYearMapper;
 import de.unipassau.allocationsystem.service.AcademicYearService;
@@ -42,35 +44,35 @@ public class AcademicYearController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
-        List<AcademicYearDto> result = academicYearMapper.toDtoList(academicYearService.getAll());
+        List<AcademicYearResponseDto> result = academicYearMapper.toResponseDtoList(academicYearService.getAll());
         return ResponseHandler.success("Academic years retrieved successfully", result);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        AcademicYearDto result = academicYearService.getById(id)
-                .map(academicYearMapper::toDto)
+        AcademicYearResponseDto result = academicYearService.getById(id)
+                .map(academicYearMapper::toResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("Academic year not found with id: " + id));
         return ResponseHandler.success("Academic year retrieved successfully", result);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody AcademicYearDto dto) {
+    public ResponseEntity<?> create(@Valid @RequestBody AcademicYearCreateDto dto) {
         try {
-            AcademicYear academicYear = academicYearMapper.toEntity(dto);
+            AcademicYear academicYear = academicYearMapper.toEntityCreate(dto);
             AcademicYear created = academicYearService.create(academicYear);
-            return ResponseHandler.created("Academic year created successfully", academicYearMapper.toDto(created));
+            return ResponseHandler.created("Academic year created successfully", academicYearMapper.toResponseDto(created));
         } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AcademicYearDto dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AcademicYearUpdateDto dto) {
         try {
-            AcademicYear academicYear = academicYearMapper.toEntity(dto);
+            AcademicYear academicYear = academicYearMapper.toEntityUpdate(dto);
             AcademicYear updated = academicYearService.update(id, academicYear);
-            return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toDto(updated));
+            return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("Academic year not found");
         } catch (DataIntegrityViolationException e) {

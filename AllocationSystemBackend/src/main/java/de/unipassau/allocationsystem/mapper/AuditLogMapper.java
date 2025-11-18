@@ -1,6 +1,6 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.AuditLogDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -13,11 +13,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class AuditLogMapper implements BaseMapper<AuditLog, AuditLogDto>{
+public class AuditLogMapper {
 
     private final UserRepository userRepository;
 
-    @Override
     public AuditLog toEntity(AuditLogDto dto) {
         if (dto == null) {
             return null;
@@ -46,7 +45,6 @@ public class AuditLogMapper implements BaseMapper<AuditLog, AuditLogDto>{
         return builder.build();
     }
 
-    @Override
     public AuditLogDto toDto(AuditLog entity) {
         if (entity == null) {
             return null;
@@ -67,7 +65,6 @@ public class AuditLogMapper implements BaseMapper<AuditLog, AuditLogDto>{
                 .build();
     }
 
-    @Override
     public List<AuditLogDto> toDtoList(List<AuditLog> entities) {
         if (entities == null) {
             return null;

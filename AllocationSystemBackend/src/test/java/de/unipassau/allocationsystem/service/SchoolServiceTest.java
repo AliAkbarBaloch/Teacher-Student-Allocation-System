@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.SchoolCreateDto;
-import de.unipassau.allocationsystem.dto.SchoolResponseDto;
-import de.unipassau.allocationsystem.dto.SchoolUpdateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolCreateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
+import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
@@ -246,7 +246,7 @@ class SchoolServiceTest {
         savedSchool.setSchoolType(createDto.getSchoolType());
 
         when(schoolRepository.existsBySchoolName(createDto.getSchoolName())).thenReturn(false);
-        when(schoolMapper.toEntity(createDto)).thenReturn(newSchool);
+        when(schoolMapper.toEntityCreate(createDto)).thenReturn(newSchool);
         when(schoolRepository.save(newSchool)).thenReturn(savedSchool);
         when(schoolMapper.toResponseDto(savedSchool)).thenReturn(responseDto);
 
@@ -257,7 +257,7 @@ class SchoolServiceTest {
         assertNotNull(result);
         assertEquals(responseDto, result);
         verify(schoolRepository).existsBySchoolName(createDto.getSchoolName());
-        verify(schoolMapper).toEntity(createDto);
+        verify(schoolMapper).toEntityCreate(createDto);
         verify(schoolRepository).save(newSchool);
         verify(schoolMapper).toResponseDto(savedSchool);
     }
@@ -272,7 +272,7 @@ class SchoolServiceTest {
             schoolService.createSchool(createDto);
         });
         verify(schoolRepository).existsBySchoolName(createDto.getSchoolName());
-        verify(schoolMapper, never()).toEntity(any());
+        verify(schoolMapper, never()).toEntityCreate(any());
         verify(schoolRepository, never()).save(any());
     }
 

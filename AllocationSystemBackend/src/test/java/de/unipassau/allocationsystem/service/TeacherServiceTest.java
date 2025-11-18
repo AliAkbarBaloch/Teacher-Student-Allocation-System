@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.TeacherCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -24,10 +24,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -119,7 +123,7 @@ class TeacherServiceTest {
         Map<String, String> queryParams = new HashMap<>();
         
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Map<String, Object> result = teacherService.getAllTeachers(queryParams);
@@ -138,7 +142,7 @@ class TeacherServiceTest {
         queryParams.put("schoolId", "1");
         
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Map<String, Object> result = teacherService.getAllTeachers(queryParams);
@@ -156,7 +160,7 @@ class TeacherServiceTest {
         queryParams.put("employmentStatus", "FULL_TIME");
         
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Map<String, Object> result = teacherService.getAllTeachers(queryParams);
@@ -174,7 +178,7 @@ class TeacherServiceTest {
         queryParams.put("search", "John");
         
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Map<String, Object> result = teacherService.getAllTeachers(queryParams);
@@ -195,7 +199,7 @@ class TeacherServiceTest {
         queryParams.put("sortOrder", "asc");
         
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Map<String, Object> result = teacherService.getAllTeachers(queryParams);
@@ -211,7 +215,7 @@ class TeacherServiceTest {
     void getTeacherById_Success() {
         // Arrange
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         Optional<TeacherResponseDto> result = teacherService.getById(1l);
@@ -221,7 +225,7 @@ class TeacherServiceTest {
         assertEquals("John", result.get().getFirstName());
         assertEquals("Doe", result.get().getLastName());
         verify(teacherRepository).findById(1L);
-        verify(teacherMapper).toDto(testTeacher);
+        verify(teacherMapper).toResponseDto(testTeacher);
     }
 
     @Test
@@ -244,7 +248,7 @@ class TeacherServiceTest {
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         TeacherResponseDto result = teacherService.createTeacher(createDto);
@@ -322,8 +326,8 @@ class TeacherServiceTest {
         // Arrange
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-        doNothing().when(teacherMapper).updateEntityFromDto(any(Teacher.class), any(TeacherUpdateDto.class));
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
+        doNothing().when(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
 
         // Act
         TeacherResponseDto result = teacherService.updateTeacher(1L, updateDto);
@@ -331,7 +335,7 @@ class TeacherServiceTest {
         // Assert
         assertNotNull(result);
         verify(teacherRepository).findById(1L);
-        verify(teacherMapper).updateEntityFromDto(any(Teacher.class), eq(updateDto));
+        verify(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
         verify(teacherRepository).save(any(Teacher.class));
         // Audit logging is now handled by @Audited annotation via AOP
     }
@@ -377,8 +381,8 @@ class TeacherServiceTest {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(schoolRepository.findById(2L)).thenReturn(Optional.of(newSchool));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-        doNothing().when(teacherMapper).updateEntityFromDto(any(Teacher.class), any(TeacherUpdateDto.class));
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
+        doNothing().when(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
 
         // Act
         TeacherResponseDto result = teacherService.updateTeacher(1L, updateDto);
@@ -396,7 +400,7 @@ class TeacherServiceTest {
         // Arrange
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         TeacherResponseDto result = teacherService.updateTeacherStatus(1L, false);
@@ -414,7 +418,7 @@ class TeacherServiceTest {
         testTeacher.setIsActive(false);
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
         // Act
         TeacherResponseDto result = teacherService.updateTeacherStatus(1L, true);

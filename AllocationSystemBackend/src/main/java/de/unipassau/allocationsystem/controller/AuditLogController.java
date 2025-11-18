@@ -1,13 +1,12 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.AuditLogDto;
-import de.unipassau.allocationsystem.dto.AuditLogStatsDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogStatsDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.mapper.AuditLogMapper;
 import de.unipassau.allocationsystem.service.audit.AuditLogExportService;
 import de.unipassau.allocationsystem.service.audit.AuditLogQueryService;
-import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,11 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 

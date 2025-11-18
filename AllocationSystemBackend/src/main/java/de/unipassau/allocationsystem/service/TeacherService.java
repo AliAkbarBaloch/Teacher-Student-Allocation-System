@@ -2,9 +2,9 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.TeacherCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -136,7 +136,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
 
         // Convert to DTOs
         List<TeacherResponseDto> items = page.getContent().stream()
-                .map(teacherMapper::toDto)
+                .map(teacherMapper::toResponseDto)
                 .toList();
 
         return PaginationUtils.formatPaginationResponse(page);
@@ -153,7 +153,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
     public Optional<TeacherResponseDto> getById(Long id) {
         Teacher teacher = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + id));
-        return Optional.of(teacherMapper.toDto(teacher));
+        return Optional.of(teacherMapper.toResponseDto(teacher));
     }
 
     @Audited(
@@ -166,7 +166,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
     @Override
     public List<TeacherResponseDto> getAll() {
         return teacherRepository.findAll().stream()
-                .map(teacherMapper::toDto)
+                .map(teacherMapper::toResponseDto)
                 .toList();
     }
 
@@ -247,7 +247,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
 
         // Convert to DTOs
         List<TeacherResponseDto> items = page.getContent().stream()
-                .map(teacherMapper::toDto)
+                .map(teacherMapper::toResponseDto)
                 .toList();
 
         // Return paginated response
@@ -310,7 +310,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
         Teacher saved = teacherRepository.save(teacher);
 
         log.info("Teacher created successfully with ID: {}", saved.getId());
-        return teacherMapper.toDto(saved);
+        return teacherMapper.toResponseDto(saved);
     }
 
     /**
@@ -353,12 +353,12 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
         validatePartTimeConsistency(isPartTime, status);
 
         // Update fields
-        teacherMapper.updateEntityFromDto(teacher, updateDto);
+        teacherMapper.updateEntityFromDto(updateDto, teacher);
 
         Teacher updated = teacherRepository.save(teacher);
 
         log.info("Teacher updated successfully with ID: {}", id);
-        return teacherMapper.toDto(updated);
+        return teacherMapper.toResponseDto(updated);
     }
 
     @Audited(
@@ -401,7 +401,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long>{
         Teacher updated = teacherRepository.save(teacher);
 
         log.info("Teacher status updated successfully for ID: {}", id);
-        return teacherMapper.toDto(updated);
+        return teacherMapper.toResponseDto(updated);
     }
 
     @Transactional

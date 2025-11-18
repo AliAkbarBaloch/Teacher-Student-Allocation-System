@@ -1,7 +1,9 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.user.UserCreateDto;
+import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.entity.User.AccountStatus;
 import de.unipassau.allocationsystem.entity.User.UserRole;

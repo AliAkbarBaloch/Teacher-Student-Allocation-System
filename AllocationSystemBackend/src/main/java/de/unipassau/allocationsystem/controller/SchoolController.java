@@ -1,9 +1,9 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.SchoolCreateDto;
-import de.unipassau.allocationsystem.dto.SchoolResponseDto;
-import de.unipassau.allocationsystem.dto.SchoolStatusUpdateDto;
-import de.unipassau.allocationsystem.dto.SchoolUpdateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolCreateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
+import de.unipassau.allocationsystem.dto.school.SchoolStatusUpdateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.service.SchoolService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;

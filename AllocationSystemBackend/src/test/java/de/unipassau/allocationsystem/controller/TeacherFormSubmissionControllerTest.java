@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;

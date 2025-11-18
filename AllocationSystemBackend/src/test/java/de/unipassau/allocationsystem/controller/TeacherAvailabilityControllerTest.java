@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
 import de.unipassau.allocationsystem.entity.*;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.entity.Teacher.EmploymentStatus;

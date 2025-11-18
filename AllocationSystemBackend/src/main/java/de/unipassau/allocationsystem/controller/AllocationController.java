@@ -1,7 +1,7 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.AllocationCreateRequest;
-import de.unipassau.allocationsystem.dto.AllocationDto;
+import de.unipassau.allocationsystem.dto.allocation.AllocationCreateRequest;
+import de.unipassau.allocationsystem.dto.allocation.AllocationDto;
 import de.unipassau.allocationsystem.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

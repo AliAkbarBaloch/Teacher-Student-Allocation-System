@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherAvailabilityUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
 import de.unipassau.allocationsystem.service.TeacherAvailabilityService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import jakarta.validation.Valid;

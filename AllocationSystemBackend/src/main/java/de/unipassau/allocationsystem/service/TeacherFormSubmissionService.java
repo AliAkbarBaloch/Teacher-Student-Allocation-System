@@ -2,9 +2,9 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -93,7 +93,7 @@ public class TeacherFormSubmissionService {
                 page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
 
         // Convert to DTOs
-        Page<TeacherFormSubmissionResponseDto> dtoPage = page.map(teacherFormSubmissionMapper::toDto);
+        Page<TeacherFormSubmissionResponseDto> dtoPage = page.map(teacherFormSubmissionMapper::toResponseDto);
 
         // Return paginated response
         return PaginationUtils.formatPaginationResponse(dtoPage);
@@ -115,7 +115,7 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission submission = teacherFormSubmissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Form submission not found with ID: " + id));
 
-        return teacherFormSubmissionMapper.toDto(submission);
+        return teacherFormSubmissionMapper.toResponseDto(submission);
     }
 
     /**
@@ -162,7 +162,7 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission saved = teacherFormSubmissionRepository.save(submission);
 
         log.info("Form submission created successfully with ID: {}", saved.getId());
-        return teacherFormSubmissionMapper.toDto(saved);
+        return teacherFormSubmissionMapper.toResponseDto(saved);
     }
 
     /**
@@ -186,6 +186,6 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission updated = teacherFormSubmissionRepository.save(submission);
 
         log.info("Form submission status updated successfully for ID: {}", id);
-        return teacherFormSubmissionMapper.toDto(updated);
+        return teacherFormSubmissionMapper.toResponseDto(updated);
     }
 }

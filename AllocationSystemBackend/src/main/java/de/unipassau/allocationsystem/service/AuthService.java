@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.*;
+import de.unipassau.allocationsystem.dto.user.UserProfileUpdateRequest;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.PasswordResetToken;
 import de.unipassau.allocationsystem.entity.User;

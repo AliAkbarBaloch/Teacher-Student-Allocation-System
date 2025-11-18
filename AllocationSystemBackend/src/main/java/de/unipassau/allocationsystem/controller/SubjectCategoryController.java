@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.SubjectCategoryDto;
+import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryCreateDto;
+import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryResponseDto;
+import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryUpdateDto;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.mapper.SubjectCategoryMapper;
 import de.unipassau.allocationsystem.service.SubjectCategoryService;
@@ -64,7 +66,7 @@ public class SubjectCategoryController {
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         log.info("Fetching all subject categories (includeRelations={})", includeRelations);
-        List<SubjectCategoryDto> result = subjectCategoryMapper.toDtoList(subjectCategoryService.getAll());
+        List<SubjectCategoryResponseDto> result = subjectCategoryMapper.toResponseDtoList(subjectCategoryService.getAll());
         return ResponseHandler.success("Subject categories retrieved successfully", result);
     }
 
@@ -76,8 +78,8 @@ public class SubjectCategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         log.info("Fetching subject category with id {}", id);
-        SubjectCategoryDto result = subjectCategoryService.getById(id)
-                .map(subjectCategoryMapper::toDto)
+        SubjectCategoryResponseDto result = subjectCategoryService.getById(id)
+                .map(subjectCategoryMapper::toResponseDto)
                 .orElseThrow(() -> new NoSuchElementException("Subject category not found with id: " + id));
         return ResponseHandler.success("Subject category retrieved successfully", result);
     }
@@ -88,12 +90,12 @@ public class SubjectCategoryController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryDto dto) {
+    public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryCreateDto dto) {
         try {
             log.info("Creating subject category with payload {}", dto);
-            SubjectCategory subjectCategory = subjectCategoryMapper.toEntity(dto);
+            SubjectCategory subjectCategory = subjectCategoryMapper.toEntityCreate(dto);
             SubjectCategory created = subjectCategoryService.create(subjectCategory);
-            return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toDto(created));
+            return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toResponseDto(created));
         } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
@@ -106,12 +108,12 @@ public class SubjectCategoryController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectCategoryDto dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectCategoryUpdateDto dto) {
         try {
             log.info("Updating subject category {} with payload {}", id, dto);
-            SubjectCategory subjectCategory = subjectCategoryMapper.toEntity(dto);
+            SubjectCategory subjectCategory = subjectCategoryMapper.toEntityUpdate(dto);
             SubjectCategory updated = subjectCategoryService.update(id, subjectCategory);
-            return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toDto(updated));
+            return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("Subject category not found");
         } catch (DataIntegrityViolationException e) {
