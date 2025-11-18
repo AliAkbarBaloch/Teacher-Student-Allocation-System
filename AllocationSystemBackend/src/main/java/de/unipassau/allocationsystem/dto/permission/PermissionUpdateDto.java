@@ -1,6 +1,5 @@
 package de.unipassau.allocationsystem.dto.permission;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;

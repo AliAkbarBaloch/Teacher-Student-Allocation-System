@@ -24,7 +24,9 @@ public class RolePermissionMapper implements BaseMapper<RolePermission, RolePerm
 
     @Override
     public RolePermission toEntityCreate(RolePermissionCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
 
         Role role = roleRepository.findById(createDto.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + createDto.getRoleId()));
@@ -61,7 +63,9 @@ public class RolePermissionMapper implements BaseMapper<RolePermission, RolePerm
 
     @Override
     public RolePermissionResponseDto toResponseDto(RolePermission entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return new RolePermissionResponseDto(
                 entity.getId(),
                 entity.getRole().getId(),
@@ -76,7 +80,9 @@ public class RolePermissionMapper implements BaseMapper<RolePermission, RolePerm
 
     @Override
     public List<RolePermissionResponseDto> toResponseDtoList(List<RolePermission> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -84,7 +90,9 @@ public class RolePermissionMapper implements BaseMapper<RolePermission, RolePerm
 
     @Override
     public void updateEntityFromDto(RolePermissionUpdateDto updateDto, RolePermission entity) {
-        if (updateDto == null || entity == null) return;
+        if (updateDto == null || entity == null) {
+            return;
+        }
         if (updateDto.getRoleId() != null) {
             Role role = roleRepository.findById(updateDto.getRoleId())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + updateDto.getRoleId()));

@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 public abstract class BaseService<T, ID, R extends JpaRepository<T, ID> & JpaSpecificationExecutor<T>> implements CrudService<T, ID> {
 
-    protected final R repository;
+    private final R repository;
 
     protected BaseService(R repository) {
         this.repository = repository;

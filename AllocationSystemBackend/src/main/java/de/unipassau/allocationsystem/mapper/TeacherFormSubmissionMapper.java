@@ -25,7 +25,9 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
 
     @Override
     public TeacherFormSubmission toEntityCreate(TeacherFormSubmissionCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         TeacherFormSubmission entity = new TeacherFormSubmission();
         entity.setTeacher(teacherRepository.findById(createDto.getTeacherId()).orElse(null));
         entity.setAcademicYear(academicYearRepository.findById(createDto.getYearId()).orElse(null));
@@ -38,7 +40,9 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
 
     @Override
     public TeacherFormSubmission toEntityUpdate(TeacherFormSubmissionStatusUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         TeacherFormSubmission entity = new TeacherFormSubmission();
         entity.setIsProcessed(updateDto.getIsProcessed());
         return entity;
@@ -46,7 +50,9 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
 
     @Override
     public TeacherFormSubmissionResponseDto toResponseDto(TeacherFormSubmission entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return TeacherFormSubmissionResponseDto.builder()
                 .id(entity.getId())
                 .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
@@ -66,7 +72,9 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
 
     @Override
     public List<TeacherFormSubmissionResponseDto> toResponseDtoList(List<TeacherFormSubmission> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -74,7 +82,9 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
 
     @Override
     public void updateEntityFromDto(TeacherFormSubmissionStatusUpdateDto updateDto, TeacherFormSubmission entity) {
-        if (updateDto == null || entity == null) return;
+        if (updateDto == null || entity == null) {
+            return;
+        }
         if (updateDto.getIsProcessed() != null) {
             entity.setIsProcessed(updateDto.getIsProcessed());
         }

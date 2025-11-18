@@ -3,7 +3,6 @@ package de.unipassau.allocationsystem.controller;
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
-import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.mapper.TeacherMapper;
 import de.unipassau.allocationsystem.service.TeacherService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;

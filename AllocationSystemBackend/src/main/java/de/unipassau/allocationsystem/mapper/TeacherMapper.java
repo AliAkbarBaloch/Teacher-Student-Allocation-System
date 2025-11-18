@@ -18,7 +18,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public Teacher toEntityCreate(TeacherCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         Teacher teacher = new Teacher();
         // School should be set by service using schoolId
         teacher.setFirstName(createDto.getFirstName());
@@ -34,7 +36,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public Teacher toEntityUpdate(TeacherUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         Teacher teacher = new Teacher();
         teacher.setFirstName(updateDto.getFirstName());
         teacher.setLastName(updateDto.getLastName());
@@ -49,7 +53,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public TeacherResponseDto toResponseDto(Teacher teacher) {
-        if (teacher == null) return null;
+        if (teacher == null) {
+            return null;
+        }
         School school = teacher.getSchool();
         return TeacherResponseDto.builder()
                 .id(teacher.getId())
@@ -70,7 +76,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public List<TeacherResponseDto> toResponseDtoList(List<Teacher> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -78,7 +86,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public void updateEntityFromDto(TeacherUpdateDto updateDto, Teacher teacher) {
-        if (updateDto == null || teacher == null) return;
+        if (updateDto == null || teacher == null) {
+            return;
+        }
         if (updateDto.getFirstName() != null) {
             teacher.setFirstName(updateDto.getFirstName());
         }

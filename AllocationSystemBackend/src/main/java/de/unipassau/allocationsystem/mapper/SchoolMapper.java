@@ -58,7 +58,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
 
     @Override
     public SchoolResponseDto toResponseDto(School school) {
-        if (school == null) return null;
+        if (school == null) {
+            return null;
+        }
         return new SchoolResponseDto(
                 school.getId(),
                 school.getSchoolName(),
@@ -79,7 +81,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
 
     @Override
     public List<SchoolResponseDto> toResponseDtoList(List<School> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -87,7 +91,10 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
 
     @Override
     public void updateEntityFromDto(SchoolUpdateDto updateDto, School school) {
-        if (updateDto == null || school == null) return;
+        if (updateDto == null || school == null) {
+            return;
+        }
+
         if (updateDto.getSchoolName() != null) {
             school.setSchoolName(updateDto.getSchoolName());
         }

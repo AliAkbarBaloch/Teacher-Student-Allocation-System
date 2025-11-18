@@ -14,7 +14,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYear toEntityCreate(AcademicYearCreateDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         AcademicYear entity = new AcademicYear();
         entity.setYearName(dto.getYearName());
         entity.setTotalCreditHours(dto.getTotalCreditHours());
@@ -28,7 +30,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYear toEntityUpdate(AcademicYearUpdateDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+             return null;
+        }
         AcademicYear entity = new AcademicYear();
         entity.setYearName(dto.getYearName());
         entity.setTotalCreditHours(dto.getTotalCreditHours());
@@ -42,7 +46,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYearResponseDto toResponseDto(AcademicYear entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+             return null;
+        }
         return new AcademicYearResponseDto(
                 entity.getId(),
                 entity.getYearName(),
@@ -59,7 +65,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public List<AcademicYearResponseDto> toResponseDtoList(List<AcademicYear> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+             return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -67,13 +75,29 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public void updateEntityFromDto(AcademicYearUpdateDto dto, AcademicYear entity) {
-        if (dto == null || entity == null) return;
-        if (dto.getYearName() != null) entity.setYearName(dto.getYearName());
-        if (dto.getTotalCreditHours() != null) entity.setTotalCreditHours(dto.getTotalCreditHours());
-        if (dto.getElementarySchoolHours() != null) entity.setElementarySchoolHours(dto.getElementarySchoolHours());
-        if (dto.getMiddleSchoolHours() != null) entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
-        if (dto.getBudgetAnnouncementDate() != null) entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
-        if (dto.getAllocationDeadline() != null) entity.setAllocationDeadline(dto.getAllocationDeadline());
-        if (dto.getIsLocked() != null) entity.setIsLocked(dto.getIsLocked());
+        if (dto == null || entity == null) {
+            return;
+        }
+        if (dto.getYearName() != null) {
+            entity.setYearName(dto.getYearName());
+        }
+        if (dto.getTotalCreditHours() != null) {
+            entity.setTotalCreditHours(dto.getTotalCreditHours());
+        }
+        if (dto.getElementarySchoolHours() != null) {
+            entity.setElementarySchoolHours(dto.getElementarySchoolHours());
+        }
+        if (dto.getMiddleSchoolHours() != null) {
+            entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
+        }
+        if (dto.getBudgetAnnouncementDate() != null) {
+            entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
+        }
+        if (dto.getAllocationDeadline() != null) {
+            entity.setAllocationDeadline(dto.getAllocationDeadline());
+        }
+        if (dto.getIsLocked() != null) {
+            entity.setIsLocked(dto.getIsLocked());
+        }
     }
 }

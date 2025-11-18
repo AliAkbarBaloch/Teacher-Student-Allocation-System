@@ -19,5 +19,7 @@ public final class AuditEntityNames {
 
     // ...add all used entity names here
 
-    private AuditEntityNames() {}
+    private AuditEntityNames() {
+
+    }
 }

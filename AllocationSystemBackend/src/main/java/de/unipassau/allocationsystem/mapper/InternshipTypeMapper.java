@@ -14,7 +14,9 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public InternshipType toEntityCreate(InternshipTypeCreateDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         InternshipType entity = new InternshipType();
         entity.setInternshipCode(dto.getInternshipCode());
         entity.setFullName(dto.getFullName());
@@ -28,7 +30,9 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public InternshipType toEntityUpdate(InternshipTypeUpdateDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         InternshipType entity = new InternshipType();
         entity.setInternshipCode(dto.getInternshipCode());
         entity.setFullName(dto.getFullName());
@@ -42,7 +46,9 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public InternshipTypeResponseDto toResponseDto(InternshipType entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return new InternshipTypeResponseDto(
                 entity.getId(),
                 entity.getInternshipCode(),
@@ -59,7 +65,9 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public List<InternshipTypeResponseDto> toResponseDtoList(List<InternshipType> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -67,13 +75,29 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public void updateEntityFromDto(InternshipTypeUpdateDto dto, InternshipType entity) {
-        if (dto == null || entity == null) return;
-        if (dto.getInternshipCode() != null) entity.setInternshipCode(dto.getInternshipCode());
-        if (dto.getFullName() != null) entity.setFullName(dto.getFullName());
-        if (dto.getTiming() != null) entity.setTiming(dto.getTiming());
-        if (dto.getPeriodType() != null) entity.setPeriodType(dto.getPeriodType());
-        if (dto.getSemester() != null) entity.setSemester(dto.getSemester());
-        if (dto.getIsSubjectSpecific() != null) entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
-        if (dto.getPriorityOrder() != null) entity.setPriorityOrder(dto.getPriorityOrder());
+        if (dto == null || entity == null) {
+            return;
+        }
+        if (dto.getInternshipCode() != null) {
+            entity.setInternshipCode(dto.getInternshipCode());
+        }
+        if (dto.getFullName() != null) {
+            entity.setFullName(dto.getFullName());
+        }
+        if (dto.getTiming() != null) {
+            entity.setTiming(dto.getTiming());
+        }
+        if (dto.getPeriodType() != null) {
+            entity.setPeriodType(dto.getPeriodType());
+        }
+        if (dto.getSemester() != null) {
+            entity.setSemester(dto.getSemester());
+        }
+        if (dto.getIsSubjectSpecific() != null) {
+            entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
+        }
+        if (dto.getPriorityOrder() != null) {
+            entity.setPriorityOrder(dto.getPriorityOrder());
+        }
     }
 }

@@ -203,9 +203,9 @@ public class AuditLogService {
 
     @lombok.Value
     private static class AuditLogContext {
-        User user;
-        String userIdentifier;
-        String ipAddress;
-        String userAgent;
+        private User user;
+        private String userIdentifier;
+        private String ipAddress;
+        private String userAgent;
     }
 }

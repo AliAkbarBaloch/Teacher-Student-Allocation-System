@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @Transactional
-public class RoleService  implements CrudService<Role, Long>{
+public class RoleService  implements CrudService<Role, Long> {
 
     private final RoleRepository roleRepository;
 

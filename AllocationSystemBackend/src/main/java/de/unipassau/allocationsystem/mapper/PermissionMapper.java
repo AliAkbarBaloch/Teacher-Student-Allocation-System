@@ -14,7 +14,9 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public Permission toEntityCreate(PermissionCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         Permission entity = new Permission();
         entity.setTitle(createDto.getTitle());
         entity.setDescription(createDto.getDescription());
@@ -23,7 +25,9 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public Permission toEntityUpdate(PermissionUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         Permission entity = new Permission();
         entity.setTitle(updateDto.getTitle());
         entity.setDescription(updateDto.getDescription());
@@ -32,7 +36,9 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public PermissionResponseDto toResponseDto(Permission entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return new PermissionResponseDto(
                 entity.getId(),
                 entity.getTitle(),
@@ -44,7 +50,9 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public List<PermissionResponseDto> toResponseDtoList(List<Permission> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -52,7 +60,9 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public void updateEntityFromDto(PermissionUpdateDto updateDto, Permission entity) {
-        if (updateDto == null || entity == null) return;
+        if (updateDto == null || entity == null) {
+            return;
+        }
         if (updateDto.getTitle() != null) {
             entity.setTitle(updateDto.getTitle());
         }

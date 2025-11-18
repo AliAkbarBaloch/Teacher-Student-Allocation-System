@@ -14,7 +14,9 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public Role toEntityCreate(RoleCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         Role entity = new Role();
         entity.setTitle(createDto.getTitle());
         entity.setDescription(createDto.getDescription());
@@ -23,7 +25,9 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public Role toEntityUpdate(RoleUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         Role entity = new Role();
         entity.setTitle(updateDto.getTitle());
         entity.setDescription(updateDto.getDescription());
@@ -32,7 +36,9 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public RoleResponseDto toResponseDto(Role entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return new RoleResponseDto(
                 entity.getId(),
                 entity.getTitle(),
@@ -44,7 +50,9 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public List<RoleResponseDto> toResponseDtoList(List<Role> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream()
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
@@ -52,7 +60,9 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public void updateEntityFromDto(RoleUpdateDto updateDto, Role entity) {
-        if (updateDto == null || entity == null) return;
+        if (updateDto == null || entity == null) {
+            return;
+        }
         if (updateDto.getTitle() != null) {
             entity.setTitle(updateDto.getTitle());
         }
