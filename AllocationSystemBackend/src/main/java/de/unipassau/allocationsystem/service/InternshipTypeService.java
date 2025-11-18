@@ -27,10 +27,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class InternshipTypeService implements CrudService<InternshipType, Long>{
+public class InternshipTypeService implements CrudService<InternshipType, Long> {
 
     private final InternshipTypeRepository internshipTypeRepository;
 
+    @Override
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
         fields.add(Map.of("key", "id", "label", "ID"));
@@ -39,6 +40,14 @@ public class InternshipTypeService implements CrudService<InternshipType, Long>{
         fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
         fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
         return fields;
+    }
+
+    public List<String> getSortFieldKeys() {
+        List<String> keys = new ArrayList<>();
+        for (Map<String, String> field : getSortFields()) {
+            keys.add(field.get("key"));
+        }
+        return keys;
     }
 
     private Specification<InternshipType> buildSearchSpecification(String searchValue) {

@@ -2,183 +2,172 @@ package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
-import de.unipassau.allocationsystem.dto.teacher.TeacherStatusUpdateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
-import de.unipassau.allocationsystem.entity.Teacher.EmploymentStatus;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.mapper.TeacherMapper;
 import de.unipassau.allocationsystem.service.TeacherService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
-/**
- * REST controller for Teacher management endpoints.
- */
 @RestController
 @RequestMapping("/teachers")
 @RequiredArgsConstructor
-@Slf4j
-@Tag(name = "Teacher Management", description = "APIs for managing teachers")
-@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Teachers", description = "Teacher management APIs")
 public class TeacherController {
 
     private final TeacherService teacherService;
+    private final TeacherMapper teacherMapper;
 
-    /**
-     * Get all teachers with optional filters and pagination.
-     * 
-     * @param page             Page number (1-based)
-     * @param pageSize         Number of items per page
-     * @param sortBy           Field to sort by
-     * @param sortOrder        Sort direction (asc/desc)
-     * @param schoolId         Optional filter by school ID
-     * @param employmentStatus Optional filter by employment status
-     * @param isActive         Optional filter by active status
-     * @param search           Optional text search by name or email (case-insensitive, partial match)
-     * @return Paginated list of teachers
-     */
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "List all teachers", description = "Get paginated list of teachers with optional filters (requires ADMIN role)")
-    public ResponseEntity<?> getAllTeachers(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortOrder,
-            @RequestParam(required = false) Long schoolId,
-            @RequestParam(required = false) EmploymentStatus employmentStatus,
-            @RequestParam(required = false) Boolean isActive,
-            @RequestParam(required = false) String search) {
-        
-        log.info("GET /teachers - Fetching teachers with filters");
+    @Operation(
+            summary = "Get sort fields",
+            description = "Retrieves available fields that can be used for sorting teachers"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/sort-fields")
+    public ResponseEntity<?> getSortFields() {
+        List<Map<String, String>> result = teacherService.getSortFields();
+        return ResponseHandler.success("Sort fields retrieved successfully", result);
+    }
 
-        Map<String, String> queryParams = new HashMap<>();
-        if (page != null) {
-            queryParams.put("page", String.valueOf(page));
-        }
-        if (pageSize != null) {
-            queryParams.put("pageSize", String.valueOf(pageSize));
-        }
-        if (sortBy != null) {
-            queryParams.put("sortBy", sortBy);
-        }
-        if (sortOrder != null) {
-            queryParams.put("sortOrder", sortOrder);
-        }
-        if (schoolId != null) {
-            queryParams.put("schoolId", String.valueOf(schoolId));
-        }
-        if (employmentStatus != null) {
-            queryParams.put("employmentStatus", employmentStatus.name());
-        }
-        if (isActive != null) {
-            queryParams.put("isActive", String.valueOf(isActive));
-        }
-        if (search != null) {
-            queryParams.put("search", search);
-        }
+    @Operation(
+            summary = "Get teacher by ID",
+            description = "Retrieves a specific teacher by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Teacher found",
+                    content = @Content(schema = @Schema(implementation = TeacherResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Teacher not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        TeacherResponseDto result = teacherService.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("Teacher not found with id: " + id));
+        return ResponseHandler.success("Teacher retrieved successfully", result);
+    }
 
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
+    @Operation(
+            summary = "Get paginated teachers",
+            description = "Retrieves teachers with pagination, sorting, and optional search"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Teachers retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/paginate")
+    public ResponseEntity<?> getPaginate(
+            @RequestParam Map<String, String> queryParams,
+            @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
+            @RequestParam(value = "searchValue", required = false) String searchValue
+    ) {
+        Map<String, Object> result = teacherService.getPaginated(queryParams, searchValue);
         return ResponseHandler.success("Teachers retrieved successfully (paginated)", result);
     }
 
-    /**
-     * Get teacher by ID.
-     * 
-     * @param id Teacher ID
-     * @return Teacher details
-     */
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get teacher by ID", description = "Retrieve a specific teacher by ID (requires ADMIN role)")
-    public ResponseEntity<?> getTeacherById(@PathVariable Long id) {
-        log.info("GET /teachers/{} - Fetching teacher", id);
-        
-        Optional<TeacherResponseDto> teacher = teacherService.getById(id);
-        return ResponseHandler.success("Teacher retrieved successfully", teacher.get());
+    @Operation(
+            summary = "Get all teachers",
+            description = "Retrieves all teachers without pagination"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Teachers retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = TeacherResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("")
+    public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
+        List<TeacherResponseDto> result = teacherService.getAll();
+        return ResponseHandler.success("Teachers retrieved successfully", result);
     }
 
-    /**
-     * Create a new teacher.
-     * Requires ADMIN role.
-     * 
-     * @param createDto Teacher creation data
-     * @return Created teacher
-     */
+    @Operation(
+            summary = "Create new teacher",
+            description = "Creates a new teacher with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Teacher created successfully",
+                    content = @Content(schema = @Schema(implementation = TeacherResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate teacher"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Create teacher", description = "Create a new teacher (requires ADMIN role)")
-    public ResponseEntity<?> createTeacher(@Valid @RequestBody TeacherCreateDto createDto) {
-        log.info("POST /teachers - Creating new teacher");
-        
-        TeacherResponseDto created = teacherService.createTeacher(createDto);
-        return ResponseHandler.created("Teacher created successfully", created);
+    public ResponseEntity<?> create(@Valid @RequestBody TeacherCreateDto dto) {
+        try {
+            TeacherResponseDto created = teacherService.createTeacher(dto);
+            return ResponseHandler.created("Teacher created successfully", created);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseHandler.badRequest(e.getMessage(), Map.of());
+        }
     }
 
-    /**
-     * Update an existing teacher.
-     * Requires ADMIN role.
-     * 
-     * @param id        Teacher ID
-     * @param updateDto Teacher update data
-     * @return Updated teacher
-     */
+    @Operation(
+            summary = "Update teacher",
+            description = "Updates an existing teacher with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Teacher updated successfully",
+                    content = @Content(schema = @Schema(implementation = TeacherResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
+            @ApiResponse(responseCode = "404", description = "Teacher not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Update teacher", description = "Update an existing teacher (requires ADMIN role)")
-    public ResponseEntity<?> updateTeacher(
-            @PathVariable Long id,
-            @Valid @RequestBody TeacherUpdateDto updateDto) {
-        
-        log.info("PUT /teachers/{} - Updating teacher", id);
-        TeacherResponseDto updatedTeacher = teacherService.updateTeacher(id, updateDto);
-        return ResponseHandler.updated("Teacher updated successfully", updatedTeacher);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TeacherUpdateDto dto) {
+        try {
+            TeacherResponseDto updated = teacherService.updateTeacher(id, dto);
+            return ResponseHandler.updated("Teacher updated successfully", updated);
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.notFound("Teacher not found");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseHandler.badRequest(e.getMessage(), Map.of());
+        }
     }
 
-    /**
-     * Update teacher status (activate/deactivate).
-     * Requires ADMIN role.
-     * 
-     * @param id        Teacher ID
-     * @param statusDto Status update data
-     * @return Updated teacher
-     */
-    @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Update teacher status", description = "Activate or deactivate a teacher (requires ADMIN role)")
-    public ResponseEntity<?> updateTeacherStatus(
-            @PathVariable Long id,
-            @Valid @RequestBody TeacherStatusUpdateDto statusDto) {
-        
-        log.info("PATCH /teachers/{}/status - Setting isActive to {}", id, statusDto.getIsActive());
-        TeacherResponseDto updatedTeacher = teacherService.updateTeacherStatus(id, statusDto.getIsActive());
-        return ResponseHandler.updated("Teacher status updated successfully", updatedTeacher);
-    }
-
-    /**
-     * Soft delete teacher (deactivate).
-     * Requires ADMIN role.
-     * 
-     * @param id Teacher ID
-     * @return No content
-     */
+    @Operation(
+            summary = "Delete teacher",
+            description = "Deletes a teacher by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Teacher deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Teacher not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete teacher", description = "Soft delete (deactivate) a teacher (requires ADMIN role)")
-    public ResponseEntity<?> deleteTeacher(@PathVariable Long id) {
-        log.info("DELETE /teachers/{} - Soft deleting teacher", id);
-        
-        teacherService.deleteTeacher(id);
-        return ResponseHandler.noContent();
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            teacherService.deleteTeacher(id);
+            return ResponseHandler.noContent();
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.notFound("Teacher not found");
+        }
     }
 }

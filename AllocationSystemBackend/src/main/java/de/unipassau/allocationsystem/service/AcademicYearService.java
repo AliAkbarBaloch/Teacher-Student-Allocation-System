@@ -3,7 +3,7 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AcademicYear;
-import de.unipassau.allocationsystem.entity.AuditLog;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
@@ -31,6 +31,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
     private final AcademicYearRepository academicYearRepository;
 
+    @Override
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
         fields.add(Map.of("key", "id", "label", "ID"));
@@ -40,10 +41,19 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return fields;
     }
 
+    public List<String> getSortFieldKeys() {
+        List<String> keys = new ArrayList<>();
+        for (Map<String, String> field : getSortFields()) {
+            keys.add(field.get("key"));
+        }
+        return keys;
+    }
+
     private Specification<AcademicYear> buildSearchSpecification(String searchValue) {
         if (searchValue == null || searchValue.trim().isEmpty()) {
             return (root, query, cb) -> cb.conjunction();
         }
+
         String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
         return (root, query, cb) -> cb.like(cb.lower(root.get("yearName")), likePattern);
     }
@@ -58,8 +68,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Viewed list of academic years",
             captureNewValue = false
     )
@@ -77,8 +87,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Viewed all academic years",
             captureNewValue = false
     )
@@ -89,8 +99,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Viewed academic year by id",
             captureNewValue = false
     )
@@ -101,8 +111,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.CREATE,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Created new academic year",
             captureNewValue = true
     )
@@ -116,8 +126,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.UPDATE,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Updated academic year",
             captureNewValue = true
     )
@@ -156,8 +166,8 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     }
 
     @Audited(
-            action = AuditLog.AuditAction.DELETE,
-            entityName = AuditEntityNames.TEACHER,
+            action = AuditAction.DELETE,
+            entityName = AuditEntityNames.ACADEMIC_YEAR,
             description = "Deleted academic year",
             captureNewValue = false
     )
