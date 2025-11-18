@@ -64,7 +64,7 @@ public class RoleService {
     }
 
     @Audited(
-            action = AuditAction.VIEW.VIEW,
+            action = AuditAction.VIEW,
             entityName = AuditEntityNames.ROLE,
             description = "Viewed list of roles",
             captureNewValue = false

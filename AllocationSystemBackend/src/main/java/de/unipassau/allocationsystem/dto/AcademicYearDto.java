@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,18 +17,19 @@ public class AcademicYearDto {
     @NotBlank(message = "Year is required")
     private String yearName;
 
-    @NotBlank(message = "Total Credit Hours is required")
+    @NotNull(message = "Total Credit Hours is required")
     private Integer totalCreditHours;
 
-    @NotBlank(message = "Elementary School Hours is required")
+    @NotNull(message = "Elementary School Hours is required")
     private Integer elementarySchoolHours;
 
-    @NotBlank(message = "Middle School Hours is required")
+    @NotNull(message = "Middle School Hours is required")
     private Integer middleSchoolHours;
 
-    @NotBlank(message = "Middle School Hours is required")
+    @NotNull(message = "Middle School Hours is required")
     private LocalDateTime budgetAnnouncementDate;
 
+    @NotNull(message = "Allocation Deadline is required")
     private LocalDateTime allocationDeadline;
 
     private Boolean isLocked;
