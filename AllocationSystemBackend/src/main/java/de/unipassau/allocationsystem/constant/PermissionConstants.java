@@ -18,7 +18,8 @@ public class PermissionConstants {
         public static final String TEACHER = "teacher";
         public static final String TEACHER_AVAILABILITY = "teacherAvailability";
         public static final String TEACHER_FORM_SUBMISSION = "teacherFormSubmission";
-
+        public static final String ALLOCATION_PLAN = "allocationPlan";
+        
         // Report
         public static final String DASHBOARD = "dashboard";
         public static final String REPORT = "report";

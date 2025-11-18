@@ -1,0 +1,149 @@
+package de.unipassau.allocationsystem.controller;
+
+import de.unipassau.allocationsystem.dto.AllocationPlanCreateDto;
+import de.unipassau.allocationsystem.dto.AllocationPlanResponseDto;
+import de.unipassau.allocationsystem.dto.AllocationPlanUpdateDto;
+import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
+import de.unipassau.allocationsystem.service.AllocationPlanService;
+import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+/**
+ * REST controller for managing allocation plans.
+ * Handles plan creation, updates, versioning, and status workflow.
+ */
+@RestController
+@RequestMapping("/allocation-plans")
+@RequiredArgsConstructor
+@Slf4j
+@Tag(name = "Allocation Plans", description = "APIs for managing allocation plan instances with versioning and status workflow")
+public class AllocationPlanController {
+
+    private final AllocationPlanService allocationPlanService;
+
+    /**
+     * Get all allocation plans with filtering and pagination.
+     * Required parameter: yearId
+     * Optional filters: status, isCurrent
+     * Optional pagination: page, pageSize, sortBy, sortOrder
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all allocation plans", 
+               description = "Retrieve allocation plans with filtering by year, status, and current flag. Supports pagination.")
+    public ResponseEntity<?> getAllPlans(
+            @RequestParam(required = true) Long yearId,
+            @RequestParam(required = false) PlanStatus status,
+            @RequestParam(required = false) Boolean isCurrent,
+            @RequestParam Map<String, String> queryParams) {
+        log.info("GET /api/allocation-plans - yearId: {}, status: {}, isCurrent: {}", 
+                yearId, status, isCurrent);
+
+        Map<String, Object> result = allocationPlanService.getAllPlans(
+                yearId, status, isCurrent, queryParams);
+
+        return ResponseHandler.success("Allocation plans retrieved successfully", result);
+    }
+
+    /**
+     * Get a specific allocation plan by ID.
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get allocation plan by ID", 
+               description = "Retrieve details of a specific allocation plan")
+    public ResponseEntity<?> getPlanById(@PathVariable Long id) {
+        log.info("GET /api/allocation-plans/{}", id);
+
+        AllocationPlanResponseDto plan = allocationPlanService.getPlanById(id);
+        return ResponseHandler.success("Allocation plan retrieved successfully", plan);
+    }
+
+    /**
+     * Create a new allocation plan.
+     * Only users with CREATE permission can create plans.
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create new allocation plan", 
+               description = "Create a new allocation plan instance for an academic year")
+    public ResponseEntity<?> createPlan(
+            @Valid @RequestBody AllocationPlanCreateDto createDto) {
+        log.info("POST /api/allocation-plans - Creating plan: {} v{}", 
+                createDto.getPlanName(), createDto.getPlanVersion());
+
+        AllocationPlanResponseDto created = allocationPlanService.createPlan(createDto);
+        return ResponseHandler.created("Allocation plan created successfully", created);
+    }
+
+    /**
+     * Update an existing allocation plan.
+     * Only users with UPDATE permission can update plans.
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update allocation plan", 
+               description = "Update metadata of an existing allocation plan (name, status, notes, isCurrent)")
+    public ResponseEntity<?> updatePlan(
+            @PathVariable Long id,
+            @Valid @RequestBody AllocationPlanUpdateDto updateDto) {
+        log.info("PUT /api/allocation-plans/{}", id);
+
+        AllocationPlanResponseDto updated = allocationPlanService.updatePlan(id, updateDto);
+        return ResponseHandler.updated("Allocation plan updated successfully", updated);
+    }
+
+    /**
+     * Set a specific plan as the current plan for its academic year.
+     * This will unset is_current on all other plans for the same year.
+     */
+    @PostMapping("/{id}/current")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Set plan as current", 
+               description = "Mark this plan as the current active plan for its academic year")
+    public ResponseEntity<?> setCurrentPlan(@PathVariable Long id) {
+        log.info("POST /api/allocation-plans/{}/current", id);
+
+        AllocationPlanResponseDto updated = allocationPlanService.setCurrentPlan(id);
+        return ResponseHandler.updated("Allocation plan set as current successfully", updated);
+    }
+
+    /**
+     * Archive an allocation plan (soft delete).
+     * Sets status to ARCHIVED and removes is_current flag.
+     */
+    @PostMapping("/{id}/archive")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Archive allocation plan", 
+               description = "Archive a plan by setting its status to ARCHIVED")
+    public ResponseEntity<?> archivePlan(@PathVariable Long id) {
+        log.info("POST /api/allocation-plans/{}/archive", id);
+
+        AllocationPlanResponseDto archived = allocationPlanService.archivePlan(id);
+        return ResponseHandler.updated("Allocation plan archived successfully", archived);
+    }
+
+    /**
+     * Get the current allocation plan for a specific academic year.
+     */
+    @GetMapping("/current")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get current plan for year", 
+               description = "Retrieve the current active plan for a specific academic year")
+    public ResponseEntity<?> getCurrentPlanForYear(
+            @RequestParam(required = true) Long yearId) {
+        log.info("GET /api/allocation-plans/current?yearId={}", yearId);
+
+        AllocationPlanResponseDto plan = allocationPlanService.getCurrentPlanForYear(yearId);
+        return ResponseHandler.success("Current allocation plan retrieved successfully", plan);
+    }
+}
