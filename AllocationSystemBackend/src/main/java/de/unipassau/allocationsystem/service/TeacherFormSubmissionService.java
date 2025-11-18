@@ -43,6 +43,12 @@ public class TeacherFormSubmissionService {
     /**
      * Get all form submissions with optional filters and pagination.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER_FORM_SUBMISSION",
+            description = "Viewed list of teacher form submissions",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public Map<String, Object> getFormSubmissions(
             Long teacherId, Long yearId, Boolean isProcessed, Map<String, String> queryParams) {
@@ -94,6 +100,12 @@ public class TeacherFormSubmissionService {
     /**
      * Get a specific form submission by ID.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER_FORM_SUBMISSION",
+            description = "Viewed teacher form submission details",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public TeacherFormSubmissionResponseDto getFormSubmissionById(Long id) {
         log.info("Fetching form submission with ID: {}", id);
@@ -108,10 +120,10 @@ public class TeacherFormSubmissionService {
      * Create a new form submission.
      */
     @Audited(
-        action = AuditLog.AuditAction.CREATE,
-        entityName = "TEACHER_FORM_SUBMISSION",
-        description = "Created new teacher form submission",
-        captureNewValue = true
+            action = AuditLog.AuditAction.CREATE,
+            entityName = "TEACHER_FORM_SUBMISSION",
+            description = "Created new teacher form submission",
+            captureNewValue = true
     )
     @Transactional
     public TeacherFormSubmissionResponseDto createFormSubmission(TeacherFormSubmissionCreateDto createDto) {
@@ -155,10 +167,10 @@ public class TeacherFormSubmissionService {
      * Update the processing status of a form submission.
      */
     @Audited(
-        action = AuditLog.AuditAction.UPDATE,
-        entityName = "TEACHER_FORM_SUBMISSION",
-        description = "Updated teacher form submission processing status",
-        captureNewValue = true
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = "TEACHER_FORM_SUBMISSION",
+            description = "Updated teacher form submission processing status",
+            captureNewValue = true
     )
     @Transactional
     public TeacherFormSubmissionResponseDto updateFormSubmissionStatus(Long id, TeacherFormSubmissionStatusUpdateDto statusDto) {

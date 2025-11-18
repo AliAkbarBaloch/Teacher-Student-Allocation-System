@@ -39,6 +39,12 @@ public class SchoolService {
     /**
      * Get all schools with optional filtering and pagination.
      */
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "SCHOOL",
+            description = "Viewed list of schools",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public Map<String, Object> getAllSchools(Map<String, String> queryParams, String search, 
                                              SchoolType schoolType, Integer zoneNumber, 
@@ -82,6 +88,12 @@ public class SchoolService {
     /**
      * Get school by ID.
      */
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "SCHOOL",
+            description = "Viewed school information",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public SchoolResponseDto getSchoolById(Long id) {
         log.debug("Fetching school with id: {}", id);
@@ -94,10 +106,10 @@ public class SchoolService {
      * Create a new school.
      */
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = "SCHOOL",
-        description = "Created new school",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = "SCHOOL",
+            description = "Created new school",
+            captureNewValue = true
     )
     public SchoolResponseDto createSchool(SchoolCreateDto createDto) {
         log.info("Creating new school: {}", createDto.getSchoolName());
@@ -119,10 +131,10 @@ public class SchoolService {
      * Update an existing school.
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = "SCHOOL",
-        description = "Updated school information",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = "SCHOOL",
+            description = "Updated school information",
+            captureNewValue = true
     )
     public SchoolResponseDto updateSchool(Long id, SchoolUpdateDto updateDto) {
         log.info("Updating school with id: {}", id);
@@ -150,10 +162,10 @@ public class SchoolService {
      * Update school status (activate/deactivate).
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = "SCHOOL",
-        description = "Updated school status",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = "SCHOOL",
+            description = "Updated school status",
+            captureNewValue = true
     )
     public SchoolResponseDto updateSchoolStatus(Long id, Boolean isActive) {
         log.info("Updating school status - id: {}, isActive: {}", id, isActive);
@@ -173,10 +185,10 @@ public class SchoolService {
      * Soft delete school (set isActive to false).
      */
     @Audited(
-        action = AuditAction.DELETE,
-        entityName = "SCHOOL",
-        description = "Soft deleted school (deactivated)",
-        captureNewValue = true
+            action = AuditAction.DELETE,
+            entityName = "SCHOOL",
+            description = "Soft deleted school (deactivated)",
+            captureNewValue = true
     )
     public void deleteSchool(Long id) {
         log.info("Soft deleting school with id: {}", id);

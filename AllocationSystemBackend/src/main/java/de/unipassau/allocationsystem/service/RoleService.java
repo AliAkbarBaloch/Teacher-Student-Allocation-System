@@ -1,12 +1,15 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.RoleRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
+@Slf4j
 public class RoleService {
-    @Autowired
-    private RoleRepository roleRepository;
+
+    private final RoleRepository roleRepository;
 
     public boolean titleExists(String title) {
         return roleRepository.findByTitle(title).isPresent();
@@ -57,6 +62,12 @@ public class RoleService {
         );
     }
 
+    @Audited(
+            action = AuditAction.VIEW.VIEW,
+            entityName = "ROLE",
+            description = "Viewed list of roles",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -69,14 +80,32 @@ public class RoleService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE",
+            description = "Viewed all roles",
+            captureNewValue = false
+    )
     public List<Role> getAll() {
         return roleRepository.findAll();
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE",
+            description = "Viewed role by id",
+            captureNewValue = false
+    )
     public Optional<Role> getById(Long id) {
         return roleRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditAction.CREATE,
+            entityName = "ROLE",
+            description = "Created new role",
+            captureNewValue = true
+    )
     @Transactional
     public Role create(Role role) {
         if (roleRepository.findByTitle(role.getTitle()).isPresent()) {
@@ -85,6 +114,12 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = "ROLE",
+            description = "Updated role",
+            captureNewValue = true
+    )
     @Transactional
     public Role update(Long id, Role data) {
         Role existing = roleRepository.findById(id)
@@ -104,6 +139,12 @@ public class RoleService {
         return roleRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditAction.DELETE,
+            entityName = "ROLE",
+            description = "Deleted role",
+            captureNewValue = false
+    )
     @Transactional
     public void delete(Long id) {
         if (!roleRepository.existsById(id)) {

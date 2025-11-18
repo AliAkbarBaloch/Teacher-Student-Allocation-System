@@ -1,12 +1,14 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,10 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AcademicYearService {
 
-    @Autowired
-    private AcademicYearRepository academicYearRepository;
+    private final AcademicYearRepository academicYearRepository;
 
     public boolean yearNameExists(String yearName) {
         return academicYearRepository.findByYearName(yearName).isPresent();
@@ -46,6 +48,12 @@ public class AcademicYearService {
         return (root, query, cb) -> cb.like(cb.lower(root.get("yearName")), likePattern);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "ACADEMIC_YEAR",
+            description = "Viewed list of academic years",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -58,14 +66,32 @@ public class AcademicYearService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "ACADEMIC_YEAR",
+            description = "Viewed all academic years",
+            captureNewValue = false
+    )
     public List<AcademicYear> getAll() {
         return academicYearRepository.findAll();
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "ACADEMIC_YEAR",
+            description = "Viewed academic year by id",
+            captureNewValue = false
+    )
     public Optional<AcademicYear> getById(Long id) {
         return academicYearRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.CREATE,
+            entityName = "ACADEMIC_YEAR",
+            description = "Created new academic year",
+            captureNewValue = true
+    )
     @Transactional
     public AcademicYear create(AcademicYear academicYear) {
         if (academicYearRepository.findByYearName(academicYear.getYearName()).isPresent()) {
@@ -74,6 +100,12 @@ public class AcademicYearService {
         return academicYearRepository.save(academicYear);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = "ACADEMIC_YEAR",
+            description = "Updated academic year",
+            captureNewValue = true
+    )
     @Transactional
     public AcademicYear update(Long id, AcademicYear data) {
         AcademicYear existing = academicYearRepository.findById(id)
@@ -107,6 +139,12 @@ public class AcademicYearService {
         return academicYearRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.DELETE,
+            entityName = "ACADEMIC_YEAR",
+            description = "Deleted academic year",
+            captureNewValue = false
+    )
     @Transactional
     public void delete(Long id) {
         if (!academicYearRepository.existsById(id)) {

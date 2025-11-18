@@ -44,6 +44,12 @@ public class TeacherService {
     /**
      * Get all teachers with filtering and pagination.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER",
+            description = "Viewed list of teachers",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public Map<String, Object> getAllTeachers(Map<String, String> queryParams) {
         log.debug("Getting all teachers with filters: {}", queryParams);
@@ -122,6 +128,12 @@ public class TeacherService {
     /**
      * Get teacher by ID.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER",
+            description = "Viewed teacher details",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public TeacherResponseDto getTeacherById(Long id) {
         log.debug("Getting teacher by ID: {}", id);

@@ -89,6 +89,12 @@ public class SubjectCategoryService {
      * @param searchValue optional search string
      * @return pagination metadata along with the current page content
      */
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "SubjectCategory",
+            description = "Viewed list of subject categories",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         log.info("Fetching subject categories with params: {}", queryParams);
@@ -108,6 +114,12 @@ public class SubjectCategoryService {
      *
      * @return list of all subject categories
      */
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "SubjectCategory",
+            description = "Viewed all subject categories",
+            captureNewValue = false
+    )
     public List<SubjectCategory> getAll() {
         log.info("Retrieving all subject categories");
         return subjectCategoryRepository.findAll();
@@ -119,6 +131,12 @@ public class SubjectCategoryService {
      * @param id database id
      * @return optional containing the entity when present
      */
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "SubjectCategory",
+            description = "Viewed subject category by id",
+            captureNewValue = false
+    )
     public Optional<SubjectCategory> getById(Long id) {
         log.info("Retrieving subject category by id {}", id);
         return subjectCategoryRepository.findById(id);
@@ -131,13 +149,13 @@ public class SubjectCategoryService {
      * @param subjectCategory payload to persist
      * @return stored entity including generated identifiers
      */
-    @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = "SubjectCategory",
-        description = "Created new subject category",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = "SubjectCategory",
+            description = "Created new subject category",
+            captureNewValue = true
     )
+    @Transactional
     public SubjectCategory create(SubjectCategory subjectCategory) {
         log.info("Creating subject category with title {}", subjectCategory.getCategoryTitle());
         if (subjectCategoryRepository.findByCategoryTitle(subjectCategory.getCategoryTitle()).isPresent()) {
@@ -155,6 +173,12 @@ public class SubjectCategoryService {
      * @param data partial entity containing the new values
      * @return the updated entity
      */
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = "SubjectCategory",
+            description = "Updated subject category",
+            captureNewValue = true
+    )
     @Transactional
     public SubjectCategory update(Long id, SubjectCategory data) {
         log.info("Updating subject category {}", id);
@@ -188,6 +212,12 @@ public class SubjectCategoryService {
      *
      * @param id identifier of the category to remove
      */
+    @Audited(
+            action = AuditAction.DELETE,
+            entityName = "SubjectCategory",
+            description = "Deleted subject category",
+            captureNewValue = false
+    )
     @Transactional
     public void delete(Long id) {
         log.info("Deleting subject category {}", id);

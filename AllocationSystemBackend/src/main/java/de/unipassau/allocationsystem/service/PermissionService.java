@@ -1,12 +1,14 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.PermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,10 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PermissionService {
 
-    @Autowired
-    private PermissionRepository permissionRepository;
+    private final PermissionRepository permissionRepository;
 
     public boolean titleExists(String title) {
         return permissionRepository.findByTitle(title).isPresent();
@@ -58,6 +60,12 @@ public class PermissionService {
         );
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "PERMISSION",
+            description = "Viewed list of permissions",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -70,14 +78,32 @@ public class PermissionService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "PERMISSION",
+            description = "Viewed all permissions",
+            captureNewValue = false
+    )
     public List<Permission> getAll() {
         return permissionRepository.findAll();
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "PERMISSION",
+            description = "Viewed permission by id",
+            captureNewValue = false
+    )
     public Optional<Permission> getById(Long id) {
         return permissionRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditAction.CREATE,
+            entityName = "PERMISSION",
+            description = "Created new permission",
+            captureNewValue = true
+    )
     @Transactional
     public Permission create(Permission permission) {
         if (permissionRepository.findByTitle(permission.getTitle()).isPresent()) {
@@ -86,6 +112,12 @@ public class PermissionService {
         return permissionRepository.save(permission);
     }
 
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = "PERMISSION",
+            description = "Updated permission",
+            captureNewValue = true
+    )
     @Transactional
     public Permission update(Long id, Permission data) {
         Permission existing = permissionRepository.findById(id)
@@ -105,6 +137,12 @@ public class PermissionService {
         return permissionRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditAction.DELETE,
+            entityName = "PERMISSION",
+            description = "Deleted permission",
+            captureNewValue = false
+    )
     @Transactional
     public void delete(Long id) {
         if (!permissionRepository.existsById(id)) {

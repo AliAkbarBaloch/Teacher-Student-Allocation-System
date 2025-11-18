@@ -50,6 +50,12 @@ public class InternshipTypeService {
         );
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Viewed list of internship types",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -62,10 +68,22 @@ public class InternshipTypeService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Viewed all internship types",
+            captureNewValue = false
+    )
     public List<InternshipType> getAll() {
         return internshipTypeRepository.findAll();
     }
 
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "INTERNSHIP_TYPE",
+            description = "Viewed internship type by id",
+            captureNewValue = false
+    )
     public Optional<InternshipType> getById(Long id) {
         return internshipTypeRepository.findById(id);
     }

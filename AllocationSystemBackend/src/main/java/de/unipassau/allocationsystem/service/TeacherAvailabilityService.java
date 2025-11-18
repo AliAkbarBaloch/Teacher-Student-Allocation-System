@@ -43,6 +43,12 @@ public class TeacherAvailabilityService {
     /**
      * Get all availability entries for a teacher with optional filters and pagination.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER_AVAILABILITY",
+            description = "Viewed list of teacher availability entries",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public Map<String, Object> getTeacherAvailability(
             Long teacherId, Long yearId, Long internshipTypeId, Map<String, String> queryParams) {
@@ -93,6 +99,12 @@ public class TeacherAvailabilityService {
     /**
      * Get a specific availability entry by ID.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = "TEACHER_AVAILABILITY",
+            description = "Viewed teacher availability entry details",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public TeacherAvailabilityResponseDto getAvailabilityById(Long teacherId, Long availabilityId) {
         log.info("Fetching availability ID: {} for teacher ID: {}", availabilityId, teacherId);
@@ -109,10 +121,10 @@ public class TeacherAvailabilityService {
      * Create a new availability entry.
      */
     @Audited(
-        action = AuditLog.AuditAction.CREATE,
-        entityName = "TEACHER_AVAILABILITY",
-        description = "Created new teacher availability entry",
-        captureNewValue = true
+            action = AuditLog.AuditAction.CREATE,
+            entityName = "TEACHER_AVAILABILITY",
+            description = "Created new teacher availability entry",
+            captureNewValue = true
     )
     @Transactional
     public TeacherAvailabilityResponseDto createAvailability(Long teacherId, TeacherAvailabilityCreateDto createDto) {
@@ -175,10 +187,10 @@ public class TeacherAvailabilityService {
      * Update an existing availability entry.
      */
     @Audited(
-        action = AuditLog.AuditAction.UPDATE,
-        entityName = "TEACHER_AVAILABILITY",
-        description = "Updated teacher availability entry",
-        captureNewValue = true
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = "TEACHER_AVAILABILITY",
+            description = "Updated teacher availability entry",
+            captureNewValue = true
     )
     @Transactional
     public TeacherAvailabilityResponseDto updateAvailability(
@@ -240,10 +252,10 @@ public class TeacherAvailabilityService {
      * Delete an availability entry.
      */
     @Audited(
-        action = AuditLog.AuditAction.DELETE,
-        entityName = "TEACHER_AVAILABILITY",
-        description = "Deleted teacher availability entry",
-        captureNewValue = false
+            action = AuditLog.AuditAction.DELETE,
+            entityName = "TEACHER_AVAILABILITY",
+            description = "Deleted teacher availability entry",
+            captureNewValue = false
     )
     @Transactional
     public void deleteAvailability(Long teacherId, Long availabilityId) {

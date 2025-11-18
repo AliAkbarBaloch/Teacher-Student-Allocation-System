@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.service;
 
-
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.RolePermission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -50,6 +51,12 @@ public class RolePermissionService {
         );
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE_PERMISSION",
+            description = "Viewed list of role permissions",
+            captureNewValue = false
+    )
     @Transactional
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -62,22 +69,52 @@ public class RolePermissionService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE_PERMISSION",
+            description = "Viewed all role permissions",
+            captureNewValue = false
+    )
     public List<RolePermission> getAll() {
         return rolePermissionRepository.findAll();
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE_PERMISSION",
+            description = "Viewed role permission by id",
+            captureNewValue = false
+    )
     public Optional<RolePermission> getById(Long id) {
         return rolePermissionRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE_PERMISSION",
+            description = "Viewed role permission by roleId",
+            captureNewValue = false
+    )
     public List<RolePermission> getByRoleId(Long roleId) {
         return rolePermissionRepository.findByRoleId(roleId);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = "ROLE_PERMISSION",
+            description = "Viewed role permission by permissionId",
+            captureNewValue = false
+    )
     public List<RolePermission> getByPermissionId(Long permissionId) {
         return rolePermissionRepository.findByPermissionId(permissionId);
     }
 
+    @Audited(
+            action = AuditAction.CREATE,
+            entityName = "ROLE_PERMISSION",
+            description = "Created new role permission",
+            captureNewValue = true
+    )
     @Transactional
     public RolePermission create(RolePermission rolePermission) {
         if (rolePermissionRepository.findByRoleIdAndPermissionId(
@@ -88,6 +125,12 @@ public class RolePermissionService {
         return rolePermissionRepository.save(rolePermission);
     }
 
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = "ROLE_PERMISSION",
+            description = "Updated role permission",
+            captureNewValue = true
+    )
     @Transactional
     public RolePermission update(Long id, RolePermission data) {
         RolePermission existing = rolePermissionRepository.findById(id)
@@ -116,6 +159,12 @@ public class RolePermissionService {
         return rolePermissionRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditAction.DELETE,
+            entityName = "ROLE_PERMISSION",
+            description = "Deleted role permission",
+            captureNewValue = false
+    )
     @Transactional
     public void delete(Long id) {
         if (!rolePermissionRepository.existsById(id)) {
