@@ -8,7 +8,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.RolePermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RolePermissionService {
 
     private final RolePermissionRepository rolePermissionRepository;
@@ -58,7 +59,7 @@ public class RolePermissionService {
             description = "Viewed list of role permissions",
             captureNewValue = false
     )
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -76,6 +77,7 @@ public class RolePermissionService {
             description = "Viewed all role permissions",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<RolePermission> getAll() {
         return rolePermissionRepository.findAll();
     }
@@ -86,6 +88,7 @@ public class RolePermissionService {
             description = "Viewed role permission by id",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public Optional<RolePermission> getById(Long id) {
         return rolePermissionRepository.findById(id);
     }
@@ -96,6 +99,7 @@ public class RolePermissionService {
             description = "Viewed role permission by roleId",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<RolePermission> getByRoleId(Long roleId) {
         return rolePermissionRepository.findByRoleId(roleId);
     }
@@ -106,6 +110,7 @@ public class RolePermissionService {
             description = "Viewed role permission by permissionId",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<RolePermission> getByPermissionId(Long permissionId) {
         return rolePermissionRepository.findByPermissionId(permissionId);
     }

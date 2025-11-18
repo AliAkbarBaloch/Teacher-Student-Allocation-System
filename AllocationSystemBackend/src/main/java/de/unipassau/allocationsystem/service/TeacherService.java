@@ -36,6 +36,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class TeacherService {
 
     private final TeacherRepository teacherRepository;

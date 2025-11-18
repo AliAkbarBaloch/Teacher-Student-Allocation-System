@@ -8,14 +8,15 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional
 public class AcademicYearService {
 
     private final AcademicYearRepository academicYearRepository;
@@ -55,7 +58,7 @@ public class AcademicYearService {
             description = "Viewed list of academic years",
             captureNewValue = false
     )
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -73,6 +76,7 @@ public class AcademicYearService {
             description = "Viewed all academic years",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<AcademicYear> getAll() {
         return academicYearRepository.findAll();
     }
@@ -83,6 +87,7 @@ public class AcademicYearService {
             description = "Viewed academic year by id",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public Optional<AcademicYear> getById(Long id) {
         return academicYearRepository.findById(id);
     }

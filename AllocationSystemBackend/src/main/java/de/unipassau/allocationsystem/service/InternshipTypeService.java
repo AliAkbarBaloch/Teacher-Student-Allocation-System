@@ -8,7 +8,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class InternshipTypeService {
 
     private final InternshipTypeRepository internshipTypeRepository;
@@ -57,7 +58,7 @@ public class InternshipTypeService {
             description = "Viewed list of internship types",
             captureNewValue = false
     )
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -75,6 +76,7 @@ public class InternshipTypeService {
             description = "Viewed all internship types",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<InternshipType> getAll() {
         return internshipTypeRepository.findAll();
     }
@@ -85,6 +87,7 @@ public class InternshipTypeService {
             description = "Viewed internship type by id",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public Optional<InternshipType> getById(Long id) {
         return internshipTypeRepository.findById(id);
     }

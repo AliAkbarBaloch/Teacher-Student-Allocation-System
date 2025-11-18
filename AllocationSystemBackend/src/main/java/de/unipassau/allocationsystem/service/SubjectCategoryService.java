@@ -9,7 +9,6 @@ import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +36,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class SubjectCategoryService {
 
     private final SubjectCategoryRepository subjectCategoryRepository;
@@ -96,7 +97,7 @@ public class SubjectCategoryService {
             description = "Viewed list of subject categories",
             captureNewValue = false
     )
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         log.info("Fetching subject categories with params: {}", queryParams);
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -121,6 +122,7 @@ public class SubjectCategoryService {
             description = "Viewed all subject categories",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<SubjectCategory> getAll() {
         log.info("Retrieving all subject categories");
         return subjectCategoryRepository.findAll();
@@ -138,6 +140,7 @@ public class SubjectCategoryService {
             description = "Viewed subject category by id",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public Optional<SubjectCategory> getById(Long id) {
         log.info("Retrieving subject category by id {}", id);
         return subjectCategoryRepository.findById(id);

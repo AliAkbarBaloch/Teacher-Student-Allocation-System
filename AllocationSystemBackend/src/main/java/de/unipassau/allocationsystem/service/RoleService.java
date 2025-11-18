@@ -8,7 +8,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.RoleRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 @Slf4j
+@Transactional
 public class RoleService {
 
     private final RoleRepository roleRepository;
@@ -69,7 +70,7 @@ public class RoleService {
             description = "Viewed list of roles",
             captureNewValue = false
     )
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -87,6 +88,7 @@ public class RoleService {
             description = "Viewed all roles",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public List<Role> getAll() {
         return roleRepository.findAll();
     }
@@ -97,6 +99,7 @@ public class RoleService {
             description = "Viewed role by id",
             captureNewValue = false
     )
+    @Transactional(readOnly = true)
     public Optional<Role> getById(Long id) {
         return roleRepository.findById(id);
     }

@@ -31,6 +31,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthService {
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
@@ -46,7 +47,6 @@ public class AuthService {
     /**
      * Authenticate user and generate JWT token.
      */
-    @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
@@ -122,7 +122,6 @@ public class AuthService {
     /**
      * Logout user (client-side token invalidation).
      */
-    @Transactional
     public void logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
@@ -141,7 +140,6 @@ public class AuthService {
     /**
      * Initiate forgot password flow by generating and sending reset token.
      */
-    @Transactional
     public void forgotPassword(PasswordForgotRequestDto request) {
         // Find user by email - don't throw exception if not found (security: don't reveal if email exists)
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -177,7 +175,6 @@ public class AuthService {
     /**
      * Reset password using valid token.
      */
-    @Transactional
     public void resetPassword(PasswordResetRequestDto request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired password reset token"));
@@ -207,7 +204,6 @@ public class AuthService {
     /**
      * Change password for authenticated user.
      */
-    @Transactional
     public void changePassword(PasswordChangeRequestDto request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
@@ -242,7 +238,6 @@ public class AuthService {
     /**
      * Update user profile information.
      */
-    @Transactional
     public UserResponseDto updateProfile(UserProfileUpdateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
@@ -276,6 +271,7 @@ public class AuthService {
     /**
      * Get current authenticated user profile.
      */
+    @Transactional(readOnly = true)
     public UserResponseDto getCurrentUserProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {

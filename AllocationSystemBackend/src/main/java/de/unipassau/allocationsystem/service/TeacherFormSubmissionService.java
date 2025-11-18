@@ -34,6 +34,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class TeacherFormSubmissionService {
 
     private final TeacherFormSubmissionRepository teacherFormSubmissionRepository;

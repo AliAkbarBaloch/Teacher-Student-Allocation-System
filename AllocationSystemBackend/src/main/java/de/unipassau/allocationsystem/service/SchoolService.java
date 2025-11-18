@@ -143,7 +143,7 @@ public class SchoolService {
         School school = schoolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("School not found with id: " + id));
 
-        // Validate unique school name if it's being changed
+        // Validate a unique school name if it's being changed
         if (updateDto.getSchoolName() != null && 
             !updateDto.getSchoolName().equals(school.getSchoolName())) {
             if (schoolRepository.existsBySchoolNameAndIdNot(updateDto.getSchoolName(), id)) {
