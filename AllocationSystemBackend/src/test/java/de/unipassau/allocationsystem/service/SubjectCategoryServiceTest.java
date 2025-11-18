@@ -113,7 +113,7 @@ class SubjectCategoryServiceTest {
 
     @Test
     void update_DuplicateTitle_ShouldThrowException() {
-        SubjectCategory first = createCategory("Art");
+        SubjectCategory first = createCategory("Arts");
         createCategory("Music");
 
         SubjectCategory updates = new SubjectCategory();

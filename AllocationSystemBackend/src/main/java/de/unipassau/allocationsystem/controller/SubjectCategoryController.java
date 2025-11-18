@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class SubjectCategoryController {
      * filtered by a case-insensitive search value and sorted by the
      * requested field/order combination.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
@@ -58,6 +60,7 @@ public class SubjectCategoryController {
      * Fetches all subject categories without pagination. Useful for
      * populating dropdowns where the total item count is small.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         log.info("Fetching all subject categories (includeRelations={})", includeRelations);
@@ -69,6 +72,7 @@ public class SubjectCategoryController {
      * Retrieves a single subject category by id or returns 404 if the
      * requested entity is not present in the database.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         log.info("Fetching subject category with id {}", id);
@@ -82,6 +86,7 @@ public class SubjectCategoryController {
      * Creates a new subject category after validating the request body,
      * handling duplicate titles via a 400 response instead of a 500.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryDto dto) {
         try {
@@ -99,6 +104,7 @@ public class SubjectCategoryController {
      * the target id does not exist a 404 is returned; duplicate titles
      * yield a 400 with the repository error message.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectCategoryDto dto) {
         try {
@@ -117,6 +123,7 @@ public class SubjectCategoryController {
      * Deletes a subject category by id, surfacing a 404 response when
      * the entity has already been removed or never existed.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
