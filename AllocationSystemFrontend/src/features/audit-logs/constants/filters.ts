@@ -1,3 +1,4 @@
+import { DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 import type { AuditLogFilters } from "../types/auditLog.types";
 
 /**
@@ -5,7 +6,7 @@ import type { AuditLogFilters } from "../types/auditLog.types";
  */
 export const DEFAULT_AUDIT_LOG_FILTERS: AuditLogFilters = {
   page: 0,
-  size: 20,
+  size: DEFAULT_TABLE_PAGE_SIZE,
   sortBy: "eventTimestamp",
   sortDirection: "DESC",
 } as const;
@@ -13,10 +14,10 @@ export const DEFAULT_AUDIT_LOG_FILTERS: AuditLogFilters = {
 /**
  * Page size options for pagination
  */
-export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+export const PAGE_SIZE_OPTIONS = TABLE_PAGE_SIZE_OPTIONS;
 
 /**
  * Default page size
  */
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = DEFAULT_TABLE_PAGE_SIZE;
 

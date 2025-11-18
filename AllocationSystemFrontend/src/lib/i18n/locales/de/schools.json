@@ -1,0 +1,124 @@
+{
+  "title": "Schulen",
+  "subtitle": "Stammdaten der Schulen verwalten und für die Zuweisung aufbereiten.",
+  "table": {
+    "columns": {
+      "name": "Schulname",
+      "type": "Typ",
+      "zone": "Zone",
+      "contactEmail": "Kontakt E-Mail",
+      "contactPhone": "Kontakt Telefon",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "empty": "Keine Schulen entsprechen den aktuellen Filtern.",
+    "loading": "Schulen werden geladen..."
+  },
+  "filters": {
+    "title": "Filter",
+    "subtitle": "Schulen suchen und eingrenzen.",
+    "searchLabel": "Suche",
+    "searchPlaceholder": "Nach Schulnamen suchen",
+    "typeLabel": "Typ",
+    "typePlaceholder": "Alle Typen",
+    "zoneLabel": "Zone",
+    "zonePlaceholder": "Beliebig",
+    "statusLabel": "Status",
+    "statusAll": "Alle",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "reset": "Filter zurücksetzen"
+  },
+  "typeLabels": {
+    "PRIMARY": "Grundschule",
+    "MIDDLE": "Mittelschule"
+  },
+  "actions": {
+    "create": "Neue Schule anlegen",
+    "view": "Anzeigen",
+    "edit": "Bearbeiten",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "cancel": "Abbrechen"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "activateTitle": "Schule aktivieren",
+    "activateDescription": "Aktive Schulen können für zukünftige Planungen genutzt werden.",
+    "deactivateTitle": "Schule deaktivieren",
+    "deactivateDescription": "Inaktive Schulen stehen nicht mehr für Zuweisungen zur Verfügung."
+  },
+  "form": {
+    "title": {
+      "create": "Schule anlegen",
+      "edit": "Schule bearbeiten",
+      "view": "Schuldetails"
+    },
+    "description": "Alle Änderungen werden im Audit-Log protokolliert.",
+    "fields": {
+      "schoolName": "Schulname",
+      "schoolType": "Schultyp",
+      "zoneNumber": "Zonennummer",
+      "address": "Adresse",
+      "latitude": "Breitengrad",
+      "longitude": "Längengrad",
+      "distanceFromCenter": "Entfernung vom Zentrum (km)",
+      "transportAccessibility": "ÖPNV-Erschließung",
+      "contactEmail": "Kontakt E-Mail",
+      "contactPhone": "Kontakt Telefon",
+      "isActive": "Aktiv"
+    },
+    "placeholders": {
+      "schoolName": "z. B. Grundschule Passau",
+      "schoolType": "Typ wählen",
+      "zoneNumber": "Zonennummer",
+      "addressDetailed": "Straße, PLZ, Ort",
+      "latitude": "48.5667",
+      "longitude": "13.4319",
+      "distanceFromCenter": "0",
+      "transportAccessibility": "z. B. Buslinie 3 in 5 Minuten",
+      "contactEmail": "kontakt@example.org",
+      "contactPhone": "+49 123 456789"
+    },
+    "helpers": {
+      "isActive": "Nur aktive Schulen können zugewiesen werden."
+    },
+    "errors": {
+      "schoolNameRequired": "Der Schulname ist erforderlich.",
+      "schoolTypeRequired": "Bitte einen Schultyp wählen.",
+      "zoneNumberRequired": "Die Zonennummer ist erforderlich.",
+      "zoneMustBePositive": "Die Zonennummer muss positiv sein.",
+      "latitudeNumeric": "Breitengrad muss numerisch sein.",
+      "longitudeNumeric": "Längengrad muss numerisch sein.",
+      "distanceNumeric": "Entfernung muss numerisch sein.",
+      "emailInvalid": "Bitte eine gültige E-Mail-Adresse eingeben."
+    },
+    "actions": {
+      "create": "Anlegen",
+      "update": "Aktualisieren",
+      "saving": "Speichern…",
+      "cancel": "Abbrechen"
+    }
+  },
+  "notifications": {
+    "createSuccess": "Schule wurde angelegt.",
+    "updateSuccess": "Schule wurde aktualisiert.",
+    "activateSuccess": "Schule wurde aktiviert.",
+    "deactivateSuccess": "Schule wurde deaktiviert."
+  },
+  "errors": {
+    "load": "Schulen konnten nicht geladen werden.",
+    "submit": "Schule konnte nicht gespeichert werden. Bitte prüfen Sie die Eingaben."
+  },
+  "permissions": {
+    "readOnlyTitle": "Nur Lesezugriff",
+    "readOnlyDescription": "Sie können die Daten einsehen, Änderungen sind jedoch Administratoren vorbehalten."
+  },
+  "pagination": {
+    "display": "{{from}}-{{to}} von {{total}} Schulen",
+    "pageSize": "Zeilen pro Seite",
+    "pageSizeShort": "Zeilen"
+  }
+}
+
