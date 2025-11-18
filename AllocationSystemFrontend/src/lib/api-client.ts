@@ -157,27 +157,35 @@ class ApiClient {
    */
   private async handleError(response: Response, endpoint?: string): Promise<never> {
     let errorMessage = "An error occurred";
+    let errorDetails: unknown = undefined;
 
     // Try to extract error message from response body first
     try {
       const errorData = await response.json() as 
-        | { message?: string; error?: string | { message?: string }; errors?: Array<{ message?: string } | string> }
+        | { message?: string; error?: string | { message?: string }; errors?: Array<{ message?: string } | string>; details?: unknown }
         | unknown;
       
       // Try to extract error message from various possible formats
       if (errorData && typeof errorData === "object") {
-        if ("message" in errorData && typeof errorData.message === "string") {
-          errorMessage = errorData.message;
-        } else if ("error" in errorData) {
-          if (typeof errorData.error === "string") {
-            errorMessage = errorData.error;
-          } else if (errorData.error && typeof errorData.error === "object" && "message" in errorData.error && typeof errorData.error.message === "string") {
-            errorMessage = errorData.error.message;
+        const errorObject = errorData as Record<string, unknown>;
+
+        if (typeof errorObject.message === "string") {
+          errorMessage = errorObject.message;
+        } else if ("error" in errorObject) {
+          const nestedError = errorObject.error;
+          if (typeof nestedError === "string") {
+            errorMessage = nestedError;
+          } else if (nestedError && typeof nestedError === "object" && "message" in nestedError && typeof (nestedError as { message?: string }).message === "string") {
+            errorMessage = (nestedError as { message?: string }).message ?? errorMessage;
           }
-        } else if ("errors" in errorData && Array.isArray(errorData.errors)) {
-          errorMessage = errorData.errors
-            .map((e) => (typeof e === "object" && e !== null && "message" in e && typeof e.message === "string" ? e.message : String(e)))
+        } else if ("errors" in errorObject && Array.isArray(errorObject.errors)) {
+          errorMessage = errorObject.errors
+            .map((e) => (typeof e === "object" && e !== null && "message" in e && typeof (e as { message?: string }).message === "string" ? (e as { message?: string }).message : String(e)))
             .join(", ");
+        }
+
+        if ("details" in errorObject) {
+          errorDetails = errorObject.details;
         }
       }
     } catch {
@@ -213,9 +221,12 @@ class ApiClient {
       }
     }
 
-    const error = new Error(errorMessage) as Error & { status: number; response: Response };
+    const error = new Error(errorMessage) as Error & { status: number; response: Response; details?: unknown };
     error.status = response.status;
     error.response = response;
+    if (typeof errorDetails !== "undefined") {
+      error.details = errorDetails;
+    }
     throw error;
   }
 
@@ -323,6 +334,39 @@ class ApiClient {
     try {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PUT",
+        headers,
+        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
+        ...options,
+        signal: options?.signal || signal,
+      });
+
+      if (!response.ok) {
+        await this.handleError(response, endpoint);
+      }
+
+      return this.parseResponse<T>(response);
+    } catch (error) {
+      this.handleNetworkError(error);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  /**
+   * Make a PATCH request
+   */
+  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+    this.validateTokenForRequest(endpoint);
+    const isFormData =
+      typeof FormData !== "undefined" && data instanceof FormData;
+    const headers = this.buildHeaders(options, {
+      omitJsonContentType: isFormData,
+    });
+    const { timeoutId, signal } = this.createTimeoutController();
+
+    try {
+      const response = await fetch(this.buildUrl(endpoint), {
+        method: "PATCH",
         headers,
         body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
         ...options,

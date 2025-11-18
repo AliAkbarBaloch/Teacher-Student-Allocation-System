@@ -12,6 +12,7 @@ import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import AuditLogsPage from "@/pages/audit-logs/AuditLogsPage";
+import SchoolsPage from "@/pages/base-data/SchoolsPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -108,7 +109,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.baseData.schools,
-        element: withSuspense(<div>Schools</div>),
+        element: withSuspense(<SchoolsPage />),
       },
       {
         path: ROUTES.baseData.teachers,

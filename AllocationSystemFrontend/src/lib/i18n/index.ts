@@ -9,6 +9,7 @@ import enHome from "./locales/en/home.json";
 import enSettings from "./locales/en/settings.json";
 import enRoles from "./locales/en/roles.json";
 import enAuditLogs from "./locales/en/auditLogs.json";
+import enSchools from "./locales/en/schools.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -16,6 +17,7 @@ import deHome from "./locales/de/home.json";
 import deSettings from "./locales/de/settings.json";
 import deRoles from "./locales/de/roles.json";
 import deAuditLogs from "./locales/de/auditLogs.json";
+import deSchools from "./locales/de/schools.json";
 
 // Language metadata configuration
 export const languages = [
@@ -39,6 +41,7 @@ export const resources = {
         settings: enSettings,
         roles: enRoles,
         auditLogs: enAuditLogs,
+        schools: enSchools,
     },
     de: {
         common: deCommon,
@@ -47,6 +50,7 @@ export const resources = {
         settings: deSettings,
         roles: deRoles,
         auditLogs: deAuditLogs,
+        schools: deSchools,
     }
 } as const;
 
@@ -66,7 +70,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings", "roles", "auditLogs"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",
