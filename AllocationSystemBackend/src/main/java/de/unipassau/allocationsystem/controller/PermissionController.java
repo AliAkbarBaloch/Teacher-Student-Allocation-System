@@ -47,6 +47,28 @@ public class PermissionController {
     }
 
     @Operation(
+            summary = "Get permission by ID",
+            description = "Retrieves a specific permission by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Permission found",
+                    content = @Content(schema = @Schema(implementation = PermissionResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Permission not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        PermissionResponseDto result = permissionService.getById(id)
+                .map(permissionMapper::toResponseDto)
+                .orElseThrow(() -> new NoSuchElementException("Permission not found with id: " + id));
+        return ResponseHandler.success("Permission retrieved successfully", result);
+    }
+
+
+    @Operation(
             summary = "Get paginated permissions",
             description = "Retrieves permissions with pagination, sorting, and optional search"
     )
@@ -77,31 +99,10 @@ public class PermissionController {
             ),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         List<PermissionResponseDto> result = permissionMapper.toResponseDtoList(permissionService.getAll());
         return ResponseHandler.success("Permissions retrieved successfully", result);
-    }
-
-    @Operation(
-            summary = "Get permission by ID",
-            description = "Retrieves a specific permission by its ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Permission found",
-                    content = @Content(schema = @Schema(implementation = PermissionResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Permission not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        PermissionResponseDto result = permissionService.getById(id)
-                .map(permissionMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("Permission not found with id: " + id));
-        return ResponseHandler.success("Permission retrieved successfully", result);
     }
 
     @Operation(

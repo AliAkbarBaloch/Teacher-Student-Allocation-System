@@ -40,6 +40,14 @@ public class RolePermissionService implements CrudService<RolePermission, Long> 
         return fields;
     }
 
+    public List<String> getSortFieldKeys() {
+        List<String> keys = new ArrayList<>();
+        for (Map<String, String> field : getSortFields()) {
+            keys.add(field.get("key"));
+        }
+        return keys;
+    }
+    
     private Specification<RolePermission> buildSearchSpecification(String searchValue) {
         if (searchValue == null || searchValue.trim().isEmpty()) {
             return (root, query, cb) -> cb.conjunction();
