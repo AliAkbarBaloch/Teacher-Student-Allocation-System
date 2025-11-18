@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.security.JwtAuthenticationEntryPoint;
 import de.unipassau.allocationsystem.security.JwtAuthenticationFilter;
 import de.unipassau.allocationsystem.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -54,6 +55,10 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CorsProperties corsProperties;
+
+    @Value("${app.security.permit-all-url-patterns}")
+    private String permitAllUrlPatterns;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -70,8 +75,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(WebConfig.ALLOWED_ORIGINS);
-        configuration.setAllowedMethods(WebConfig.ALLOWED_METHODS);
+        configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
@@ -80,58 +85,17 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-//
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-//                .authorizeHttpRequests(authz -> authz
-//                        /*Then, allow specific API endpoints without auth*/
-//                        .requestMatchers("/api/auth/**").permitAll()
-//                        .requestMatchers("/api/test/**").permitAll()
-//                        .requestMatchers("/api/h2-console/**").permitAll()
-//                        .requestMatchers("/api/events/share/**").permitAll()
-//                        /*First, secure API endpoints*/
-//                        .requestMatchers("/api/**").authenticated()
-//                        /*Allow H2 console*/
-//                        .requestMatchers("/h2-console/**").permitAll()
-//                        /*Allow all other routes for the frontend SPA*/
-//                        .anyRequest().permitAll()
-//                )
-////                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-    /// /                .authenticationProvider(authenticationProvider())
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        String[] patterns = permitAllUrlPatterns.split(",");
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Allow Swagger UI and API documentation endpoints
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-                        // Allow authentication endpoints without authentication
-                        .requestMatchers("/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
-                        // Allow H2 console
-                        .requestMatchers("/h2-console/**").permitAll()
-                        // Allow test endpoints
-                        .requestMatchers("/api/test/**").permitAll()
-                        // All other API endpoints require authentication
+                        .requestMatchers(patterns).permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        // Allow all other routes (for frontend SPA)
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
