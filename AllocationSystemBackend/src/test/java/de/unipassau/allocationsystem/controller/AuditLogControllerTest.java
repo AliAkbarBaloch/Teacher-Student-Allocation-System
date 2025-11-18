@@ -1,12 +1,11 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
-import de.unipassau.allocationsystem.service.AuditLogService;
+import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;

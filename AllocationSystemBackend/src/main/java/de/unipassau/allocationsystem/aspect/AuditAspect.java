@@ -1,7 +1,7 @@
 package de.unipassau.allocationsystem.aspect;
 
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.service.AuditLogService;
+import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

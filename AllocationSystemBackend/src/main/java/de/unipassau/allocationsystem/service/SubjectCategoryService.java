@@ -6,6 +6,7 @@ import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
+import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

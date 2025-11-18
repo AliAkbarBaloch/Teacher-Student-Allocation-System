@@ -7,6 +7,7 @@ import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.PasswordResetTokenRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import de.unipassau.allocationsystem.service.audit.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
