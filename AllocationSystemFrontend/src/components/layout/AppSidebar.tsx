@@ -226,7 +226,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link to={ROUTES.main.dashboard}>
                 <div className="flex items-center gap-4 lg:gap-8">
-                  <Logo size="sm" showText={false} className="shrink-0" />
+                  <Logo size="sm" showText={false} className="shrink-0" linkTo={null} />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{t("app.name")}</span>

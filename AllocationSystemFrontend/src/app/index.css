@@ -21,8 +21,8 @@
   --primary: var(--brand);
   --primary-foreground: oklch(0.985 0 0);
   /* University of Passau Grey #A6ADAC - Secondary Brand Color */
-  --secondary: oklch(0.68 0.005 180);
-  --secondary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: var(--brand-soft);
@@ -130,7 +130,7 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }
@@ -141,7 +141,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
