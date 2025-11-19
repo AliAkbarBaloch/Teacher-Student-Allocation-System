@@ -19,6 +19,7 @@ public class PermissionConstants {
         public static final String TEACHER_AVAILABILITY = "teacherAvailability";
         public static final String TEACHER_FORM_SUBMISSION = "teacherFormSubmission";
         public static final String ALLOCATION_PLAN = "allocationPlan";
+        public static final String ZONE_CONSTRAINT = "zoneConstraint";
         
         // Report
         public static final String DASHBOARD = "dashboard";
