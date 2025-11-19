@@ -16,6 +16,13 @@ public final class AuditEntityNames {
     public static final String TEACHER = "TEACHER";
     public static final String TEACHER_AVAILABILITY = "TEACHER_AVAILABILITY";
     public static final String TEACHER_FORM_SUBMISSION = "TEACHER_FORM_SUBMISSION";
+    public static final String ALLOCATION_PLAN = "ALLOCATION_PLAN";
+    public static final String ZONE_CONSTRAINT = "ZONE_CONSTRAINT";
+
+
+    // Report
+    public static final String DASHBOARD = "DASHBOARD";
+    public static final String REPORT = "REPORT";
 
     // ...add all used entity names here
 
