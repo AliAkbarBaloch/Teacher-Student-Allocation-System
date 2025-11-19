@@ -1,104 +1,129 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.SchoolCreateDto;
-import de.unipassau.allocationsystem.dto.SchoolResponseDto;
-import de.unipassau.allocationsystem.dto.SchoolUpdateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolCreateDto;
+import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
+import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Mapper for School entity and DTOs.
  */
 @Component
-public class SchoolMapper {
+public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolUpdateDto, SchoolResponseDto> {
 
-    /**
-     * Convert School entity to response DTO.
-     */
+    @Override
+    public School toEntityCreate(SchoolCreateDto createDto) {
+        if (createDto == null) {
+            return null;
+        }
+        School school = new School();
+        school.setSchoolName(createDto.getSchoolName());
+        school.setSchoolType(createDto.getSchoolType());
+        school.setZoneNumber(createDto.getZoneNumber());
+        school.setAddress(createDto.getAddress());
+        school.setLatitude(createDto.getLatitude());
+        school.setLongitude(createDto.getLongitude());
+        school.setDistanceFromCenter(createDto.getDistanceFromCenter());
+        school.setTransportAccessibility(createDto.getTransportAccessibility());
+        school.setContactEmail(createDto.getContactEmail());
+        school.setContactPhone(createDto.getContactPhone());
+        school.setIsActive(createDto.getIsActive() != null ? createDto.getIsActive() : true);
+        school.setCreatedAt(createDto.getCreatedAt());
+        school.setUpdatedAt(createDto.getUpdatedAt());
+        return school;
+    }
+
+    @Override
+    public School toEntityUpdate(SchoolUpdateDto updateDto) {
+        if (updateDto == null) {
+            return null;
+        }
+        School school = new School();
+        school.setSchoolName(updateDto.getSchoolName());
+        school.setSchoolType(updateDto.getSchoolType());
+        school.setZoneNumber(updateDto.getZoneNumber());
+        school.setAddress(updateDto.getAddress());
+        school.setLatitude(updateDto.getLatitude());
+        school.setLongitude(updateDto.getLongitude());
+        school.setDistanceFromCenter(updateDto.getDistanceFromCenter());
+        school.setTransportAccessibility(updateDto.getTransportAccessibility());
+        school.setContactEmail(updateDto.getContactEmail());
+        school.setContactPhone(updateDto.getContactPhone());
+        return school;
+    }
+
+    @Override
     public SchoolResponseDto toResponseDto(School school) {
         if (school == null) {
             return null;
         }
-
-        SchoolResponseDto dto = new SchoolResponseDto();
-        dto.setId(school.getId());
-        dto.setSchoolName(school.getSchoolName());
-        dto.setSchoolType(school.getSchoolType());
-        dto.setZoneNumber(school.getZoneNumber());
-        dto.setAddress(school.getAddress());
-        dto.setLatitude(school.getLatitude());
-        dto.setLongitude(school.getLongitude());
-        dto.setDistanceFromCenter(school.getDistanceFromCenter());
-        dto.setTransportAccessibility(school.getTransportAccessibility());
-        dto.setContactEmail(school.getContactEmail());
-        dto.setContactPhone(school.getContactPhone());
-        dto.setIsActive(school.getIsActive());
-        dto.setCreatedAt(school.getCreatedAt());
-        dto.setUpdatedAt(school.getUpdatedAt());
-        return dto;
+        return new SchoolResponseDto(
+                school.getId(),
+                school.getSchoolName(),
+                school.getSchoolType(),
+                school.getZoneNumber(),
+                school.getAddress(),
+                school.getLatitude(),
+                school.getLongitude(),
+                school.getDistanceFromCenter(),
+                school.getTransportAccessibility(),
+                school.getContactEmail(),
+                school.getContactPhone(),
+                school.getIsActive(),
+                school.getCreatedAt(),
+                school.getUpdatedAt()
+        );
     }
 
-    /**
-     * Convert create DTO to School entity.
-     */
-    public School toEntity(SchoolCreateDto dto) {
-        if (dto == null) {
+    @Override
+    public List<SchoolResponseDto> toResponseDtoList(List<School> entities) {
+        if (entities == null) {
             return null;
         }
-
-        School school = new School();
-        school.setSchoolName(dto.getSchoolName());
-        school.setSchoolType(dto.getSchoolType());
-        school.setZoneNumber(dto.getZoneNumber());
-        school.setAddress(dto.getAddress());
-        school.setLatitude(dto.getLatitude());
-        school.setLongitude(dto.getLongitude());
-        school.setDistanceFromCenter(dto.getDistanceFromCenter());
-        school.setTransportAccessibility(dto.getTransportAccessibility());
-        school.setContactEmail(dto.getContactEmail());
-        school.setContactPhone(dto.getContactPhone());
-        school.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        return school;
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Update School entity from update DTO.
-     * Only updates non-null fields.
-     */
-    public void updateEntityFromDto(SchoolUpdateDto dto, School school) {
-        if (dto == null || school == null) {
+    @Override
+    public void updateEntityFromDto(SchoolUpdateDto updateDto, School school) {
+        if (updateDto == null || school == null) {
             return;
         }
 
-        if (dto.getSchoolName() != null) {
-            school.setSchoolName(dto.getSchoolName());
+        if (updateDto.getSchoolName() != null) {
+            school.setSchoolName(updateDto.getSchoolName());
         }
-        if (dto.getSchoolType() != null) {
-            school.setSchoolType(dto.getSchoolType());
+        if (updateDto.getSchoolType() != null) {
+            school.setSchoolType(updateDto.getSchoolType());
         }
-        if (dto.getZoneNumber() != null) {
-            school.setZoneNumber(dto.getZoneNumber());
+        if (updateDto.getZoneNumber() != null) {
+            school.setZoneNumber(updateDto.getZoneNumber());
         }
-        if (dto.getAddress() != null) {
-            school.setAddress(dto.getAddress());
+        if (updateDto.getAddress() != null) {
+            school.setAddress(updateDto.getAddress());
         }
-        if (dto.getLatitude() != null) {
-            school.setLatitude(dto.getLatitude());
+        if (updateDto.getLatitude() != null) {
+            school.setLatitude(updateDto.getLatitude());
         }
-        if (dto.getLongitude() != null) {
-            school.setLongitude(dto.getLongitude());
+        if (updateDto.getLongitude() != null) {
+            school.setLongitude(updateDto.getLongitude());
         }
-        if (dto.getDistanceFromCenter() != null) {
-            school.setDistanceFromCenter(dto.getDistanceFromCenter());
+        if (updateDto.getDistanceFromCenter() != null) {
+            school.setDistanceFromCenter(updateDto.getDistanceFromCenter());
         }
-        if (dto.getTransportAccessibility() != null) {
-            school.setTransportAccessibility(dto.getTransportAccessibility());
+        if (updateDto.getTransportAccessibility() != null) {
+            school.setTransportAccessibility(updateDto.getTransportAccessibility());
         }
-        if (dto.getContactEmail() != null) {
-            school.setContactEmail(dto.getContactEmail());
+        if (updateDto.getContactEmail() != null) {
+            school.setContactEmail(updateDto.getContactEmail());
         }
-        if (dto.getContactPhone() != null) {
-            school.setContactPhone(dto.getContactPhone());
+        if (updateDto.getContactPhone() != null) {
+            school.setContactPhone(updateDto.getContactPhone());
         }
     }
 }

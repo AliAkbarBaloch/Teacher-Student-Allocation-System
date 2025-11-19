@@ -1,31 +1,66 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.TeacherResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
+import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Mapper for converting between Teacher entity and DTOs.
  */
 @Component
-public class TeacherMapper {
+public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, TeacherUpdateDto, TeacherResponseDto> {
 
-    /**
-     * Convert Teacher entity to response DTO.
-     *
-     * @param teacher Teacher entity
-     * @return TeacherResponseDto
-     */
-    public TeacherResponseDto toDto(Teacher teacher) {
+    @Override
+    public Teacher toEntityCreate(TeacherCreateDto createDto) {
+        if (createDto == null) {
+            return null;
+        }
+        Teacher teacher = new Teacher();
+        // School should be set by service using schoolId
+        teacher.setFirstName(createDto.getFirstName());
+        teacher.setLastName(createDto.getLastName());
+        teacher.setEmail(createDto.getEmail());
+        teacher.setPhone(createDto.getPhone());
+        teacher.setIsPartTime(createDto.getIsPartTime());
+        teacher.setEmploymentStatus(createDto.getEmploymentStatus());
+        teacher.setUsageCycle(createDto.getUsageCycle());
+        teacher.setIsActive(true); // default active
+        return teacher;
+    }
+
+    @Override
+    public Teacher toEntityUpdate(TeacherUpdateDto updateDto) {
+        if (updateDto == null) {
+            return null;
+        }
+        Teacher teacher = new Teacher();
+        teacher.setFirstName(updateDto.getFirstName());
+        teacher.setLastName(updateDto.getLastName());
+        teacher.setEmail(updateDto.getEmail());
+        teacher.setPhone(updateDto.getPhone());
+        teacher.setIsPartTime(updateDto.getIsPartTime());
+        teacher.setEmploymentStatus(updateDto.getEmploymentStatus());
+        teacher.setUsageCycle(updateDto.getUsageCycle());
+        // School should be set by service using schoolId if present
+        return teacher;
+    }
+
+    @Override
+    public TeacherResponseDto toResponseDto(Teacher teacher) {
         if (teacher == null) {
             return null;
         }
-
+        School school = teacher.getSchool();
         return TeacherResponseDto.builder()
                 .id(teacher.getId())
-                .schoolId(teacher.getSchool().getId())
-                .schoolName(teacher.getSchool().getSchoolName())
+                .schoolId(school != null ? school.getId() : null)
+                .schoolName(school != null ? school.getSchoolName() : null)
                 .firstName(teacher.getFirstName())
                 .lastName(teacher.getLastName())
                 .email(teacher.getEmail())
@@ -39,14 +74,21 @@ public class TeacherMapper {
                 .build();
     }
 
-    /**
-     * Update existing Teacher entity with data from update DTO.
-     * Only updates non-null fields.
-     *
-     * @param teacher   Existing teacher entity
-     * @param updateDto Update DTO
-     */
-    public void updateEntityFromDto(Teacher teacher, TeacherUpdateDto updateDto) {
+    @Override
+    public List<TeacherResponseDto> toResponseDtoList(List<Teacher> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(TeacherUpdateDto updateDto, Teacher teacher) {
+        if (updateDto == null || teacher == null) {
+            return;
+        }
         if (updateDto.getFirstName() != null) {
             teacher.setFirstName(updateDto.getFirstName());
         }
@@ -68,5 +110,6 @@ public class TeacherMapper {
         if (updateDto.getUsageCycle() != null) {
             teacher.setUsageCycle(updateDto.getUsageCycle());
         }
+        // School should be set by service using schoolId if present
     }
 }

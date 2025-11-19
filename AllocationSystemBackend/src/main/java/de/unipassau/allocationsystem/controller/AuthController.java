@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.*;
+import de.unipassau.allocationsystem.dto.user.UserProfileUpdateRequest;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

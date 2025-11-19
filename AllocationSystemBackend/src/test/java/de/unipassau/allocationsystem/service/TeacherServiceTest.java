@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.TeacherCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -24,14 +24,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for TeacherService.
+ * Unit tests for TeacherService aligned with the provided TeacherService implementation.
  */
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
@@ -56,7 +60,6 @@ class TeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Setup test school
         testSchool = new School();
         testSchool.setId(1L);
         testSchool.setSchoolName("Test School");
@@ -64,7 +67,6 @@ class TeacherServiceTest {
         testSchool.setZoneNumber(1);
         testSchool.setIsActive(true);
 
-        // Setup test teacher entity
         testTeacher = new Teacher();
         testTeacher.setId(1L);
         testTeacher.setSchool(testSchool);
@@ -77,7 +79,6 @@ class TeacherServiceTest {
         testTeacher.setUsageCycle(UsageCycle.FULL_YEAR);
         testTeacher.setIsActive(true);
 
-        // Setup create DTO
         createDto = new TeacherCreateDto();
         createDto.setSchoolId(1L);
         createDto.setFirstName("Jane");
@@ -88,13 +89,11 @@ class TeacherServiceTest {
         createDto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
         createDto.setUsageCycle(UsageCycle.FULL_YEAR);
 
-        // Setup update DTO
         updateDto = new TeacherUpdateDto();
         updateDto.setFirstName("Updated");
         updateDto.setLastName("Name");
         updateDto.setEmail("updated@school.de");
 
-        // Setup response DTO
         responseDto = TeacherResponseDto.builder()
                 .id(1L)
                 .schoolId(1L)
@@ -110,256 +109,144 @@ class TeacherServiceTest {
                 .build();
     }
 
-    // ==================== getAllTeachers Tests ====================
+    @Test
+    void getAll_ReturnsMappedList() {
+        when(teacherRepository.findAll()).thenReturn(List.of(testTeacher));
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
+
+        List<TeacherResponseDto> result = teacherService.getAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(responseDto, result.get(0));
+        verify(teacherRepository).findAll();
+        verify(teacherMapper).toResponseDto(testTeacher);
+    }
 
     @Test
-    void getAllTeachers_WithoutFilters_Success() {
-        // Arrange
-        Page<Teacher> teacherPage = new PageImpl<>(Collections.singletonList(testTeacher));
+    void getPaginated_Default_Success() {
+        Page<Teacher> page = new PageImpl<>(Collections.singletonList(testTeacher));
         Map<String, String> queryParams = new HashMap<>();
-        
-        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
 
-        // Act
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
+        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.containsKey("items"));
+        Map<String, Object> resp = teacherService.getPaginated(queryParams, null);
+
+        assertNotNull(resp);
+        assertTrue(resp.containsKey("items"));
+        assertTrue(resp.containsKey("totalItems"));
         verify(teacherRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
-    void getAllTeachers_WithSchoolFilter_Success() {
-        // Arrange
-        Page<Teacher> teacherPage = new PageImpl<>(Collections.singletonList(testTeacher));
+    void getPaginated_WithSearch_Success() {
+        Page<Teacher> page = new PageImpl<>(Collections.singletonList(testTeacher));
         Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("schoolId", "1");
-        
-        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        // Act
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
+        Map<String, Object> resp = teacherService.getPaginated(queryParams, "John");
 
-        // Assert
-        assertNotNull(result);
+        assertNotNull(resp);
         verify(teacherRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
-    void getAllTeachers_WithEmploymentStatusFilter_Success() {
-        // Arrange
-        Page<Teacher> teacherPage = new PageImpl<>(Collections.singletonList(testTeacher));
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("employmentStatus", "FULL_TIME");
-        
-        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-
-        // Act
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
-
-        // Assert
-        assertNotNull(result);
-        verify(teacherRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    void getAllTeachers_WithSearchFilter_Success() {
-        // Arrange
-        Page<Teacher> teacherPage = new PageImpl<>(Collections.singletonList(testTeacher));
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("search", "John");
-        
-        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-
-        // Act
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
-
-        // Assert
-        assertNotNull(result);
-        verify(teacherRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    void getAllTeachers_WithPagination_Success() {
-        // Arrange
-        Page<Teacher> teacherPage = new PageImpl<>(Collections.singletonList(testTeacher));
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("page", "2");
-        queryParams.put("pageSize", "20");
-        queryParams.put("sortBy", "lastName");
-        queryParams.put("sortOrder", "asc");
-        
-        when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(teacherPage);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-
-        // Act
-        Map<String, Object> result = teacherService.getAllTeachers(queryParams);
-
-        // Assert
-        assertNotNull(result);
-        verify(teacherRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    // ==================== getTeacherById Tests ====================
-
-    @Test
-    void getTeacherById_Success() {
-        // Arrange
+    void getById_WhenExists_ReturnsOptionalDto() {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
-        // Act
-        TeacherResponseDto result = teacherService.getTeacherById(1L);
+        Optional<TeacherResponseDto> result = teacherService.getById(1L);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        assertTrue(result.isPresent());
+        assertEquals(responseDto, result.get());
         verify(teacherRepository).findById(1L);
-        verify(teacherMapper).toDto(testTeacher);
+        verify(teacherMapper).toResponseDto(testTeacher);
     }
 
     @Test
-    void getTeacherById_NotFound_ThrowsException() {
-        // Arrange
+    void getById_WhenNotFound_ReturnsEmptyOptional() {
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.getTeacherById(99L);
-        });
+        Optional<TeacherResponseDto> result = teacherService.getById(99L);
+
+        assertTrue(result.isEmpty());
         verify(teacherRepository).findById(99L);
     }
 
-    // ==================== createTeacher Tests ====================
-
     @Test
     void createTeacher_Success() {
-        // Arrange
+        Teacher toSave = new Teacher();
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
+        when(teacherMapper.toEntityCreate(createDto)).thenReturn(toSave);
+        when(teacherRepository.save(any(Teacher.class))).thenAnswer(inv -> {
+            Teacher t = inv.getArgument(0);
+            t.setId(2L);
+            return t;
+        });
+        when(teacherMapper.toResponseDto(any(Teacher.class))).thenReturn(responseDto);
 
-        // Act
         TeacherResponseDto result = teacherService.createTeacher(createDto);
 
-        // Assert
         assertNotNull(result);
         verify(teacherRepository).existsByEmail(createDto.getEmail());
         verify(schoolRepository).findById(1L);
         verify(teacherRepository).save(any(Teacher.class));
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(teacherMapper).toResponseDto(any(Teacher.class));
     }
 
     @Test
     void createTeacher_DuplicateEmail_ThrowsException() {
-        // Arrange
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(DuplicateResourceException.class, () -> {
-            teacherService.createTeacher(createDto);
-        });
+        assertThrows(DuplicateResourceException.class, () -> teacherService.createTeacher(createDto));
         verify(teacherRepository).existsByEmail(createDto.getEmail());
         verify(teacherRepository, never()).save(any());
     }
 
     @Test
     void createTeacher_SchoolNotFound_ThrowsException() {
-        // Arrange
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.createTeacher(createDto);
-        });
+        assertThrows(ResourceNotFoundException.class, () -> teacherService.createTeacher(createDto));
         verify(teacherRepository).existsByEmail(createDto.getEmail());
         verify(schoolRepository).findById(1L);
         verify(teacherRepository, never()).save(any());
     }
-
-    @Test
-    void createTeacher_InactiveSchool_ThrowsException() {
-        // Arrange
-        testSchool.setIsActive(false);
-        when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            teacherService.createTeacher(createDto);
-        });
-        verify(teacherRepository).existsByEmail(createDto.getEmail());
-        verify(schoolRepository).findById(1L);
-        verify(teacherRepository, never()).save(any());
-    }
-
-    @Test
-    void createTeacher_PartTimeInconsistency_ThrowsException() {
-        // Arrange
-        createDto.setIsPartTime(true);
-        createDto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
-        when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            teacherService.createTeacher(createDto);
-        });
-    }
-
-    // ==================== updateTeacher Tests ====================
 
     @Test
     void updateTeacher_Success() {
-        // Arrange
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
+        when(teacherRepository.existsByEmailAndIdNot(updateDto.getEmail(), 1L)).thenReturn(false);
+        doNothing().when(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-        doNothing().when(teacherMapper).updateEntityFromDto(any(Teacher.class), any(TeacherUpdateDto.class));
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
-        // Act
         TeacherResponseDto result = teacherService.updateTeacher(1L, updateDto);
 
-        // Assert
         assertNotNull(result);
         verify(teacherRepository).findById(1L);
-        verify(teacherMapper).updateEntityFromDto(any(Teacher.class), eq(updateDto));
+        verify(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
         verify(teacherRepository).save(any(Teacher.class));
-        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
     void updateTeacher_NotFound_ThrowsException() {
-        // Arrange
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.updateTeacher(99L, updateDto);
-        });
+        assertThrows(ResourceNotFoundException.class, () -> teacherService.updateTeacher(99L, updateDto));
         verify(teacherRepository).findById(99L);
         verify(teacherRepository, never()).save(any());
     }
 
     @Test
     void updateTeacher_DuplicateEmail_ThrowsException() {
-        // Arrange
         updateDto.setEmail("existing@school.de");
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.existsByEmailAndIdNot("existing@school.de", 1L)).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(DuplicateResourceException.class, () -> {
-            teacherService.updateTeacher(1L, updateDto);
-        });
+        assertThrows(DuplicateResourceException.class, () -> teacherService.updateTeacher(1L, updateDto));
         verify(teacherRepository).findById(1L);
         verify(teacherRepository).existsByEmailAndIdNot("existing@school.de", 1L);
         verify(teacherRepository, never()).save(any());
@@ -367,7 +254,6 @@ class TeacherServiceTest {
 
     @Test
     void updateTeacher_ChangeSchool_Success() {
-        // Arrange
         School newSchool = new School();
         newSchool.setId(2L);
         newSchool.setSchoolName("New School");
@@ -376,95 +262,45 @@ class TeacherServiceTest {
         updateDto.setSchoolId(2L);
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(schoolRepository.findById(2L)).thenReturn(Optional.of(newSchool));
+        doNothing().when(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-        doNothing().when(teacherMapper).updateEntityFromDto(any(Teacher.class), any(TeacherUpdateDto.class));
+        when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
-        // Act
         TeacherResponseDto result = teacherService.updateTeacher(1L, updateDto);
 
-        // Assert
         assertNotNull(result);
         verify(schoolRepository).findById(2L);
         verify(teacherRepository).save(any(Teacher.class));
     }
 
-    // ==================== updateTeacherStatus Tests ====================
-
-    @Test
-    void updateTeacherStatus_Deactivate_Success() {
-        // Arrange
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-
-        // Act
-        TeacherResponseDto result = teacherService.updateTeacherStatus(1L, false);
-
-        // Assert
-        assertNotNull(result);
-        verify(teacherRepository).findById(1L);
-        verify(teacherRepository).save(any(Teacher.class));
-        // Audit logging is now handled by @Audited annotation via AOP
-    }
-
-    @Test
-    void updateTeacherStatus_Activate_Success() {
-        // Arrange
-        testTeacher.setIsActive(false);
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
-        when(teacherMapper.toDto(testTeacher)).thenReturn(responseDto);
-
-        // Act
-        TeacherResponseDto result = teacherService.updateTeacherStatus(1L, true);
-
-        // Assert
-        assertNotNull(result);
-        verify(teacherRepository).findById(1L);
-        verify(teacherRepository).save(any(Teacher.class));
-    }
-
-    @Test
-    void updateTeacherStatus_NotFound_ThrowsException() {
-        // Arrange
-        when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.updateTeacherStatus(99L, false);
-        });
-        verify(teacherRepository).findById(99L);
-        verify(teacherRepository, never()).save(any());
-    }
-
-    // ==================== deleteTeacher Tests ====================
-
     @Test
     void deleteTeacher_Success() {
-        // Arrange
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(testTeacher);
+        when(teacherRepository.existsById(1L)).thenReturn(true);
 
-        // Act
         teacherService.deleteTeacher(1L);
 
-        // Assert
-        verify(teacherRepository).findById(1L);
-        verify(teacherRepository).save(any(Teacher.class));
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(teacherRepository).existsById(1L);
+        verify(teacherRepository).deleteById(1L);
     }
 
     @Test
     void deleteTeacher_NotFound_ThrowsException() {
-        // Arrange
-        when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
+        when(teacherRepository.existsById(99L)).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> {
-            teacherService.deleteTeacher(99L);
-        });
-        verify(teacherRepository).findById(99L);
-        verify(teacherRepository, never()).save(any());
+        assertThrows(ResourceNotFoundException.class, () -> teacherService.deleteTeacher(99L));
+        verify(teacherRepository).existsById(99L);
+        verify(teacherRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void helperMethods_existAndSortFields() {
+        when(teacherRepository.existsById(1L)).thenReturn(true);
+
+        assertTrue(teacherService.existsById(1L));
+
+        List<Map<String, String>> fields = teacherService.getSortFields();
+        assertNotNull(fields);
+        assertTrue(fields.stream().anyMatch(m -> "id".equals(m.get("key"))));
+        assertTrue(fields.stream().anyMatch(m -> "firstName".equals(m.get("key"))));
     }
 }

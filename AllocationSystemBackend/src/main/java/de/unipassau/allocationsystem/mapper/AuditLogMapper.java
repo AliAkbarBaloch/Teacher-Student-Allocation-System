@@ -1,6 +1,6 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.AuditLogDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -25,8 +25,7 @@ public class AuditLogMapper {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
 
-        return AuditLog.builder()
-                .id(dto.getId())
+        AuditLog.AuditLogBuilder builder = AuditLog.builder()
                 .user(user)
                 .userIdentifier(dto.getUserIdentifier())
                 .eventTimestamp(dto.getEventTimestamp())
@@ -37,8 +36,13 @@ public class AuditLogMapper {
                 .newValue(dto.getNewValue())
                 .description(dto.getDescription())
                 .ipAddress(dto.getIpAddress())
-                .createdAt(dto.getCreatedAt())
-                .build();
+                .createdAt(dto.getCreatedAt());
+
+        if (dto.getId() != null && dto.getId() > 0) {
+            builder.id(dto.getId());
+        }
+
+        return builder.build();
     }
 
     public AuditLogDto toDto(AuditLog entity) {
@@ -65,7 +69,6 @@ public class AuditLogMapper {
         if (entities == null) {
             return null;
         }
-
         return entities.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

@@ -1,9 +1,10 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionCreateDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionResponseDto;
-import de.unipassau.allocationsystem.dto.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class TeacherFormSubmissionService {
 
     private final TeacherFormSubmissionRepository teacherFormSubmissionRepository;
@@ -43,6 +45,12 @@ public class TeacherFormSubmissionService {
     /**
      * Get all form submissions with optional filters and pagination.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
+            description = "Viewed list of teacher form submissions",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public Map<String, Object> getFormSubmissions(
             Long teacherId, Long yearId, Boolean isProcessed, Map<String, String> queryParams) {
@@ -85,7 +93,7 @@ public class TeacherFormSubmissionService {
                 page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
 
         // Convert to DTOs
-        Page<TeacherFormSubmissionResponseDto> dtoPage = page.map(teacherFormSubmissionMapper::toDto);
+        Page<TeacherFormSubmissionResponseDto> dtoPage = page.map(teacherFormSubmissionMapper::toResponseDto);
 
         // Return paginated response
         return PaginationUtils.formatPaginationResponse(dtoPage);
@@ -94,6 +102,12 @@ public class TeacherFormSubmissionService {
     /**
      * Get a specific form submission by ID.
      */
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
+            description = "Viewed teacher form submission details",
+            captureNewValue = false
+    )
     @Transactional(readOnly = true)
     public TeacherFormSubmissionResponseDto getFormSubmissionById(Long id) {
         log.info("Fetching form submission with ID: {}", id);
@@ -101,17 +115,17 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission submission = teacherFormSubmissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Form submission not found with ID: " + id));
 
-        return teacherFormSubmissionMapper.toDto(submission);
+        return teacherFormSubmissionMapper.toResponseDto(submission);
     }
 
     /**
      * Create a new form submission.
      */
     @Audited(
-        action = AuditLog.AuditAction.CREATE,
-        entityName = "TEACHER_FORM_SUBMISSION",
-        description = "Created new teacher form submission",
-        captureNewValue = true
+            action = AuditLog.AuditAction.CREATE,
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
+            description = "Created new teacher form submission",
+            captureNewValue = true
     )
     @Transactional
     public TeacherFormSubmissionResponseDto createFormSubmission(TeacherFormSubmissionCreateDto createDto) {
@@ -148,17 +162,17 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission saved = teacherFormSubmissionRepository.save(submission);
 
         log.info("Form submission created successfully with ID: {}", saved.getId());
-        return teacherFormSubmissionMapper.toDto(saved);
+        return teacherFormSubmissionMapper.toResponseDto(saved);
     }
 
     /**
      * Update the processing status of a form submission.
      */
     @Audited(
-        action = AuditLog.AuditAction.UPDATE,
-        entityName = "TEACHER_FORM_SUBMISSION",
-        description = "Updated teacher form submission processing status",
-        captureNewValue = true
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = AuditEntityNames.TEACHER_FORM_SUBMISSION,
+            description = "Updated teacher form submission processing status",
+            captureNewValue = true
     )
     @Transactional
     public TeacherFormSubmissionResponseDto updateFormSubmissionStatus(Long id, TeacherFormSubmissionStatusUpdateDto statusDto) {
@@ -172,6 +186,6 @@ public class TeacherFormSubmissionService {
         TeacherFormSubmission updated = teacherFormSubmissionRepository.save(submission);
 
         log.info("Form submission status updated successfully for ID: {}", id);
-        return teacherFormSubmissionMapper.toDto(updated);
+        return teacherFormSubmissionMapper.toResponseDto(updated);
     }
 }

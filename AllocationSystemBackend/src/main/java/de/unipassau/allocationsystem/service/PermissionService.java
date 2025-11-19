@@ -1,18 +1,22 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.PermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +24,14 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class PermissionService {
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
+public class PermissionService implements CrudService<Permission, Long> {
 
-    @Autowired
-    private PermissionRepository permissionRepository;
+    private final PermissionRepository permissionRepository;
 
-    public boolean titleExists(String title) {
-        return permissionRepository.findByTitle(title).isPresent();
-    }
-
+    @Override
     public List<Map<String, String>> getSortFields() {
         List<Map<String, String>> fields = new ArrayList<>();
         fields.add(Map.of("key", "id", "label", "ID"));
@@ -58,8 +61,25 @@ public class PermissionService {
         );
     }
 
-    @Transactional
-    public Map<String, Object> getPaginated(Map<String, String> queryParams, boolean includeRelations, String searchValue) {
+
+    public boolean titleExists(String title) {
+        return permissionRepository.findByTitle(title).isPresent();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return permissionRepository.findById(id).isPresent();
+    }
+
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Viewed list of permissions",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -70,15 +90,38 @@ public class PermissionService {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Viewed all permissions",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
     public List<Permission> getAll() {
         return permissionRepository.findAll();
     }
 
+    @Audited(
+            action = AuditAction.VIEW,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Viewed permission by id",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
     public Optional<Permission> getById(Long id) {
         return permissionRepository.findById(id);
     }
 
+    @Audited(
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Created new permission",
+            captureNewValue = true
+    )
     @Transactional
+    @Override
     public Permission create(Permission permission) {
         if (permissionRepository.findByTitle(permission.getTitle()).isPresent()) {
             throw new DuplicateResourceException("Permission with title '" + permission.getTitle() + "' already exists");
@@ -86,7 +129,14 @@ public class PermissionService {
         return permissionRepository.save(permission);
     }
 
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Updated permission",
+            captureNewValue = true
+    )
     @Transactional
+    @Override
     public Permission update(Long id, Permission data) {
         Permission existing = permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
@@ -105,7 +155,14 @@ public class PermissionService {
         return permissionRepository.save(existing);
     }
 
+    @Audited(
+            action = AuditAction.DELETE,
+            entityName = AuditEntityNames.PERMISSION,
+            description = "Deleted permission",
+            captureNewValue = false
+    )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!permissionRepository.existsById(id)) {
             throw new ResourceNotFoundException("Permission not found with id: " + id);

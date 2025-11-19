@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.RolePermissionDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionCreateDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionResponseDto;
+import de.unipassau.allocationsystem.dto.rolepermission.RolePermissionUpdateDto;
 import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.entity.RolePermission;
@@ -15,57 +17,94 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RolePermissionMapper {
+public class RolePermissionMapper implements BaseMapper<RolePermission, RolePermissionCreateDto, RolePermissionUpdateDto, RolePermissionResponseDto> {
+
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
 
-    public RolePermission toEntity(RolePermissionDto dto) {
-        if (dto == null) {
+    @Override
+    public RolePermission toEntityCreate(RolePermissionCreateDto createDto) {
+        if (createDto == null) {
             return null;
         }
 
-        Role role = roleRepository.findById(dto.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + dto.getRoleId()));
+        Role role = roleRepository.findById(createDto.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + createDto.getRoleId()));
+        Permission permission = permissionRepository.findById(createDto.getPermissionId())
+                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + createDto.getPermissionId()));
 
-        Permission permission = permissionRepository.findById(dto.getPermissionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + dto.getPermissionId()));
-
-        RolePermission rolePermission = new RolePermission();
-        rolePermission.setId(dto.getId());
-        rolePermission.setRole(role);
-        rolePermission.setPermission(permission);
-        rolePermission.setAccessLevel(dto.getAccessLevel());
-        rolePermission.setCreatedAt(dto.getCreatedAt());
-        rolePermission.setUpdatedAt(dto.getUpdatedAt());
-
-        return rolePermission;
+        RolePermission entity = new RolePermission();
+        entity.setRole(role);
+        entity.setPermission(permission);
+        entity.setAccessLevel(createDto.getAccessLevel());
+        return entity;
     }
 
-    public RolePermissionDto toDto(RolePermission entity) {
+    @Override
+    public RolePermission toEntityUpdate(RolePermissionUpdateDto updateDto) {
+        // This finds entities only by ID if using in PATCH-style. Otherwise, use in-place update method.
+        // Here just create a partial entity
+        RolePermission entity = new RolePermission();
+        if (updateDto.getRoleId() != null) {
+            Role role = roleRepository.findById(updateDto.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + updateDto.getRoleId()));
+            entity.setRole(role);
+        }
+        if (updateDto.getPermissionId() != null) {
+            Permission permission = permissionRepository.findById(updateDto.getPermissionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + updateDto.getPermissionId()));
+            entity.setPermission(permission);
+        }
+        if (updateDto.getAccessLevel() != null) {
+            entity.setAccessLevel(updateDto.getAccessLevel());
+        }
+        return entity;
+    }
+
+    @Override
+    public RolePermissionResponseDto toResponseDto(RolePermission entity) {
         if (entity == null) {
             return null;
         }
-
-        RolePermissionDto dto = new RolePermissionDto();
-        dto.setId(entity.getId());
-        dto.setRoleId(entity.getRole().getId());
-        dto.setPermissionId(entity.getPermission().getId());
-        dto.setAccessLevel(entity.getAccessLevel());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setRoleTitle(entity.getRole().getTitle());
-        dto.setPermissionTitle(entity.getPermission().getTitle());
-
-        return dto;
+        return new RolePermissionResponseDto(
+                entity.getId(),
+                entity.getRole().getId(),
+                entity.getPermission().getId(),
+                entity.getAccessLevel(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
+                entity.getRole().getTitle(),
+                entity.getPermission().getTitle()
+        );
     }
 
-    public List<RolePermissionDto> toDtoList(List<RolePermission> entities) {
+    @Override
+    public List<RolePermissionResponseDto> toResponseDtoList(List<RolePermission> entities) {
         if (entities == null) {
             return null;
         }
-        
         return entities.stream()
-                .map(this::toDto)
+                .map(this::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(RolePermissionUpdateDto updateDto, RolePermission entity) {
+        if (updateDto == null || entity == null) {
+            return;
+        }
+        if (updateDto.getRoleId() != null) {
+            Role role = roleRepository.findById(updateDto.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + updateDto.getRoleId()));
+            entity.setRole(role);
+        }
+        if (updateDto.getPermissionId() != null) {
+            Permission permission = permissionRepository.findById(updateDto.getPermissionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + updateDto.getPermissionId()));
+            entity.setPermission(permission);
+        }
+        if (updateDto.getAccessLevel() != null) {
+            entity.setAccessLevel(updateDto.getAccessLevel());
+        }
     }
 }

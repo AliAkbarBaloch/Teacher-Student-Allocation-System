@@ -1,11 +1,12 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.AuditLogDto;
-import de.unipassau.allocationsystem.dto.AuditLogStatsDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogStatsDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.mapper.AuditLogMapper;
-import de.unipassau.allocationsystem.service.AuditLogService;
+import de.unipassau.allocationsystem.service.audit.AuditLogExportService;
+import de.unipassau.allocationsystem.service.audit.AuditLogQueryService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,11 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +41,8 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "bearerAuth")
 public class AuditLogController {
 
-    private final AuditLogService auditLogService;
+    private final AuditLogQueryService queryService;
+    private final AuditLogExportService exportService;
     private final AuditLogMapper auditLogMapper;
 
     /**
@@ -53,8 +51,8 @@ public class AuditLogController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-        summary = "Get audit logs", 
-        description = "Retrieve audit logs with optional filtering and pagination. Admin access required."
+            summary = "Get audit logs",
+            description = "Retrieve audit logs with optional filtering and pagination. Admin access required."
     )
     public ResponseEntity<Page<AuditLogDto>> getAuditLogs(
         @Parameter(description = "User ID to filter by") 
@@ -84,17 +82,11 @@ public class AuditLogController {
         @Parameter(description = "Sort direction (ASC or DESC)") 
         @RequestParam(defaultValue = "DESC") String sortDirection
     ) {
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC") 
-            ? Sort.Direction.ASC 
-            : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = createPageable(page, size, sortBy, sortDirection);
+        Page<AuditLog> auditLogs = queryService.getAuditLogs(
+                userId, action, targetEntity, startDate, endDate, pageable);
 
-        Page<AuditLog> auditLogs = auditLogService.getAuditLogs(
-            userId, action, targetEntity, startDate, endDate, pageable
-        );
-
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
-        return ResponseEntity.ok(auditLogDtos);
+        return ResponseEntity.ok(auditLogs.map(auditLogMapper::toDto));
     }
 
     /**
@@ -112,9 +104,10 @@ public class AuditLogController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventTimestamp"));
-        Page<AuditLog> auditLogs = auditLogService.getAuditLogsForEntity(entityName, recordId, pageable);
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
+        Pageable pageable = createPageable(page, size, "eventTimestamp", "DESC");
+        Page<AuditLogDto> auditLogDtos = queryService
+                .getAuditLogsForEntity(entityName, recordId, pageable)
+                .map(auditLogMapper::toDto);
 
         return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
@@ -125,7 +118,7 @@ public class AuditLogController {
     @GetMapping("/user/{userIdentifier}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-        summary = "Get audit logs for user", 
+        summary = "Get audit logs for user",
         description = "Retrieve all audit logs for a specific user. Admin access required."
     )
     public ResponseEntity<?> getAuditLogsForUser(
@@ -133,9 +126,10 @@ public class AuditLogController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventTimestamp"));
-        Page<AuditLog> auditLogs = auditLogService.getAuditLogsForUser(userIdentifier, pageable);
-        Page<AuditLogDto> auditLogDtos = auditLogs.map(auditLogMapper::toDto);
+        Pageable pageable = createPageable(page, size, "eventTimestamp", "DESC");
+        Page<AuditLogDto> auditLogDtos = queryService
+                .getAuditLogsForUser(userIdentifier, pageable)
+                .map(auditLogMapper::toDto);
 
         return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
@@ -150,10 +144,10 @@ public class AuditLogController {
         description = "Retrieve the 100 most recent audit logs for monitoring. Admin access required."
     )
     public ResponseEntity<?> getRecentAuditLogs() {
-        List<AuditLog> auditLogs = auditLogService.getRecentAuditLogs();
-        List<AuditLogDto> auditLogDtos = auditLogs.stream()
-            .map(auditLogMapper::toDto)
-            .collect(Collectors.toList());
+        List<AuditLogDto> auditLogDtos = queryService.getRecentAuditLogs()
+                .stream()
+                .map(auditLogMapper::toDto)
+                .collect(Collectors.toList());
 
         return ResponseHandler.success("Audit logs retrieved successfully", auditLogDtos);
     }
@@ -175,18 +169,17 @@ public class AuditLogController {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
         AuditLogStatsDto stats = AuditLogStatsDto.builder()
-            .actionStatistics(auditLogService.getActionStatistics(startDate, endDate))
-            .entityStatistics(auditLogService.getEntityStatistics(startDate, endDate))
-            .userActivityStatistics(auditLogService.getUserActivityStatistics(startDate, endDate))
-            .build();
+                .actionStatistics(queryService.getActionStatistics(startDate, endDate))
+                .entityStatistics(queryService.getEntityStatistics(startDate, endDate))
+                .userActivityStatistics(queryService.getUserActivityStatistics(startDate, endDate))
+                .build();
 
-        // Calculate total
         long total = stats.getActionStatistics().values().stream()
-            .mapToLong(Long::longValue)
-            .sum();
+                .mapToLong(Long::longValue)
+                .sum();
         stats.setTotalLogs(total);
 
-        return ResponseHandler.success("Audit logs retrieved successfully", stats);
+        return ResponseHandler.success("Statistics retrieved successfully", stats);
     }
 
     /**
@@ -207,38 +200,17 @@ public class AuditLogController {
         @RequestParam(defaultValue = "1000") int maxRecords
     ) {
         try {
-            Pageable pageable = PageRequest.of(0, maxRecords, Sort.by(Sort.Direction.DESC, "eventTimestamp"));
-            Page<AuditLog> auditLogs = auditLogService.getAuditLogs(
-                userId, action, targetEntity, startDate, endDate, pageable
-            );
+            Pageable pageable = PageRequest.of(0, maxRecords,
+                    Sort.by(Sort.Direction.DESC, "eventTimestamp"));
+            Page<AuditLog> auditLogs = queryService.getAuditLogs(
+                    userId, action, targetEntity, startDate, endDate, pageable);
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            PrintWriter writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
-
-            // Write CSV header
-            writer.println("ID,User,Event Time,Action,Target Entity,Target Record ID,Description,IP Address");
-
-            // Write data rows
-            for (AuditLog log : auditLogs.getContent()) {
-                writer.printf("%d,%s,%s,%s,%s,%s,%s,%s%n",
-                    log.getId(),
-                    escapeCSV(log.getUserIdentifier()),
-                    log.getEventTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                    log.getAction().name(),
-                    escapeCSV(log.getTargetEntity()),
-                    escapeCSV(log.getTargetRecordId()),
-                    escapeCSV(log.getDescription()),
-                    escapeCSV(log.getIpAddress())
-                );
-            }
-
-            writer.flush();
-            byte[] csvBytes = outputStream.toByteArray();
+            byte[] csvBytes = exportService.exportToCsv(auditLogs.getContent());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("text/csv"));
-            headers.setContentDispositionFormData("attachment", 
-                "audit-logs-" + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + ".csv");
+            headers.setContentDispositionFormData("attachment",
+                    exportService.generateFileName());
             headers.setContentLength(csvBytes.length);
 
             return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
@@ -247,15 +219,10 @@ public class AuditLogController {
         }
     }
 
-    // Helper methods
-
-    private String escapeCSV(String value) {
-        if (value == null) {
-            return "";
-        }
-        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
+    private Pageable createPageable(int page, int size, String sortBy, String sortDirection) {
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        return PageRequest.of(page, size, Sort.by(direction, sortBy));
     }
 }

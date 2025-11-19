@@ -1,7 +1,11 @@
 package de.unipassau.allocationsystem;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.unipassau.allocationsystem.dto.*;
+import de.unipassau.allocationsystem.dto.auth.LoginRequestDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordChangeRequestDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordForgotRequestDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetRequestDto;
+import de.unipassau.allocationsystem.dto.user.UserProfileUpdateRequest;
 import de.unipassau.allocationsystem.entity.PasswordResetToken;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.PasswordResetTokenRepository;
