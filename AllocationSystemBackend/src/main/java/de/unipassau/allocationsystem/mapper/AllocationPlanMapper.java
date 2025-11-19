@@ -1,7 +1,7 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.AllocationPlanResponseDto;
-import de.unipassau.allocationsystem.dto.AllocationPlanUpdateDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import org.springframework.stereotype.Component;
 

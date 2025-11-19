@@ -1,9 +1,9 @@
 package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.dto.AllocationPlanCreateDto;
-import de.unipassau.allocationsystem.dto.AllocationPlanResponseDto;
-import de.unipassau.allocationsystem.dto.AllocationPlanUpdateDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
