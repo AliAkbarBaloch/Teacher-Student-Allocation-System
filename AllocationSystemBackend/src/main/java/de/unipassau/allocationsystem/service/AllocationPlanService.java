@@ -4,10 +4,12 @@ import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.constant.PlanChangeTypes;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -25,6 +27,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Map;
 
@@ -41,6 +46,7 @@ public class AllocationPlanService {
     private final AcademicYearRepository academicYearRepository;
     private final UserRepository userRepository;
     private final AllocationPlanMapper allocationPlanMapper;
+    private final PlanChangeLogService planChangeLogService;
 
     /**
      * Get all allocation plans with filtering and pagination.
@@ -108,7 +114,7 @@ public class AllocationPlanService {
      */
     @Audited(
         action = AuditAction.CREATE,
-        entityName = "ALLOCATION_PLAN",
+        entityName = AuditEntityNames.ALLOCATION_PLAN,
         description = "Created new allocation plan",
         captureNewValue = true
     )
@@ -159,6 +165,22 @@ public class AllocationPlanService {
         AllocationPlan saved = allocationPlanRepository.save(plan);
         log.info("Allocation plan created successfully with ID: {}", saved.getId());
 
+        // Log plan creation in plan change log
+        try {
+                planChangeLogService.logPlanChange(
+                    saved.getId(),
+                    createdByUser.getId(),
+                    PlanChangeTypes.CREATE,
+                    AuditEntityNames.ALLOCATION_PLAN,
+                    saved.getId(),
+                    null,
+                    allocationPlanMapper.toResponseDto(saved),
+                    "Created allocation plan"
+                );
+        } catch (Exception e) {
+            log.warn("Failed to create plan change log for created plan id {}", saved.getId(), e);
+        }
+
         return allocationPlanMapper.toResponseDto(saved);
     }
 
@@ -167,7 +189,7 @@ public class AllocationPlanService {
      */
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "ALLOCATION_PLAN",
+        entityName = AuditEntityNames.ALLOCATION_PLAN,
         description = "Updated allocation plan",
         captureNewValue = true
     )
@@ -201,11 +223,32 @@ public class AllocationPlanService {
                     plan.getAcademicYear().getId(), id);
         }
 
+        // Capture old state
+        var oldDto = allocationPlanMapper.toResponseDto(plan);
+
         // Update the plan
         allocationPlanMapper.updateEntityFromDto(plan, updateDto);
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
         log.info("Allocation plan updated successfully with ID: {}", updated.getId());
+
+        // Log update
+        try {
+            Long currentUserId = resolveCurrentUserId();
+                planChangeLogService.logPlanChange(
+                    updated.getId(),
+                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    PlanChangeTypes.UPDATE,
+                    AuditEntityNames.ALLOCATION_PLAN,
+                    updated.getId(),
+                    oldDto,
+                    allocationPlanMapper.toResponseDto(updated),
+                    "Updated allocation plan"
+                );
+        } catch (Exception e) {
+            log.warn("Failed to create plan change log for updated plan id {}", updated.getId(), e);
+        }
+
         return allocationPlanMapper.toResponseDto(updated);
     }
 
@@ -215,7 +258,7 @@ public class AllocationPlanService {
      */
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "ALLOCATION_PLAN",
+        entityName = AuditEntityNames.ALLOCATION_PLAN,
         description = "Set allocation plan as current",
         captureNewValue = true
     )
@@ -242,7 +285,24 @@ public class AllocationPlanService {
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
         log.info("Allocation plan ID: {} set as current for year ID: {}", 
-                id, plan.getAcademicYear().getId());
+            id, plan.getAcademicYear().getId());
+
+        // Log status change
+        try {
+            Long currentUserId = resolveCurrentUserId();
+                planChangeLogService.logPlanChange(
+                    updated.getId(),
+                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    PlanChangeTypes.STATUS_CHANGE,
+                    AuditEntityNames.ALLOCATION_PLAN,
+                    updated.getId(),
+                    "isCurrent=false",
+                    "isCurrent=true",
+                    "Set as current plan"
+                );
+        } catch (Exception e) {
+            log.warn("Failed to create plan change log for setCurrent plan id {}", updated.getId(), e);
+        }
 
         return allocationPlanMapper.toResponseDto(updated);
     }
@@ -253,7 +313,7 @@ public class AllocationPlanService {
      */
     @Audited(
         action = AuditAction.UPDATE,
-        entityName = "ALLOCATION_PLAN",
+        entityName = AuditEntityNames.ALLOCATION_PLAN,
         description = "Archived allocation plan",
         captureNewValue = true
     )
@@ -279,7 +339,44 @@ public class AllocationPlanService {
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
         log.info("Allocation plan archived successfully with ID: {}", id);
+
+        // Log status change to ARCHIVED
+        try {
+            Long currentUserId = resolveCurrentUserId();
+                planChangeLogService.logPlanChange(
+                    updated.getId(),
+                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    PlanChangeTypes.STATUS_CHANGE,
+                    AuditEntityNames.ALLOCATION_PLAN,
+                    updated.getId(),
+                    "status=" + plan.getStatus(),
+                    "status=" + AllocationPlan.PlanStatus.ARCHIVED,
+                    "Archived allocation plan"
+                );
+        } catch (Exception e) {
+            log.warn("Failed to create plan change log for archived plan id {}", updated.getId(), e);
+        }
+
         return allocationPlanMapper.toResponseDto(updated);
+    }
+
+    private Long resolveCurrentUserId() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() != null) {
+                Object principal = authentication.getPrincipal();
+                if (principal instanceof User) {
+                    return ((User) principal).getId();
+                }
+                if (principal instanceof UserDetails) {
+                    String username = ((UserDetails) principal).getUsername();
+                    return userRepository.findByEmail(username).map(u -> u.getId()).orElse(null);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Could not resolve current user id", e);
+        }
+        return null;
     }
 
     /**

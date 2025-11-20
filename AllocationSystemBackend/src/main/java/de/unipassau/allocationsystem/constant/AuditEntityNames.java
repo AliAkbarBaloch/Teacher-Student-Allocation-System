@@ -18,6 +18,7 @@ public final class AuditEntityNames {
     public static final String TEACHER_FORM_SUBMISSION = "TEACHER_FORM_SUBMISSION";
     public static final String ALLOCATION_PLAN = "ALLOCATION_PLAN";
     public static final String ZONE_CONSTRAINT = "ZONE_CONSTRAINT";
+    public static final String PLAN_CHANGE_LOG = "PLAN_CHANGE_LOG";
 
 
     // Report
