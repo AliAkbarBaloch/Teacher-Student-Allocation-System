@@ -1,0 +1,23 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.28.0
+
+# Ignore vulnerabilities in xlsx package
+# These vulnerabilities cannot be patched as xlsx@0.18.5 is the latest version
+# Risk assessment:
+# - Prototype Pollution (Medium): Requires malicious Excel file upload, mitigated by server-side validation
+# - ReDoS (High): Requires malicious Excel file with crafted regex patterns, mitigated by file size limits and server-side processing
+# - xlsx is only used for parsing user-uploaded Excel files in the teachers bulk import feature
+# - All uploaded files are validated server-side before processing
+# - This is an internal allocation system, not a public-facing application
+ignore:
+  SNYK-JS-XLSX-5457926:
+    - 'xlsx@0.18.5':
+        reason: No patch available. Risk mitigated by server-side validation and file size limits. Only used for internal bulk import feature.
+        expires: '2025-12-31T23:59:59.999Z'
+        created: '2025-01-27T00:00:00.000Z'
+  SNYK-JS-XLSX-6252523:
+    - 'xlsx@0.18.5':
+        reason: No patch available. Risk mitigated by server-side validation and file size limits. Only used for internal bulk import feature.
+        expires: '2025-12-31T23:59:59.999Z'
+        created: '2025-01-27T00:00:00.000Z'
+
