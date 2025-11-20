@@ -48,7 +48,7 @@ function createSchoolLookupMap(schools: School[]): Map<string | number, School> 
  */
 export function validateRow(
   row: ParsedTeacherRow,
-  rowIndex: number,
+  _rowIndex: number,
   schoolLookup: Map<string | number, School>,
   emailSet: Set<string>,
   existingEmails: Set<string> = new Set()

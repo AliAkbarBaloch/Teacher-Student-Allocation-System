@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { TeacherService } from "../services/teacherService";
-import type { Teacher } from "../types/teacher.types";
+import type { Teacher, EmploymentStatus } from "../types/teacher.types";
 import { usePagination } from "@/hooks/usePagination";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 type TeachersDataFilters = {
   search?: string;
   schoolId?: number;
-  employmentStatus?: string;
+  employmentStatus?: EmploymentStatus;
   isActive?: boolean;
 };
 

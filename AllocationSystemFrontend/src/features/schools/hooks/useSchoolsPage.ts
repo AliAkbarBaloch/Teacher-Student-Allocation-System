@@ -235,10 +235,6 @@ export function useSchoolsPage() {
     setDeleteTarget(school);
     setIsDeleteSubmitting(true);
     try {
-      // Optimistic update
-      const originalSchools = [...schools];
-      setSchools((prev) => prev.filter((s) => s.id !== school.id));
-
       await SchoolService.delete(school.id);
       toast.success(t("notifications.deleteSuccess"));
       setDeleteTarget(null);
@@ -258,7 +254,7 @@ export function useSchoolsPage() {
     } finally {
       setIsDeleteSubmitting(false);
     }
-  }, [schools, t, refreshList]);
+  }, [t, refreshList]);
 
   return {
     // Data

@@ -32,7 +32,7 @@ export const createSchoolsSlice = <T extends SchoolsSlice>(set: SetState<T>): Sc
       set({ schools: response.items || [], schoolsLoading: false } as Partial<T>);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load schools';
-      set({ schoolsError: message, schools: [], schoolsLoading: false } as Partial<T>);
+      set({ schoolsError: message, schools: [], schoolsLoading: false } as unknown as Partial<T>);
     }
   },
   refreshSchools: async () => {
@@ -48,7 +48,7 @@ export const createSchoolsSlice = <T extends SchoolsSlice>(set: SetState<T>): Sc
       set({ schools: response.items || [], schoolsLoading: false } as Partial<T>);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load schools';
-      set({ schoolsError: message, schools: [], schoolsLoading: false } as Partial<T>);
+      set({ schoolsError: message, schools: [], schoolsLoading: false } as unknown as Partial<T>);
     }
   },
 });

@@ -22,7 +22,7 @@ import { useSchoolForm } from "../hooks/useSchoolForm";
 import { useTranslation } from "react-i18next";
 
 // icons
-import { AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 type BaseSchoolFormProps = {
   onCancel: () => void;
@@ -51,7 +51,7 @@ export function SchoolForm(props: SchoolFormProps) {
       ? { mode, onSubmit, school: props.school, t }
       : ({ mode, onSubmit, t } as const);
 
-  const { formState, errors, generalError, typeOptions, handleInputChange, handleDistanceChange, handleSubmit, internalSubmitting, distanceAutoCalculated } =
+  const { formState, errors, generalError, typeOptions, handleInputChange, handleSubmit, internalSubmitting } =
     useSchoolForm(hookProps);
 
   return (
