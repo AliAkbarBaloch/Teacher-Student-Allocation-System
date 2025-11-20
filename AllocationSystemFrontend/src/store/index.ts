@@ -1,14 +1,16 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { createUISlice, type UISlice } from './slices/uiSlice';
+import { createSchoolsSlice, type SchoolsSlice } from './slices/schoolsSlice';
 
-type RootStore = UISlice;
+type RootStore = UISlice & SchoolsSlice;
 
 export const useAppStore = create<RootStore>()(
   devtools(
     persist(
       (set) => ({
         ...createUISlice<RootStore>(set),
+        ...createSchoolsSlice<RootStore>(set),
       }),
       {
         name: 'app-store',
@@ -20,5 +22,8 @@ export const useAppStore = create<RootStore>()(
     { name: 'AppStore' }
   )
 );
+
+// Initialize schools on store creation
+useAppStore.getState().loadSchools();
 
 

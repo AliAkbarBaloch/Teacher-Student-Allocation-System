@@ -11,6 +11,8 @@ import type {
 } from "../types/school.types";
 import { isApiError } from "../types/school.types";
 import { createSchoolTypeOptions } from "../utils/schoolOptions";
+import { calculateDistanceFromUniversity } from "@/lib/utils/geoUtils";
+import { DISTANCE_DECIMAL_PLACES } from "@/lib/constants/app";
 
 type FormState = {
   schoolName: string;
@@ -91,12 +93,45 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
   const [errors, setErrors] = useState<SchoolFormErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [internalSubmitting, setInternalSubmitting] = useState(false);
+  const [distanceAutoCalculated, setDistanceAutoCalculated] = useState(false);
 
   useEffect(() => {
     setFormState(initialState);
     setErrors({});
     setGeneralError(null);
   }, [initialState]);
+
+  // Auto-calculate distance from center when latitude or longitude changes
+  useEffect(() => {
+    // Only auto-calculate in create mode or if distance is empty in edit mode
+    const currentDistance = formState.distanceFromCenter;
+    if (isEditMode && currentDistance) {
+      return; // Don't override existing distance in edit mode
+    }
+
+    const distance = calculateDistanceFromUniversity(formState.latitude, formState.longitude);
+    if (distance !== null) {
+      const newDistance = distance.toFixed(DISTANCE_DECIMAL_PLACES);
+      // Only update if the value actually changed to avoid infinite loops
+      if (currentDistance !== newDistance) {
+        setFormState((prev) => ({
+          ...prev,
+          distanceFromCenter: newDistance,
+        }));
+        setDistanceAutoCalculated(true);
+        // Clear the indicator after 3 seconds
+        setTimeout(() => setDistanceAutoCalculated(false), 3000);
+      }
+    } else if (formState.latitude === "" && formState.longitude === "" && currentDistance !== "") {
+      // Clear distance if both coordinates are empty
+      setFormState((prev) => ({
+        ...prev,
+        distanceFromCenter: "",
+      }));
+      setDistanceAutoCalculated(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState.latitude, formState.longitude, isEditMode]);
 
   const baseTypeOptions = useMemo(() => createSchoolTypeOptions(t), [t]);
 
@@ -240,15 +275,23 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
     [buildBasePayload, isEditMode, onSubmit, t, validate]
   );
 
+  // Reset auto-calculated indicator when user manually changes distance
+  const handleDistanceChange = useCallback((value: string) => {
+    setDistanceAutoCalculated(false);
+    handleInputChange("distanceFromCenter", value);
+  }, [handleInputChange]);
+
   return {
     formState,
     errors,
     generalError,
     typeOptions,
     handleInputChange,
+    handleDistanceChange,
     handleSubmit,
     internalSubmitting,
     isEditMode,
+    distanceAutoCalculated,
   };
 }
 

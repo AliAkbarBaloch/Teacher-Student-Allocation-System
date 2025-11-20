@@ -39,7 +39,9 @@
     "edit": "Bearbeiten",
     "activate": "Aktivieren",
     "deactivate": "Deaktivieren",
-    "cancel": "Abbrechen"
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "openMenu": "Menü öffnen"
   },
   "status": {
     "active": "Aktiv",
@@ -55,7 +57,7 @@
       "edit": "Schule bearbeiten",
       "view": "Schuldetails"
     },
-    "description": "Alle Änderungen werden im Audit-Log protokolliert.",
+    "description": "Vollständige Details und Informationen zu dieser Schule anzeigen.",
     "fields": {
       "schoolName": "Schulname",
       "schoolType": "Schultyp",
@@ -105,7 +107,14 @@
     "createSuccess": "Schule wurde angelegt.",
     "updateSuccess": "Schule wurde aktualisiert.",
     "activateSuccess": "Schule wurde aktiviert.",
-    "deactivateSuccess": "Schule wurde deaktiviert."
+    "deactivateSuccess": "Schule wurde deaktiviert.",
+    "deleteSuccess": "Schule wurde gelöscht."
+  },
+  "delete": {
+    "title": "Schule löschen",
+    "description": "Möchten Sie diese Schule wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen"
   },
   "errors": {
     "load": "Schulen konnten nicht geladen werden.",
