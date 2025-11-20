@@ -1,8 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.dto.AllocationPlanCreateDto;
-import de.unipassau.allocationsystem.dto.AllocationPlanResponseDto;
-import de.unipassau.allocationsystem.dto.AllocationPlanUpdateDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.service.AllocationPlanService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;

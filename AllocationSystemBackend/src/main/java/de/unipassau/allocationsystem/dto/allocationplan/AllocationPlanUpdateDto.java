@@ -1,4 +1,4 @@
-package de.unipassau.allocationsystem.dto;
+package de.unipassau.allocationsystem.dto.allocationplan;
 
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import jakarta.validation.constraints.Size;
