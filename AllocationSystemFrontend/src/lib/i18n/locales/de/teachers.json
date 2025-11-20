@@ -1,0 +1,149 @@
+{
+  "title": "Lehrer",
+  "subtitle": "Lehrerprofile verwalten und Schulen zuordnen.",
+  "table": {
+    "columns": {
+      "name": "Name",
+      "email": "E-Mail",
+      "schoolName": "Schulname",
+      "employmentStatus": "Beschäftigungsstatus",
+      "isPartTime": "Teilzeit",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "empty": "Keine Lehrer entsprechen den ausgewählten Filtern.",
+    "loading": "Lehrer werden geladen...",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "filters": {
+    "title": "Filter",
+    "subtitle": "Lehrerdatensätze durchsuchen und verfeinern.",
+    "searchLabel": "Suchen",
+    "searchPlaceholder": "Nach Name oder E-Mail suchen",
+    "schoolLabel": "Schule",
+    "schoolPlaceholder": "Alle Schulen",
+    "loadingSchools": "Schulen werden geladen...",
+    "employmentStatusLabel": "Beschäftigungsstatus",
+    "employmentStatusPlaceholder": "Alle Status",
+    "statusLabel": "Status",
+    "statusAll": "Alle",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "reset": "Filter zurücksetzen"
+  },
+  "actions": {
+    "create": "Neuen Lehrer erstellen",
+    "view": "Anzeigen",
+    "edit": "Bearbeiten",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "openMenu": "Menü öffnen"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "activateTitle": "Lehrer aktivieren",
+    "activateDescription": "Aktivierte Lehrer können Zuteilungsplänen zugewiesen werden.",
+    "deactivateTitle": "Lehrer deaktivieren",
+    "deactivateDescription": "Inaktive Lehrer erscheinen nicht mehr in Zuteilungen, bis sie reaktiviert werden.",
+    "warning": "Warnung"
+  },
+  "delete": {
+    "title": "Lehrer löschen",
+    "description": "Sind Sie sicher, dass Sie diesen Lehrer löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen"
+  },
+  "form": {
+    "title": {
+      "create": "Lehrer erstellen",
+      "edit": "Lehrer bearbeiten",
+      "view": "Lehrerdetails"
+    },
+    "description": "Vollständige Details und Informationen zu diesem Lehrer anzeigen.",
+    "loadingSchools": "Schulen werden geladen...",
+    "fields": {
+      "school": "Schule",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "isPartTime": "Teilzeit",
+      "employmentStatus": "Beschäftigungsstatus",
+      "usageCycle": "Nutzungszyklus",
+      "isActive": "Aktiv"
+    },
+    "placeholders": {
+      "school": "Schule auswählen",
+      "firstName": "z.B. Max",
+      "lastName": "z.B. Mustermann",
+      "email": "max.mustermann@beispiel.de",
+      "phone": "+49 123 456789",
+      "employmentStatus": "Beschäftigungsstatus auswählen",
+      "usageCycle": "Nutzungszyklus auswählen (optional)"
+    },
+    "helpers": {
+      "isPartTime": "Aktivieren, wenn der Lehrer in Teilzeit arbeitet.",
+      "isActive": "Nur aktive Lehrer können Zuteilungsplänen zugewiesen werden."
+    },
+    "employmentStatus": {
+      "FULL_TIME": "Vollzeit",
+      "PART_TIME": "Teilzeit",
+      "ON_LEAVE": "Beurlaubt",
+      "CONTRACT": "Vertrag",
+      "PROBATION": "Probezeit",
+      "RETIRED": "Pensioniert"
+    },
+    "usageCycle": {
+      "SEMESTER_1": "Semester 1",
+      "SEMESTER_2": "Semester 2",
+      "FULL_YEAR": "Ganzes Jahr",
+      "QUARTERLY": "Vierteljährlich"
+    },
+    "errors": {
+      "schoolIdRequired": "Schule ist erforderlich.",
+      "schoolIdInvalid": "Bitte wählen Sie eine gültige Schule aus.",
+      "schoolsLoadFailed": "Schulen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "firstNameRequired": "Vorname ist erforderlich.",
+      "firstNameLength": "Vorname muss zwischen 2 und 100 Zeichen lang sein.",
+      "lastNameRequired": "Nachname ist erforderlich.",
+      "lastNameLength": "Nachname muss zwischen 2 und 100 Zeichen lang sein.",
+      "emailRequired": "E-Mail ist erforderlich.",
+      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "phoneInvalid": "Geben Sie eine gültige Telefonnummer ein.",
+      "employmentStatusRequired": "Beschäftigungsstatus ist erforderlich.",
+      "partTimeConflict": "Teilzeitstatus steht im Widerspruch zum Vollzeit-Beschäftigungsstatus.",
+      "submit": "Lehrer konnte nicht gespeichert werden. Bitte überprüfen Sie die Fehler und versuchen Sie es erneut."
+    },
+    "actions": {
+      "create": "Erstellen",
+      "update": "Aktualisieren",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen"
+    }
+  },
+  "notifications": {
+    "createSuccess": "Lehrer erfolgreich erstellt.",
+    "updateSuccess": "Lehrer erfolgreich aktualisiert.",
+    "activateSuccess": "Lehrer aktiviert.",
+    "deactivateSuccess": "Lehrer deaktiviert.",
+    "deleteSuccess": "Lehrer erfolgreich gelöscht."
+  },
+  "errors": {
+    "load": "Lehrer konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "submit": "Lehrer konnte nicht gespeichert werden. Bitte überprüfen Sie die Fehler und versuchen Sie es erneut."
+  },
+  "permissions": {
+    "readOnlyTitle": "Nur-Lese-Zugriff",
+    "readOnlyDescription": "Sie können Lehrerdaten einsehen, aber nur Administratoren können Datensätze erstellen oder ändern."
+  },
+  "pagination": {
+    "display": "Zeige {{from}}-{{to}} von {{total}} Lehrern",
+    "pageSize": "Zeilen pro Seite",
+    "pageSizeShort": "Zeilen"
+  }
+}
+

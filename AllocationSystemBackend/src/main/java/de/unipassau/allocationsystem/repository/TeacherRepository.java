@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository for Teacher entity with support for dynamic queries.
@@ -58,4 +60,14 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>, JpaSpec
      * @return Count of teachers
      */
     long countByEmploymentStatus(EmploymentStatus employmentStatus);
+
+    /**
+     * Find all emails that exist in the database from the given set.
+     * Used for batch duplicate email checking during bulk import.
+     *
+     * @param emails Set of email addresses to check
+     * @return Set of emails that already exist in the database
+     */
+    @Query("SELECT t.email FROM Teacher t WHERE t.email IN :emails")
+    Set<String> findExistingEmails(@Param("emails") Set<String> emails);
 }
