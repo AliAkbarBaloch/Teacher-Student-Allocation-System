@@ -24,6 +24,17 @@ export class AuditLogService {
       const userId = await resolveUserSearch(filters.userSearch);
       if (userId) {
         resolvedFilters.userId = userId;
+      } else {
+        // User not found - return empty result set
+        return {
+          content: [],
+          totalElements: 0,
+          totalPages: 0,
+          size: filters.size || 20,
+          number: filters.page || 0,
+          first: true,
+          last: true,
+        };
       }
       // Remove userSearch from filters as it's not a valid query param
       delete resolvedFilters.userSearch;
@@ -104,6 +115,11 @@ export class AuditLogService {
       const userId = await resolveUserSearch(filters.userSearch);
       if (userId) {
         resolvedFilters.userId = userId;
+      } else {
+        // User not found - return empty CSV blob
+        return new Blob(["No audit logs found for the specified user."], {
+          type: "text/csv",
+        });
       }
       // Remove userSearch from filters as it's not a valid query param
       delete resolvedFilters.userSearch;

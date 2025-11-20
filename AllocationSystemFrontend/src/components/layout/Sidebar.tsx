@@ -1,3 +1,7 @@
+// react
+import { useLocation, Link, Outlet } from "react-router-dom";
+
+// components
 import { AppSidebar } from "./AppSidebar"
 import { SidebarSkeleton } from "./SidebarSkeleton"
 import {
@@ -14,10 +18,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useLocation, Link } from "react-router-dom";
+
+// translations
 import { useTranslation } from "react-i18next";
+
+// config
 import { ROUTES } from "@/config/routes";
-import { Outlet } from "react-router-dom";
 import { ThemeToggle } from "../common/ThemeToggle";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -185,7 +191,7 @@ export default function Sidebar() {
             <ThemeToggle />
           </div>
         </header>
-        <div className="flex flex-1 flex-col overflow-auto p-4">
+        <div className="flex flex-1 flex-col overflow-auto p-4 min-w-0">
           <Outlet />
         </div>
       </SidebarInset>

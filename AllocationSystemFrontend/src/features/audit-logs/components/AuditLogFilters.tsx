@@ -22,6 +22,18 @@ import { formatDateForInput, parseDateInput } from "@/lib/utils/date";
 // hooks
 import { useDebounce } from "@/hooks/useDebounce";
 
+/**
+ * Formats a string to title case (first letter capitalized, rest lowercase)
+ * Handles underscores by converting them to spaces
+ * Examples: "CREATE" -> "Create", "LOGIN_FAILED" -> "Login Failed"
+ */
+function formatToTitleCase(value: string): string {
+  return value
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 interface AuditLogFiltersProps {
   filters: AuditLogFiltersType;
   onFiltersChange: (filters: AuditLogFiltersType) => void;
@@ -173,7 +185,7 @@ export function AuditLogFilters({
               <SelectItem value="all">{t("filters.allActions")}</SelectItem>
               {availableActions.map((action) => (
                 <SelectItem key={action} value={action}>
-                  {action}
+                  {formatToTitleCase(action)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -197,7 +209,7 @@ export function AuditLogFilters({
               <SelectItem value="all">{t("filters.allEntities")}</SelectItem>
               {availableEntities.map((entity) => (
                 <SelectItem key={entity} value={entity}>
-                  {entity}
+                  {formatToTitleCase(entity)}
                 </SelectItem>
               ))}
             </SelectContent>
