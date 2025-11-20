@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SchoolLocationMap } from "./SchoolLocationMap";
 
 // types
 import type { CreateSchoolRequest, School, SchoolType, UpdateSchoolRequest } from "../types/school.types";
@@ -164,6 +165,11 @@ export function SchoolForm(props: SchoolFormProps) {
             disabled={isSubmitting || internalSubmitting}
             className={errors.distanceFromCenter ? "border-destructive" : ""}
           />
+          {mode === "create" && (
+            <p className="text-xs text-muted-foreground">
+              Distance is automatically calculated from University of Passau. You can edit this value if needed.
+            </p>
+          )}
           {errors.distanceFromCenter && (
             <p className="text-sm text-destructive">{errors.distanceFromCenter}</p>
           )}
@@ -227,6 +233,22 @@ export function SchoolForm(props: SchoolFormProps) {
         />
         {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
       </div>
+
+      {/* Location Map - shown in all modes */}
+      {(formState.latitude || formState.longitude) && (
+        <div className="space-y-2">
+          <Label>Location Map</Label>
+          <SchoolLocationMap
+            latitude={formState.latitude}
+            longitude={formState.longitude}
+            schoolName={formState.schoolName || "School Location"}
+            className="w-full"
+          />
+          <p className="text-xs text-muted-foreground">
+            The map shows the school location and University of Passau for reference
+          </p>
+        </div>
+      )}
 
       {mode === "create" && (
         <div className="flex items-center gap-2 rounded-md border border-muted px-4 py-3">

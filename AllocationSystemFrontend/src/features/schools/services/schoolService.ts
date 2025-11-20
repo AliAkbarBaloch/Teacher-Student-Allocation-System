@@ -20,13 +20,13 @@ export class SchoolService {
     if (params.pageSize) query.set("pageSize", String(params.pageSize));
     if (params.sortBy) query.set("sortBy", params.sortBy);
     if (params.sortOrder) query.set("sortOrder", params.sortOrder);
-    if (params.search) query.set("search", params.search);
+    if (params.search) query.set("searchValue", params.search);
     if (params.schoolType) query.set("schoolType", params.schoolType);
     if (typeof params.zoneNumber === "number") query.set("zoneNumber", String(params.zoneNumber));
     if (typeof params.isActive === "boolean") query.set("isActive", String(params.isActive));
 
     const response = await apiClient.get<ApiResponse<PaginatedSchoolResponse>>(
-      `/schools${query.toString() ? `?${query.toString()}` : ""}`
+      `/schools/paginate${query.toString() ? `?${query.toString()}` : ""}`
     );
 
     return response.data;
@@ -54,6 +54,10 @@ export class SchoolService {
       body
     );
     return response.data;
+  }
+
+  static async delete(id: number): Promise<void> {
+    await apiClient.delete(`/schools/${id}`);
   }
 }
 

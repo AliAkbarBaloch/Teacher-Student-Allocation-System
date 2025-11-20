@@ -68,17 +68,26 @@ export default function AuditLogsPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [exporting, setExporting] = useState(false);
+  // Maintain a set of all entities encountered across all filter states
+  const [allAvailableEntities, setAllAvailableEntities] = useState<Set<string>>(new Set());
 
-  // Extract unique entities and actions from audit logs for filter options
-  const availableEntities = useMemo(() => {
-    const entities = new Set<string>();
-    auditLogs.forEach((log) => {
-      if (log.targetEntity) {
-        entities.add(log.targetEntity);
-      }
+  // Extract unique entities from current audit logs and merge with all encountered entities
+  useEffect(() => {
+    setAllAvailableEntities((prevEntities) => {
+      const entities = new Set<string>(prevEntities);
+      auditLogs.forEach((log) => {
+        if (log.targetEntity) {
+          entities.add(log.targetEntity);
+        }
+      });
+      return entities;
     });
-    return Array.from(entities).sort();
   }, [auditLogs]);
+
+  // Convert to sorted array for use in filters
+  const availableEntities = useMemo(() => {
+    return Array.from(allAvailableEntities).sort();
+  }, [allAvailableEntities]);
 
   // Available actions are static, no need for useMemo
   const availableActions = Object.values(AuditAction);

@@ -10,13 +10,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SchoolStatusBadge } from "@/features/schools/components/SchoolStatusBadge";
 // types
 import type { School } from "@/features/schools/types/school.types";
 import type { TFunction } from "i18next";
 
 // icons
-import { Eye, Loader2, Pencil, Power } from "lucide-react";
+import { Eye, Loader2, MoreHorizontal, Pencil, Power, Trash2, School2 } from "lucide-react";
 
 
 const TABLE_COLUMN_COUNT = 7;
@@ -30,6 +37,7 @@ interface SchoolsTableSectionProps {
   onViewSchool: (school: School) => void;
   onEditSchool: (school: School) => void;
   onToggleStatus: (school: School) => void;
+  onDeleteSchool: (school: School) => void;
 }
 
 export function SchoolsTableSection({
@@ -41,11 +49,15 @@ export function SchoolsTableSection({
   onViewSchool,
   onEditSchool,
   onToggleStatus,
+  onDeleteSchool,
 }: SchoolsTableSectionProps) {
+  // Ensure schools is always an array
+  const safeSchools = schools || [];
+  
   return (
-    <div className="border rounded-lg overflow-hidden">
-      <div className="relative overflow-x-auto">
-        {loading && schools.length > 0 && (
+    <div className="border rounded-lg overflow-hidden w-full">
+      <div className="relative overflow-x-auto w-full">
+        {loading && safeSchools.length > 0 && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/70 backdrop-blur-sm">
             <Loader2 className="h-6 w-6 animate-spin text-primary" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">{t("table.loading")}</p>
@@ -54,17 +66,17 @@ export function SchoolsTableSection({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[220px]">{t("table.columns.name")}</TableHead>
-              <TableHead className="min-w-[140px]">{t("table.columns.type")}</TableHead>
-              <TableHead className="min-w-[100px]">{t("table.columns.zone")}</TableHead>
-              <TableHead className="min-w-[180px]">{t("table.columns.contactEmail")}</TableHead>
-              <TableHead className="min-w-[150px]">{t("table.columns.contactPhone")}</TableHead>
-              <TableHead className="min-w-[120px]">{t("table.columns.status")}</TableHead>
-              <TableHead className="min-w-[200px]">{t("table.columns.actions")}</TableHead>
+              <TableHead className="w-[200px] max-w-[200px]">{t("table.columns.name")}</TableHead>
+              <TableHead className="w-[120px]">{t("table.columns.type")}</TableHead>
+              <TableHead className="w-[80px]">{t("table.columns.zone")}</TableHead>
+              <TableHead className="w-[180px] max-w-[180px]">{t("table.columns.contactEmail")}</TableHead>
+              <TableHead className="w-[140px]">{t("table.columns.contactPhone")}</TableHead>
+              <TableHead className="w-[100px]">{t("table.columns.status")}</TableHead>
+              <TableHead className="w-[80px]">{t("table.columns.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading && schools.length === 0 ? (
+            {loading && safeSchools.length === 0 ? (
               Array.from({ length: pageSize }).map((_, index) => (
                 <TableRow key={`skeleton-${index}`}>
                   {Array.from({ length: TABLE_COLUMN_COUNT }).map((__, cellIndex) => (
@@ -74,20 +86,34 @@ export function SchoolsTableSection({
                   ))}
                 </TableRow>
               ))
-            ) : schools.length === 0 ? (
+            ) : safeSchools.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={TABLE_COLUMN_COUNT} className="h-24 text-center">
-                  <p className="text-muted-foreground">{t("table.empty")}</p>
+                  <div className="flex flex-col items-center justify-center gap-3 py-8">
+                    <div className="rounded-full bg-muted p-4">
+                      <School2 className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">{t("table.empty")}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("table.emptyDescription", { defaultValue: "No schools found matching your filters." })}
+                      </p>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
-              schools.map((school) => (
+              safeSchools.map((school) => (
                 <TableRow key={school.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{school.schoolName}</p>
+                  <TableCell className="w-[200px] max-w-[200px]">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate" title={school.schoolName}>
+                        {school.schoolName}
+                      </p>
                       {school.address && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">{school.address}</p>
+                        <p className="text-xs text-muted-foreground truncate" title={school.address}>
+                          {school.address}
+                        </p>
                       )}
                     </div>
                   </TableCell>
@@ -97,11 +123,12 @@ export function SchoolsTableSection({
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">{school.zoneNumber}</TableCell>
-                  <TableCell>
+                  <TableCell className="w-[180px] max-w-[180px]">
                     {school.contactEmail ? (
                       <a
                         href={`mailto:${school.contactEmail}`}
-                        className="text-primary underline-offset-2 hover:underline break-word"
+                        className="text-primary underline-offset-2 hover:underline truncate block"
+                        title={school.contactEmail}
                       >
                         {school.contactEmail}
                       </a>
@@ -125,39 +152,40 @@ export function SchoolsTableSection({
                     <SchoolStatusBadge isActive={school.isActive} />
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => onViewSchool(school)}
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        {t("actions.view")}
-                      </Button>
-                      {isAdmin && (
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => onEditSchool(school)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                            {t("actions.edit")}
-                          </Button>
-                          <Button
-                            variant={school.isActive ? "destructive" : "default"}
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => onToggleStatus(school)}
-                          >
-                            <Power className="h-3.5 w-3.5" />
-                            {school.isActive ? t("actions.deactivate") : t("actions.activate")}
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">{t("actions.openMenu")}</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onViewSchool(school)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          {t("actions.view")}
+                        </DropdownMenuItem>
+                        {isAdmin && (
+                          <>
+                            <DropdownMenuItem onClick={() => onEditSchool(school)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              {t("actions.edit")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onToggleStatus(school)}>
+                              <Power className="mr-2 h-4 w-4" />
+                              {school.isActive ? t("actions.deactivate") : t("actions.activate")}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => onDeleteSchool(school)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              {t("actions.delete")}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))

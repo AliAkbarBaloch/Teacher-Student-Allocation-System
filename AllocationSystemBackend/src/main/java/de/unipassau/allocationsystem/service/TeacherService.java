@@ -1,9 +1,12 @@
 package de.unipassau.allocationsystem.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,9 +30,16 @@ import de.unipassau.allocationsystem.mapper.TeacherMapper;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.ExcelParser;
+import de.unipassau.allocationsystem.dto.teacher.BulkImportResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.ImportResultRowDto;
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +50,16 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
     private final TeacherRepository teacherRepository;
     private final SchoolRepository schoolRepository;
     private final TeacherMapper teacherMapper;
+
+    /**
+     * Helper class to pair Teacher with its row number for batch processing
+     */
+    @Getter
+    @AllArgsConstructor
+    private static class TeacherRowPair {
+        private final Teacher teacher;
+        private final int rowNumber;
+    }
 
     @Override
     public List<Map<String, String>> getSortFields() {
@@ -71,21 +91,60 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        Specification<Teacher> spec = (root, query, cb) -> {
+        Specification<Teacher> spec = buildFilterSpecification(queryParams, searchValue);
+
+        Page<Teacher> page = teacherRepository.findAll(spec, pageable);
+        return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    private Specification<Teacher> buildFilterSpecification(Map<String, String> queryParams, String searchValue) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            String searchTerm = searchValue;
-            if (searchTerm != null && !searchTerm.isBlank()) {
-                String likePattern = "%" + searchTerm.toLowerCase() + "%";
+
+            // Search filter
+            if (searchValue != null && !searchValue.trim().isEmpty()) {
+                String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
                 Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), likePattern);
                 Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), likePattern);
                 Predicate emailLike = cb.like(cb.lower(root.get("email")), likePattern);
                 predicates.add(cb.or(firstNameLike, lastNameLike, emailLike));
             }
+
+            // School ID filter
+            String schoolIdParam = queryParams.get("schoolId");
+            if (schoolIdParam != null && !schoolIdParam.trim().isEmpty()) {
+                try {
+                    Long schoolId = Long.parseLong(schoolIdParam);
+                    predicates.add(cb.equal(root.get("school").get("id"), schoolId));
+                } catch (NumberFormatException e) {
+                    // Invalid school ID, ignore filter
+                }
+            }
+
+            // Employment status filter
+            String employmentStatusParam = queryParams.get("employmentStatus");
+            if (employmentStatusParam != null && !employmentStatusParam.trim().isEmpty()) {
+                try {
+                    Teacher.EmploymentStatus employmentStatus = Teacher.EmploymentStatus.valueOf(employmentStatusParam.toUpperCase());
+                    predicates.add(cb.equal(root.get("employmentStatus"), employmentStatus));
+                } catch (IllegalArgumentException e) {
+                    // Invalid employment status, ignore filter
+                }
+            }
+
+            // Active status filter
+            String isActiveParam = queryParams.get("isActive");
+            if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
+                try {
+                    Boolean isActive = Boolean.parseBoolean(isActiveParam);
+                    predicates.add(cb.equal(root.get("isActive"), isActive));
+                } catch (Exception e) {
+                    // Invalid boolean, ignore filter
+                }
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-
-        Page<Teacher> page = teacherRepository.findAll(spec, pageable);
-        return PaginationUtils.formatPaginationResponse(page);
     }
 
     @Audited(
@@ -183,6 +242,21 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
     }
 
     @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Updated teacher status",
+            captureNewValue = true
+    )
+    @Transactional
+    public TeacherResponseDto updateStatus(Long id, Boolean isActive) {
+        Teacher existing = teacherRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
+        existing.setIsActive(isActive);
+        Teacher updated = teacherRepository.save(existing);
+        return teacherMapper.toResponseDto(updated);
+    }
+
+    @Audited(
             action = AuditLog.AuditAction.DELETE,
             entityName = AuditEntityNames.TEACHER,
             description = "Deleted teacher",
@@ -200,5 +274,176 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
     @Transactional
     public void deleteTeacher(Long id) {
         delete(id);
+    }
+
+    /**
+     * Find existing emails in the database from a list of emails.
+     * Used for bulk import validation.
+     *
+     * @param emails List of email addresses to check
+     * @return Set of emails that already exist in the database
+     */
+    @Transactional(readOnly = true)
+    public Set<String> findExistingEmails(List<String> emails) {
+        if (emails == null || emails.isEmpty()) {
+            return Set.of();
+        }
+        Set<String> normalizedEmails = emails.stream()
+                .map(email -> email.toLowerCase().trim())
+                .collect(Collectors.toSet());
+        return teacherRepository.findExistingEmails(normalizedEmails);
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.IMPORT,
+            entityName = AuditEntityNames.TEACHER,
+            description = "Bulk imported teachers",
+            captureNewValue = false
+    )
+    @Transactional
+    public BulkImportResponseDto bulkImportTeachers(MultipartFile file, boolean skipInvalidRows) throws IOException {
+        List<ExcelParser.ParsedRow> parsedRows = ExcelParser.parseExcelFile(file);
+        List<ImportResultRowDto> results = new ArrayList<>();
+        
+        // Batch processing: Load all schools once
+        List<School> allSchools = schoolRepository.findByIsActive(true);
+        Map<String, School> schoolNameMap = allSchools.stream()
+                .collect(Collectors.toMap(
+                        school -> school.getSchoolName().toLowerCase(),
+                        school -> school,
+                        (existing, replacement) -> existing
+                ));
+        Map<Long, School> schoolIdMap = allSchools.stream()
+                .collect(Collectors.toMap(School::getId, school -> school));
+
+        // Batch check existing emails
+        Set<String> emailsToCheck = parsedRows.stream()
+                .map(row -> row.getDto().getEmail().toLowerCase().trim())
+                .collect(Collectors.toSet());
+        Set<String> existingEmails = teacherRepository.findExistingEmails(emailsToCheck);
+
+        // Prepare valid rows for batch insert
+        List<TeacherRowPair> validRows = new ArrayList<>();
+        Map<Integer, ImportResultRowDto> resultMap = new HashMap<>();
+
+        // Process each row and validate
+        for (ExcelParser.ParsedRow parsedRow : parsedRows) {
+            ImportResultRowDto result = ImportResultRowDto.builder()
+                    .rowNumber(parsedRow.getRowNumber())
+                    .success(false)
+                    .build();
+            resultMap.put(parsedRow.getRowNumber(), result);
+
+            try {
+                TeacherCreateDto dto = parsedRow.getDto();
+                String emailLower = dto.getEmail().toLowerCase().trim();
+
+                // Check for duplicate email in database
+                if (existingEmails.contains(emailLower)) {
+                    throw new DuplicateResourceException("Email already exists: " + dto.getEmail());
+                }
+
+                // Resolve school ID from name if needed
+                School school = null;
+                if (dto.getSchoolId() != null) {
+                    school = schoolIdMap.get(dto.getSchoolId());
+                    if (school == null) {
+                        throw new ResourceNotFoundException("School not found with ID: " + dto.getSchoolId());
+                    }
+                } else if (parsedRow.getSchoolName() != null && !parsedRow.getSchoolName().trim().isEmpty()) {
+                    school = schoolNameMap.get(parsedRow.getSchoolName().toLowerCase().trim());
+                    if (school == null) {
+                        throw new ResourceNotFoundException("School not found with name: " + parsedRow.getSchoolName());
+                    }
+                    dto.setSchoolId(school.getId());
+                } else {
+                    throw new ResourceNotFoundException("School ID or School Name is required");
+                }
+
+                // Create teacher entity (not saved yet)
+                Teacher teacher = teacherMapper.toEntityCreate(dto);
+                teacher.setSchool(school);
+                validRows.add(new TeacherRowPair(teacher, parsedRow.getRowNumber()));
+                
+                // Mark as valid for now (will be set to success after save)
+                result.setSuccess(true);
+
+            } catch (Exception e) {
+                String errorMessage = e.getMessage();
+                if (errorMessage == null || errorMessage.isEmpty()) {
+                    errorMessage = "Failed to import teacher: " + e.getClass().getSimpleName();
+                }
+                result.setError(errorMessage);
+                log.warn("Failed to import teacher at row {}: {}", parsedRow.getRowNumber(), errorMessage);
+
+                // If skipInvalidRows is false, stop processing on first error
+                if (!skipInvalidRows) {
+                    // Clear valid rows and mark remaining as failed
+                    validRows.clear();
+                    // Set all remaining rows as failed
+                    int currentIndex = parsedRows.indexOf(parsedRow);
+                    for (int i = currentIndex + 1; i < parsedRows.size(); i++) {
+                        ExcelParser.ParsedRow remainingRow = parsedRows.get(i);
+                        ImportResultRowDto remainingResult = resultMap.get(remainingRow.getRowNumber());
+                        if (remainingResult != null && remainingResult.getError() == null) {
+                            remainingResult.setError("Import stopped due to error in row " + parsedRow.getRowNumber());
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Batch save valid teachers in smaller transactions (batch size: 50)
+        int batchSize = 50;
+        int successfulRows = 0;
+        
+        for (int i = 0; i < validRows.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, validRows.size());
+            List<TeacherRowPair> batch = validRows.subList(i, end);
+            List<Teacher> teachersToSave = batch.stream()
+                    .map(pair -> pair.teacher)
+                    .collect(Collectors.toList());
+            
+            try {
+                List<Teacher> savedTeachers = teacherRepository.saveAll(teachersToSave);
+                
+                // Update results for successfully saved teachers
+                for (int j = 0; j < savedTeachers.size(); j++) {
+                    Teacher saved = savedTeachers.get(j);
+                    int rowNumber = batch.get(j).rowNumber;
+                    ImportResultRowDto result = resultMap.get(rowNumber);
+                    if (result != null && result.isSuccess()) {
+                        TeacherResponseDto responseDto = teacherMapper.toResponseDto(saved);
+                        result.setTeacher(responseDto);
+                        successfulRows++;
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Error saving batch of teachers", e);
+                // Mark batch as failed
+                for (TeacherRowPair pair : batch) {
+                    ImportResultRowDto result = resultMap.get(pair.rowNumber);
+                    if (result != null && result.isSuccess()) {
+                        result.setSuccess(false);
+                        result.setError("Failed to save teacher: " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        // Build final results list
+        for (ExcelParser.ParsedRow parsedRow : parsedRows) {
+            results.add(resultMap.get(parsedRow.getRowNumber()));
+        }
+
+        int failedRows = parsedRows.size() - successfulRows;
+
+        return BulkImportResponseDto.builder()
+                .totalRows(parsedRows.size())
+                .successfulRows(successfulRows)
+                .failedRows(failedRows)
+                .results(results)
+                .build();
     }
 }

@@ -1,0 +1,149 @@
+{
+  "title": "Teachers",
+  "subtitle": "Manage teacher profiles and link them to schools.",
+  "table": {
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "schoolName": "School Name",
+      "employmentStatus": "Employment Status",
+      "isPartTime": "Part-time",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No teachers match the selected filters.",
+    "loading": "Loading teachers...",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "filters": {
+    "title": "Filters",
+    "subtitle": "Search and refine teacher records.",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search by name or email",
+    "schoolLabel": "School",
+    "schoolPlaceholder": "All schools",
+    "loadingSchools": "Loading schools...",
+    "employmentStatusLabel": "Employment Status",
+    "employmentStatusPlaceholder": "All statuses",
+    "statusLabel": "Status",
+    "statusAll": "All",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "reset": "Reset filters"
+  },
+  "actions": {
+    "create": "Create New Teacher",
+    "view": "View",
+    "edit": "Edit",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "openMenu": "Open menu"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "activateTitle": "Activate teacher",
+    "activateDescription": "Activated teachers can be assigned to allocation plans.",
+    "deactivateTitle": "Deactivate teacher",
+    "deactivateDescription": "Inactive teachers will no longer appear in allocations until reactivated.",
+    "warning": "Warning"
+  },
+  "delete": {
+    "title": "Delete teacher",
+    "description": "Are you sure you want to delete this teacher? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "form": {
+    "title": {
+      "create": "Create Teacher",
+      "edit": "Edit Teacher",
+      "view": "Teacher Details"
+    },
+    "description": "View the complete details and information for this teacher.",
+    "loadingSchools": "Loading schools...",
+    "fields": {
+      "school": "School",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "isPartTime": "Part-time",
+      "employmentStatus": "Employment Status",
+      "usageCycle": "Usage Cycle",
+      "isActive": "Active"
+    },
+    "placeholders": {
+      "school": "Select school",
+      "firstName": "e.g. John",
+      "lastName": "e.g. Doe",
+      "email": "john.doe@example.com",
+      "phone": "+49 123 456789",
+      "employmentStatus": "Select employment status",
+      "usageCycle": "Select usage cycle (optional)"
+    },
+    "helpers": {
+      "isPartTime": "Check if the teacher works part-time.",
+      "isActive": "Only active teachers can be assigned to allocation plans."
+    },
+    "employmentStatus": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "ON_LEAVE": "On Leave",
+      "CONTRACT": "Contract",
+      "PROBATION": "Probation",
+      "RETIRED": "Retired"
+    },
+    "usageCycle": {
+      "SEMESTER_1": "Semester 1",
+      "SEMESTER_2": "Semester 2",
+      "FULL_YEAR": "Full Year",
+      "QUARTERLY": "Quarterly"
+    },
+    "errors": {
+      "schoolIdRequired": "School is required.",
+      "schoolIdInvalid": "Please select a valid school.",
+      "schoolsLoadFailed": "Failed to load schools. Please try again.",
+      "firstNameRequired": "First name is required.",
+      "firstNameLength": "First name must be between 2 and 100 characters.",
+      "lastNameRequired": "Last name is required.",
+      "lastNameLength": "Last name must be between 2 and 100 characters.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Enter a valid email address.",
+      "phoneInvalid": "Enter a valid phone number.",
+      "employmentStatusRequired": "Employment status is required.",
+      "partTimeConflict": "Part-time status conflicts with full-time employment status.",
+      "submit": "Unable to save the teacher. Please review the errors and try again."
+    },
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    }
+  },
+  "notifications": {
+    "createSuccess": "Teacher created successfully.",
+    "updateSuccess": "Teacher updated successfully.",
+    "activateSuccess": "Teacher activated.",
+    "deactivateSuccess": "Teacher deactivated.",
+    "deleteSuccess": "Teacher deleted successfully."
+  },
+  "errors": {
+    "load": "Unable to load teachers. Please try again.",
+    "submit": "Unable to save the teacher. Please review the errors and try again."
+  },
+  "permissions": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You can review teacher data, but only administrators can create or modify records."
+  },
+  "pagination": {
+    "display": "Showing {{from}}-{{to}} of {{total}} teachers",
+    "pageSize": "Rows per page",
+    "pageSizeShort": "Rows"
+  }
+}
+

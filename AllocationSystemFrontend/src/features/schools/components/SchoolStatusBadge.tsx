@@ -20,7 +20,7 @@ export function SchoolStatusBadge({ isActive }: SchoolStatusBadgeProps) {
   }
 
   return (
-    <Badge variant="destructive" className="bg-destructive/15 text-destructive border-transparent">
+    <Badge variant="secondary">
       {t("status.inactive")}
     </Badge>
   );

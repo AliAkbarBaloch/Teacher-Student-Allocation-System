@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
 import {
   Dialog,
@@ -20,131 +19,68 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { SchoolService } from "@/features/schools/services/schoolService";
 import type {
-  SchoolFilters as FiltersState,
   School,
-  SchoolType,
+  CreateSchoolRequest,
+  UpdateSchoolRequest,
 } from "@/features/schools/types/school.types";
 import { SchoolForm } from "@/features/schools/components/SchoolForm";
+import { SchoolLocationMap } from "@/features/schools/components/SchoolLocationMap";
 import { SchoolFilters } from "@/features/schools/components/SchoolFilters";
 import { SchoolStatusBadge } from "@/features/schools/components/SchoolStatusBadge";
 import { SchoolsPageHeader } from "@/features/schools/components/SchoolsPageHeader";
 import { SchoolsTableSection } from "@/features/schools/components/SchoolsTableSection";
 import { SchoolsPaginationControls } from "@/features/schools/components/SchoolsPaginationControls";
+import { useSchoolsPage } from "@/features/schools/hooks/useSchoolsPage";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useDebounce } from "@/hooks/useDebounce";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
-import { clampPage, getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
-
-type PaginationState = {
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  totalItems: number;
-};
-
-const DEFAULT_PAGINATION: PaginationState = {
-  page: 1,
-  pageSize: TABLE_PAGE_SIZE_OPTIONS[0],
-  totalPages: 0,
-  totalItems: 0,
-};
+import { getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
 
 export default function SchoolsPage() {
   const { t } = useTranslation("schools");
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
-  const [schools, setSchools] = useState<School[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
-  const [isCreateSubmitting, setIsCreateSubmitting] = useState(false);
-  const [isUpdateSubmitting, setIsUpdateSubmitting] = useState(false);
-  const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
-  const [statusTarget, setStatusTarget] = useState<{ school: School | null; nextState: boolean }>({
-    school: null,
-    nextState: true,
-  });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const [searchInput, setSearchInput] = useState("");
-  const [selectedType, setSelectedType] = useState<SchoolType | undefined>(undefined);
-  const [zoneFilter, setZoneFilter] = useState<string | undefined>(undefined);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
-  const [pagination, setPagination] = useState<PaginationState>(DEFAULT_PAGINATION);
-  const [isSearchInputLoading, setIsSearchInputLoading] = useState(false);
-
-  const debouncedSearch = useDebounce(searchInput, 400);
-
-  const filters = useMemo<FiltersState>(() => {
-    const parsedZone =
-      zoneFilter && !Number.isNaN(Number(zoneFilter)) ? Number(zoneFilter) : undefined;
-
-    return {
-      search: debouncedSearch || undefined,
-      schoolType: selectedType,
-      zoneNumber: parsedZone,
-      isActive: statusFilter === "all" ? undefined : statusFilter === "active",
-    };
-  }, [debouncedSearch, selectedType, zoneFilter, statusFilter]);
-
-  const loadSchools = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await SchoolService.list({
-        ...filters,
-        page: pagination.page,
-        pageSize: pagination.pageSize,
-        sortBy: "schoolName",
-        sortOrder: "asc",
-      });
-
-      setSchools(response.items);
-      setPagination((prev) => ({
-        ...prev,
-        page: response.page,
-        pageSize: response.pageSize,
-        totalItems: response.totalItems,
-        totalPages: response.totalPages,
-      }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : t("errors.load");
-      setError(message);
-    } finally {
-      setLoading(false);
-      setIsSearchInputLoading(false);
-    }
-  }, [filters, pagination.page, pagination.pageSize, t]);
-
-  useEffect(() => {
-    loadSchools();
-  }, [loadSchools]);
-
-  const refreshList = useCallback(async () => {
-    await loadSchools();
-  }, [loadSchools]);
-
-  const handlePageChange = (newPage: number) => {
-    setPagination((prev) => ({
-      ...prev,
-      page: clampPage(newPage, prev.totalPages),
-    }));
-  };
-
-  const handlePageSizeChange = (size: number) => {
-    setPagination((prev) => ({
-      ...prev,
-      page: 1,
-      pageSize: size,
-    }));
-  };
+  const {
+    schools,
+    selectedSchool,
+    setSelectedSchool,
+    error,
+    loading,
+    formLoading,
+    isSearchInputLoading,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
+    searchInput,
+    selectedType,
+    zoneFilter,
+    statusFilter,
+    handleSearchChange,
+    handleSchoolTypeChange,
+    handleZoneChange,
+    handleStatusFilterChange,
+    handleResetFilters,
+    fetchSchoolDetails,
+    handleCreateSubmit: handleCreateSubmitInternal,
+    handleUpdateSubmit: handleUpdateSubmitInternal,
+    handleStatusChange,
+    handleDelete,
+    isCreateSubmitting,
+    isUpdateSubmitting,
+    isStatusSubmitting,
+    isDeleteSubmitting,
+    statusTarget,
+    setStatusTarget,
+    deleteTarget,
+    setDeleteTarget,
+  } = useSchoolsPage();
 
   const handleOpenCreate = () => {
     setSelectedSchool(null);
@@ -154,25 +90,7 @@ export default function SchoolsPage() {
   const handleOpenView = useCallback((school: School) => {
     setSelectedSchool(school);
     setIsViewDialogOpen(true);
-  }, []);
-
-  const fetchSchoolDetails = useCallback(
-    async (id: number) => {
-      setFormLoading(true);
-      try {
-        const data = await SchoolService.getById(id);
-        setSelectedSchool(data);
-        return data;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : t("errors.load");
-        toast.error(message);
-        throw err;
-      } finally {
-        setFormLoading(false);
-      }
-    },
-    [t]
-  );
+  }, [setSelectedSchool]);
 
   const handleOpenEdit = useCallback(async (school: School) => {
     try {
@@ -183,90 +101,55 @@ export default function SchoolsPage() {
     }
   }, [fetchSchoolDetails]);
 
-  const handleCreateSubmit = async (payload: Parameters<typeof SchoolService.create>[0]) => {
-    setIsCreateSubmitting(true);
+  const handleCreateSubmit = async (payload: CreateSchoolRequest) => {
     try {
-      await SchoolService.create(payload);
-      toast.success(t("notifications.createSuccess"));
+      await handleCreateSubmitInternal(payload);
       setIsCreateDialogOpen(false);
-      await refreshList();
-    } finally {
-      setIsCreateSubmitting(false);
+    } catch {
+      // Error already handled
     }
   };
 
-  const handleUpdateSubmit = async (payload: Parameters<typeof SchoolService.update>[1]) => {
-    if (!selectedSchool) return;
-    setIsUpdateSubmitting(true);
+  const handleUpdateSubmit = async (payload: UpdateSchoolRequest) => {
     try {
-      await SchoolService.update(selectedSchool.id, payload);
-      toast.success(t("notifications.updateSuccess"));
+      await handleUpdateSubmitInternal(payload);
       setIsEditDialogOpen(false);
-      await refreshList();
-    } finally {
-      setIsUpdateSubmitting(false);
+    } catch {
+      // Error already handled
     }
   };
 
   const openStatusDialog = useCallback((school: School) => {
     setStatusTarget({ school, nextState: !school.isActive });
     setIsStatusDialogOpen(true);
-  }, []);
+  }, [setStatusTarget]);
+
+  const openDeleteDialog = useCallback((school: School) => {
+    setDeleteTarget(school);
+    setIsDeleteDialogOpen(true);
+  }, [setDeleteTarget]);
 
   const confirmStatusChange = async () => {
     if (!statusTarget.school) return;
-    setIsStatusSubmitting(true);
     try {
-      await SchoolService.updateStatus(statusTarget.school.id, statusTarget.nextState);
-      toast.success(
-        statusTarget.nextState ? t("notifications.activateSuccess") : t("notifications.deactivateSuccess")
-      );
+      await handleStatusChange(statusTarget.school, statusTarget.nextState);
       setIsStatusDialogOpen(false);
-      await refreshList();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("errors.submit");
-      toast.error(message);
-    } finally {
-      setIsStatusSubmitting(false);
+      setStatusTarget({ school: null, nextState: false });
+    } catch {
+      // Error already handled
     }
   };
 
-  const resetToFirstPage = useCallback(() => {
-    setPagination((prev) => ({
-      ...prev,
-      page: 1,
-    }));
-  }, []);
-
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchInput(value);
-    resetToFirstPage();
-    setIsSearchInputLoading(true);
-  }, [resetToFirstPage]);
-
-  const handleSchoolTypeChange = useCallback((value?: SchoolType) => {
-    setSelectedType(value);
-    resetToFirstPage();
-  }, [resetToFirstPage]);
-
-  const handleZoneChange = useCallback((value?: string) => {
-    setZoneFilter(value);
-    resetToFirstPage();
-  }, [resetToFirstPage]);
-
-  const handleStatusFilterChange = useCallback((value: "all" | "active" | "inactive") => {
-    setStatusFilter(value);
-    resetToFirstPage();
-  }, [resetToFirstPage]);
-
-  const handleResetFilters = useCallback(() => {
-    setSearchInput("");
-    setSelectedType(undefined);
-    setZoneFilter(undefined);
-    setStatusFilter("all");
-    resetToFirstPage();
-    setIsSearchInputLoading(false);
-  }, [resetToFirstPage]);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await handleDelete(deleteTarget);
+      setIsDeleteDialogOpen(false);
+      setDeleteTarget(null);
+    } catch {
+      // Error already handled
+    }
+  };
 
   const paginationSummary = useMemo(
     () => getPaginationSummary(pagination.page, pagination.pageSize, pagination.totalItems),
@@ -279,7 +162,7 @@ export default function SchoolsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full min-w-0 max-w-full">
       <SchoolsPageHeader
         isAdmin={isAdmin}
         onCreate={handleOpenCreate}
@@ -318,6 +201,7 @@ export default function SchoolsPage() {
         onViewSchool={handleOpenView}
         onEditSchool={handleOpenEdit}
         onToggleStatus={openStatusDialog}
+        onDeleteSchool={openDeleteDialog}
       />
 
       {!loading && (
@@ -400,6 +284,14 @@ export default function SchoolsPage() {
                   <p className="whitespace-pre-line">{selectedSchool.address}</p>
                 </div>
               )}
+              {selectedSchool.transportAccessibility && (
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t("form.fields.transportAccessibility")}
+                  </p>
+                  <p className="whitespace-pre-line">{selectedSchool.transportAccessibility}</p>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {selectedSchool.latitude && (
                   <div>
@@ -454,13 +346,33 @@ export default function SchoolsPage() {
                   </div>
                 )}
               </div>
+              {/* Location Map - at the bottom */}
+              {(selectedSchool.latitude || selectedSchool.longitude) && (
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium text-muted-foreground">Location Map</p>
+                  <SchoolLocationMap
+                    latitude={selectedSchool.latitude}
+                    longitude={selectedSchool.longitude}
+                    schoolName={selectedSchool.schoolName}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
 
       {/* Activate/Deactivate Confirmation */}
-      <AlertDialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
+      <AlertDialog
+        open={isStatusDialogOpen}
+        onOpenChange={(open) => {
+          setIsStatusDialogOpen(open);
+          if (!open) {
+            setStatusTarget({ school: null, nextState: false });
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -474,7 +386,7 @@ export default function SchoolsPage() {
             <AlertDialogCancel disabled={isStatusSubmitting}>{t("actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmStatusChange}
-              disabled={isStatusSubmitting}
+              disabled={isStatusSubmitting || !statusTarget.school}
               className={statusTarget.nextState ? "" : "bg-destructive text-white hover:bg-destructive/90"}
             >
               {isStatusSubmitting ? (
@@ -483,6 +395,30 @@ export default function SchoolsPage() {
                 t("actions.activate")
               ) : (
                 t("actions.deactivate")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("delete.description")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleteSubmitting}>{t("delete.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleteSubmitting}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {isDeleteSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                t("delete.confirm")
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

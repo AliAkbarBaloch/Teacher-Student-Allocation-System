@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.school.SchoolCreateDto;
 import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
+import de.unipassau.allocationsystem.dto.school.SchoolStatusUpdateDto;
 import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.mapper.SchoolMapper;
@@ -83,6 +84,15 @@ public class SchoolController {
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         Map<String, Object> result = schoolService.getPaginated(queryParams, searchValue);
+        
+        // Map School entities to DTOs
+        @SuppressWarnings("unchecked")
+        List<School> schools = (List<School>) result.get("items");
+        if (schools != null) {
+            List<SchoolResponseDto> schoolDtos = schoolMapper.toResponseDtoList(schools);
+            result.put("items", schoolDtos);
+        }
+        
         return ResponseHandler.success("Schools retrieved successfully (paginated)", result);
     }
 
@@ -152,6 +162,32 @@ public class SchoolController {
             return ResponseHandler.notFound("School not found");
         } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
+        }
+    }
+
+    @Operation(
+            summary = "Update school status",
+            description = "Updates the active status of a school (activate/deactivate)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "School status updated successfully",
+                    content = @Content(schema = @Schema(implementation = SchoolResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "School not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody SchoolStatusUpdateDto statusDto) {
+        try {
+            School updated = schoolService.updateStatus(id, statusDto.getIsActive());
+            return ResponseHandler.updated("School status updated successfully", schoolMapper.toResponseDto(updated));
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.notFound("School not found");
         }
     }
 

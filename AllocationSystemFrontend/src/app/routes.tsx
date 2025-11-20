@@ -13,6 +13,7 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import AuditLogsPage from "@/pages/audit-logs/AuditLogsPage";
 import SchoolsPage from "@/pages/base-data/SchoolsPage";
+import TeachersPage from "@/pages/base-data/TeachersPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -113,7 +114,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.baseData.teachers,
-        element: withSuspense(<div>Teachers</div>),
+        element: withSuspense(<TeachersPage />),
       },
       {
         path: ROUTES.baseData.internshipTypes,
