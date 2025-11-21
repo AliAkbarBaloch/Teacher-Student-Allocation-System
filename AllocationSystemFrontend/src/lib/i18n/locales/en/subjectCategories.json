@@ -1,0 +1,61 @@
+{
+  "title": "Subject Categories",
+  "subtitle": "Manage subject category definitions",
+  "table": {
+    "title": "Category Title",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No subject categories found.",
+    "searchPlaceholder": "Search subject categories..."
+  },
+  "form": {
+    "title": {
+      "create": "Create Subject Category",
+      "edit": "Edit Subject Category",
+      "view": "Subject Category Details"
+    },
+    "fields": {
+      "title": "Category Title",
+      "titleDescription": "Enter a descriptive name for the category (minimum 4 characters)"
+    },
+    "placeholders": {
+      "title": "Enter category title (e.g., Core, Religion, Arts)"
+    },
+    "errors": {
+      "titleRequired": "Category title is required",
+      "titleMinLength": "Category title must be at least 4 characters",
+      "titleMaxLength": "Category title must not exceed 255 characters"
+    },
+    "actions": {
+      "create": "Create Subject Category",
+      "update": "Update Category",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Subject Category",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Subject Category",
+    "message": "Are you sure you want to delete this subject category? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Subject category deleted successfully",
+    "error": "Failed to delete subject category"
+  },
+  "create": {
+    "success": "Subject category created successfully",
+    "error": "Failed to create subject category"
+  },
+  "update": {
+    "success": "Subject category updated successfully",
+    "error": "Failed to update subject category"
+  }
+}
+
