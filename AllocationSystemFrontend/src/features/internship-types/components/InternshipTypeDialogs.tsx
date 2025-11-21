@@ -14,6 +14,7 @@ import type {
   UpdateInternshipTypeRequest,
 } from "../types/internshipType.types";
 import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface InternshipTypeDialogsProps {
   // Dialog states
@@ -61,6 +62,7 @@ export function InternshipTypeDialogs({
   isSubmitting,
   t,
 }: InternshipTypeDialogsProps) {
+  const { t: tCommon } = useTranslation("common");
   return (
     <>
       {/* Create Dialog */}
@@ -97,8 +99,8 @@ export function InternshipTypeDialogs({
             onEditClick(selectedInternshipType);
           }
         }}
-        editLabel={t("actions.edit")}
-        closeLabel={t("form.actions.close")}
+        editLabel={tCommon("actions.edit")}
+        closeLabel={tCommon("actions.close")}
         renderCustomContent={(internshipType) => (
           <div className="space-y-4 py-4">
             <div className="grid gap-4 md:grid-cols-2">
