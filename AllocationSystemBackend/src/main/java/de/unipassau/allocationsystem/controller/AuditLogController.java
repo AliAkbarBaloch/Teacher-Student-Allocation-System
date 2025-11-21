@@ -10,6 +10,10 @@ import de.unipassau.allocationsystem.service.audit.AuditLogQueryService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -48,13 +52,19 @@ public class AuditLogController {
     /**
      * Get all audit logs with pagination and optional filters.
      */
-    @GetMapping
+        @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Get audit logs",
             description = "Retrieve audit logs with optional filtering and pagination. Admin access required."
     )
-    public ResponseEntity<Page<AuditLogDto>> getAuditLogs(
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Audit logs retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AuditLogDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination or filter parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
+        public ResponseEntity<?> getAuditLogs(
         @Parameter(description = "User ID to filter by") 
         @RequestParam(required = false) Long userId,
         
@@ -84,9 +94,9 @@ public class AuditLogController {
     ) {
         Pageable pageable = createPageable(page, size, sortBy, sortDirection);
         Page<AuditLog> auditLogs = queryService.getAuditLogs(
-                userId, action, targetEntity, startDate, endDate, pageable);
+            userId, action, targetEntity, startDate, endDate, pageable);
 
-        return ResponseEntity.ok(auditLogs.map(auditLogMapper::toDto));
+        return ResponseHandler.success("Audit logs retrieved successfully", auditLogs.map(auditLogMapper::toDto));
     }
 
     /**
@@ -98,6 +108,12 @@ public class AuditLogController {
         summary = "Get audit logs for entity", 
         description = "Retrieve all audit logs for a specific entity and record ID. Admin access required."
     )
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Audit logs retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AuditLogDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getAuditLogsForEntity(
         @PathVariable String entityName,
         @PathVariable String recordId,
@@ -121,6 +137,12 @@ public class AuditLogController {
         summary = "Get audit logs for user",
         description = "Retrieve all audit logs for a specific user. Admin access required."
     )
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Audit logs retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AuditLogDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getAuditLogsForUser(
         @PathVariable String userIdentifier,
         @RequestParam(defaultValue = "0") int page,
@@ -143,6 +165,11 @@ public class AuditLogController {
         summary = "Get recent audit logs", 
         description = "Retrieve the 100 most recent audit logs for monitoring. Admin access required."
     )
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Audit logs retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AuditLogDto.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getRecentAuditLogs() {
         List<AuditLogDto> auditLogDtos = queryService.getRecentAuditLogs()
                 .stream()
@@ -161,6 +188,12 @@ public class AuditLogController {
         summary = "Get audit log statistics", 
         description = "Retrieve statistics about audit logs for a given date range. Admin access required."
     )
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AuditLogStatsDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid or missing date parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getStatistics(
         @Parameter(description = "Start date (ISO format)") 
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -191,6 +224,10 @@ public class AuditLogController {
         summary = "Export audit logs", 
         description = "Export audit logs as CSV file with optional filters. Admin access required."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "CSV export generated successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<byte[]> exportAuditLogs(
         @RequestParam(required = false) Long userId,
         @RequestParam(required = false) AuditAction action,

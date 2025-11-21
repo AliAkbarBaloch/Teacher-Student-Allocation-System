@@ -1,4 +1,4 @@
-package de.unipassau.allocationsystem;
+package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.dto.auth.LoginRequestDto;
@@ -598,8 +598,8 @@ class AuthControllerTest {
         mockMvc.perform(get("/api/auth/profile")
                         .header("Authorization", "Bearer invalid-token"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").exists());
+                                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test

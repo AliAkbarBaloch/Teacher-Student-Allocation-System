@@ -4,6 +4,12 @@ import de.unipassau.allocationsystem.dto.auth.*;
 import de.unipassau.allocationsystem.dto.user.UserProfileUpdateRequest;
 import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.service.AuthService;
+import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,82 +31,96 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * Login endpoint.
-     * POST /api/auth/login
-     */
+    @Operation(summary = "Login", description = "Authenticate user and return access tokens")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = @Content(schema = @Schema(implementation = LoginResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto request) {
         log.info("Login attempt for email: {}", request.getEmail());
         LoginResponseDto response = authService.login(request);
-        return ResponseEntity.ok(response);
+        return ResponseHandler.success("Login successful", response);
     }
 
-    /**
-     * Logout endpoint.
-     * POST /api/auth/logout
-     */
+    @Operation(summary = "Logout", description = "Invalidate current user session / tokens")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Logout successful"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout() {
+    public ResponseEntity<?> logout() {
         log.info("Logout request");
         authService.logout();
-        return ResponseEntity.ok(Map.of("message", "Logout successful"));
+        return ResponseHandler.success("Logout successful", Map.of());
     }
 
-    /**
-     * Forgot password endpoint - initiates password reset flow.
-     * POST /api/auth/forgot-password
-     */
+    @Operation(summary = "Forgot password", description = "Initiate password reset. An email will be sent if the account exists.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset initiated"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody PasswordForgotRequestDto request) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody PasswordForgotRequestDto request) {
         log.info("Forgot password request for email: {}", request.getEmail());
         authService.forgotPassword(request);
-        return ResponseEntity.ok(Map.of(
-                "message", "If the email exists, a password reset link has been sent."
-        ));
+        return ResponseHandler.success("If the email exists, a password reset link has been sent.", Map.of());
     }
 
-    /**
-     * Reset password endpoint - completes password reset using token.
-     * POST /api/auth/reset-password
-     */
+    @Operation(summary = "Reset password", description = "Complete password reset using token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successful"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
         log.info("Reset password request");
         authService.resetPassword(request);
-        return ResponseEntity.ok(Map.of("message", "Password has been reset successfully"));
+        return ResponseHandler.success("Password has been reset successfully", Map.of());
     }
 
-    /**
-     * Change password endpoint - for authenticated users.
-     * POST /api/auth/change-password
-     */
+    @Operation(summary = "Change password", description = "Change password for authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/change-password")
-    public ResponseEntity<Map<String, String>> changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
         log.info("Change password request");
         authService.changePassword(request);
-        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+        return ResponseHandler.success("Password changed successfully", Map.of());
     }
 
-    /**
-     * Get current user profile.
-     * GET /api/auth/profile
-     */
+    @Operation(summary = "Get current user profile", description = "Retrieve profile information for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/profile")
-    public ResponseEntity<UserResponseDto> getProfile() {
+    public ResponseEntity<?> getProfile() {
         log.info("Get profile request");
         UserResponseDto profile = authService.getCurrentUserProfile();
-        return ResponseEntity.ok(profile);
+        return ResponseHandler.success("Profile retrieved successfully", profile);
     }
 
-    /**
-     * Update current user profile.
-     * PUT /api/auth/profile
-     */
+    @Operation(summary = "Update current user profile", description = "Update profile information for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile updated successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PutMapping("/profile")
-    public ResponseEntity<UserResponseDto> updateProfile(@Valid @RequestBody UserProfileUpdateRequest request) {
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody UserProfileUpdateRequest request) {
         log.info("Update profile request");
         UserResponseDto updated = authService.updateProfile(request);
-        return ResponseEntity.ok(updated);
+        return ResponseHandler.updated("Profile updated successfully", updated);
     }
 }

@@ -7,12 +7,18 @@ import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
 import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.service.UserService;
+import de.unipassau.allocationsystem.utils.ResponseHandler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+ 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,51 +40,79 @@ public class UserController {
      * Create a new user.
      * POST /api/users
      */
+    @Operation(summary = "Create user", description = "Create a new user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserCreateDto dto) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDto dto) {
         log.info("Creating user: {}", dto.getEmail());
         UserResponseDto created = userService.createUserWithDto(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseHandler.created("User created successfully", created);
     }
 
     /**
      * Update an existing user.
      * PUT /api/users/{id}
      */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> updateUser(
+        @Operation(summary = "Update user", description = "Update an existing user")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
+                content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<?> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateDto dto
-    ) {
+        ) {
         log.info("Updating user: {}", id);
         UserResponseDto updated = userService.updateUserWithDto(id, dto);
-        return ResponseEntity.ok(updated);
-    }
+        return ResponseHandler.updated("User updated successfully", updated);
+        }
 
     /**
      * Delete a user.
      * DELETE /api/users/{id}
      */
+    @Operation(summary = "Delete user", description = "Delete a user by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         log.info("Deleting user: {}", id);
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseHandler.noContent();
     }
 
     /**
      * Get user by ID.
      * GET /api/users/{id}
      */
+    @Operation(summary = "Get user by ID", description = "Retrieve a user by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
         log.info("Getting user by id: {}", id);
         UserResponseDto user = userService.getUserByIdDto(id);
-        return ResponseEntity.ok(user);
+        return ResponseHandler.success("User retrieved successfully", user);
     }
 
     /**
@@ -95,9 +129,15 @@ public class UserController {
      * - sortBy: Sort field (default: createdAt)
      * - sortDirection: Sort direction (ASC/DESC, default: DESC)
      */
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponseDto>> getAllUsers(
+        @Operation(summary = "Get all users", description = "Retrieve users with pagination and filters")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
+        @GetMapping
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<?> getAllUsers(
             @RequestParam(required = false) User.UserRole role,
             @RequestParam(required = false) User.AccountStatus status,
             @RequestParam(required = false) Boolean enabled,
@@ -109,59 +149,87 @@ public class UserController {
     ) {
         log.info("Getting all users with filters");
         Page<UserResponseDto> users = userService.getAllUsers(
-                role, status, enabled, search, page, size, sortBy, sortDirection
+            role, status, enabled, search, page, size, sortBy, sortDirection
         );
-        return ResponseEntity.ok(users);
+        return ResponseHandler.success("Users retrieved successfully", users);
     }
 
     /**
      * Activate a user account.
      * PATCH /api/users/{id}/activate
      */
+    @Operation(summary = "Activate user", description = "Activate a user account")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User activated successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> activateUser(@PathVariable Long id) {
+    public ResponseEntity<?> activateUser(@PathVariable Long id) {
         log.info("Activating user: {}", id);
         UserResponseDto activated = userService.activateUser(id);
-        return ResponseEntity.ok(activated);
+        return ResponseHandler.updated("User activated successfully", activated);
     }
 
     /**
      * Deactivate a user account.
      * PATCH /api/users/{id}/deactivate
      */
+    @Operation(summary = "Deactivate user", description = "Deactivate a user account")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User deactivated successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<?> deactivateUser(@PathVariable Long id) {
         log.info("Deactivating user: {}", id);
         UserResponseDto deactivated = userService.deactivateUser(id);
-        return ResponseEntity.ok(deactivated);
+        return ResponseHandler.updated("User deactivated successfully", deactivated);
     }
 
     /**
      * Reset user password (admin function).
      * POST /api/users/{id}/reset-password
      */
-    @PostMapping("/{id}/reset-password")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDto> resetPassword(
+        @Operation(summary = "Reset user password", description = "Reset a user's password (admin)")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully",
+                content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
+        @PostMapping("/{id}/reset-password")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<?> resetPassword(
             @PathVariable Long id,
             @Valid @RequestBody PasswordResetDto dto
-    ) {
+        ) {
         log.info("Resetting password for user: {}", id);
         UserResponseDto user = userService.resetUserPassword(id, dto);
-        return ResponseEntity.ok(user);
-    }
+        return ResponseHandler.updated("Password reset successfully", user);
+        }
 
     /**
      * Get user statistics.
      * GET /api/users/statistics
      */
+    @Operation(summary = "Get user statistics", description = "Retrieve aggregated user statistics")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = UserStatisticsDto.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/statistics")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserStatisticsDto> getUserStatistics() {
+    public ResponseEntity<?> getUserStatistics() {
         log.info("Getting user statistics");
         UserStatisticsDto stats = userService.getUserStatistics();
-        return ResponseEntity.ok(stats);
+        return ResponseHandler.success("User statistics retrieved successfully", stats);
     }
 }

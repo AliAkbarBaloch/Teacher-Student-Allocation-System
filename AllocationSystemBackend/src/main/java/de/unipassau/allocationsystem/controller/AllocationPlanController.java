@@ -7,6 +7,10 @@ import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.service.AllocationPlanService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +44,11 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all allocation plans", 
                description = "Retrieve allocation plans with filtering by year, status, and current flag. Supports pagination.")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plans retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination or filter parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getAllPlans(
             @RequestParam(required = true) Long yearId,
             @RequestParam(required = false) PlanStatus status,
@@ -61,6 +70,12 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get allocation plan by ID", 
                description = "Retrieve details of a specific allocation plan")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plan found",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getPlanById(@PathVariable Long id) {
         log.info("GET /api/allocation-plans/{}", id);
 
@@ -76,6 +91,12 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create new allocation plan", 
                description = "Create a new allocation plan instance for an academic year")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Allocation plan created successfully",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate plan"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> createPlan(
             @Valid @RequestBody AllocationPlanCreateDto createDto) {
         log.info("POST /api/allocation-plans - Creating plan: {} v{}", 
@@ -93,6 +114,13 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update allocation plan", 
                description = "Update metadata of an existing allocation plan (name, status, notes, isCurrent)")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plan updated successfully",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> updatePlan(
             @PathVariable Long id,
             @Valid @RequestBody AllocationPlanUpdateDto updateDto) {
@@ -110,6 +138,12 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Set plan as current", 
                description = "Mark this plan as the current active plan for its academic year")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plan set as current successfully",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> setCurrentPlan(@PathVariable Long id) {
         log.info("POST /api/allocation-plans/{}/current", id);
 
@@ -125,6 +159,12 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Archive allocation plan", 
                description = "Archive a plan by setting its status to ARCHIVED")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plan archived successfully",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> archivePlan(@PathVariable Long id) {
         log.info("POST /api/allocation-plans/{}/archive", id);
 
@@ -139,6 +179,12 @@ public class AllocationPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get current plan for year", 
                description = "Retrieve the current active plan for a specific academic year")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Current allocation plan retrieved successfully",
+                content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Missing or invalid yearId parameter"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        })
     public ResponseEntity<?> getCurrentPlanForYear(
             @RequestParam(required = true) Long yearId) {
         log.info("GET /api/allocation-plans/current?yearId={}", yearId);
