@@ -1,0 +1,88 @@
+{
+  "title": "Internship Types",
+  "subtitle": "Manage internship type definitions and configurations",
+  "table": {
+    "code": "Code",
+    "fullName": "Full Name",
+    "timing": "Timing",
+    "periodType": "Period Type",
+    "semester": "Semester",
+    "isSubjectSpecific": "Subject-Specific",
+    "priorityOrder": "Priority Order",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No internship types found.",
+    "searchPlaceholder": "Search internship types...",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "form": {
+    "title": {
+      "create": "Create Internship Type",
+      "edit": "Edit Internship Type",
+      "view": "Internship Type Details"
+    },
+    "fields": {
+      "code": "Code",
+      "fullName": "Full Name",
+      "timing": "Timing",
+      "periodType": "Period Type",
+      "semester": "Semester",
+      "isSubjectSpecific": "Subject-Specific",
+      "isSubjectSpecificDescription": "Check if this internship type requires subject matching",
+      "priorityOrder": "Priority Order"
+    },
+    "placeholders": {
+      "code": "Enter internship code (e.g., PDP I, PDP II, ZSP, SFP)",
+      "fullName": "Enter full name",
+      "timing": "Select timing",
+      "periodType": "Select period type",
+      "semester": "Select semester",
+      "priorityOrder": "Enter priority order",
+      "none": "None"
+    },
+    "errors": {
+      "codeRequired": "Code is required",
+      "codeMaxLength": "Code must not exceed 50 characters",
+      "fullNameRequired": "Full name is required",
+      "fullNameMaxLength": "Full name must not exceed 255 characters",
+      "timingMaxLength": "Timing must not exceed 100 characters",
+      "periodTypeMaxLength": "Period type must not exceed 50 characters",
+      "semesterMaxLength": "Semester must not exceed 50 characters",
+      "priorityOrderInvalid": "Priority order must be a positive number"
+    },
+    "actions": {
+      "create": "Create Internship Type",
+      "update": "Update Internship Type",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close",
+      "custom": "Custom...",
+      "usePredefined": "Use Predefined"
+    }
+  },
+  "actions": {
+    "create": "Create Internship Type",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Internship Type",
+    "message": "Are you sure you want to delete this internship type? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Internship type deleted successfully",
+    "error": "Failed to delete internship type"
+  },
+  "create": {
+    "success": "Internship type created successfully",
+    "error": "Failed to create internship type"
+  },
+  "update": {
+    "success": "Internship type updated successfully",
+    "error": "Failed to update internship type"
+  }
+}
+
