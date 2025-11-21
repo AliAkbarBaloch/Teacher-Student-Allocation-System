@@ -10,5 +10,7 @@ public final class PlanChangeTypes {
     public static final String DELETE = "DELETE";
     public static final String STATUS_CHANGE = "STATUS_CHANGE";
 
-    private PlanChangeTypes() {}
+    private PlanChangeTypes() {
+
+    }
 }

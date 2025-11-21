@@ -1,7 +1,6 @@
 package de.unipassau.allocationsystem.repository;
 
 import de.unipassau.allocationsystem.entity.PlanChangeLog;
-import de.unipassau.allocationsystem.entity.PlanChangeLog;
 import de.unipassau.allocationsystem.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

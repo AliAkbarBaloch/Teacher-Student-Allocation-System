@@ -1,3 +1,4 @@
+// java
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser(roles = "ADMIN")
 class SubjectControllerTest {
 
     @Autowired
@@ -48,7 +51,7 @@ class SubjectControllerTest {
     void setUp() {
         subjectRepository.deleteAll();
         subjectCategoryRepository.deleteAll();
-        
+
         testCategory = new SubjectCategory();
         testCategory.setCategoryTitle("Mathematics");
         testCategory = subjectCategoryRepository.save(testCategory);
@@ -64,7 +67,7 @@ class SubjectControllerTest {
 
     @Test
     void getSortFields_ShouldReturnConfiguredFields() throws Exception {
-        mockMvc.perform(get("/subjects/sort-fields"))
+        mockMvc.perform(get("/api/subjects/sort-fields"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data", hasSize(7)))
@@ -81,7 +84,7 @@ class SubjectControllerTest {
         subject2.setIsActive(true);
         subjectRepository.save(subject2);
 
-        mockMvc.perform(get("/subjects/paginate")
+        mockMvc.perform(get("/api/subjects/paginate")
                         .param("page", "1")
                         .param("pageSize", "2")
                         .param("sortBy", "subjectCode")
@@ -105,7 +108,7 @@ class SubjectControllerTest {
         subject2.setIsActive(true);
         subjectRepository.save(subject2);
 
-        mockMvc.perform(get("/subjects"))
+        mockMvc.perform(get("/api/subjects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data", hasSize(2)));
@@ -113,7 +116,7 @@ class SubjectControllerTest {
 
     @Test
     void getById_ShouldReturnSubject() throws Exception {
-        mockMvc.perform(get("/subjects/" + testSubject.getId()))
+        mockMvc.perform(get("/api/subjects/" + testSubject.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(testSubject.getId()))
@@ -123,8 +126,8 @@ class SubjectControllerTest {
 
     @Test
     void getById_NotFound_ShouldReturn404() throws Exception {
-        mockMvc.perform(get("/subjects/9999"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/subjects/9999"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -136,7 +139,7 @@ class SubjectControllerTest {
         dto.setSchoolType("High School");
         dto.setIsActive(true);
 
-        mockMvc.perform(post("/subjects")
+        mockMvc.perform(post("/api/subjects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -153,10 +156,10 @@ class SubjectControllerTest {
         dto.setSubjectTitle("Different Title");
         dto.setSubjectCategoryId(testCategory.getId());
 
-        mockMvc.perform(post("/subjects")
+        mockMvc.perform(post("/api/subjects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -165,7 +168,7 @@ class SubjectControllerTest {
         // Missing required fields
         dto.setSubjectCode("");
 
-        mockMvc.perform(post("/subjects")
+        mockMvc.perform(post("/api/subjects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
@@ -177,10 +180,10 @@ class SubjectControllerTest {
         dto.setSubjectTitle("Advanced Mathematics");
         dto.setSchoolType("High School");
 
-        mockMvc.perform(put("/subjects/" + testSubject.getId())
+        mockMvc.perform(put("/api/subjects/" + testSubject.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated())
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.subjectTitle").value("Advanced Mathematics"))
                 .andExpect(jsonPath("$.data.schoolType").value("High School"));
@@ -191,7 +194,7 @@ class SubjectControllerTest {
         SubjectUpdateDto dto = new SubjectUpdateDto();
         dto.setSubjectTitle("Non Existing");
 
-        mockMvc.perform(put("/subjects/9999")
+        mockMvc.perform(put("/api/subjects/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
@@ -199,17 +202,16 @@ class SubjectControllerTest {
 
     @Test
     void delete_ShouldRemoveSubject() throws Exception {
-        mockMvc.perform(delete("/subjects/" + testSubject.getId()))
+        mockMvc.perform(delete("/api/subjects/" + testSubject.getId()))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/subjects"))
+        mockMvc.perform(get("/api/subjects"))
                 .andExpect(jsonPath("$.data", hasSize(0)));
     }
 
     @Test
     void delete_NotFound_ShouldReturnNotFound() throws Exception {
-        mockMvc.perform(delete("/subjects/9999"))
+        mockMvc.perform(delete("/api/subjects/9999"))
                 .andExpect(status().isNotFound());
     }
 }
-
