@@ -39,6 +39,7 @@ interface SubjectCategoryDialogsProps {
 
   // States
   isSubmitting: boolean;
+  formError?: string | null;
 
   // Translations
   t: TFunction<"subjectCategories">;
@@ -60,6 +61,7 @@ export function SubjectCategoryDialogs({
   onEditClick,
   onSelectedChange,
   isSubmitting,
+  formError,
   t,
 }: SubjectCategoryDialogsProps) {
   const { t: tCommon } = useTranslation("common");
@@ -76,6 +78,7 @@ export function SubjectCategoryDialogs({
             onSubmit={onCreateSubmit}
             onCancel={() => setIsCreateDialogOpen(false)}
             isLoading={isSubmitting}
+            error={formError}
           />
         </DialogContent>
       </Dialog>
@@ -130,6 +133,7 @@ export function SubjectCategoryDialogs({
                 onSelectedChange(null);
               }}
               isLoading={isSubmitting}
+              error={formError}
             />
           )}
         </DialogContent>

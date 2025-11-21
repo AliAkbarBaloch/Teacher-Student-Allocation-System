@@ -93,7 +93,7 @@ export function useTeachersColumnConfig(): ColumnConfig[] {
       format: (value: unknown) => {
         const isActive = typeof value === "boolean" ? value : false;
         return isActive ? (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+          <Badge variant="success">
             {t("status.active")}
           </Badge>
         ) : (

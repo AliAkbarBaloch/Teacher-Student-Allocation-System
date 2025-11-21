@@ -51,11 +51,13 @@
   },
   "create": {
     "success": "Fachkategorie erfolgreich erstellt",
-    "error": "Fehler beim Erstellen der Fachkategorie"
+    "error": "Fehler beim Erstellen der Fachkategorie",
+    "errorDuplicate": "Eine Fachkategorie mit diesem Namen existiert bereits"
   },
   "update": {
     "success": "Fachkategorie erfolgreich aktualisiert",
-    "error": "Fehler beim Aktualisieren der Fachkategorie"
+    "error": "Fehler beim Aktualisieren der Fachkategorie",
+    "errorDuplicate": "Eine Fachkategorie mit diesem Namen existiert bereits"
   }
 }
 

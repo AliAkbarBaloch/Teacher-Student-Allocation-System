@@ -28,6 +28,8 @@ export default function SubjectCategoriesPage() {
     selectedSubjectCategory,
     setSelectedSubjectCategory,
     isSubmitting,
+    formError,
+    setFormError,
     handleCreate: handleCreateInternal,
     handleUpdate: handleUpdateInternal,
     handleDelete: handleDeleteInternal,
@@ -40,8 +42,9 @@ export default function SubjectCategoriesPage() {
       try {
         await handleCreateInternal(data);
         dialogs.create.setIsOpen(false);
+        setFormError(null);
       } catch {
-        // Error already handled in hook
+        // Error already handled in hook and displayed in form
       }
     },
     [handleCreateInternal, dialogs.create]
@@ -54,8 +57,9 @@ export default function SubjectCategoriesPage() {
         await handleUpdateInternal(data, selectedSubjectCategory.id);
         dialogs.edit.setIsOpen(false);
         setSelectedSubjectCategory(null);
+        setFormError(null);
       } catch {
-        // Error already handled in hook
+        // Error already handled in hook and displayed in form
       }
     },
     [handleUpdateInternal, selectedSubjectCategory, setSelectedSubjectCategory, dialogs.edit]
@@ -127,9 +131,15 @@ export default function SubjectCategoriesPage() {
 
       <SubjectCategoryDialogs
         isCreateDialogOpen={dialogs.create.isOpen}
-        setIsCreateDialogOpen={dialogs.create.setIsOpen}
+        setIsCreateDialogOpen={(open) => {
+          dialogs.create.setIsOpen(open);
+          if (!open) setFormError(null);
+        }}
         isEditDialogOpen={dialogs.edit.isOpen}
-        setIsEditDialogOpen={dialogs.edit.setIsOpen}
+        setIsEditDialogOpen={(open) => {
+          dialogs.edit.setIsOpen(open);
+          if (!open) setFormError(null);
+        }}
         isViewDialogOpen={dialogs.view.isOpen}
         setIsViewDialogOpen={dialogs.view.setIsOpen}
         isDeleteDialogOpen={dialogs.delete.isOpen}
@@ -141,6 +151,7 @@ export default function SubjectCategoriesPage() {
         onEditClick={handleEditClick}
         onSelectedChange={setSelectedSubjectCategory}
         isSubmitting={isSubmitting}
+        formError={formError}
         t={t}
       />
     </div>
