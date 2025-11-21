@@ -16,6 +16,7 @@ export function useSubjectCategoriesPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSubjectCategory, setSelectedSubjectCategory] = useState<SubjectCategory | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const loadSubjectCategories = useCallback(async () => {
     setLoading(true);
@@ -38,12 +39,22 @@ export function useSubjectCategoriesPage() {
 
   const handleCreate = useCallback(async (data: CreateSubjectCategoryRequest | UpdateSubjectCategoryRequest) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       await SubjectCategoryService.create(data as CreateSubjectCategoryRequest);
       toast.success(t("create.success"));
+      setFormError(null);
       await loadSubjectCategories();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("create.error");
+      let errorMessage = t("create.error");
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // Check if it's a 409 conflict error
+        if ((err as Error & { status?: number }).status === 409) {
+          errorMessage = err.message || t("create.errorDuplicate");
+        }
+      }
+      setFormError(errorMessage);
       toast.error(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -53,12 +64,22 @@ export function useSubjectCategoriesPage() {
 
   const handleUpdate = useCallback(async (data: CreateSubjectCategoryRequest | UpdateSubjectCategoryRequest, id: number) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       await SubjectCategoryService.update(id, data as UpdateSubjectCategoryRequest);
       toast.success(t("update.success"));
+      setFormError(null);
       await loadSubjectCategories();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("update.error");
+      let errorMessage = t("update.error");
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // Check if it's a 409 conflict error
+        if ((err as Error & { status?: number }).status === 409) {
+          errorMessage = err.message || t("update.errorDuplicate");
+        }
+      }
+      setFormError(errorMessage);
       toast.error(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -86,6 +107,8 @@ export function useSubjectCategoriesPage() {
     selectedSubjectCategory,
     setSelectedSubjectCategory,
     isSubmitting,
+    formError,
+    setFormError,
     loadSubjectCategories,
     handleCreate,
     handleUpdate,

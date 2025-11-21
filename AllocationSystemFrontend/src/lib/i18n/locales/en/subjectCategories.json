@@ -51,11 +51,13 @@
   },
   "create": {
     "success": "Subject category created successfully",
-    "error": "Failed to create subject category"
+    "error": "Failed to create subject category",
+    "errorDuplicate": "A subject category with this name already exists"
   },
   "update": {
     "success": "Subject category updated successfully",
-    "error": "Failed to update subject category"
+    "error": "Failed to update subject category",
+    "errorDuplicate": "A subject category with this name already exists"
   }
 }
 
