@@ -21,6 +21,7 @@ public final class AuditEntityNames {
     public static final String ZONE_CONSTRAINT = "ZONE_CONSTRAINT";
     public static final String PLAN_CHANGE_LOG = "PLAN_CHANGE_LOG";
     public static final String TEACHER_SUBJECT = "TEACHER_SUBJECT";
+    public static final String TEACHER_ASSIGNMENT = "TEACHER_ASSIGNMENT";
 
 
     // Report
