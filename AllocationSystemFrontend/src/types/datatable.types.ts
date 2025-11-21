@@ -89,5 +89,7 @@ export interface DataTableProps<TData = Record<string, unknown>, TValue = unknow
   validateOnUpdate?: (row: TData) => string | null | Promise<string | null>;
   // Disable internal dialog management - parent component will handle dialogs
   disableInternalDialog?: boolean;
+  // Table layout: "auto" (default) or "fixed" for equal column widths
+  tableLayout?: "auto" | "fixed";
 }
 

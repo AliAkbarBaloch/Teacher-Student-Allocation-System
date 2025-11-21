@@ -1,0 +1,80 @@
+{
+  "title": "Fächer",
+  "subtitle": "Fachdatensätze und Konfigurationen verwalten",
+  "table": {
+    "code": "Code",
+    "title": "Titel",
+    "category": "Kategorie",
+    "schoolType": "Schulart",
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Fächer gefunden.",
+    "searchPlaceholder": "Fächer suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Fach erstellen",
+      "edit": "Fach bearbeiten",
+      "view": "Fachdetails"
+    },
+    "fields": {
+      "code": "Fachcode",
+      "title": "Fachtitel",
+      "category": "Kategorie",
+      "schoolType": "Schulart",
+      "isActive": "Aktivstatus",
+      "isActiveDescription": "Dieses Fach aktivieren oder deaktivieren"
+    },
+    "placeholders": {
+      "code": "Fachcode eingeben (z.B. MAT, ENG, SCI)",
+      "title": "Fachtitel eingeben",
+      "category": "Kategorie auswählen",
+      "selectCategory": "Kategorie auswählen",
+      "noCategories": "Keine Kategorien verfügbar. Bitte erstellen Sie zuerst Kategorien.",
+      "schoolType": "Schulart eingeben (optional)"
+    },
+    "errors": {
+      "codeRequired": "Fachcode ist erforderlich",
+      "codeMinLength": "Fachcode muss mindestens 1 Zeichen lang sein",
+      "codeMaxLength": "Fachcode darf maximal 50 Zeichen lang sein",
+      "titleRequired": "Fachtitel ist erforderlich",
+      "titleMinLength": "Fachtitel muss mindestens 2 Zeichen lang sein",
+      "titleMaxLength": "Fachtitel darf maximal 255 Zeichen lang sein",
+      "categoryRequired": "Fachkategorie ist erforderlich",
+      "categoryInvalid": "Ausgewählte Kategorie ist ungültig. Bitte wählen Sie eine gültige Kategorie aus.",
+      "schoolTypeMaxLength": "Schulart darf maximal 50 Zeichen lang sein"
+    },
+    "actions": {
+      "create": "Fach erstellen",
+      "update": "Fach aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Fach erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Fach löschen",
+    "message": "Sind Sie sicher, dass Sie dieses Fach löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Fach erfolgreich gelöscht",
+    "error": "Fehler beim Löschen des Fachs"
+  },
+  "create": {
+    "success": "Fach erfolgreich erstellt",
+    "error": "Fehler beim Erstellen des Fachs"
+  },
+  "update": {
+    "success": "Fach erfolgreich aktualisiert",
+    "error": "Fehler beim Aktualisieren des Fachs"
+  }
+}
+

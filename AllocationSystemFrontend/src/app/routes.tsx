@@ -15,6 +15,8 @@ import AuditLogsPage from "@/pages/audit-logs/AuditLogsPage";
 import SchoolsPage from "@/pages/base-data/SchoolsPage";
 import TeachersPage from "@/pages/base-data/TeachersPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
+import SubjectsPage from "@/pages/base-data/SubjectsPage";
+import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -103,11 +105,11 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.baseData.subjectCategories,
-        element: withSuspense(<div>Subject Categories</div>),
+        element: withSuspense(<SubjectCategoriesPage />),
       },
       {
         path: ROUTES.baseData.subjects,
-        element: withSuspense(<div>Subjects</div>),
+        element: withSuspense(<SubjectsPage />),
       },
       {
         path: ROUTES.baseData.schools,

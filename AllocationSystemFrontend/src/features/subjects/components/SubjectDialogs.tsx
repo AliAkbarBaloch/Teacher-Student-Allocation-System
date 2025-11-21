@@ -7,16 +7,16 @@ import {
 } from "@/components/ui/dialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { InternshipTypeForm } from "./InternshipTypeForm";
+import { SubjectForm } from "./SubjectForm";
 import type {
-  InternshipType,
-  CreateInternshipTypeRequest,
-  UpdateInternshipTypeRequest,
-} from "../types/internshipType.types";
+  Subject,
+  CreateSubjectRequest,
+  UpdateSubjectRequest,
+} from "../types/subject.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
-interface InternshipTypeDialogsProps {
+interface SubjectDialogsProps {
   // Dialog states
   isCreateDialogOpen: boolean;
   setIsCreateDialogOpen: (open: boolean) => void;
@@ -28,23 +28,23 @@ interface InternshipTypeDialogsProps {
   setIsDeleteDialogOpen: (open: boolean) => void;
 
   // Data
-  selectedInternshipType: InternshipType | null;
+  selectedSubject: Subject | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateInternshipTypeRequest | UpdateInternshipTypeRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateInternshipTypeRequest | UpdateInternshipTypeRequest) => Promise<void>;
+  onCreateSubmit: (data: CreateSubjectRequest | UpdateSubjectRequest) => Promise<void>;
+  onUpdateSubmit: (data: CreateSubjectRequest | UpdateSubjectRequest) => Promise<void>;
   onDelete: () => void;
-  onEditClick: (internshipType: InternshipType) => void;
-  onSelectedChange: (internshipType: InternshipType | null) => void;
+  onEditClick: (subject: Subject) => void;
+  onSelectedChange: (subject: Subject | null) => void;
 
   // States
   isSubmitting: boolean;
 
   // Translations
-  t: TFunction<"internshipTypes">;
+  t: TFunction<"subjects">;
 }
 
-export function InternshipTypeDialogs({
+export function SubjectDialogs({
   isCreateDialogOpen,
   setIsCreateDialogOpen,
   isEditDialogOpen,
@@ -53,7 +53,7 @@ export function InternshipTypeDialogs({
   setIsViewDialogOpen,
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
-  selectedInternshipType,
+  selectedSubject,
   onCreateSubmit,
   onUpdateSubmit,
   onDelete,
@@ -61,7 +61,7 @@ export function InternshipTypeDialogs({
   onSelectedChange,
   isSubmitting,
   t,
-}: InternshipTypeDialogsProps) {
+}: SubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
   return (
     <>
@@ -72,7 +72,7 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <InternshipTypeForm
+          <SubjectForm
             onSubmit={onCreateSubmit}
             onCancel={() => setIsCreateDialogOpen(false)}
             isLoading={isSubmitting}
@@ -89,62 +89,50 @@ export function InternshipTypeDialogs({
             onSelectedChange(null);
           }
         }}
-        data={selectedInternshipType}
+        data={selectedSubject}
         title={t("form.title.view")}
         description={t("subtitle")}
         maxWidth="2xl"
         onEdit={() => {
           setIsViewDialogOpen(false);
-          if (selectedInternshipType) {
-            onEditClick(selectedInternshipType);
+          if (selectedSubject) {
+            onEditClick(selectedSubject);
           }
         }}
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
-        renderCustomContent={(internshipType) => (
+        renderCustomContent={(subject) => (
           <div className="space-y-4 py-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t("form.fields.code")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.internshipCode}
+                  {subject.subjectCode}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.fullName")}</label>
+                <label className="text-sm font-medium">{t("form.fields.title")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.fullName}
+                  {subject.subjectTitle}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.timing")}</label>
+                <label className="text-sm font-medium">{t("form.fields.category")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.timing || "-"}
+                  {subject.subjectCategoryTitle || "-"}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.periodType")}</label>
+                <label className="text-sm font-medium">{t("form.fields.schoolType")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.periodType || "-"}
+                  {subject.schoolType || "-"}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.semester")}</label>
+                <label className="text-sm font-medium">{t("form.fields.isActive")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.semester || "-"}
+                  {subject.isActive ? t("table.active") : t("table.inactive")}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.priorityOrder")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.priorityOrder ?? "-"}
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("form.fields.isSubjectSpecific")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {internshipType.isSubjectSpecific ? t("table.yes") : t("table.no")}
               </div>
             </div>
           </div>
@@ -158,10 +146,10 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedInternshipType && (
-            <InternshipTypeForm
-              key={`edit-${selectedInternshipType.id}`}
-              internshipType={selectedInternshipType}
+          {selectedSubject && (
+            <SubjectForm
+              key={`edit-${selectedSubject.id}`}
+              subject={selectedSubject}
               onSubmit={onUpdateSubmit}
               onCancel={() => {
                 setIsEditDialogOpen(false);

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SubjectCreateDto {
     @NotBlank(message = "Subject code is required")
-    @Size(min = 2, max = 50, message = "Subject code must be between 2 and 50 characters")
+    @Size(min = 1, max = 50, message = "Subject code must be between 1 and 50 characters")
     private String subjectCode;
 
     @NotBlank(message = "Subject title is required")

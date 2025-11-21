@@ -39,6 +39,7 @@ export function InternshipTypeForm({
   error: externalError = null,
 }: InternshipTypeFormProps) {
   const { t } = useTranslation("internshipTypes");
+  const { t: tCommon } = useTranslation("common");
   const [formData, setFormData] = useState(() => {
     if (internshipType) {
       return {
@@ -401,18 +402,18 @@ export function InternshipTypeForm({
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
-          {t("form.actions.cancel")}
+          {tCommon("actions.cancel")}
         </Button>
         <Button type="submit" disabled={isLoading || isSubmitting}>
           {isSubmitting || isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("form.actions.saving")}
+              {tCommon("actions.saving")}
             </>
           ) : internshipType ? (
-            t("form.actions.update")
+            tCommon("actions.update")
           ) : (
-            t("form.actions.create")
+            tCommon("actions.create")
           )}
         </Button>
       </div>

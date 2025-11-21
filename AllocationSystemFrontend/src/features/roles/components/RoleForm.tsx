@@ -22,6 +22,7 @@ export function RoleForm({
   error: externalError = null,
 }: RoleFormProps) {
   const { t } = useTranslation("roles");
+  const { t: tCommon } = useTranslation("common");
   const [formData, setFormData] = useState<CreateRoleRequest>({
     title: "",
     description: "",
@@ -150,16 +151,16 @@ export function RoleForm({
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
-          {t("form.actions.cancel")}
+          {tCommon("actions.cancel")}
         </Button>
         <Button type="submit" disabled={isLoading || isSubmitting}>
           {isSubmitting || isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("form.actions.saving")}
+              {tCommon("actions.saving")}
             </>
           ) : (
-            role ? t("form.actions.update") : t("form.actions.create")
+            role ? tCommon("actions.update") : tCommon("actions.create")
           )}
         </Button>
       </div>

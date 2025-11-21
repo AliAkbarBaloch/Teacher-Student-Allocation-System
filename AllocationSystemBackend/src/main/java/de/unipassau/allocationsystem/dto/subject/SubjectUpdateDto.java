@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubjectUpdateDto {
-    @Size(min = 2, max = 50, message = "Subject code must be between 2 and 50 characters")
+    @Size(min = 1, max = 50, message = "Subject code must be between 1 and 50 characters")
     private String subjectCode;
 
     @Size(min = 2, max = 255, message = "Subject title must be between 2 and 255 characters")

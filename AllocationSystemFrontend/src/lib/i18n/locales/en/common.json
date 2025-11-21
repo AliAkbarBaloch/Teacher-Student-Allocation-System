@@ -63,6 +63,18 @@
         "networkError": "Network error. Please check your connection and try again.",
         "requestTimeout": "Request timeout. Please try again.",
         "sessionExpired": "Your session has expired. Please log in again."
+    },
+    "actions": {
+        "create": "Create",
+        "update": "Update",
+        "edit": "Edit",
+        "delete": "Delete",
+        "view": "View",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "close": "Close",
+        "confirm": "Confirm"
     }
 }
 

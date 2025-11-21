@@ -63,5 +63,17 @@
         "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
         "requestTimeout": "Anfrage-Timeout. Bitte versuchen Sie es erneut.",
         "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+    },
+    "actions": {
+        "create": "Erstellen",
+        "update": "Aktualisieren",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "view": "Anzeigen",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "saving": "Wird gespeichert...",
+        "close": "Schließen",
+        "confirm": "Bestätigen"
     }
 }

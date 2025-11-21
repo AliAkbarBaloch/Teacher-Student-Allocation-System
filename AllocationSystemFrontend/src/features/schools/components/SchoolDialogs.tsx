@@ -23,6 +23,7 @@ import { SchoolLocationMap } from "./SchoolLocationMap";
 import { SchoolStatusBadge } from "./SchoolStatusBadge";
 import type { School, CreateSchoolRequest, UpdateSchoolRequest } from "../types/school.types";
 import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface SchoolDialogsProps {
   // Dialog states
@@ -81,6 +82,7 @@ export function SchoolDialogs({
   isSubmitting,
   t,
 }: SchoolDialogsProps) {
+  const { t: tCommon } = useTranslation("common");
   return (
     <>
       {/* Create Dialog */}
@@ -138,8 +140,8 @@ export function SchoolDialogs({
             onOpenEdit(selectedSchool);
           }
         }}
-        editLabel={t("actions.edit")}
-        closeLabel={t("actions.cancel")}
+        editLabel={tCommon("actions.edit")}
+        closeLabel={tCommon("actions.close")}
         renderCustomContent={(school) => (
           <div className="grid gap-4">
             <div className="grid gap-1">

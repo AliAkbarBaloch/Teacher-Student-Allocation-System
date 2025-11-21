@@ -32,7 +32,7 @@ public class Subject {
     private Long id;
 
     @NotBlank(message = "Subject code is required")
-    @Size(min = 2, max = 50, message = "Subject code must be between 2 and 50 characters")
+    @Size(min = 1, max = 50, message = "Subject code must be between 1 and 50 characters")
     @Column(name = "subject_code", nullable = false, unique = true, length = 50)
     private String subjectCode;
 

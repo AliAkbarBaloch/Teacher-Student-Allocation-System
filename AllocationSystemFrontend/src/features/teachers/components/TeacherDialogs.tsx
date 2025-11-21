@@ -21,6 +21,7 @@ import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmation
 import { TeacherForm } from "./TeacherForm";
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "../types/teacher.types";
 import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface TeacherDialogsProps {
   // Dialog states
@@ -85,6 +86,7 @@ export function TeacherDialogs({
   isAdmin,
   t,
 }: TeacherDialogsProps) {
+  const { t: tCommon } = useTranslation("common");
   return (
     <>
       {/* Create Dialog */}
@@ -141,8 +143,8 @@ export function TeacherDialogs({
         description={t("form.description")}
         maxWidth="2xl"
         onEdit={onEdit}
-        editLabel={t("actions.edit")}
-        closeLabel={t("actions.cancel")}
+        editLabel={tCommon("actions.edit")}
+        closeLabel={tCommon("actions.close")}
         renderCustomContent={(teacher) => (
           <div className="grid gap-4">
             <div className="grid gap-1">

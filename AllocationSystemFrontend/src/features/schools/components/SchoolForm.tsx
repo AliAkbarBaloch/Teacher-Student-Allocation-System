@@ -46,6 +46,7 @@ type SchoolFormProps = CreateSchoolFormProps | EditSchoolFormProps;
 export function SchoolForm(props: SchoolFormProps) {
   const { mode, onSubmit, onCancel, isSubmitting = false } = props;
   const { t } = useTranslation("schools");
+  const { t: tCommon } = useTranslation("common");
   const hookProps =
     mode === "edit"
       ? { mode, onSubmit, school: props.school, t }
@@ -274,18 +275,18 @@ export function SchoolForm(props: SchoolFormProps) {
           onClick={onCancel}
           disabled={isSubmitting || internalSubmitting}
         >
-          {t("form.actions.cancel")}
+          {tCommon("actions.cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting || internalSubmitting}>
           {isSubmitting || internalSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("form.actions.saving")}
+              {tCommon("actions.saving")}
             </>
           ) : mode === "edit" ? (
-            t("form.actions.update")
+            tCommon("actions.update")
           ) : (
-            t("form.actions.create")
+            tCommon("actions.create")
           )}
         </Button>
       </div>

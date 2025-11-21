@@ -48,6 +48,7 @@ type TeacherFormProps = CreateTeacherFormProps | EditTeacherFormProps;
 export function TeacherForm(props: TeacherFormProps) {
   const { mode, onSubmit, onCancel, isSubmitting = false, readOnly = false } = props;
   const { t } = useTranslation("teachers");
+  const { t: tCommon } = useTranslation("common");
   const hookProps =
     mode === "edit"
       ? { mode, onSubmit, teacher: props.teacher, t }
@@ -347,18 +348,18 @@ export function TeacherForm(props: TeacherFormProps) {
             onClick={onCancel}
             disabled={isDisabled}
           >
-            {t("form.actions.cancel")}
+            {tCommon("actions.cancel")}
           </Button>
           <Button type="submit" disabled={isDisabled}>
             {isDisabled ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t("form.actions.saving")}
+                {tCommon("actions.saving")}
               </>
             ) : mode === "edit" ? (
-              t("form.actions.update")
+              tCommon("actions.update")
             ) : (
-              t("form.actions.create")
+              tCommon("actions.create")
             )}
           </Button>
         </div>

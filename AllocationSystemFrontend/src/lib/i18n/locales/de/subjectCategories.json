@@ -1,0 +1,61 @@
+{
+  "title": "Fachkategorien",
+  "subtitle": "Fachkategorie-Definitionen verwalten",
+  "table": {
+    "title": "Kategorietitel",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Fachkategorien gefunden.",
+    "searchPlaceholder": "Fachkategorien suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Fachkategorie erstellen",
+      "edit": "Fachkategorie bearbeiten",
+      "view": "Fachkategorie-Details"
+    },
+    "fields": {
+      "title": "Kategorietitel",
+      "titleDescription": "Geben Sie einen beschreibenden Namen für die Kategorie ein (mindestens 4 Zeichen)"
+    },
+    "placeholders": {
+      "title": "Kategorietitel eingeben (z.B. Kern, Religion, Kunst)"
+    },
+    "errors": {
+      "titleRequired": "Kategorietitel ist erforderlich",
+      "titleMinLength": "Kategorietitel muss mindestens 4 Zeichen lang sein",
+      "titleMaxLength": "Kategorietitel darf maximal 255 Zeichen lang sein"
+    },
+    "actions": {
+      "create": "Fachkategorie erstellen",
+      "update": "Kategorie aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Fachkategorie erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Fachkategorie löschen",
+    "message": "Sind Sie sicher, dass Sie diese Fachkategorie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Fachkategorie erfolgreich gelöscht",
+    "error": "Fehler beim Löschen der Fachkategorie"
+  },
+  "create": {
+    "success": "Fachkategorie erfolgreich erstellt",
+    "error": "Fehler beim Erstellen der Fachkategorie"
+  },
+  "update": {
+    "success": "Fachkategorie erfolgreich aktualisiert",
+    "error": "Fehler beim Aktualisieren der Fachkategorie"
+  }
+}
+
