@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { TeacherForm } from "./TeacherForm";
@@ -197,13 +198,13 @@ export function TeacherDialogs({
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
                 {teacher.isActive ? (
-                  <span className="inline-flex items-center rounded-full bg-green-500 px-2.5 py-0.5 text-xs font-medium text-white">
+                  <Badge variant="success">
                     {t("status.active")}
-                  </span>
+                  </Badge>
                 ) : (
-                  <span className="inline-flex items-center rounded-full bg-gray-500 px-2.5 py-0.5 text-xs font-medium text-white">
+                  <Badge variant="secondary">
                     {t("status.inactive")}
-                  </span>
+                  </Badge>
                 )}
               </div>
             </div>
