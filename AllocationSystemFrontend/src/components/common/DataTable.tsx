@@ -242,6 +242,16 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         cell: ({ row }) => {
           const value = row.getValue(config.field);
           
+          // Handle function format first (before string format checks)
+          if (typeof config.format === "function") {
+            const formatted = config.format(value, row.original);
+            return (
+              <div className={config.align === "right" ? "text-right" : config.align === "center" ? "text-center" : ""}>
+                {formatted}
+              </div>
+            );
+          }
+          
           // Handle formatting based on format type
           if (config.format === "currency") {
             const amount = typeof value === "number" ? value : parseFloat(String(value));
@@ -356,6 +366,26 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
                   {actions.labels?.edit || "Edit"}
                 </DropdownMenuItem>
               )}
+              {actions.customActions && actions.customActions.length > 0 && (
+                <>
+                  {(actions.onView || actions.onEdit) && <DropdownMenuSeparator />}
+                  {actions.customActions.map((customAction, index) => (
+                    <React.Fragment key={index}>
+                      {customAction.separator && index > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          customAction.onClick(rowData);
+                        }}
+                        className={`cursor-pointer ${customAction.className || ""}`}
+                      >
+                        {customAction.icon && <span className="mr-2 h-4 w-4 flex items-center">{customAction.icon}</span>}
+                        {typeof customAction.label === "function" ? customAction.label(rowData) : customAction.label}
+                      </DropdownMenuItem>
+                    </React.Fragment>
+                  ))}
+                </>
+              )}
               {actions.onDelete && (
                 <>
                   <DropdownMenuSeparator />
@@ -438,25 +468,35 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         </div>
       )}
       <div className="w-full overflow-x-auto scroll-smooth -mx-2 sm:mx-0">
-        <div className="inline-block min-w-full align-middle rounded-md border">
-          <Table className="min-w-full">
+        <div className="w-full align-middle rounded-md border">
+          <Table className="w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead 
-                      key={header.id} 
-                      className="whitespace-nowrap px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium"
-                      style={{ minWidth: "fit-content" }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    const accessorKey = 'accessorKey' in header.column.columnDef ? header.column.columnDef.accessorKey : undefined;
+                    const headerColumnConfig = columnConfig?.find(c => c.field === accessorKey || c.field === header.id);
+                    const width = headerColumnConfig?.width;
+                    const maxWidth = headerColumnConfig?.maxWidth;
+                    return (
+                      <TableHead 
+                        key={header.id} 
+                        className="whitespace-nowrap px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium"
+                        style={{ 
+                          minWidth: "fit-content",
+                          ...(width && { width: typeof width === "number" ? `${width}px` : width }),
+                          ...(maxWidth && { maxWidth: typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth }),
+                        }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
               </TableRow>
             ))}
           </TableHeader>
@@ -485,18 +525,29 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
                     }
                   }}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell 
-                      key={cell.id} 
-                      className="whitespace-nowrap px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm"
-                      style={{ minWidth: "fit-content" }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const accessorKey = 'accessorKey' in cell.column.columnDef ? cell.column.columnDef.accessorKey : undefined;
+                    const cellColumnConfig = columnConfig?.find(c => c.field === accessorKey || c.field === cell.column.id);
+                    const width = cellColumnConfig?.width;
+                    const maxWidth = cellColumnConfig?.maxWidth;
+                    const isFullNameColumn = cellColumnConfig?.field === "fullName";
+                    return (
+                      <TableCell 
+                        key={cell.id} 
+                        className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm ${isFullNameColumn ? "break-all" : "whitespace-nowrap"}`}
+                        style={{ 
+                          minWidth: "fit-content",
+                          ...(width && { width: typeof width === "number" ? `${width}px` : width }),
+                          ...(maxWidth && { maxWidth: typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth }),
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (

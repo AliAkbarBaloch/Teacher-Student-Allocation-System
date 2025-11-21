@@ -14,6 +14,13 @@ export interface DataTableActions<TData> {
   onEdit?: (row: TData) => void;
   onDelete?: (row: TData) => void;
   onUpdate?: (row: TData) => void | Promise<void>;
+  customActions?: Array<{
+    label: string | ((row: TData) => string);
+    icon?: React.ReactNode;
+    onClick: (row: TData) => void;
+    className?: string;
+    separator?: boolean;
+  }>;
   labels?: {
     view?: string;
     edit?: string;
@@ -41,9 +48,11 @@ export interface ColumnConfig {
   field: string;
   title: string;
   align?: "left" | "center" | "right";
-  format?: "currency" | "number" | "date" | "capitalize" | "lowercase" | "uppercase";
+  format?: "currency" | "number" | "date" | "capitalize" | "lowercase" | "uppercase" | ((value: unknown, row?: unknown) => string | React.ReactNode);
   currencyCode?: string;
   enableSorting?: boolean;
+  width?: string | number; // Fixed width for column
+  maxWidth?: string | number; // Maximum width for column
   // Form field configuration
   fieldType?: FieldType;
   fieldOptions?: SelectOption[]; // For select type
