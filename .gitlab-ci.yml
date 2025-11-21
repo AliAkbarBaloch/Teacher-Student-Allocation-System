@@ -15,18 +15,18 @@ stages:
 backend-build:
   stage: build
   # 21: eclipse-temurin:21-jdk-alpine-3.22
-  image: eclipse-temurin:17-jdk-alpine-3.22
+  # image: eclipse-temurin:17-jdk-alpine-3.22 (replace with image: gradle:8.14.0-jdk17)
+  image: gradle:8.14.0-jdk17
   cache:
     key: gradle-cache
     paths:
       - AllocationSystemBackend/.gradle/
   script:
     - cd AllocationSystemBackend
-    - chmod +x ./gradlew
-    - ./gradlew build
+    - gradle build
   artifacts:
     paths:
-      - AllocationSystemBackend/build/
+      - AllocationSystemBackend/build/libs/*.jar
   rules:
     - changes:
         - AllocationSystemBackend/**
