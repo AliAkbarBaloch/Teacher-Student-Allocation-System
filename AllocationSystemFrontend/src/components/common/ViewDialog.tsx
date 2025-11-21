@@ -51,7 +51,7 @@ export function ViewDialog<TData>({
 }: ViewDialogProps<TData>) {
   if (!data) return null;
 
-  const renderFieldValue = (field: string, value: unknown, config?: ColumnConfig) => {
+  const renderFieldValue = (_field: string, value: unknown, config?: ColumnConfig) => {
     // If there's a format function, use it
     if (config?.format && typeof config.format === "function") {
       const formatted = config.format(value, data);
