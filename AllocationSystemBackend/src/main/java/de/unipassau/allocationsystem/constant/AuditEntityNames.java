@@ -12,6 +12,7 @@ public final class AuditEntityNames {
     public static final String AUDIT_LOG = "AUDIT_LOG";
     public static final String INTERNSHIP_TYPE = "INTERNSHIP_TYPE";
     public static final String SCHOOL = "SCHOOL";
+    public static final String SUBJECT = "SUBJECT";
     public static final String SUBJECT_CATEGORY = "SUBJECT_CATEGORY";
     public static final String TEACHER = "TEACHER";
     public static final String TEACHER_AVAILABILITY = "TEACHER_AVAILABILITY";
