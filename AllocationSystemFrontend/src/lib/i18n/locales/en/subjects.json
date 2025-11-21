@@ -1,0 +1,80 @@
+{
+  "title": "Subjects",
+  "subtitle": "Manage subject records and configurations",
+  "table": {
+    "code": "Code",
+    "title": "Title",
+    "category": "Category",
+    "schoolType": "School Type",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "actions": "Actions",
+    "emptyMessage": "No subjects found.",
+    "searchPlaceholder": "Search subjects..."
+  },
+  "form": {
+    "title": {
+      "create": "Create Subject",
+      "edit": "Edit Subject",
+      "view": "Subject Details"
+    },
+    "fields": {
+      "code": "Subject Code",
+      "title": "Subject Title",
+      "category": "Category",
+      "schoolType": "School Type",
+      "isActive": "Active Status",
+      "isActiveDescription": "Enable or disable this subject"
+    },
+    "placeholders": {
+      "code": "Enter subject code (e.g., MAT, ENG, SCI)",
+      "title": "Enter subject title",
+      "category": "Select category",
+      "selectCategory": "Select a category",
+      "noCategories": "No categories available. Please create categories first.",
+      "schoolType": "Enter school type (optional)"
+    },
+    "errors": {
+      "codeRequired": "Subject code is required",
+      "codeMinLength": "Subject code must be at least 1 character",
+      "codeMaxLength": "Subject code must not exceed 50 characters",
+      "titleRequired": "Subject title is required",
+      "titleMinLength": "Subject title must be at least 2 characters",
+      "titleMaxLength": "Subject title must not exceed 255 characters",
+      "categoryRequired": "Subject category is required",
+      "categoryInvalid": "Selected category is invalid. Please select a valid category.",
+      "schoolTypeMaxLength": "School type must not exceed 50 characters"
+    },
+    "actions": {
+      "create": "Create Subject",
+      "update": "Update Subject",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Subject",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Subject",
+    "message": "Are you sure you want to delete this subject? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Subject deleted successfully",
+    "error": "Failed to delete subject"
+  },
+  "create": {
+    "success": "Subject created successfully",
+    "error": "Failed to create subject"
+  },
+  "update": {
+    "success": "Subject updated successfully",
+    "error": "Failed to update subject"
+  }
+}
+
