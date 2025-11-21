@@ -1,51 +1,31 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2 } from "lucide-react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import type {
   School,
   CreateSchoolRequest,
   UpdateSchoolRequest,
 } from "@/features/schools/types/school.types";
-import { SchoolForm } from "@/features/schools/components/SchoolForm";
-import { SchoolLocationMap } from "@/features/schools/components/SchoolLocationMap";
+import { SchoolDialogs } from "@/features/schools/components/SchoolDialogs";
 import { SchoolFilters } from "@/features/schools/components/SchoolFilters";
-import { SchoolStatusBadge } from "@/features/schools/components/SchoolStatusBadge";
 import { SchoolsPageHeader } from "@/features/schools/components/SchoolsPageHeader";
-import { SchoolsTableSection } from "@/features/schools/components/SchoolsTableSection";
 import { SchoolsPaginationControls } from "@/features/schools/components/SchoolsPaginationControls";
 import { useSchoolsPage } from "@/features/schools/hooks/useSchoolsPage";
+import { useSchoolsColumnConfig } from "@/features/schools/utils/columnConfig";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useDialogState } from "@/hooks/useDialogState";
+import { DataTable } from "@/components/common/DataTable";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 import { getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
+import { Power } from "lucide-react";
 
 export default function SchoolsPage() {
   const { t } = useTranslation("schools");
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const dialogs = useDialogState();
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const {
     schools,
@@ -72,39 +52,38 @@ export default function SchoolsPage() {
     handleUpdateSubmit: handleUpdateSubmitInternal,
     handleStatusChange,
     handleDelete,
-    isCreateSubmitting,
-    isUpdateSubmitting,
-    isStatusSubmitting,
-    isDeleteSubmitting,
+    isSubmitting,
     statusTarget,
     setStatusTarget,
     deleteTarget,
     setDeleteTarget,
   } = useSchoolsPage();
 
+  const columnConfig = useSchoolsColumnConfig();
+
   const handleOpenCreate = () => {
     setSelectedSchool(null);
-    setIsCreateDialogOpen(true);
+    dialogs.create.setIsOpen(true);
   };
 
   const handleOpenView = useCallback((school: School) => {
     setSelectedSchool(school);
-    setIsViewDialogOpen(true);
-  }, [setSelectedSchool]);
+    dialogs.view.setIsOpen(true);
+  }, [setSelectedSchool, dialogs.view]);
 
   const handleOpenEdit = useCallback(async (school: School) => {
     try {
       await fetchSchoolDetails(school.id);
-      setIsEditDialogOpen(true);
+      dialogs.edit.setIsOpen(true);
     } catch {
       // toast already handled
     }
-  }, [fetchSchoolDetails]);
+  }, [fetchSchoolDetails, dialogs.edit]);
 
   const handleCreateSubmit = async (payload: CreateSchoolRequest) => {
     try {
       await handleCreateSubmitInternal(payload);
-      setIsCreateDialogOpen(false);
+      dialogs.create.setIsOpen(false);
     } catch {
       // Error already handled
     }
@@ -113,7 +92,7 @@ export default function SchoolsPage() {
   const handleUpdateSubmit = async (payload: UpdateSchoolRequest) => {
     try {
       await handleUpdateSubmitInternal(payload);
-      setIsEditDialogOpen(false);
+      dialogs.edit.setIsOpen(false);
     } catch {
       // Error already handled
     }
@@ -126,8 +105,8 @@ export default function SchoolsPage() {
 
   const openDeleteDialog = useCallback((school: School) => {
     setDeleteTarget(school);
-    setIsDeleteDialogOpen(true);
-  }, [setDeleteTarget]);
+    dialogs.delete.setIsOpen(true);
+  }, [setDeleteTarget, dialogs.delete]);
 
   const confirmStatusChange = async () => {
     if (!statusTarget.school) return;
@@ -144,7 +123,7 @@ export default function SchoolsPage() {
     if (!deleteTarget) return;
     try {
       await handleDelete(deleteTarget);
-      setIsDeleteDialogOpen(false);
+      dialogs.delete.setIsOpen(false);
       setDeleteTarget(null);
     } catch {
       // Error already handled
@@ -186,22 +165,39 @@ export default function SchoolsPage() {
         onReset={handleResetFilters}
       />
 
-      {error && (
-        <div className="p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <SchoolsTableSection
-        schools={schools}
+      <DataTable
+        columnConfig={columnConfig}
+        data={schools}
+        searchKey="schoolName"
+        searchPlaceholder={t("filters.searchPlaceholder")}
+        enableSearch={false}
+        enableColumnVisibility={false}
+        enablePagination={false}
         loading={loading}
-        pageSize={pagination.pageSize}
-        isAdmin={isAdmin}
-        t={t}
-        onViewSchool={handleOpenView}
-        onEditSchool={handleOpenEdit}
-        onToggleStatus={openStatusDialog}
-        onDeleteSchool={openDeleteDialog}
+        error={error}
+        emptyMessage={t("table.empty")}
+        disableInternalDialog={true}
+        actions={{
+          onView: handleOpenView,
+          onEdit: isAdmin ? handleOpenEdit : undefined,
+          onDelete: isAdmin ? openDeleteDialog : undefined,
+          customActions: isAdmin
+            ? [
+                {
+                  label: (school: School) =>
+                    school.isActive ? t("actions.deactivate") : t("actions.activate"),
+                  icon: <Power className="h-4 w-4" />,
+                  onClick: openStatusDialog,
+                  separator: false,
+                },
+              ]
+            : undefined,
+          labels: {
+            view: t("actions.view"),
+            edit: t("actions.edit"),
+            delete: t("actions.delete"),
+          },
+        }}
       />
 
       {!loading && (
@@ -216,214 +212,30 @@ export default function SchoolsPage() {
         />
       )}
 
-      {/* Create Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.create")}</DialogTitle>
-            <DialogDescription>{t("form.description")}</DialogDescription>
-          </DialogHeader>
-          <SchoolForm
-            mode="create"
-            onSubmit={handleCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isSubmitting={isCreateSubmitting}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.edit")}</DialogTitle>
-            <DialogDescription>{t("form.description")}</DialogDescription>
-          </DialogHeader>
-          {formLoading ? (
-            <div className="flex min-h-[200px] items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            selectedSchool && (
-              <SchoolForm
-                mode="edit"
-                school={selectedSchool}
-                onSubmit={handleUpdateSubmit}
-                onCancel={() => setIsEditDialogOpen(false)}
-                isSubmitting={isUpdateSubmitting}
-              />
-            )
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* View Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.view")}</DialogTitle>
-            <DialogDescription>{t("form.description")}</DialogDescription>
-          </DialogHeader>
-          {selectedSchool && (
-            <div className="grid gap-4">
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolName")}</p>
-                <p className="text-base">{selectedSchool.schoolName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolType")}</p>
-                <p>{t(`typeLabels.${selectedSchool.schoolType}`)}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.zoneNumber")}</p>
-                <p>{selectedSchool.zoneNumber}</p>
-              </div>
-              {selectedSchool.address && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.address")}</p>
-                  <p className="whitespace-pre-line">{selectedSchool.address}</p>
-                </div>
-              )}
-              {selectedSchool.transportAccessibility && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.transportAccessibility")}
-                  </p>
-                  <p className="whitespace-pre-line">{selectedSchool.transportAccessibility}</p>
-                </div>
-              )}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {selectedSchool.latitude && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.latitude")}</p>
-                    <p>{selectedSchool.latitude}</p>
-                  </div>
-                )}
-                {selectedSchool.longitude && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.longitude")}</p>
-                    <p>{selectedSchool.longitude}</p>
-                  </div>
-                )}
-                {selectedSchool.distanceFromCenter && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.distanceFromCenter")}
-                    </p>
-                    <p>{selectedSchool.distanceFromCenter}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                  <SchoolStatusBadge isActive={selectedSchool.isActive} />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {selectedSchool.contactEmail && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.contactEmail")}
-                    </p>
-                    <a
-                      href={`mailto:${selectedSchool.contactEmail}`}
-                      className="text-primary underline-offset-2 hover:underline"
-                    >
-                      {selectedSchool.contactEmail}
-                    </a>
-                  </div>
-                )}
-                {selectedSchool.contactPhone && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.contactPhone")}
-                    </p>
-                    <a
-                      href={`tel:${selectedSchool.contactPhone}`}
-                      className="text-primary underline-offset-2 hover:underline"
-                    >
-                      {selectedSchool.contactPhone}
-                    </a>
-                  </div>
-                )}
-              </div>
-              {/* Location Map - at the bottom */}
-              {(selectedSchool.latitude || selectedSchool.longitude) && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">Location Map</p>
-                  <SchoolLocationMap
-                    latitude={selectedSchool.latitude}
-                    longitude={selectedSchool.longitude}
-                    schoolName={selectedSchool.schoolName}
-                    className="w-full"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Activate/Deactivate Confirmation */}
-      <AlertDialog
-        open={isStatusDialogOpen}
-        onOpenChange={(open) => {
-          setIsStatusDialogOpen(open);
-          if (!open) {
-            setStatusTarget({ school: null, nextState: false });
-          }
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {statusTarget.nextState ? t("status.activateTitle") : t("status.deactivateTitle")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {statusTarget.nextState ? t("status.activateDescription") : t("status.deactivateDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isStatusSubmitting}>{t("actions.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmStatusChange}
-              disabled={isStatusSubmitting || !statusTarget.school}
-              className={statusTarget.nextState ? "" : "bg-destructive text-white hover:bg-destructive/90"}
-            >
-              {isStatusSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : statusTarget.nextState ? (
-                t("actions.activate")
-              ) : (
-                t("actions.deactivate")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete Confirmation */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("delete.description")}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleteSubmitting}>{t("delete.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              disabled={isDeleteSubmitting}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {isDeleteSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                t("delete.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SchoolDialogs
+        isCreateDialogOpen={dialogs.create.isOpen}
+        setIsCreateDialogOpen={dialogs.create.setIsOpen}
+        isEditDialogOpen={dialogs.edit.isOpen}
+        setIsEditDialogOpen={dialogs.edit.setIsOpen}
+        isViewDialogOpen={dialogs.view.isOpen}
+        setIsViewDialogOpen={dialogs.view.setIsOpen}
+        isStatusDialogOpen={isStatusDialogOpen}
+        setIsStatusDialogOpen={setIsStatusDialogOpen}
+        isDeleteDialogOpen={dialogs.delete.isOpen}
+        setIsDeleteDialogOpen={dialogs.delete.setIsOpen}
+        selectedSchool={selectedSchool}
+        formLoading={formLoading}
+        statusTarget={statusTarget}
+        deleteTarget={deleteTarget}
+        onCreateSubmit={handleCreateSubmit}
+        onUpdateSubmit={handleUpdateSubmit}
+        onStatusChange={confirmStatusChange}
+        onDelete={confirmDelete}
+        onOpenEdit={handleOpenEdit}
+        onStatusTargetChange={setStatusTarget}
+        isSubmitting={isSubmitting}
+        t={t}
+      />
     </div>
   );
 }

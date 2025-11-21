@@ -5,4 +5,6 @@ export * from "./components/TeachersPageHeader";
 export * from "./components/TeachersTableSection";
 export * from "./components/TeachersPaginationControls";
 export * from "./hooks/useTeacherForm";
+export * from "./hooks/useTeachersPage";
+export * from "./utils/columnConfig";
 

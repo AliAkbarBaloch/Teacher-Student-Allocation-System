@@ -56,11 +56,11 @@ export function useTeachersPage() {
   // Wrap data handlers with dialog state management
   const handleCreateSubmit = useCallback(
     async (payload: CreateTeacherRequest) => {
-      dialogs.setIsCreateSubmitting(true);
+      dialogs.setOperationInProgress("create");
       try {
         await data.createTeacher(payload);
       } finally {
-        dialogs.setIsCreateSubmitting(false);
+        dialogs.setOperationInProgress(null);
       }
     },
     [data, dialogs]
@@ -69,11 +69,11 @@ export function useTeachersPage() {
   const handleUpdateSubmit = useCallback(
     async (payload: UpdateTeacherRequest) => {
       if (!data.selectedTeacher) return;
-      dialogs.setIsUpdateSubmitting(true);
+      dialogs.setOperationInProgress("update");
       try {
         await data.updateTeacher(data.selectedTeacher.id, payload);
       } finally {
-        dialogs.setIsUpdateSubmitting(false);
+        dialogs.setOperationInProgress(null);
       }
     },
     [data, dialogs]
@@ -81,7 +81,7 @@ export function useTeachersPage() {
 
   const handleStatusChange = useCallback(
     async (teacher: Teacher, nextState: boolean) => {
-      dialogs.setIsStatusSubmitting(true);
+      dialogs.setOperationInProgress("status");
       dialogs.setWarningMessage(null);
       try {
         await data.updateTeacherStatus(teacher.id, nextState);
@@ -97,7 +97,7 @@ export function useTeachersPage() {
           throw err;
         }
       } finally {
-        dialogs.setIsStatusSubmitting(false);
+        dialogs.setOperationInProgress(null);
       }
     },
     [data, dialogs]
@@ -105,12 +105,12 @@ export function useTeachersPage() {
 
   const handleDelete = useCallback(
     async (teacher: Teacher) => {
-      dialogs.setIsDeleteSubmitting(true);
+      dialogs.setOperationInProgress("delete");
       try {
         await data.deleteTeacher(teacher.id);
         dialogs.closeDeleteDialog();
       } finally {
-        dialogs.setIsDeleteSubmitting(false);
+        dialogs.setOperationInProgress(null);
       }
     },
     [data, dialogs]
@@ -164,11 +164,8 @@ export function useTeachersPage() {
     handleOpenCreate,
     refreshList: data.refreshList,
 
-    // Submitting states
-    isCreateSubmitting: dialogs.isCreateSubmitting,
-    isUpdateSubmitting: dialogs.isUpdateSubmitting,
-    isStatusSubmitting: dialogs.isStatusSubmitting,
-    isDeleteSubmitting: dialogs.isDeleteSubmitting,
+    // Submitting state (consolidated)
+    isSubmitting: dialogs.operationInProgress !== null,
 
     // Dialog targets
     statusTarget: dialogs.statusTarget,

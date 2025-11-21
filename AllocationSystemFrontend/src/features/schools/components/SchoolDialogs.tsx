@@ -18,11 +18,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { TeacherForm } from "./TeacherForm";
-import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "../types/teacher.types";
+import { SchoolForm } from "./SchoolForm";
+import { SchoolLocationMap } from "./SchoolLocationMap";
+import { SchoolStatusBadge } from "./SchoolStatusBadge";
+import type { School, CreateSchoolRequest, UpdateSchoolRequest } from "../types/school.types";
 import type { TFunction } from "i18next";
 
-interface TeacherDialogsProps {
+interface SchoolDialogsProps {
   // Dialog states
   isCreateDialogOpen: boolean;
   setIsCreateDialogOpen: (open: boolean) => void;
@@ -36,30 +38,27 @@ interface TeacherDialogsProps {
   setIsDeleteDialogOpen: (open: boolean) => void;
 
   // Data
-  selectedTeacher: Teacher | null;
+  selectedSchool: School | null;
   formLoading: boolean;
-  createFormKey: number;
-  statusTarget: { teacher: Teacher | null; nextState: boolean };
-  deleteTarget: Teacher | null;
-  warningMessage: string | null;
+  statusTarget: { school: School | null; nextState: boolean };
+  deleteTarget: School | null;
 
   // Handlers
-  onCreateSubmit: (payload: CreateTeacherRequest) => Promise<void>;
-  onUpdateSubmit: (payload: UpdateTeacherRequest) => Promise<void>;
+  onCreateSubmit: (payload: CreateSchoolRequest) => Promise<void>;
+  onUpdateSubmit: (payload: UpdateSchoolRequest) => Promise<void>;
   onStatusChange: () => Promise<void>;
   onDelete: () => Promise<void>;
-  onCloseStatus: () => void;
-  onEdit?: () => void;
+  onOpenEdit: (school: School) => Promise<void>;
+  onStatusTargetChange: (target: { school: School | null; nextState: boolean }) => void;
 
   // States
   isSubmitting: boolean;
-  isAdmin: boolean;
 
   // Translations
-  t: TFunction<"teachers">;
+  t: TFunction<"schools">;
 }
 
-export function TeacherDialogs({
+export function SchoolDialogs({
   isCreateDialogOpen,
   setIsCreateDialogOpen,
   isEditDialogOpen,
@@ -70,21 +69,18 @@ export function TeacherDialogs({
   setIsStatusDialogOpen,
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
-  selectedTeacher,
+  selectedSchool,
   formLoading,
-  createFormKey,
   statusTarget,
-  warningMessage,
   onCreateSubmit,
   onUpdateSubmit,
   onStatusChange,
   onDelete,
-  onCloseStatus,
-  onEdit,
+  onOpenEdit,
+  onStatusTargetChange,
   isSubmitting,
-  isAdmin,
   t,
-}: TeacherDialogsProps) {
+}: SchoolDialogsProps) {
   return (
     <>
       {/* Create Dialog */}
@@ -94,15 +90,12 @@ export function TeacherDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("form.description")}</DialogDescription>
           </DialogHeader>
-          {isCreateDialogOpen && (
-            <TeacherForm
-              key={`create-teacher-form-${createFormKey}`}
-              mode="create"
-              onSubmit={onCreateSubmit}
-              onCancel={() => setIsCreateDialogOpen(false)}
-              isSubmitting={isSubmitting}
-            />
-          )}
+          <SchoolForm
+            mode="create"
+            onSubmit={onCreateSubmit}
+            onCancel={() => setIsCreateDialogOpen(false)}
+            isSubmitting={isSubmitting}
+          />
         </DialogContent>
       </Dialog>
 
@@ -118,14 +111,13 @@ export function TeacherDialogs({
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            selectedTeacher && (
-              <TeacherForm
+            selectedSchool && (
+              <SchoolForm
                 mode="edit"
-                teacher={selectedTeacher}
+                school={selectedSchool}
                 onSubmit={onUpdateSubmit}
                 onCancel={() => setIsEditDialogOpen(false)}
                 isSubmitting={isSubmitting}
-                readOnly={!isAdmin}
               />
             )
           )}
@@ -136,75 +128,112 @@ export function TeacherDialogs({
       <ViewDialog
         open={isViewDialogOpen}
         onOpenChange={setIsViewDialogOpen}
-        data={selectedTeacher}
+        data={selectedSchool}
         title={t("form.title.view")}
         description={t("form.description")}
         maxWidth="2xl"
-        onEdit={onEdit}
+        onEdit={() => {
+          setIsViewDialogOpen(false);
+          if (selectedSchool) {
+            onOpenEdit(selectedSchool);
+          }
+        }}
         editLabel={t("actions.edit")}
         closeLabel={t("actions.cancel")}
-        renderCustomContent={(teacher) => (
+        renderCustomContent={(school) => (
           <div className="grid gap-4">
             <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
-              <p className="text-base">{teacher.firstName}</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolName")}</p>
+              <p className="text-base">{school.schoolName}</p>
             </div>
             <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
-              <p className="text-base">{teacher.lastName}</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolType")}</p>
+              <p>{t(`typeLabels.${school.schoolType}`)}</p>
             </div>
             <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
-              <a
-                href={`mailto:${teacher.email}`}
-                className="text-primary underline-offset-2 hover:underline"
-              >
-                {teacher.email}
-              </a>
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.zoneNumber")}</p>
+              <p>{school.zoneNumber}</p>
             </div>
-            {teacher.phone && (
+            {school.address && (
               <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.phone")}</p>
-                <a
-                  href={`tel:${teacher.phone}`}
-                  className="text-primary underline-offset-2 hover:underline"
-                >
-                  {teacher.phone}
-                </a>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.address")}</p>
+                <p className="whitespace-pre-line">{school.address}</p>
+              </div>
+            )}
+            {school.transportAccessibility && (
+              <div className="grid gap-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t("form.fields.transportAccessibility")}
+                </p>
+                <p className="whitespace-pre-line">{school.transportAccessibility}</p>
               </div>
             )}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
-                <p>{teacher.schoolName}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                <p>{t(`form.employmentStatus.${teacher.employmentStatus}`)}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
-                <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
-              </div>
-              {teacher.usageCycle && (
+              {school.latitude && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                  <p>{t(`form.usageCycle.${teacher.usageCycle}`)}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.latitude")}</p>
+                  <p>{school.latitude}</p>
+                </div>
+              )}
+              {school.longitude && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.longitude")}</p>
+                  <p>{school.longitude}</p>
+                </div>
+              )}
+              {school.distanceFromCenter && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t("form.fields.distanceFromCenter")}
+                  </p>
+                  <p>{school.distanceFromCenter}</p>
                 </div>
               )}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                {teacher.isActive ? (
-                  <span className="inline-flex items-center rounded-full bg-green-500 px-2.5 py-0.5 text-xs font-medium text-white">
-                    {t("status.active")}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center rounded-full bg-gray-500 px-2.5 py-0.5 text-xs font-medium text-white">
-                    {t("status.inactive")}
-                  </span>
-                )}
+                <SchoolStatusBadge isActive={school.isActive} />
               </div>
             </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {school.contactEmail && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t("form.fields.contactEmail")}
+                  </p>
+                  <a
+                    href={`mailto:${school.contactEmail}`}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {school.contactEmail}
+                  </a>
+                </div>
+              )}
+              {school.contactPhone && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t("form.fields.contactPhone")}
+                  </p>
+                  <a
+                    href={`tel:${school.contactPhone}`}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {school.contactPhone}
+                  </a>
+                </div>
+              )}
+            </div>
+            {/* Location Map - at the bottom */}
+            {(school.latitude || school.longitude) && (
+              <div className="grid gap-1">
+                <p className="text-sm font-medium text-muted-foreground">Location Map</p>
+                <SchoolLocationMap
+                  latitude={school.latitude}
+                  longitude={school.longitude}
+                  schoolName={school.schoolName}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
         )}
       />
@@ -215,7 +244,7 @@ export function TeacherDialogs({
         onOpenChange={(open) => {
           setIsStatusDialogOpen(open);
           if (!open) {
-            onCloseStatus();
+            onStatusTargetChange({ school: null, nextState: false });
           }
         }}
       >
@@ -226,21 +255,13 @@ export function TeacherDialogs({
             </AlertDialogTitle>
             <AlertDialogDescription>
               {statusTarget.nextState ? t("status.activateDescription") : t("status.deactivateDescription")}
-              {warningMessage && (
-                <div className="mt-3 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-400/30 dark:text-amber-100">
-                  <p className="text-sm font-medium">{t("status.warning")}</p>
-                  <p className="text-sm mt-1">{warningMessage}</p>
-                </div>
-              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting} onClick={onCloseStatus}>
-              {t("actions.cancel")}
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>{t("actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={onStatusChange}
-              disabled={isSubmitting || !statusTarget.teacher}
+              disabled={isSubmitting || !statusTarget.school}
               className={statusTarget.nextState ? "" : "bg-destructive text-white hover:bg-destructive/90"}
             >
               {isSubmitting ? (

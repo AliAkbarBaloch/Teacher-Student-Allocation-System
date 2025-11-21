@@ -1,53 +1,44 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 
-/**
- * Generic dialog state management hook
- * Consolidates multiple dialog states into a single discriminated union
- */
-export type DialogState<T> =
-  | { type: "create" }
-  | { type: "edit"; item: T }
-  | { type: "view"; item: T }
-  | { type: "status"; item: T; nextState: boolean }
-  | { type: "delete"; item: T }
-  | { type: null };
-
-export function useDialogState<T>() {
-  const [dialogState, setDialogState] = useState<DialogState<T>>({ type: null });
-
-  const openCreate = useCallback(() => {
-    setDialogState({ type: "create" });
-  }, []);
-
-  const openEdit = useCallback((item: T) => {
-    setDialogState({ type: "edit", item });
-  }, []);
-
-  const openView = useCallback((item: T) => {
-    setDialogState({ type: "view", item });
-  }, []);
-
-  const openStatus = useCallback((item: T, nextState: boolean) => {
-    setDialogState({ type: "status", item, nextState });
-  }, []);
-
-  const openDelete = useCallback((item: T) => {
-    setDialogState({ type: "delete", item });
-  }, []);
-
-  const closeDialog = useCallback(() => {
-    setDialogState({ type: null });
-  }, []);
-
-  return {
-    dialogState,
-    openCreate,
-    openEdit,
-    openView,
-    openStatus,
-    openDelete,
-    closeDialog,
-    isOpen: dialogState.type !== null,
-  };
+export interface DialogState {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
+export interface DialogStates {
+  create: DialogState;
+  edit: DialogState;
+  view: DialogState;
+  delete: DialogState;
+}
+
+/**
+ * Custom hook to manage common CRUD dialog states.
+ * Reduces boilerplate by centralizing dialog state management.
+ * 
+ * @returns Object containing dialog states for create, edit, view, and delete operations
+ * 
+ * @example
+ * ```tsx
+ * const dialogs = useDialogState();
+ * 
+ * // Open create dialog
+ * dialogs.create.setIsOpen(true);
+ * 
+ * // Check if edit dialog is open
+ * if (dialogs.edit.isOpen) { ... }
+ * ```
+ */
+export function useDialogState(): DialogStates {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  return {
+    create: { isOpen: isCreateOpen, setIsOpen: setIsCreateOpen },
+    edit: { isOpen: isEditOpen, setIsOpen: setIsEditOpen },
+    view: { isOpen: isViewOpen, setIsOpen: setIsViewOpen },
+    delete: { isOpen: isDeleteOpen, setIsOpen: setIsDeleteOpen },
+  };
+}

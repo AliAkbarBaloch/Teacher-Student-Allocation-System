@@ -1,0 +1,88 @@
+{
+  "title": "Praktikumstypen",
+  "subtitle": "Verwaltung von Praktikumstyp-Definitionen und Konfigurationen",
+  "table": {
+    "code": "Code",
+    "fullName": "Vollständiger Name",
+    "timing": "Zeitpunkt",
+    "periodType": "Periodentyp",
+    "semester": "Semester",
+    "isSubjectSpecific": "Fachspezifisch",
+    "priorityOrder": "Prioritätsreihenfolge",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Praktikumstypen gefunden.",
+    "searchPlaceholder": "Praktikumstypen suchen...",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "form": {
+    "title": {
+      "create": "Praktikumstyp erstellen",
+      "edit": "Praktikumstyp bearbeiten",
+      "view": "Praktikumstyp-Details"
+    },
+    "fields": {
+      "code": "Code",
+      "fullName": "Vollständiger Name",
+      "timing": "Zeitpunkt",
+      "periodType": "Periodentyp",
+      "semester": "Semester",
+      "isSubjectSpecific": "Fachspezifisch",
+      "isSubjectSpecificDescription": "Aktivieren, wenn dieser Praktikumstyp eine Fachzuordnung erfordert",
+      "priorityOrder": "Prioritätsreihenfolge"
+    },
+    "placeholders": {
+      "code": "Praktikumscode eingeben (z.B. PDP I, PDP II, ZSP, SFP)",
+      "fullName": "Vollständigen Namen eingeben",
+      "timing": "Zeitpunkt auswählen",
+      "periodType": "Periodentyp auswählen",
+      "semester": "Semester auswählen",
+      "priorityOrder": "Prioritätsreihenfolge eingeben",
+      "none": "Keine"
+    },
+    "errors": {
+      "codeRequired": "Code ist erforderlich",
+      "codeMaxLength": "Code darf maximal 50 Zeichen lang sein",
+      "fullNameRequired": "Vollständiger Name ist erforderlich",
+      "fullNameMaxLength": "Vollständiger Name darf maximal 255 Zeichen lang sein",
+      "timingMaxLength": "Zeitpunkt darf maximal 100 Zeichen lang sein",
+      "periodTypeMaxLength": "Periodentyp darf maximal 50 Zeichen lang sein",
+      "semesterMaxLength": "Semester darf maximal 50 Zeichen lang sein",
+      "priorityOrderInvalid": "Prioritätsreihenfolge muss eine positive Zahl sein"
+    },
+    "actions": {
+      "create": "Praktikumstyp erstellen",
+      "update": "Praktikumstyp aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen",
+      "custom": "Benutzerdefiniert...",
+      "usePredefined": "Vordefiniert verwenden"
+    }
+  },
+  "actions": {
+    "create": "Praktikumstyp erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Praktikumstyp löschen",
+    "message": "Sind Sie sicher, dass Sie diesen Praktikumstyp löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Praktikumstyp erfolgreich gelöscht",
+    "error": "Fehler beim Löschen des Praktikumstyps"
+  },
+  "create": {
+    "success": "Praktikumstyp erfolgreich erstellt",
+    "error": "Fehler beim Erstellen des Praktikumstyps"
+  },
+  "update": {
+    "success": "Praktikumstyp erfolgreich aktualisiert",
+    "error": "Fehler beim Aktualisieren des Praktikumstyps"
+  }
+}
+

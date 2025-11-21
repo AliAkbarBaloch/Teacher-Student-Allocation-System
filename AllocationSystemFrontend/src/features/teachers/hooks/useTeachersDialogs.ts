@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import type { Teacher } from "../types/teacher.types";
 
+export type OperationType = "create" | "update" | "status" | "delete" | null;
+
 export function useTeachersDialogs() {
-  const [isCreateSubmitting, setIsCreateSubmitting] = useState(false);
-  const [isUpdateSubmitting, setIsUpdateSubmitting] = useState(false);
-  const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
-  const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
+  // Consolidated loading state - only one operation can be in progress at a time
+  const [operationInProgress, setOperationInProgress] = useState<OperationType>(null);
   const [statusTarget, setStatusTarget] = useState<{ teacher: Teacher | null; nextState: boolean }>({
     teacher: null,
     nextState: true,
@@ -37,15 +37,14 @@ export function useTeachersDialogs() {
   }, []);
 
   return {
-    // Submitting states
-    isCreateSubmitting,
-    setIsCreateSubmitting,
-    isUpdateSubmitting,
-    setIsUpdateSubmitting,
-    isStatusSubmitting,
-    setIsStatusSubmitting,
-    isDeleteSubmitting,
-    setIsDeleteSubmitting,
+    // Consolidated loading state
+    operationInProgress,
+    setOperationInProgress,
+    // Convenience getters for backward compatibility (can be removed later)
+    isCreateSubmitting: operationInProgress === "create",
+    isUpdateSubmitting: operationInProgress === "update",
+    isStatusSubmitting: operationInProgress === "status",
+    isDeleteSubmitting: operationInProgress === "delete",
     // Dialog targets
     statusTarget,
     setStatusTarget,
