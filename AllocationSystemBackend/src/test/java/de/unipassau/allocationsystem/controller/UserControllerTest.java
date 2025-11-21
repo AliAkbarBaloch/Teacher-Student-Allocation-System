@@ -74,11 +74,11 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value("newuser@example.com"))
-                .andExpect(jsonPath("$.fullName").value("New User"))
-                .andExpect(jsonPath("$.role").value("USER"))
-                .andExpect(jsonPath("$.enabled").value(true))
-                .andExpect(jsonPath("$.accountStatus").value("ACTIVE"));
+                .andExpect(jsonPath("$.data.email").value("newuser@example.com"))
+                .andExpect(jsonPath("$.data.fullName").value("New User"))
+                .andExpect(jsonPath("$.data.role").value("USER"))
+                .andExpect(jsonPath("$.data.enabled").value(true))
+                .andExpect(jsonPath("$.data.accountStatus").value("ACTIVE"));
     }
 
     @Test
@@ -152,9 +152,9 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.fullName").value("Updated Name"))
-                .andExpect(jsonPath("$.phoneNumber").value("+1234567890"))
-                .andExpect(jsonPath("$.email").value(testUser.getEmail())); // Should remain unchanged
+                .andExpect(jsonPath("$.data.fullName").value("Updated Name"))
+                .andExpect(jsonPath("$.data.phoneNumber").value("+1234567890"))
+                .andExpect(jsonPath("$.data.email").value(testUser.getEmail())); // Should remain unchanged
     }
 
     @Test
@@ -167,7 +167,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.role").value("ADMIN"));
+                .andExpect(jsonPath("$.data.role").value("ADMIN"));
     }
 
     @Test
@@ -187,10 +187,10 @@ class UserControllerTest {
     void getUserById_Success() throws Exception {
         mockMvc.perform(get("/api/users/" + testUser.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(testUser.getId()))
-                .andExpect(jsonPath("$.email").value(testUser.getEmail()))
-                .andExpect(jsonPath("$.fullName").value(testUser.getFullName()))
-                .andExpect(jsonPath("$.password").doesNotExist()); // Should not expose password
+                .andExpect(jsonPath("$.data.id").value(testUser.getId()))
+                .andExpect(jsonPath("$.data.email").value(testUser.getEmail()))
+                .andExpect(jsonPath("$.data.fullName").value(testUser.getFullName()))
+                .andExpect(jsonPath("$.data.password").doesNotExist()); // Should not expose password
     }
 
     @Test
@@ -215,8 +215,8 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.totalElements").value(2));
+                .andExpect(jsonPath("$.data.content", hasSize(2)))
+                .andExpect(jsonPath("$.data.totalElements").value(2));
     }
 
     @Test
@@ -235,8 +235,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .param("role", "ADMIN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].role").value("ADMIN"));
+                .andExpect(jsonPath("$.data.content", hasSize(1)))
+                .andExpect(jsonPath("$.data.content[0].role").value("ADMIN"));
     }
 
     @Test
@@ -255,8 +255,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .param("status", "INACTIVE"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].accountStatus").value("INACTIVE"));
+                .andExpect(jsonPath("$.data.content", hasSize(1)))
+                .andExpect(jsonPath("$.data.content[0].accountStatus").value("INACTIVE"));
     }
 
     @Test
@@ -265,7 +265,7 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .param("enabled", "true"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[*].enabled", everyItem(is(true))));
+                .andExpect(jsonPath("$.data.content[*].enabled", everyItem(is(true))));
     }
 
     @Test
@@ -274,8 +274,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .param("search", "test@example"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].email").value(testUser.getEmail()));
+                .andExpect(jsonPath("$.data.content", hasSize(1)))
+                .andExpect(jsonPath("$.data.content[0].email").value(testUser.getEmail()));
     }
 
     @Test
@@ -284,8 +284,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .param("search", "Test User"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].fullName").value(testUser.getFullName()));
+                .andExpect(jsonPath("$.data.content", hasSize(1)))
+                .andExpect(jsonPath("$.data.content[0].fullName").value(testUser.getFullName()));
     }
 
     @Test
@@ -307,9 +307,9 @@ class UserControllerTest {
                 .param("page", "0")
                 .param("size", "3"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(3)))
-                .andExpect(jsonPath("$.totalElements").value(6))
-                .andExpect(jsonPath("$.totalPages").value(2));
+                .andExpect(jsonPath("$.data.content", hasSize(3)))
+                .andExpect(jsonPath("$.data.totalElements").value(6))
+                .andExpect(jsonPath("$.data.totalPages").value(2));
     }
 
     @Test
@@ -329,7 +329,7 @@ class UserControllerTest {
                 .param("sortBy", "email")
                 .param("sortDirection", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].email").value("aaa@example.com"));
+                .andExpect(jsonPath("$.data.content[0].email").value("aaa@example.com"));
     }
 
     @Test
@@ -342,10 +342,10 @@ class UserControllerTest {
 
         mockMvc.perform(patch("/api/users/" + testUser.getId() + "/activate"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.enabled").value(true))
-                .andExpect(jsonPath("$.accountStatus").value("ACTIVE"))
-                .andExpect(jsonPath("$.accountLocked").value(false))
-                .andExpect(jsonPath("$.failedLoginAttempts").value(0));
+                .andExpect(jsonPath("$.data.enabled").value(true))
+                .andExpect(jsonPath("$.data.accountStatus").value("ACTIVE"))
+                .andExpect(jsonPath("$.data.accountLocked").value(false))
+                .andExpect(jsonPath("$.data.failedLoginAttempts").value(0));
     }
 
     @Test
@@ -360,8 +360,8 @@ class UserControllerTest {
     void deactivateUser_Success() throws Exception {
         mockMvc.perform(patch("/api/users/" + testUser.getId() + "/deactivate"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.enabled").value(false))
-                .andExpect(jsonPath("$.accountStatus").value("INACTIVE"));
+                .andExpect(jsonPath("$.data.enabled").value(false))
+                .andExpect(jsonPath("$.data.accountStatus").value("INACTIVE"));
     }
 
     @Test
@@ -381,7 +381,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.lastPasswordResetDate").exists());
+                .andExpect(jsonPath("$.data.lastPasswordResetDate").exists());
     }
 
     @Test
@@ -460,11 +460,11 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/users/statistics"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsers").value(4))
-                .andExpect(jsonPath("$.activeUsers").value(3))
-                .andExpect(jsonPath("$.inactiveUsers").value(1))
-                .andExpect(jsonPath("$.lockedUsers").value(1))
-                .andExpect(jsonPath("$.adminUsers").value(1))
-                .andExpect(jsonPath("$.regularUsers").value(3));
+                .andExpect(jsonPath("$.data.totalUsers").value(4))
+                .andExpect(jsonPath("$.data.activeUsers").value(3))
+                .andExpect(jsonPath("$.data.inactiveUsers").value(1))
+                .andExpect(jsonPath("$.data.lockedUsers").value(1))
+                .andExpect(jsonPath("$.data.adminUsers").value(1))
+                .andExpect(jsonPath("$.data.regularUsers").value(3));
     }
 }

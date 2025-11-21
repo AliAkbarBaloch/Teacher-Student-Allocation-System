@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests all REST endpoints with proper authentication and authorization.
  */
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional
 class AuditLogControllerTest {
@@ -106,13 +106,13 @@ class AuditLogControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$.totalElements").value(greaterThan(0)))
-                .andExpect(jsonPath("$.content[0].id").exists())
-                .andExpect(jsonPath("$.content[0].userIdentifier").exists())
-                .andExpect(jsonPath("$.content[0].action").exists())
-                .andExpect(jsonPath("$.content[0].targetEntity").exists());
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.data.totalElements").value(greaterThan(0)))
+                .andExpect(jsonPath("$.data.content[0].id").exists())
+                .andExpect(jsonPath("$.data.content[0].userIdentifier").exists())
+                .andExpect(jsonPath("$.data.content[0].action").exists())
+                .andExpect(jsonPath("$.data.content[0].targetEntity").exists());
     }
 
     @Test
@@ -139,8 +139,8 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[*].action", everyItem(is("CREATE"))));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[*].action", everyItem(is("CREATE"))));
     }
 
     @Test
@@ -152,8 +152,8 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[*].targetEntity", everyItem(is("User"))));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
     }
 
     @Test
@@ -170,7 +170,7 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());
+                .andExpect(jsonPath("$.data.content").isArray());
     }
 
     @Test
@@ -183,7 +183,7 @@ class AuditLogControllerTest {
                 .param("sortDirection", "ASC"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray());
+                .andExpect(jsonPath("$.data.content").isArray());
     }
 
     @Test
@@ -279,9 +279,9 @@ class AuditLogControllerTest {
                 .param("size", "2"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(lessThanOrEqualTo(2))))
-                .andExpect(jsonPath("$.number").value(0))
-                .andExpect(jsonPath("$.size").value(2));
+                .andExpect(jsonPath("$.data.content", hasSize(lessThanOrEqualTo(2))))
+                .andExpect(jsonPath("$.data.number").value(0))
+                .andExpect(jsonPath("$.data.size").value(2));
 
         // Test second page
         mockMvc.perform(get("/api/audit-logs")
@@ -289,7 +289,7 @@ class AuditLogControllerTest {
                 .param("size", "2"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(1));
+                .andExpect(jsonPath("$.data.number").value(1));
     }
 
     @Test
@@ -302,9 +302,9 @@ class AuditLogControllerTest {
                 .param("size", "10"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[*].action", everyItem(is("UPDATE"))))
-                .andExpect(jsonPath("$.content[*].targetEntity", everyItem(is("User"))));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[*].action", everyItem(is("UPDATE"))))
+                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
     }
 
     @Test
@@ -337,11 +337,11 @@ class AuditLogControllerTest {
                 .param("size", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id").exists())
-                .andExpect(jsonPath("$.content[0].userIdentifier").exists())
-                .andExpect(jsonPath("$.content[0].eventTimestamp").exists())
-                .andExpect(jsonPath("$.content[0].action").exists())
-                .andExpect(jsonPath("$.content[0].targetEntity").exists())
-                .andExpect(jsonPath("$.content[0].createdAt").exists());
+                .andExpect(jsonPath("$.data.content[0].id").exists())
+                .andExpect(jsonPath("$.data.content[0].userIdentifier").exists())
+                .andExpect(jsonPath("$.data.content[0].eventTimestamp").exists())
+                .andExpect(jsonPath("$.data.content[0].action").exists())
+                .andExpect(jsonPath("$.data.content[0].targetEntity").exists())
+                .andExpect(jsonPath("$.data.content[0].createdAt").exists());
     }
 }
