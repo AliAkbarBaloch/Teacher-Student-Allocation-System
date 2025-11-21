@@ -16,6 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { TeacherForm } from "./TeacherForm";
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "../types/teacher.types";
 import type { TFunction } from "i18next";
@@ -47,12 +49,10 @@ interface TeacherDialogsProps {
   onStatusChange: () => Promise<void>;
   onDelete: () => Promise<void>;
   onCloseStatus: () => void;
+  onEdit?: () => void;
 
   // States
-  isCreateSubmitting: boolean;
-  isUpdateSubmitting: boolean;
-  isStatusSubmitting: boolean;
-  isDeleteSubmitting: boolean;
+  isSubmitting: boolean;
   isAdmin: boolean;
 
   // Translations
@@ -80,10 +80,8 @@ export function TeacherDialogs({
   onStatusChange,
   onDelete,
   onCloseStatus,
-  isCreateSubmitting,
-  isUpdateSubmitting,
-  isStatusSubmitting,
-  isDeleteSubmitting,
+  onEdit,
+  isSubmitting,
   isAdmin,
   t,
 }: TeacherDialogsProps) {
@@ -102,7 +100,7 @@ export function TeacherDialogs({
               mode="create"
               onSubmit={onCreateSubmit}
               onCancel={() => setIsCreateDialogOpen(false)}
-              isSubmitting={isCreateSubmitting}
+              isSubmitting={isSubmitting}
             />
           )}
         </DialogContent>
@@ -126,7 +124,7 @@ export function TeacherDialogs({
                 teacher={selectedTeacher}
                 onSubmit={onUpdateSubmit}
                 onCancel={() => setIsEditDialogOpen(false)}
-                isSubmitting={isUpdateSubmitting}
+                isSubmitting={isSubmitting}
                 readOnly={!isAdmin}
               />
             )
@@ -135,78 +133,81 @@ export function TeacherDialogs({
       </Dialog>
 
       {/* View Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.view")}</DialogTitle>
-            <DialogDescription>{t("form.description")}</DialogDescription>
-          </DialogHeader>
-          {selectedTeacher && (
-            <div className="grid gap-4">
+      <ViewDialog
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        data={selectedTeacher}
+        title={t("form.title.view")}
+        description={t("form.description")}
+        maxWidth="2xl"
+        onEdit={onEdit}
+        editLabel={t("actions.edit")}
+        closeLabel={t("actions.cancel")}
+        renderCustomContent={(teacher) => (
+          <div className="grid gap-4">
+            <div className="grid gap-1">
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
+              <p className="text-base">{teacher.firstName}</p>
+            </div>
+            <div className="grid gap-1">
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
+              <p className="text-base">{teacher.lastName}</p>
+            </div>
+            <div className="grid gap-1">
+              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
+              <a
+                href={`mailto:${teacher.email}`}
+                className="text-primary underline-offset-2 hover:underline"
+              >
+                {teacher.email}
+              </a>
+            </div>
+            {teacher.phone && (
               <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
-                <p className="text-base">{selectedTeacher.firstName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
-                <p className="text-base">{selectedTeacher.lastName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.phone")}</p>
                 <a
-                  href={`mailto:${selectedTeacher.email}`}
+                  href={`tel:${teacher.phone}`}
                   className="text-primary underline-offset-2 hover:underline"
                 >
-                  {selectedTeacher.email}
+                  {teacher.phone}
                 </a>
               </div>
-              {selectedTeacher.phone && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.phone")}</p>
-                  <a
-                    href={`tel:${selectedTeacher.phone}`}
-                    className="text-primary underline-offset-2 hover:underline"
-                  >
-                    {selectedTeacher.phone}
-                  </a>
+            )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
+                <p>{teacher.schoolName}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
+                <p>{t(`form.employmentStatus.${teacher.employmentStatus}`)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
+                <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
+              </div>
+              {teacher.usageCycle && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
+                  <p>{t(`form.usageCycle.${teacher.usageCycle}`)}</p>
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
-                  <p>{selectedTeacher.schoolName}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                  <p>{t(`form.employmentStatus.${selectedTeacher.employmentStatus}`)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
-                  <p>{selectedTeacher.isPartTime ? t("table.yes") : t("table.no")}</p>
-                </div>
-                {selectedTeacher.usageCycle && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                    <p>{t(`form.usageCycle.${selectedTeacher.usageCycle}`)}</p>
-                  </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
+                {teacher.isActive ? (
+                  <span className="inline-flex items-center rounded-full bg-green-500 px-2.5 py-0.5 text-xs font-medium text-white">
+                    {t("status.active")}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center rounded-full bg-gray-500 px-2.5 py-0.5 text-xs font-medium text-white">
+                    {t("status.inactive")}
+                  </span>
                 )}
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                  {selectedTeacher.isActive ? (
-                    <span className="inline-flex items-center rounded-full bg-green-500 px-2.5 py-0.5 text-xs font-medium text-white">
-                      {t("status.active")}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full bg-gray-500 px-2.5 py-0.5 text-xs font-medium text-white">
-                      {t("status.inactive")}
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        )}
+      />
 
       {/* Activate/Deactivate Confirmation */}
       <AlertDialog
@@ -234,15 +235,15 @@ export function TeacherDialogs({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isStatusSubmitting} onClick={onCloseStatus}>
+            <AlertDialogCancel disabled={isSubmitting} onClick={onCloseStatus}>
               {t("actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={onStatusChange}
-              disabled={isStatusSubmitting || !statusTarget.teacher}
+              disabled={isSubmitting || !statusTarget.teacher}
               className={statusTarget.nextState ? "" : "bg-destructive text-white hover:bg-destructive/90"}
             >
-              {isStatusSubmitting ? (
+              {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : statusTarget.nextState ? (
                 t("actions.activate")
@@ -255,30 +256,16 @@ export function TeacherDialogs({
       </AlertDialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("delete.description")}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleteSubmitting} onClick={() => setIsDeleteDialogOpen(false)}>
-              {t("delete.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onDelete}
-              disabled={isDeleteSubmitting}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {isDeleteSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                t("delete.confirm")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={onDelete}
+        title={t("delete.title")}
+        description={t("delete.description")}
+        cancelLabel={t("delete.cancel")}
+        confirmLabel={t("delete.confirm")}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 }

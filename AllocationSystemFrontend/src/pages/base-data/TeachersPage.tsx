@@ -8,6 +8,7 @@ import { TeachersTableSection } from "@/features/teachers/components/TeachersTab
 import { TeachersPaginationControls } from "@/features/teachers/components/TeachersPaginationControls";
 import { BulkImportDialog } from "@/features/teachers/components/BulkImportDialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useDialogState } from "@/hooks/useDialogState";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 import { getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "@/features/teachers/types/teacher.types";
@@ -17,11 +18,8 @@ export default function TeachersPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const dialogs = useDialogState();
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
 
   const {
@@ -52,10 +50,7 @@ export default function TeachersPage() {
     handleDelete,
     handleOpenCreate,
     refreshList,
-    isCreateSubmitting,
-    isUpdateSubmitting,
-    isStatusSubmitting,
-    isDeleteSubmitting,
+    isSubmitting,
     statusTarget,
     setStatusTarget,
     deleteTarget,
@@ -66,22 +61,28 @@ export default function TeachersPage() {
 
   const handleOpenView = (teacher: Teacher) => {
     setSelectedTeacher(teacher);
-    setIsViewDialogOpen(true);
+    dialogs.view.setIsOpen(true);
   };
 
   const handleOpenEdit = async (teacher: Teacher) => {
     try {
       await fetchTeacherDetails(teacher.id);
-      setIsEditDialogOpen(true);
+      dialogs.edit.setIsOpen(true);
     } catch {
       // Error already handled
     }
   };
 
+  const handleEdit = async () => {
+    if (!selectedTeacher) return;
+    dialogs.view.setIsOpen(false);
+    await handleOpenEdit(selectedTeacher);
+  };
+
   const handleCreateSubmit = async (payload: CreateTeacherRequest) => {
     try {
       await handleCreateSubmitInternal(payload);
-      setIsCreateDialogOpen(false);
+      dialogs.create.setIsOpen(false);
     } catch {
       // Error already handled
     }
@@ -90,7 +91,7 @@ export default function TeachersPage() {
   const handleUpdateSubmit = async (payload: UpdateTeacherRequest) => {
     try {
       await handleUpdateSubmitInternal(payload);
-      setIsEditDialogOpen(false);
+      dialogs.edit.setIsOpen(false);
     } catch {
       // Error already handled
     }
@@ -104,7 +105,7 @@ export default function TeachersPage() {
 
   const openDeleteDialog = (teacher: Teacher) => {
     setDeleteTarget(teacher);
-    setIsDeleteDialogOpen(true);
+    dialogs.delete.setIsOpen(true);
   };
 
   const confirmStatusChange = async () => {
@@ -123,7 +124,7 @@ export default function TeachersPage() {
     if (!deleteTarget) return;
     try {
       await handleDelete(deleteTarget);
-      setIsDeleteDialogOpen(false);
+      dialogs.delete.setIsOpen(false);
       setDeleteTarget(null);
     } catch {
       // Error already handled
@@ -132,7 +133,7 @@ export default function TeachersPage() {
 
   const handleOpenCreateWithDialog = () => {
     handleOpenCreate();
-    setIsCreateDialogOpen(true);
+    dialogs.create.setIsOpen(true);
   };
 
   const handleCloseStatus = () => {
@@ -185,7 +186,6 @@ export default function TeachersPage() {
       <TeachersTableSection
         teachers={teachers}
         loading={loading}
-        pageSize={pagination.pageSize}
         isAdmin={isAdmin}
         t={t}
         onViewTeacher={handleOpenView}
@@ -207,16 +207,16 @@ export default function TeachersPage() {
       )}
 
       <TeacherDialogs
-        isCreateDialogOpen={isCreateDialogOpen}
-        setIsCreateDialogOpen={setIsCreateDialogOpen}
-        isEditDialogOpen={isEditDialogOpen}
-        setIsEditDialogOpen={setIsEditDialogOpen}
-        isViewDialogOpen={isViewDialogOpen}
-        setIsViewDialogOpen={setIsViewDialogOpen}
+        isCreateDialogOpen={dialogs.create.isOpen}
+        setIsCreateDialogOpen={dialogs.create.setIsOpen}
+        isEditDialogOpen={dialogs.edit.isOpen}
+        setIsEditDialogOpen={dialogs.edit.setIsOpen}
+        isViewDialogOpen={dialogs.view.isOpen}
+        setIsViewDialogOpen={dialogs.view.setIsOpen}
         isStatusDialogOpen={isStatusDialogOpen}
         setIsStatusDialogOpen={setIsStatusDialogOpen}
-        isDeleteDialogOpen={isDeleteDialogOpen}
-        setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+        isDeleteDialogOpen={dialogs.delete.isOpen}
+        setIsDeleteDialogOpen={dialogs.delete.setIsOpen}
         selectedTeacher={selectedTeacher}
         formLoading={formLoading}
         createFormKey={createFormKey}
@@ -228,10 +228,8 @@ export default function TeachersPage() {
         onStatusChange={confirmStatusChange}
         onDelete={confirmDelete}
         onCloseStatus={handleCloseStatus}
-        isCreateSubmitting={isCreateSubmitting}
-        isUpdateSubmitting={isUpdateSubmitting}
-        isStatusSubmitting={isStatusSubmitting}
-        isDeleteSubmitting={isDeleteSubmitting}
+        onEdit={handleEdit}
+        isSubmitting={isSubmitting}
         isAdmin={isAdmin}
         t={t}
       />
