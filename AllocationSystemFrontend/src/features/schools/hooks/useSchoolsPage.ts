@@ -16,10 +16,7 @@ export function useSchoolsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [formLoading, setFormLoading] = useState(false);
-  const [isCreateSubmitting, setIsCreateSubmitting] = useState(false);
-  const [isUpdateSubmitting, setIsUpdateSubmitting] = useState(false);
-  const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
-  const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusTarget, setStatusTarget] = useState<{ school: School | null; nextState: boolean }>({
     school: null,
     nextState: true,
@@ -136,7 +133,7 @@ export function useSchoolsPage() {
   );
 
   const handleCreateSubmit = useCallback(async (payload: Parameters<typeof SchoolService.create>[0]) => {
-    setIsCreateSubmitting(true);
+    setIsSubmitting(true);
     let tempId: number | null = null;
     try {
       // Optimistic update
@@ -174,13 +171,13 @@ export function useSchoolsPage() {
       toast.error(message);
       throw err;
     } finally {
-      setIsCreateSubmitting(false);
+      setIsSubmitting(false);
     }
   }, [t, refreshList]);
 
   const handleUpdateSubmit = useCallback(async (payload: Parameters<typeof SchoolService.update>[1]) => {
     if (!selectedSchool) return;
-    setIsUpdateSubmitting(true);
+    setIsSubmitting(true);
     try {
       // Optimistic update
       const optimisticUpdate: School = { ...selectedSchool, ...payload };
@@ -200,13 +197,13 @@ export function useSchoolsPage() {
       toast.error(message);
       throw err;
     } finally {
-      setIsUpdateSubmitting(false);
+      setIsSubmitting(false);
     }
   }, [selectedSchool, t, refreshList]);
 
   const handleStatusChange = useCallback(async (school: School, nextState: boolean) => {
     setStatusTarget({ school, nextState });
-    setIsStatusSubmitting(true);
+    setIsSubmitting(true);
     try {
       // Optimistic update
       setSchools((prev) => prev.map((s) => (s.id === school.id ? { ...s, isActive: nextState } : s)));
@@ -227,13 +224,13 @@ export function useSchoolsPage() {
       toast.error(message);
       throw err;
     } finally {
-      setIsStatusSubmitting(false);
+      setIsSubmitting(false);
     }
   }, [t, refreshList]);
 
   const handleDelete = useCallback(async (school: School) => {
     setDeleteTarget(school);
-    setIsDeleteSubmitting(true);
+    setIsSubmitting(true);
     try {
       await SchoolService.delete(school.id);
       toast.success(t("notifications.deleteSuccess"));
@@ -252,7 +249,7 @@ export function useSchoolsPage() {
       toast.error(message);
       throw err;
     } finally {
-      setIsDeleteSubmitting(false);
+      setIsSubmitting(false);
     }
   }, [t, refreshList]);
 
@@ -290,11 +287,8 @@ export function useSchoolsPage() {
     handleDelete,
     refreshList,
     
-    // Submitting states
-    isCreateSubmitting,
-    isUpdateSubmitting,
-    isStatusSubmitting,
-    isDeleteSubmitting,
+    // Submitting state (consolidated)
+    isSubmitting,
     
     // Dialog targets
     statusTarget,
