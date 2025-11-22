@@ -33,12 +33,12 @@ public class TeacherFormSubmission {
     private Long id;
 
     @NotNull(message = "Teacher is required")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
 
     @NotNull(message = "Academic year is required")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "year_id", nullable = false)
     private AcademicYear academicYear;
 
@@ -46,13 +46,33 @@ public class TeacherFormSubmission {
     @Column(name = "form_token", nullable = false, unique = true)
     private String formToken;
 
-    @NotNull(message = "Submission date is required")
-    @Column(name = "submitted_at", nullable = false)
+    @Column(name = "submitted_at", nullable = true)
     private LocalDateTime submittedAt;
 
-    @NotBlank(message = "Submission data is required")
-    @Column(name = "submission_data", nullable = false, columnDefinition = "TEXT")
-    private String submissionData;
+    // Submission data fields (distinct columns instead of JSON)
+    @Column(name = "school_id", nullable = true)
+    private Long schoolId;
+
+    @Column(name = "employment_status", length = 50, nullable = true)
+    private String employmentStatus;
+
+    @Column(name = "notes", columnDefinition = "TEXT", nullable = true)
+    private String notes;
+
+    @Column(name = "subject_ids", columnDefinition = "TEXT", nullable = true)
+    private String subjectIds; // Comma-separated list of subject IDs
+
+    @Column(name = "internship_type_preference", length = 50, nullable = true)
+    private String internshipTypePreference;
+
+    @Column(name = "internship_combinations", columnDefinition = "TEXT", nullable = true)
+    private String internshipCombinations; // Comma-separated list
+
+    @Column(name = "semester_availability", columnDefinition = "TEXT", nullable = true)
+    private String semesterAvailability; // Comma-separated list
+
+    @Column(name = "availability_options", columnDefinition = "TEXT", nullable = true)
+    private String availabilityOptions; // Comma-separated list
 
     @NotNull(message = "Processing status is required")
     @Column(name = "is_processed", nullable = false)

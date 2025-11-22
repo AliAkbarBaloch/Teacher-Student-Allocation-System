@@ -11,9 +11,12 @@ public class PaginationUtils {
     public record PaginationParams(int page, int pageSize, String sortBy, Sort.Direction sortOrder) {
     }
 
+    private static final int MAX_PAGE_SIZE = 100;
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     public static PaginationParams validatePaginationParams(Map<String, String> queryParams) {
         int page = 1;
-        int pageSize = 10;
+        int pageSize = DEFAULT_PAGE_SIZE;
         String sortBy = "id";
         Sort.Direction sortOrder = Sort.Direction.DESC;
 
@@ -27,9 +30,10 @@ public class PaginationUtils {
 
         if (queryParams.containsKey("pageSize")) {
             try {
-                pageSize = Math.max(1, Integer.parseInt(queryParams.get("pageSize")));
+                int requestedPageSize = Integer.parseInt(queryParams.get("pageSize"));
+                pageSize = Math.max(1, Math.min(requestedPageSize, MAX_PAGE_SIZE));
             } catch (NumberFormatException ignored) {
-
+                pageSize = DEFAULT_PAGE_SIZE;
             }
         }
 
