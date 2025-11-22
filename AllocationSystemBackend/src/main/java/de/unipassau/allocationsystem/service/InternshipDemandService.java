@@ -79,7 +79,9 @@ public class InternshipDemandService {
         AcademicYear year = academicYearRepository.findById(dto.getYearId()).orElseThrow(() -> new NoSuchElementException("AcademicYear not found"));
         InternshipType it = internshipTypeRepository.findById(dto.getInternshipTypeId()).orElseThrow(() -> new NoSuchElementException("InternshipType not found"));
         Subject subject = subjectRepository.findById(dto.getSubjectId()).orElseThrow(() -> new NoSuchElementException("Subject not found"));
-        if (!Boolean.TRUE.equals(subject.getIsActive())) throw new IllegalStateException("Subject is not active");
+        if (!Boolean.TRUE.equals(subject.getIsActive())) {
+            throw new IllegalStateException("Subject is not active");
+        }
 
         // validate schoolType by attempting to map to enum
         School.SchoolType st;
@@ -117,7 +119,9 @@ public class InternshipDemandService {
         InternshipDemand existing = repository.findById(id).orElseThrow(() -> new NoSuchElementException("InternshipDemand not found"));
         if (dto.getSubjectId() != null) {
             Subject s = subjectRepository.findById(dto.getSubjectId()).orElseThrow(() -> new NoSuchElementException("Subject not found"));
-            if (!Boolean.TRUE.equals(s.getIsActive())) throw new IllegalStateException("Subject is not active");
+            if (!Boolean.TRUE.equals(s.getIsActive())) {
+                throw new IllegalStateException("Subject is not active");
+            }
             existing.setSubject(s);
         }
         if (dto.getInternshipTypeId() != null) {

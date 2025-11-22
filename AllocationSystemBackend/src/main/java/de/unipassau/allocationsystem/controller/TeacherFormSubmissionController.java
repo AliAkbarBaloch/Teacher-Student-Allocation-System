@@ -2,7 +2,6 @@ package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.FormLinkGenerateRequestDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.FormLinkResponseDto;
-import de.unipassau.allocationsystem.dto.teacher.formsubmission.PublicFormSubmissionDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;

@@ -14,7 +14,9 @@ public class InternshipDemandMapper implements BaseMapper<InternshipDemand, Inte
 
     @Override
     public InternshipDemand toEntityCreate(InternshipDemandCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         InternshipDemand d = new InternshipDemand();
         d.setRequiredTeachers(createDto.getRequiredTeachers());
         d.setStudentCount(createDto.getStudentCount());
@@ -24,7 +26,9 @@ public class InternshipDemandMapper implements BaseMapper<InternshipDemand, Inte
 
     @Override
     public InternshipDemand toEntityUpdate(InternshipDemandUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         InternshipDemand d = new InternshipDemand();
         d.setRequiredTeachers(updateDto.getRequiredTeachers());
         d.setStudentCount(updateDto.getStudentCount());
@@ -34,10 +38,14 @@ public class InternshipDemandMapper implements BaseMapper<InternshipDemand, Inte
 
     @Override
     public InternshipDemandResponseDto toResponseDto(InternshipDemand entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         InternshipDemandResponseDto r = new InternshipDemandResponseDto();
         r.setId(entity.getId());
-        if (entity.getAcademicYear() != null) r.setYearId(entity.getAcademicYear().getId());
+        if (entity.getAcademicYear() != null) {
+            r.setYearId(entity.getAcademicYear().getId());
+        }
         if (entity.getInternshipType() != null) {
             r.setInternshipTypeId(entity.getInternshipType().getId());
             r.setInternshipTypeCode(entity.getInternshipType().getInternshipCode());
@@ -56,15 +64,25 @@ public class InternshipDemandMapper implements BaseMapper<InternshipDemand, Inte
 
     @Override
     public List<InternshipDemandResponseDto> toResponseDtoList(List<InternshipDemand> entities) {
-        if (entities == null) return null;
+        if (entities == null) {
+            return null;
+        }
         return entities.stream().map(this::toResponseDto).collect(Collectors.toList());
     }
 
     @Override
     public void updateEntityFromDto(InternshipDemandUpdateDto updateDto, InternshipDemand entity) {
-        if (updateDto == null || entity == null) return;
-        if (updateDto.getRequiredTeachers() != null) entity.setRequiredTeachers(updateDto.getRequiredTeachers());
-        if (updateDto.getStudentCount() != null) entity.setStudentCount(updateDto.getStudentCount());
-        if (updateDto.getIsForecasted() != null) entity.setIsForecasted(updateDto.getIsForecasted());
+        if (updateDto == null || entity == null) {
+            return;
+        }
+        if (updateDto.getRequiredTeachers() != null) {
+            entity.setRequiredTeachers(updateDto.getRequiredTeachers());
+        }
+        if (updateDto.getStudentCount() != null) {
+            entity.setStudentCount(updateDto.getStudentCount());
+        }
+        if (updateDto.getIsForecasted() != null) {
+            entity.setIsForecasted(updateDto.getIsForecasted());
+        }
     }
 }

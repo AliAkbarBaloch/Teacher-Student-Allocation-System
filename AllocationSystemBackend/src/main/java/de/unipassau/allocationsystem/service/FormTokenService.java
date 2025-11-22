@@ -54,12 +54,12 @@ public class FormTokenService {
      * @return A unique form token
      */
     public String generateUniqueFormToken(Long teacherId, Long yearId) {
-        final int MAX_RETRIES = 5;
+        final int maxRetries = 5;
         Map<String, Object> tokenData = new HashMap<>();
         tokenData.put("teacherId", teacherId);
         tokenData.put("yearId", yearId);
 
-        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
             tokenData.put("uuid", UUID.randomUUID().toString());
             String formToken = encodeToken(tokenData);
 
@@ -74,8 +74,8 @@ public class FormTokenService {
 
         // If all retries failed (extremely unlikely), throw exception
         log.error("Failed to generate unique token after {} attempts for teacherId: {}, yearId: {}",
-                MAX_RETRIES, teacherId, yearId);
-        throw new RuntimeException("Failed to generate unique form token after " + MAX_RETRIES + " attempts");
+                maxRetries, teacherId, yearId);
+        throw new RuntimeException("Failed to generate unique form token after " + maxRetries + " attempts");
     }
 
     /**
