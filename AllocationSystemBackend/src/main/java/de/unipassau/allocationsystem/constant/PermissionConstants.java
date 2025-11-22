@@ -24,6 +24,7 @@ public class PermissionConstants {
         public static final String TEACHER_SUBJECT = "teacherSubject";
         public static final String TEACHER_ASSIGNMENT = "teacherAssignment";
         public static final String INTERNSHIP_DEMAND = "internshipDemand";
+        public static final String CREDIT_HOUR_TRACKING = "creditHourTracking";
 
         
         // Report
