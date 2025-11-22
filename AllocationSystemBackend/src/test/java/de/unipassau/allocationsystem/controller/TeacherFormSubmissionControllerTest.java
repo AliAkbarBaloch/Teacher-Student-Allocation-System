@@ -311,7 +311,6 @@ class TeacherFormSubmissionControllerTest {
         createDto.setYearId(academicYear.getId());
         createDto.setFormToken("token-789");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         mockMvc.perform(post("/api/teacher-form-submissions")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -328,7 +327,6 @@ class TeacherFormSubmissionControllerTest {
         createDto.setYearId(academicYear.getId());
         createDto.setFormToken("token-789");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         mockMvc.perform(post("/api/teacher-form-submissions")
                         .contentType(MediaType.APPLICATION_JSON)
