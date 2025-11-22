@@ -23,6 +23,7 @@ public final class AuditEntityNames {
     public static final String TEACHER_SUBJECT = "TEACHER_SUBJECT";
     public static final String TEACHER_ASSIGNMENT = "TEACHER_ASSIGNMENT";
     public static final String INTERNSHIP_DEMAND = "INTERNSHIP_DEMAND";
+    public static final String CREDIT_HOUR_TRACKING = "CREDIT_HOUR_TRACKING";
 
 
     // Report
