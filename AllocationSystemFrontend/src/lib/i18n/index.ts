@@ -14,6 +14,7 @@ import enTeachers from "./locales/en/teachers.json";
 import enInternshipTypes from "./locales/en/internshipTypes.json";
 import enSubjects from "./locales/en/subjects.json";
 import enSubjectCategories from "./locales/en/subjectCategories.json";
+import enTeacherFormSubmissions from "./locales/en/teacherFormSubmissions.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -26,6 +27,7 @@ import deTeachers from "./locales/de/teachers.json";
 import deInternshipTypes from "./locales/de/internshipTypes.json";
 import deSubjects from "./locales/de/subjects.json";
 import deSubjectCategories from "./locales/de/subjectCategories.json";
+import deTeacherFormSubmissions from "./locales/de/teacherFormSubmissions.json";
 
 // Language metadata configuration
 export const languages = [
@@ -54,6 +56,7 @@ export const resources = {
         internshipTypes: enInternshipTypes,
         subjects: enSubjects,
         subjectCategories: enSubjectCategories,
+        teacherFormSubmissions: enTeacherFormSubmissions,
     },
     de: {
         common: deCommon,
@@ -67,6 +70,7 @@ export const resources = {
         internshipTypes: deInternshipTypes,
         subjects: deSubjects,
         subjectCategories: deSubjectCategories,
+        teacherFormSubmissions: deTeacherFormSubmissions,
     }
 } as const;
 
@@ -86,7 +90,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",

@@ -10,6 +10,12 @@ import type {
   UpdateProfileRequest,
 } from "../types/auth.types";
 
+type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
 /**
  * Authentication service for handling login and authentication operations
  */
@@ -25,7 +31,7 @@ export class AuthService {
     }
 
     try {
-      const response: LoginResponse = await apiClient.post<LoginResponse>(
+      const response = await apiClient.post<ApiResponse<LoginResponse>>(
         "/auth/login",
         {
           email: credentials.email,
@@ -33,16 +39,41 @@ export class AuthService {
         }
       );
 
+      // Extract data from wrapped response
+      const loginData = response.data;
+
+      // Validate response structure - ensure all required fields exist
+      if (!loginData || typeof loginData !== "object") {
+        throw new Error("Invalid response from server");
+      }
+
+      if (!loginData.token || typeof loginData.token !== "string") {
+        throw new Error("Invalid response: missing or invalid token");
+      }
+
+      if (!loginData.email || typeof loginData.email !== "string") {
+        throw new Error("Invalid response: missing or invalid email");
+      }
+
+      // fullName might be optional in some cases, so handle it gracefully
+      const fullName = loginData.fullName && typeof loginData.fullName === "string" 
+        ? loginData.fullName 
+        : loginData.email;
+
       // Transform backend response to frontend format
       return {
         user: {
-          id: String(response.userId),
-          email: response.email,
-          name: response.fullName.split(" ")[0] || response.email.split("@")[0],
-          fullName: response.fullName,
-          role: response.role,
+          id: String(loginData.userId || ""),
+          email: loginData.email,
+          name: fullName && typeof fullName === "string" && fullName.includes(" ")
+            ? fullName.split(" ")[0]
+            : (loginData.email && loginData.email.includes("@"))
+            ? loginData.email.split("@")[0]
+            : loginData.email || "User",
+          fullName: fullName || loginData.email || "",
+          role: loginData.role || "",
         },
-        token: response.token,
+        token: loginData.token,
       };
     } catch (error) {
       // Handle specific error messages from backend
@@ -120,14 +151,16 @@ export class AuthService {
    * Get current user profile
    */
   static async getProfile(): Promise<UserProfile> {
-    return apiClient.get<UserProfile>("/auth/profile");
+    const response = await apiClient.get<ApiResponse<UserProfile>>("/auth/profile");
+    return response.data;
   }
 
   /**
    * Update user profile
    */
   static async updateProfile(request: UpdateProfileRequest): Promise<UserProfile> {
-    return apiClient.put<UserProfile>("/auth/profile", request);
+    const response = await apiClient.put<ApiResponse<UserProfile>>("/auth/profile", request);
+    return response.data;
   }
 
   /**

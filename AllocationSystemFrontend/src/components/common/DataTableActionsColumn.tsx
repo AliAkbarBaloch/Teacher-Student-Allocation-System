@@ -87,7 +87,9 @@ export function createActionsColumn<TData, TValue>(
                     >
                       {customAction.icon && (
                         <span className="mr-2 h-4 w-4 flex items-center">
-                          {customAction.icon}
+                          {typeof customAction.icon === "function"
+                            ? customAction.icon(rowData)
+                            : customAction.icon}
                         </span>
                       )}
                       {typeof customAction.label === "function"
