@@ -41,10 +41,12 @@ export class AuditLogService {
     }
 
     const queryParams = buildAuditLogQueryParams(resolvedFilters);
-    const response = await apiClient.get<PaginatedAuditLogResponse>(
-      `/audit-logs?${queryParams.toString()}`
-    );
-    return response;
+    const response = await apiClient.get<{
+      success: boolean;
+      message: string;
+      data: PaginatedAuditLogResponse;
+    }>(`/audit-logs?${queryParams.toString()}`);
+    return response.data;
   }
 
   /**
