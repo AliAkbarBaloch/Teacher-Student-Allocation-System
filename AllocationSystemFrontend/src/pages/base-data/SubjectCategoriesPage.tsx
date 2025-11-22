@@ -47,7 +47,7 @@ export default function SubjectCategoriesPage() {
         // Error already handled in hook and displayed in form
       }
     },
-    [handleCreateInternal, dialogs.create]
+    [handleCreateInternal, dialogs.create, setFormError]
   );
 
   const handleUpdate = useCallback(
@@ -62,7 +62,7 @@ export default function SubjectCategoriesPage() {
         // Error already handled in hook and displayed in form
       }
     },
-    [handleUpdateInternal, selectedSubjectCategory, setSelectedSubjectCategory, dialogs.edit]
+    [handleUpdateInternal, selectedSubjectCategory, setSelectedSubjectCategory, dialogs.edit, setFormError]
   );
 
   const handleDelete = useCallback(async () => {

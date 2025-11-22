@@ -54,9 +54,18 @@ class ApiClient {
    * Check if endpoint is an auth endpoint that doesn't require token validation
    */
   private isAuthEndpoint(endpoint: string): boolean {
-    return endpoint.includes("/auth/login") || 
+    return (
+      endpoint.includes("/auth/login") ||
            endpoint.includes("/auth/forgot-password") || 
-           endpoint.includes("/auth/reset-password");
+      endpoint.includes("/auth/reset-password")
+    );
+  }
+
+  /**
+   * Check if endpoint is a public endpoint that doesn't require authentication
+   */
+  private isPublicEndpoint(endpoint: string): boolean {
+    return endpoint.includes("/public/teacher-form-submission/");
   }
 
   /**
@@ -74,8 +83,13 @@ class ApiClient {
    * Validate token expiration before making request
    */
   private validateTokenForRequest(endpoint: string): void {
+    // Skip validation for auth endpoints and public endpoints
+    if (this.isAuthEndpoint(endpoint) || this.isPublicEndpoint(endpoint)) {
+      return;
+    }
+    
     const token = this.getAuthToken();
-    if (token && !this.isAuthEndpoint(endpoint) && this.isTokenExpired(token)) {
+    if (token && this.isTokenExpired(token)) {
       this.handleExpiredToken();
       throw new Error(i18n.t("common:errors.sessionExpired"));
     }
@@ -86,11 +100,13 @@ class ApiClient {
    */
   private buildHeaders(
     options?: RequestInit,
-    extraOptions?: { omitJsonContentType?: boolean }
+    extraOptions?: { omitJsonContentType?: boolean; endpoint?: string }
   ): Record<string, string> {
     const token = this.getAuthToken();
     const headers: Record<string, string> =
-      options?.headers && typeof options.headers === "object" && !(options.headers instanceof Headers)
+      options?.headers &&
+      typeof options.headers === "object" &&
+      !(options.headers instanceof Headers)
         ? { ...(options.headers as Record<string, string>) }
         : {};
 
@@ -98,7 +114,12 @@ class ApiClient {
       headers["Content-Type"] = "application/json";
     }
 
-    if (token) {
+    // Only add auth token if endpoint is not public
+    if (
+      token &&
+      (!extraOptions?.endpoint ||
+        !this.isPublicEndpoint(extraOptions.endpoint))
+    ) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
@@ -112,7 +133,10 @@ class ApiClient {
     if (error instanceof TypeError && error.message === "Failed to fetch") {
       throw new Error(i18n.t("common:errors.networkError"));
     }
-    if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) {
+    if (
+      error instanceof Error &&
+      (error.name === "AbortError" || error.name === "TimeoutError")
+    ) {
       throw new Error(i18n.t("common:errors.requestTimeout"));
     }
     // Re-throw the error if it's not a network error
@@ -148,8 +172,81 @@ class ApiClient {
    */
   private buildUrl(endpoint: string): string {
     // Remove leading slash if present to avoid double slashes
-    const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+    const cleanEndpoint = endpoint.startsWith("/")
+      ? endpoint.slice(1)
+      : endpoint;
     return `${this.baseUrl}/${cleanEndpoint}`;
+  }
+
+  /**
+   * Extract error message from error response data
+   */
+  private extractErrorMessage(errorData: unknown): string | null {
+    if (!errorData || typeof errorData !== "object") {
+      return null;
+    }
+
+        const errorObject = errorData as Record<string, unknown>;
+
+        // Backend sends { success: false, message: "..." } format - prioritize message field
+    if (
+      typeof errorObject.message === "string" &&
+      errorObject.message.trim() !== ""
+    ) {
+      return errorObject.message;
+    }
+
+    // Check nested error object
+    if ("error" in errorObject) {
+          const nestedError = errorObject.error;
+          if (typeof nestedError === "string" && nestedError.trim() !== "") {
+        return nestedError;
+      }
+      if (
+        nestedError &&
+        typeof nestedError === "object" &&
+        "message" in nestedError &&
+        typeof (nestedError as { message?: string }).message === "string"
+      ) {
+            const nestedMessage = (nestedError as { message?: string }).message;
+            if (nestedMessage && nestedMessage.trim() !== "") {
+          return nestedMessage;
+        }
+            }
+          }
+
+    // Check errors array or object
+    if ("errors" in errorObject) {
+          const errors = errorObject.errors;
+          if (Array.isArray(errors)) {
+            const messages = errors
+              .map((e) => {
+            if (
+              typeof e === "object" &&
+              e !== null &&
+              "message" in e &&
+              typeof (e as { message?: string }).message === "string"
+            ) {
+                  return (e as { message?: string }).message;
+                }
+                return String(e);
+              })
+              .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
+            if (messages.length > 0) {
+          return messages.join(", ");
+            }
+          } else if (typeof errors === "object" && errors !== null) {
+            // Handle object with field errors like { field1: "error1", field2: "error2" }
+        const fieldErrors = Object.values(errors).filter(
+          (msg): msg is string => typeof msg === "string" && msg.trim() !== ""
+        );
+            if (fieldErrors.length > 0) {
+          return fieldErrors.join(", ");
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -159,34 +256,21 @@ class ApiClient {
     let errorMessage = "An error occurred";
     let errorDetails: unknown = undefined;
 
-    // Try to extract error message from response body first
+    // Try to extract error message from response body
     try {
-      const errorData = await response.json() as 
-        | { message?: string; error?: string | { message?: string }; errors?: Array<{ message?: string } | string>; details?: unknown }
-        | unknown;
-      
-      // Try to extract error message from various possible formats
-      if (errorData && typeof errorData === "object") {
-        const errorObject = errorData as Record<string, unknown>;
+      const errorData = await response.json();
+      const extractedMessage = this.extractErrorMessage(errorData);
+      if (extractedMessage) {
+        errorMessage = extractedMessage;
+      }
 
-        if (typeof errorObject.message === "string") {
-          errorMessage = errorObject.message;
-        } else if ("error" in errorObject) {
-          const nestedError = errorObject.error;
-          if (typeof nestedError === "string") {
-            errorMessage = nestedError;
-          } else if (nestedError && typeof nestedError === "object" && "message" in nestedError && typeof (nestedError as { message?: string }).message === "string") {
-            errorMessage = (nestedError as { message?: string }).message ?? errorMessage;
-          }
-        } else if ("errors" in errorObject && Array.isArray(errorObject.errors)) {
-          errorMessage = errorObject.errors
-            .map((e) => (typeof e === "object" && e !== null && "message" in e && typeof (e as { message?: string }).message === "string" ? (e as { message?: string }).message : String(e)))
-            .join(", ");
-        }
-
-        if ("details" in errorObject) {
-          errorDetails = errorObject.details;
-        }
+      // Extract details if present
+      if (
+        errorData &&
+        typeof errorData === "object" &&
+        "details" in errorData
+      ) {
+        errorDetails = (errorData as { details?: unknown }).details;
       }
     } catch {
       // If response is not JSON, use status text
@@ -195,18 +279,24 @@ class ApiClient {
 
     // Handle 401 Unauthorized - differentiate between login failures and session expiration
     if (response.status === 401) {
-      // For auth endpoints (login, forgot-password, etc.), use the error message from backend
-      const isAuthEndpoint = endpoint && (
-        endpoint.includes("/auth/login") || 
+      const isAuthEndpoint =
+        endpoint &&
+        (endpoint.includes("/auth/login") ||
         endpoint.includes("/auth/forgot-password") || 
         endpoint.includes("/auth/reset-password") ||
-        endpoint.includes("/auth/change-password")
-      );
+          endpoint.includes("/auth/change-password"));
+      
+      const isPublicEndpoint = endpoint && this.isPublicEndpoint(endpoint);
       
       // Only treat as session expiration if:
       // 1. It's NOT an auth endpoint (login failures should show the actual error)
-      // 2. AND we couldn't extract a meaningful error message
-      if (!isAuthEndpoint && errorMessage === "An error occurred") {
+      // 2. It's NOT a public endpoint (public endpoints should show the actual error)
+      // 3. AND we couldn't extract a meaningful error message
+      if (
+        !isAuthEndpoint &&
+        !isPublicEndpoint &&
+        errorMessage === "An error occurred"
+      ) {
         // Clear auth data for session expiration
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
@@ -221,7 +311,11 @@ class ApiClient {
       }
     }
 
-    const error = new Error(errorMessage) as Error & { status: number; response: Response; details?: unknown };
+    const error = new Error(errorMessage) as Error & {
+      status: number;
+      response: Response;
+      details?: unknown;
+    };
     error.status = response.status;
     error.response = response;
     if (typeof errorDetails !== "undefined") {
@@ -235,7 +329,7 @@ class ApiClient {
    */
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options);
+    const headers = this.buildHeaders(options, { endpoint });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
@@ -263,7 +357,10 @@ class ApiClient {
    */
   async getBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options, { omitJsonContentType: true });
+    const headers = this.buildHeaders(options, {
+      omitJsonContentType: true,
+      endpoint,
+    });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
@@ -289,12 +386,17 @@ class ApiClient {
   /**
    * Make a POST request
    */
-  async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: RequestInit
+  ): Promise<T> {
     this.validateTokenForRequest(endpoint);
     const isFormData =
       typeof FormData !== "undefined" && data instanceof FormData;
     const headers = this.buildHeaders(options, {
       omitJsonContentType: isFormData,
+      endpoint,
     });
     const { timeoutId, signal } = this.createTimeoutController();
 
@@ -302,7 +404,11 @@ class ApiClient {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "POST",
         headers,
-        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
+        body: isFormData
+          ? (data as FormData)
+          : data
+            ? JSON.stringify(data)
+            : undefined,
         ...options,
         signal: options?.signal || signal,
       });
@@ -322,12 +428,17 @@ class ApiClient {
   /**
    * Make a PUT request
    */
-  async put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+  async put<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: RequestInit
+  ): Promise<T> {
     this.validateTokenForRequest(endpoint);
     const isFormData =
       typeof FormData !== "undefined" && data instanceof FormData;
     const headers = this.buildHeaders(options, {
       omitJsonContentType: isFormData,
+      endpoint,
     });
     const { timeoutId, signal } = this.createTimeoutController();
 
@@ -335,7 +446,11 @@ class ApiClient {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PUT",
         headers,
-        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
+        body: isFormData
+          ? (data as FormData)
+          : data
+            ? JSON.stringify(data)
+            : undefined,
         ...options,
         signal: options?.signal || signal,
       });
@@ -355,12 +470,17 @@ class ApiClient {
   /**
    * Make a PATCH request
    */
-  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+  async patch<T>(
+    endpoint: string,
+    data?: unknown,
+    options?: RequestInit
+  ): Promise<T> {
     this.validateTokenForRequest(endpoint);
     const isFormData =
       typeof FormData !== "undefined" && data instanceof FormData;
     const headers = this.buildHeaders(options, {
       omitJsonContentType: isFormData,
+      endpoint,
     });
     const { timeoutId, signal } = this.createTimeoutController();
 
@@ -368,7 +488,11 @@ class ApiClient {
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PATCH",
         headers,
-        body: isFormData ? (data as FormData) : data ? JSON.stringify(data) : undefined,
+        body: isFormData
+          ? (data as FormData)
+          : data
+            ? JSON.stringify(data)
+            : undefined,
         ...options,
         signal: options?.signal || signal,
       });
@@ -390,7 +514,7 @@ class ApiClient {
    */
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options);
+    const headers = this.buildHeaders(options, { endpoint });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
@@ -416,4 +540,3 @@ class ApiClient {
 
 // Export singleton instance
 export const apiClient = new ApiClient();
-

@@ -76,7 +76,6 @@ class TeacherFormSubmissionServiceTest {
         submission.setAcademicYear(academicYear);
         submission.setFormToken("unique-token-123");
         submission.setSubmittedAt(LocalDateTime.now());
-        submission.setSubmissionData("{\"preferences\":[]}");
         submission.setIsProcessed(false);
 
         responseDto = TeacherFormSubmissionResponseDto.builder()
@@ -89,7 +88,6 @@ class TeacherFormSubmissionServiceTest {
                 .yearName("2024/2025")
                 .formToken("unique-token-123")
                 .submittedAt(LocalDateTime.now())
-                .submissionData("{\"preferences\":[]}")
                 .isProcessed(false)
                 .build();
     }
@@ -229,11 +227,17 @@ class TeacherFormSubmissionServiceTest {
         createDto.setYearId(1L);
         createDto.setFormToken("new-token-456");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{\"new\":\"data\"}");
+
+        TeacherFormSubmission mappedSubmission = new TeacherFormSubmission();
+        mappedSubmission.setTeacher(teacher);
+        mappedSubmission.setAcademicYear(academicYear);
+        mappedSubmission.setFormToken("new-token-456");
+        mappedSubmission.setSubmittedAt(LocalDateTime.now());
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
         when(teacherFormSubmissionRepository.existsByFormToken("new-token-456")).thenReturn(false);
+        when(teacherFormSubmissionMapper.toEntityCreate(createDto)).thenReturn(mappedSubmission);
         when(teacherFormSubmissionRepository.save(any(TeacherFormSubmission.class)))
                 .thenAnswer(invocation -> {
                     TeacherFormSubmission saved = invocation.getArgument(0);
@@ -263,7 +267,6 @@ class TeacherFormSubmissionServiceTest {
         createDto.setYearId(1L);
         createDto.setFormToken("token");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -284,7 +287,6 @@ class TeacherFormSubmissionServiceTest {
         createDto.setYearId(999L);
         createDto.setFormToken("token");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(999L)).thenReturn(Optional.empty());
@@ -308,7 +310,6 @@ class TeacherFormSubmissionServiceTest {
         createDto.setYearId(1L);
         createDto.setFormToken("token");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
@@ -330,7 +331,6 @@ class TeacherFormSubmissionServiceTest {
         createDto.setYearId(1L);
         createDto.setFormToken("existing-token");
         createDto.setSubmittedAt(LocalDateTime.now());
-        createDto.setSubmissionData("{}");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));

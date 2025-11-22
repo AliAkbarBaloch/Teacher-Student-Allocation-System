@@ -91,11 +91,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        // Skip JWT filter for public auth endpoints only (login, forgot-password, reset-password)
+        // Skip JWT filter for public auth endpoints and public form submission endpoints
         // But NOT for protected endpoints like profile, logout, change-password
         return path.equals("/api/auth/login") || 
                path.equals("/api/auth/forgot-password") || 
-               path.equals("/api/auth/reset-password");
+               path.equals("/api/auth/reset-password") ||
+               path.startsWith("/api/public/teacher-form-submission/");
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {

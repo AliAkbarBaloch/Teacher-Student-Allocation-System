@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 public class TeacherSubjectMapper {
 
     public TeacherSubjectResponseDto toDto(TeacherSubject entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return TeacherSubjectResponseDto.builder()
                 .id(entity.getId())
                 .yearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)

@@ -9,6 +9,8 @@ import de.unipassau.allocationsystem.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,10 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
         entity.setAcademicYear(academicYearRepository.findById(createDto.getYearId()).orElse(null));
         entity.setFormToken(createDto.getFormToken());
         entity.setSubmittedAt(createDto.getSubmittedAt());
-        entity.setSubmissionData(createDto.getSubmissionData());
+        
+        // Set distinct submission fields
+        populateSubmissionFieldsFromDto(entity, createDto);
+        
         entity.setIsProcessed(false); // default
         return entity;
     }
@@ -55,15 +60,25 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
         }
         return TeacherFormSubmissionResponseDto.builder()
                 .id(entity.getId())
-                .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
-                .teacherFirstName(entity.getTeacher() != null ? entity.getTeacher().getFirstName() : null)
-                .teacherLastName(entity.getTeacher() != null ? entity.getTeacher().getLastName() : null)
-                .teacherEmail(entity.getTeacher() != null ? entity.getTeacher().getEmail() : null)
-                .yearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
-                .yearName(entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null)
+                .teacherId(getTeacherId(entity))
+                .teacherFirstName(getTeacherFirstName(entity))
+                .teacherLastName(getTeacherLastName(entity))
+                .teacherEmail(getTeacherEmail(entity))
+                .yearId(getYearId(entity))
+                .yearName(getYearName(entity))
                 .formToken(entity.getFormToken())
                 .submittedAt(entity.getSubmittedAt())
-                .submissionData(entity.getSubmissionData())
+                
+                // Map distinct submission fields
+                .schoolId(entity.getSchoolId())
+                .employmentStatus(entity.getEmploymentStatus())
+                .notes(entity.getNotes())
+                .subjectIds(parseLongListFromString(entity.getSubjectIds()))
+                .internshipTypePreference(entity.getInternshipTypePreference())
+                .internshipCombinations(parseStringListFromString(entity.getInternshipCombinations()))
+                .semesterAvailability(parseStringListFromString(entity.getSemesterAvailability()))
+                .availabilityOptions(parseStringListFromString(entity.getAvailabilityOptions()))
+                
                 .isProcessed(entity.getIsProcessed())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -88,5 +103,93 @@ public class TeacherFormSubmissionMapper implements BaseMapper<
         if (updateDto.getIsProcessed() != null) {
             entity.setIsProcessed(updateDto.getIsProcessed());
         }
+    }
+
+    // ==================== Helper Methods ====================
+
+    /**
+     * Populate submission entity fields from DTO.
+     */
+    private void populateSubmissionFieldsFromDto(TeacherFormSubmission entity, TeacherFormSubmissionCreateDto dto) {
+        entity.setSchoolId(dto.getSchoolId());
+        entity.setEmploymentStatus(dto.getEmploymentStatus());
+        entity.setNotes(dto.getNotes());
+        entity.setSubjectIds(convertLongListToString(dto.getSubjectIds()));
+        entity.setInternshipTypePreference(dto.getInternshipTypePreference());
+        entity.setInternshipCombinations(convertStringListToString(dto.getInternshipCombinations()));
+        entity.setSemesterAvailability(convertStringListToString(dto.getSemesterAvailability()));
+        entity.setAvailabilityOptions(convertStringListToString(dto.getAvailabilityOptions()));
+    }
+
+    /**
+     * Convert list of Longs to comma-separated string.
+     */
+    private String convertLongListToString(List<Long> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return list.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+    }
+
+    /**
+     * Convert list of Strings to comma-separated string.
+     */
+    private String convertStringListToString(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return String.join(",", list);
+    }
+
+    /**
+     * Parse comma-separated string to list of Longs.
+     */
+    private List<Long> parseLongListFromString(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(str.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Parse comma-separated string to list of Strings.
+     */
+    private List<String> parseStringListFromString(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(str.split(","));
+    }
+
+    // Teacher getter helpers to reduce null checks
+    private Long getTeacherId(TeacherFormSubmission entity) {
+        return entity.getTeacher() != null ? entity.getTeacher().getId() : null;
+    }
+
+    private String getTeacherFirstName(TeacherFormSubmission entity) {
+        return entity.getTeacher() != null ? entity.getTeacher().getFirstName() : null;
+    }
+
+    private String getTeacherLastName(TeacherFormSubmission entity) {
+        return entity.getTeacher() != null ? entity.getTeacher().getLastName() : null;
+    }
+
+    private String getTeacherEmail(TeacherFormSubmission entity) {
+        return entity.getTeacher() != null ? entity.getTeacher().getEmail() : null;
+    }
+
+    // AcademicYear getter helpers to reduce null checks
+    private Long getYearId(TeacherFormSubmission entity) {
+        return entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null;
+    }
+
+    private String getYearName(TeacherFormSubmission entity) {
+        return entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null;
     }
 }

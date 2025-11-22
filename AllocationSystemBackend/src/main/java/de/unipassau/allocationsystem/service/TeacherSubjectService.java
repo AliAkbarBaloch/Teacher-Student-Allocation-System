@@ -94,10 +94,18 @@ public class TeacherSubjectService {
             existing.setSubject(update.getSubject());
         }
 
-        if (update.getAvailabilityStatus() != null) existing.setAvailabilityStatus(update.getAvailabilityStatus());
-        if (update.getGradeLevelFrom() != null) existing.setGradeLevelFrom(update.getGradeLevelFrom());
-        if (update.getGradeLevelTo() != null) existing.setGradeLevelTo(update.getGradeLevelTo());
-        if (update.getNotes() != null) existing.setNotes(update.getNotes());
+        if (update.getAvailabilityStatus() != null) {
+            existing.setAvailabilityStatus(update.getAvailabilityStatus());
+        }
+        if (update.getGradeLevelFrom() != null) {
+            existing.setGradeLevelFrom(update.getGradeLevelFrom());
+        }
+        if (update.getGradeLevelTo() != null) {
+            existing.setGradeLevelTo(update.getGradeLevelTo());
+        }
+        if (update.getNotes() != null) {
+            existing.setNotes(update.getNotes());
+        }
 
         // validate grade range
         if (existing.getGradeLevelFrom() != null && existing.getGradeLevelTo() != null && existing.getGradeLevelFrom() > existing.getGradeLevelTo()) {

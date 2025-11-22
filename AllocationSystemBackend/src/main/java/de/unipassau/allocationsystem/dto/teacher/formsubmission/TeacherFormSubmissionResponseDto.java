@@ -32,7 +32,17 @@ public class TeacherFormSubmissionResponseDto {
     // Submission information
     private String formToken;
     private LocalDateTime submittedAt;
-    private String submissionData;
+    
+    // Submission data fields
+    private Long schoolId;
+    private String employmentStatus;
+    private String notes;
+    private java.util.List<Long> subjectIds;
+    private String internshipTypePreference;
+    private java.util.List<String> internshipCombinations;
+    private java.util.List<String> semesterAvailability;
+    private java.util.List<String> availabilityOptions;
+    
     private Boolean isProcessed;
     
     // Timestamps
