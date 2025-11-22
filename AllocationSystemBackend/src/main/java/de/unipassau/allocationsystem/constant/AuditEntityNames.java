@@ -22,6 +22,7 @@ public final class AuditEntityNames {
     public static final String PLAN_CHANGE_LOG = "PLAN_CHANGE_LOG";
     public static final String TEACHER_SUBJECT = "TEACHER_SUBJECT";
     public static final String TEACHER_ASSIGNMENT = "TEACHER_ASSIGNMENT";
+    public static final String INTERNSHIP_DEMAND = "INTERNSHIP_DEMAND";
 
 
     // Report
