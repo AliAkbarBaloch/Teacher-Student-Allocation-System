@@ -22,7 +22,8 @@ public class PermissionConstants {
         public static final String ZONE_CONSTRAINT = "zoneConstraint";
         public static final String PLAN_CHANGE_LOG = "planChangeLog";
         public static final String TEACHER_SUBJECT = "teacherSubject";
-            public static final String TEACHER_ASSIGNMENT = "teacherAssignment";
+        public static final String TEACHER_ASSIGNMENT = "teacherAssignment";
+        public static final String INTERNSHIP_DEMAND = "internshipDemand";
 
         
         // Report
