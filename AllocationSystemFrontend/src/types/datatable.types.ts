@@ -16,7 +16,7 @@ export interface DataTableActions<TData> {
   onUpdate?: (row: TData) => void | Promise<void>;
   customActions?: Array<{
     label: string | ((row: TData) => string);
-    icon?: React.ReactNode;
+    icon?: React.ReactNode | ((row: TData) => React.ReactNode);
     onClick: (row: TData) => void;
     className?: string;
     separator?: boolean;

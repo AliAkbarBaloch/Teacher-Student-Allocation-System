@@ -115,15 +115,21 @@ export default function AuditLogsPage() {
     setError(null);
     try {
       const response = await AuditLogService.getAuditLogs(filters);
-      setAuditLogs(response.content);
-      setTotalElements(response.totalElements);
-      setTotalPages(response.totalPages);
-      setCurrentPage(response.number);
-      setPageSize(response.size);
+      // Safety check: ensure response has required properties
+      setAuditLogs(response?.content || []);
+      setTotalElements(response?.totalElements || 0);
+      setTotalPages(response?.totalPages || 0);
+      setCurrentPage(response?.number || 0);
+      setPageSize(response?.size || 20);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : t("errors.loadFailed");
       setError(errorMessage);
+      // Reset to empty state on error
+      setAuditLogs([]);
+      setTotalElements(0);
+      setTotalPages(0);
+      setCurrentPage(0);
     } finally {
       setLoading(false);
     }

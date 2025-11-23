@@ -1,0 +1,177 @@
+{
+  "title": "Lehrereinreichungen",
+  "subtitle": "Anzeigen und Verwalten von Lehrereinreichungen pro Studienjahr.",
+  "table": {
+    "teacher": "Lehrer",
+    "academicYear": "Studienjahr",
+    "submittedAt": "Eingereicht am",
+    "processed": "Verarbeitet",
+    "invited": "Eingeladen",
+    "invitedStatus": {
+      "invited": "Eingeladen",
+      "accepted": "Akzeptiert",
+      "notInvited": "-"
+    },
+    "formToken": "Formular-Token",
+    "formLink": "Formular-Link",
+    "linkGenerated": "Link generiert",
+    "linkCopied": "Formular-Link in Zwischenablage kopiert",
+    "copyLink": "Link kopieren",
+    "openLink": "Link öffnen",
+    "yes": "Ja",
+    "no": "Nein",
+    "empty": "Keine Einreichungen gefunden.",
+    "searchPlaceholder": "Einreichungen suchen...",
+    "perPage": "pro Seite",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pagination": {
+      "display": "Zeige {{from}} bis {{to}} von {{total}} Einträgen"
+    }
+  },
+  "filters": {
+    "title": "Filter",
+    "subtitle": "Einreichungen nach Studienjahr, Lehrer oder Verarbeitungsstatus filtern.",
+    "yearLabel": "Studienjahr",
+    "yearPlaceholder": "Alle Jahre",
+    "loadingYears": "Jahre werden geladen...",
+    "teacherLabel": "Lehrer",
+    "teacherPlaceholder": "Nach Lehrername oder E-Mail suchen",
+    "processedStatusLabel": "Verarbeitungsstatus",
+    "statusAll": "Alle",
+    "statusProcessed": "Verarbeitet",
+    "statusUnprocessed": "Nicht verarbeitet",
+    "reset": "Filter zurücksetzen"
+  },
+  "actions": {
+    "view": "Anzeigen",
+    "markProcessed": "Als verarbeitet markieren",
+    "markUnprocessed": "Als nicht verarbeitet markieren",
+    "generateLink": "Formular-Link generieren"
+  },
+  "form": {
+    "title": {
+      "view": "Einreichungsdetails"
+    },
+    "description": "Vollständige Details dieser Einreichung anzeigen.",
+    "fields": {
+      "teacher": "Lehrer",
+      "academicYear": "Studienjahr",
+      "formToken": "Formular-Token",
+      "submittedAt": "Eingereicht am",
+      "status": "Status",
+      "processed": "Verarbeitet",
+      "unprocessed": "Nicht verarbeitet",
+      "submissionData": "Einreichungsdaten"
+    },
+    "submissionDetails": "Einreichungsdetails"
+  },
+  "statusDialog": {
+    "title": "Verarbeitungsstatus ändern",
+    "messageProcessed": "Möchten Sie diese Einreichung wirklich als verarbeitet markieren?",
+    "messageUnprocessed": "Möchten Sie diese Einreichung wirklich als nicht verarbeitet markieren?",
+    "teacher": "Lehrer",
+    "academicYear": "Studienjahr"
+  },
+  "notifications": {
+    "markedProcessed": "Einreichung erfolgreich als verarbeitet markiert.",
+    "markedUnprocessed": "Einreichung erfolgreich als nicht verarbeitet markiert."
+  },
+  "errors": {
+    "loadFailed": "Einreichungen konnten nicht geladen werden.",
+    "updateFailed": "Status der Einreichung konnte nicht aktualisiert werden."
+  },
+  "formLink": {
+    "title": "Formular-Link generieren",
+    "description": "Generieren Sie einen teilbaren Link für einen Lehrer, um sein Formular auszufüllen.",
+    "teacher": "Lehrer",
+    "academicYear": "Studienjahr",
+    "selectTeacher": "Lehrer auswählen",
+    "selectYear": "Studienjahr auswählen",
+    "formUrl": "Formular-URL",
+    "generate": "Link generieren",
+    "generating": "Wird generiert...",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "success": {
+      "generated": "Formular-Link erfolgreich generiert.",
+      "copied": "Link in die Zwischenablage kopiert."
+    },
+    "errors": {
+      "title": "Fehler",
+      "missingFields": "Bitte wählen Sie sowohl Lehrer als auch Studienjahr aus.",
+      "generateFailed": "Formular-Link konnte nicht generiert werden.",
+      "copyFailed": "Link konnte nicht in die Zwischenablage kopiert werden.",
+      "alreadyExists": "Für diesen Lehrer und dieses Studienjahr existiert bereits eine Formulareinreichung.",
+      "yearLocked": "Für gesperrte Studienjahre kann kein Formular-Link generiert werden.",
+      "teacherNotFound": "Lehrer nicht gefunden.",
+      "yearNotFound": "Studienjahr nicht gefunden.",
+      "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "unknownError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "info": {
+      "title": "Wie man teilt",
+      "description": "Kopieren Sie den obigen Link und teilen Sie ihn mit dem Lehrer per E-Mail oder auf andere Weise. Der Lehrer kann diesen Link verwenden, um sein Formular auszufüllen und einzureichen, ohne sich anzumelden."
+    }
+  },
+  "publicForm": {
+    "title": "Lehrereinreichung",
+    "description": "Bitte füllen Sie Ihr Formular für {{yearName}} aus. Dieses Formular ist für {{teacherName}}.",
+    "teacher": "Lehrer",
+    "academicYear": "Studienjahr",
+    "school": "Schule",
+    "selectSchool": "Wählen Sie eine Schule",
+    "employmentStatus": "Beschäftigungsstatus",
+    "selectEmploymentStatus": "Wählen Sie den Beschäftigungsstatus",
+    "employmentStatusOptions": {
+      "FULL_TIME": "Vollzeit",
+      "PART_TIME": "Teilzeit",
+      "ON_LEAVE": "Beurlaubt",
+      "CONTRACT": "Vertrag",
+      "PROBATION": "Probezeit",
+      "RETIRED": "Pensioniert"
+    },
+    "subjects": "Fächer, die Sie unterrichten",
+    "selectSubjects": "Fächer auswählen",
+    "subjectsHint": "Wählen Sie alle Fächer aus, die Sie unterrichten können",
+    "availabilityOptions": "Verfügbarkeitsoptionen",
+    "availabilityOptionsHint": "Bitte wählen Sie mindestens zwei Verfügbarkeitsoptionen aus",
+    "availabilityOptionsMin": "Bitte wählen Sie noch {{count}} Option(en) aus",
+    "internshipTypes": "Praktikumstypen, die Sie betreuen möchten",
+    "selectCombinations": "Spezifische Kombinationen auswählen",
+    "semesterAvailability": "Semesterverfügbarkeit",
+    "notes": "Hinweise oder besondere Bemerkungen",
+    "notesPlaceholder": "Geben Sie zusätzliche Hinweise, besondere Bemerkungen oder Präferenzen ein...",
+    "notesHint": "Optional: Fügen Sie zusätzliche relevante Informationen hinzu",
+    "submissionData": "Einreichungsdaten",
+    "submissionDataPlaceholder": "Geben Sie hier Ihre Formulardaten ein (JSON-Format empfohlen)...",
+    "submissionDataHint": "Bitte geben Sie Ihre Präferenzen, Verfügbarkeit oder andere erforderliche Informationen im von Ihrem Administrator angegebenen Format an.",
+    "submit": "Formular einreichen",
+    "submitting": "Wird eingereicht...",
+    "loading": "Formular wird geladen...",
+    "backToHome": "Zurück zur Startseite",
+    "validation": {
+      "schoolRequired": "Bitte wählen Sie eine Schule aus",
+      "employmentStatusRequired": "Bitte wählen Sie Ihren Beschäftigungsstatus aus",
+      "subjectsRequired": "Bitte wählen Sie mindestens ein Fach aus",
+      "availabilityOptionsRequired": "Bitte wählen Sie mindestens zwei Verfügbarkeitsoptionen aus",
+      "internshipTypeRequired": "Bitte wählen Sie eine Praktikumstyp-Präferenz aus",
+      "internshipCombinationsRequired": "Bitte wählen Sie mindestens eine Praktikumskombination aus",
+      "semesterAvailabilityRequired": "Bitte wählen Sie mindestens eine Semesterverfügbarkeit aus"
+    },
+    "success": {
+      "title": "Formular erfolgreich eingereicht",
+      "message": "Vielen Dank {{teacherName}}! Ihre Formulareinreichung für {{yearName}} wurde erfolgreich erhalten.",
+      "submitted": "Formular erfolgreich eingereicht."
+    },
+    "errors": {
+      "title": "Fehler",
+      "invalidToken": "Ungültiges Formular-Token.",
+      "loadFailed": "Formulardetails konnten nicht geladen werden.",
+      "notFound": "Formular nicht gefunden oder wurde bereits eingereicht.",
+      "missingData": "Bitte geben Sie Einreichungsdaten an.",
+      "submitFailed": "Formular konnte nicht eingereicht werden. Bitte versuchen Sie es erneut."
+    }
+  }
+}
+

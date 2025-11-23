@@ -274,8 +274,10 @@ class AllocationPlanControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetCurrentPlanForYear_NotFound() throws Exception {
+        // Create unique academic year to avoid constraint violations
+        String yearName = "Test-NotFound-" + System.currentTimeMillis();
         AcademicYear newYear = new AcademicYear();
-        newYear.setYearName("2025/2026");
+        newYear.setYearName(yearName);
         newYear.setTotalCreditHours(100);
         newYear.setElementarySchoolHours(20);
         newYear.setMiddleSchoolHours(25);

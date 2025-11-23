@@ -17,6 +17,8 @@ import TeachersPage from "@/pages/base-data/TeachersPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
 import SubjectsPage from "@/pages/base-data/SubjectsPage";
 import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
+import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
+import TeacherFormPage from "@/pages/public/TeacherFormPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -61,6 +63,10 @@ export const router = createBrowserRouter([
         element: withSuspense(<ResetPasswordPage />),
       },
     ],
+  },
+  {
+    path: "/form/:token",
+    element: withSuspense(<TeacherFormPage />),
   },
   {
     element: <App />,
@@ -134,7 +140,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.teacherManagement.teacherFormSubmissions,
-        element: withSuspense(<div>Teacher Form Submissions</div>),
+        element: withSuspense(<TeacherFormSubmissionsPage />),
       },
       // Internship Demand
       {

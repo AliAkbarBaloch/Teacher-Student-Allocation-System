@@ -1,7 +1,5 @@
 package de.unipassau.allocationsystem.dto.teacherassignment;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 

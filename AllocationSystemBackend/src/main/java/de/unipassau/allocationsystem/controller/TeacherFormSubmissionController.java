@@ -1,5 +1,7 @@
 package de.unipassau.allocationsystem.controller;
 
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.FormLinkGenerateRequestDto;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.FormLinkResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
@@ -143,5 +145,31 @@ public class TeacherFormSubmissionController {
                 .updateFormSubmissionStatus(id, statusDto);
 
         return ResponseHandler.updated("Form submission status updated successfully", result);
+    }
+
+    /**
+     * POST /teacher-form-submissions/generate-link
+     * Generate a form link for a teacher (ADMIN only).
+     *
+     * @param request Request body with teacherId and yearId
+     * @return Form link with token and URL
+     */
+    @Operation(summary = "Generate form link", description = "Generate a shareable form link for a teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Form link generated successfully",
+                    content = @Content(schema = @Schema(implementation = FormLinkResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "Teacher or academic year not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/generate-link")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateFormLink(@Valid @RequestBody FormLinkGenerateRequestDto request) {
+        log.info("POST /teacher-form-submissions/generate-link called with teacherId: {}, yearId: {}",
+                request.getTeacherId(), request.getYearId());
+
+        FormLinkResponseDto result = teacherFormSubmissionService.generateFormLink(request);
+
+        return ResponseHandler.success("Form link generated successfully", result);
     }
 }

@@ -30,6 +30,13 @@ public class TeacherFormSubmissionCreateDto {
     @NotNull(message = "Submission date is required")
     private LocalDateTime submittedAt;
 
-    @NotBlank(message = "Submission data is required")
-    private String submissionData;
+    // Submission data fields
+    private Long schoolId;
+    private String employmentStatus;
+    private String notes;
+    private java.util.List<Long> subjectIds;
+    private String internshipTypePreference;
+    private java.util.List<String> internshipCombinations;
+    private java.util.List<String> semesterAvailability;
+    private java.util.List<String> availabilityOptions;
 }
