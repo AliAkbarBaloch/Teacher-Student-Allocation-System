@@ -33,13 +33,29 @@ export class AuthService {
         }
       );
 
+      console.log("Login response frin backend", response);
+      
+      const fullName = response.fullName ?? ""; // use empty string if undefined 
+      const email = response.email ?? credentials.email; // fallback to the email we sent
+
+      let name = email; // default 
+
+      if (fullName && fullName.trim().length > 0)
+      {
+        // 
+        name = fullName.trim().split(" ")[0]; 
+      } else if (email && email.includes("@"))
+      {
+        name = email.split("@")[0];
+      }
+
       // Transform backend response to frontend format
       return {
         user: {
           id: String(response.userId),
-          email: response.email,
-          name: response.fullName.split(" ")[0] || response.email.split("@")[0],
-          fullName: response.fullName,
+          email,
+          name,
+          fullName: fullName || email, // fallback to email if no full name
           role: response.role,
         },
         token: response.token,
@@ -101,6 +117,8 @@ export class AuthService {
       newPassword: request.newPassword,
     });
   }
+
+
 
   /**
    * Change password for authenticated user
