@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherSubjectFilterDto {
+    private Long academicYearId;
     private Long teacherId;
-    private Long yearId;
     private Long subjectId;
     private String availabilityStatus;
     private Integer gradeLevelFrom;

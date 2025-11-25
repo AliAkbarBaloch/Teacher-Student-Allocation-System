@@ -20,6 +20,7 @@ import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
 import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
 import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
+import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -133,7 +134,7 @@ export const router = createBrowserRouter([
       // Teacher Management
       {
         path: ROUTES.teacherManagement.teacherSubjects,
-        element: withSuspense(<div>Teacher Subjects</div>),
+        element: withSuspense(<TeacherSubjectsPage />),
       },
       {
         path: ROUTES.teacherManagement.teacherAvailability,

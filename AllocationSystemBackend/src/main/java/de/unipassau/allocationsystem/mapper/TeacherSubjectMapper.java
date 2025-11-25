@@ -15,7 +15,7 @@ public class TeacherSubjectMapper {
         }
         return TeacherSubjectResponseDto.builder()
                 .id(entity.getId())
-                .yearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
+                .academicYearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
                 .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
                 .subjectId(entity.getSubject() != null ? entity.getSubject().getId() : null)
                 .availabilityStatus(entity.getAvailabilityStatus())

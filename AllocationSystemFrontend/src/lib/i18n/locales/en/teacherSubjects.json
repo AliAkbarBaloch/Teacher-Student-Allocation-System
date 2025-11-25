@@ -1,0 +1,91 @@
+{
+  "title": "Teacher Subjects",
+  "subtitle": "Manage teacher subject assignments and availability",
+  "table": {
+    "academicYear": "Academic Year",
+    "teacher": "Teacher",
+    "subjectCode": "Subject Code",
+    "subjectTitle": "Subject Title",
+    "availabilityStatus": "Availability Status",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "limited": "Limited",
+    "preferred": "Preferred",
+    "gradeLevelFrom": "Grade Level From",
+    "gradeLevelTo": "Grade Level To",
+    "notes": "Notes",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No teacher subjects found.",
+    "searchPlaceholder": "Search teacher subjects..."
+  },
+  "form": {
+    "title": {
+      "create": "Assign Teacher to Subject",
+      "edit": "Edit Teacher Subject Assignment",
+      "view": "Teacher Subject Details"
+    },
+    "fields": {
+      "academicYear": "Academic Year",
+      "teacher": "Teacher",
+      "subject": "Subject",
+      "subjectCode": "Subject Code",
+      "subjectTitle": "Subject Title",
+      "availabilityStatus": "Availability Status",
+      "gradeLevelFrom": "Grade Level From",
+      "gradeLevelTo": "Grade Level To",
+      "notes": "Notes",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "academicYear": "Enter academic year ID",
+      "teacher": "Select a teacher",
+      "noTeachers": "No teachers available",
+      "subject": "Select a subject",
+      "noSubjects": "No subjects available",
+      "subjectCode": "Enter subject code",
+      "subjectTitle": "Enter subject title",
+      "availabilityStatus": "Select availability status",
+      "gradeLevelFrom": "Enter starting grade level (optional)",
+      "gradeLevelTo": "Enter ending grade level (optional)",
+      "notes": "Enter notes (optional)"
+    },
+    "errors": {
+      "academicYearRequired": "Academic year is required",
+      "teacherRequired": "Teacher is required",
+      "subjectRequired": "Subject is required",
+      "availabilityStatusRequired": "Availability status is required"
+    },
+    "actions": {
+      "create": "Assign",
+      "update": "Update",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Assign Teacher",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Teacher Subject Assignment",
+    "message": "Are you sure you want to delete this teacher subject assignment? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Teacher subject assignment deleted successfully",
+    "error": "Failed to delete teacher subject assignment"
+  },
+  "create": {
+    "success": "Teacher subject assigned successfully",
+    "error": "Failed to assign teacher subject"
+  },
+  "update": {
+    "success": "Teacher subject assignment updated successfully",
+    "error": "Failed to update teacher subject assignment"
+  }
+}
