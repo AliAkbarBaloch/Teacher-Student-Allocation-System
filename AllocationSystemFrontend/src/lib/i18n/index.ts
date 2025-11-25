@@ -15,6 +15,7 @@ import enInternshipTypes from "./locales/en/internshipTypes.json";
 import enSubjects from "./locales/en/subjects.json";
 import enSubjectCategories from "./locales/en/subjectCategories.json";
 import enTeacherFormSubmissions from "./locales/en/teacherFormSubmissions.json";
+import enAcademicYears from "./locales/en/academicYears.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -28,6 +29,7 @@ import deInternshipTypes from "./locales/de/internshipTypes.json";
 import deSubjects from "./locales/de/subjects.json";
 import deSubjectCategories from "./locales/de/subjectCategories.json";
 import deTeacherFormSubmissions from "./locales/de/teacherFormSubmissions.json";
+import deAcademicYears from "./locales/de/academicYears.json";
 
 // Language metadata configuration
 export const languages = [
@@ -57,6 +59,7 @@ export const resources = {
         subjects: enSubjects,
         subjectCategories: enSubjectCategories,
         teacherFormSubmissions: enTeacherFormSubmissions,
+        academicYears: enAcademicYears,
     },
     de: {
         common: deCommon,
@@ -71,6 +74,7 @@ export const resources = {
         subjects: deSubjects,
         subjectCategories: deSubjectCategories,
         teacherFormSubmissions: deTeacherFormSubmissions,
+        academicYears: deAcademicYears,
     }
 } as const;
 

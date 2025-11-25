@@ -1,0 +1,83 @@
+{
+  "title": "Academic Years",
+  "subtitle": "Manage Academic Year records and configurations",
+  "table": {
+    "yearName": "Year Name",
+    "totalCreditHours": "Total Credit Hours",
+    "elementarySchoolHours": "Elementary School Hours",
+    "middleSchoolHours": "Middle School Hours",
+    "budgetAnnouncementDate": "Budget Announcement Date",
+    "allocationDeadline": "Allocation Deadline",
+    "isLocked": "Locked",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No academic years found.",
+    "searchPlaceholder": "Search academic years..."
+  },
+  "form": {
+    "title": {
+      "create": "Create Academic Year",
+      "edit": "Edit Academic Year",
+      "view": "Academic Year Details"
+    },
+    "fields": {
+      "yearName": "Year Name",
+      "totalCreditHours": "Total Credit Hours",
+      "elementarySchoolHours": "Elementary School Hours",
+      "middleSchoolHours": "Middle School Hours",
+      "budgetAnnouncementDate": "Budget Announcement Date",
+      "allocationDeadline": "Allocation Deadline",
+      "isLocked": "Locked",
+      "isLockedDescription": "Mark this academic year as locked to prevent changes.",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "yearName": "Enter year name (e.g., 2024/2025)",
+      "totalCreditHours": "Enter total credit hours",
+      "elementarySchoolHours": "Enter elementary school hours",
+      "middleSchoolHours": "Enter middle school hours",
+      "budgetAnnouncementDate": "Select budget announcement date",
+      "allocationDeadline": "Select allocation deadline (optional)"
+    },
+    "errors": {
+      "yearNameRequired": "Year name is required",
+      "totalCreditHoursRequired": "Total credit hours is required",
+      "elementarySchoolHoursRequired": "Elementary school hours is required",
+      "middleSchoolHoursRequired": "Middle school hours is required",
+      "budgetAnnouncementDateRequired": "Budget announcement date is required"
+    },
+    "actions": {
+      "create": "Create Academic Year",
+      "update": "Update Academic Year",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Academic Year",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Academic Year",
+    "message": "Are you sure you want to delete this academic year? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Academic year deleted successfully",
+    "error": "Failed to delete academic year"
+  },
+  "create": {
+    "success": "Academic year created successfully",
+    "error": "Failed to create academic year"
+  },
+  "update": {
+    "success": "Academic year updated successfully",
+    "error": "Failed to update academic year"
+  }
+}

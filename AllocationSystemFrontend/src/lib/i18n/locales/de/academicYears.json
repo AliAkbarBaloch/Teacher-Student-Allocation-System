@@ -1,0 +1,83 @@
+{
+  "title": "Akademische Jahre",
+  "subtitle": "Verwalten von Datensätzen und Einstellungen zu akademischen Jahren",
+  "table": {
+    "yearName": "Jahresbezeichnung",
+    "totalCreditHours": "Gesamt-Creditstunden",
+    "elementarySchoolHours": "Grundschulstunden",
+    "middleSchoolHours": "Mittelstufenstunden",
+    "budgetAnnouncementDate": "Datum der Budgetankündigung",
+    "allocationDeadline": "Zuweisungsfrist",
+    "isLocked": "Gesperrt",
+    "locked": "Gesperrt",
+    "unlocked": "Entsperrt",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine akademischen Jahre gefunden.",
+    "searchPlaceholder": "Akademische Jahre suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Akademisches Jahr erstellen",
+      "edit": "Akademisches Jahr bearbeiten",
+      "view": "Details zum akademischen Jahr"
+    },
+    "fields": {
+      "yearName": "Jahresbezeichnung",
+      "totalCreditHours": "Gesamt-Creditstunden",
+      "elementarySchoolHours": "Grundschulstunden",
+      "middleSchoolHours": "Mittelstufenstunden",
+      "budgetAnnouncementDate": "Datum der Budgetankündigung",
+      "allocationDeadline": "Zuweisungsfrist",
+      "isLocked": "Gesperrt",
+      "isLockedDescription": "Markieren Sie dieses akademische Jahr als gesperrt, um Änderungen zu verhindern.",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "yearName": "Jahresbezeichnung eingeben (z. B. 2024/2025)",
+      "totalCreditHours": "Gesamt-Creditstunden eingeben",
+      "elementarySchoolHours": "Grundschulstunden eingeben",
+      "middleSchoolHours": "Mittelstufenstunden eingeben",
+      "budgetAnnouncementDate": "Datum der Budgetankündigung auswählen",
+      "allocationDeadline": "Zuweisungsfrist auswählen (optional)"
+    },
+    "errors": {
+      "yearNameRequired": "Jahresbezeichnung ist erforderlich",
+      "totalCreditHoursRequired": "Gesamt-Creditstunden sind erforderlich",
+      "elementarySchoolHoursRequired": "Grundschulstunden sind erforderlich",
+      "middleSchoolHoursRequired": "Mittelstufenstunden sind erforderlich",
+      "budgetAnnouncementDateRequired": "Datum der Budgetankündigung ist erforderlich"
+    },
+    "actions": {
+      "create": "Akademisches Jahr erstellen",
+      "update": "Akademisches Jahr aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Akademisches Jahr erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Akademisches Jahr löschen",
+    "message": "Möchten Sie dieses akademische Jahr wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Akademisches Jahr erfolgreich gelöscht",
+    "error": "Löschen des akademischen Jahres fehlgeschlagen"
+  },
+  "create": {
+    "success": "Akademisches Jahr erfolgreich erstellt",
+    "error": "Erstellen des akademischen Jahres fehlgeschlagen"
+  },
+  "update": {
+    "success": "Akademisches Jahr erfolgreich aktualisiert",
+    "error": "Aktualisierung des akademischen Jahres fehlgeschlagen"
+  }
+}
