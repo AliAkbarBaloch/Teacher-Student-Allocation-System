@@ -19,6 +19,7 @@ import SubjectsPage from "@/pages/base-data/SubjectsPage";
 import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
 import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
 import TeacherFormPage from "@/pages/public/TeacherFormPage";
+import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -107,7 +108,7 @@ export const router = createBrowserRouter([
       // Base Data Management
       {
         path: ROUTES.baseData.academicYears,
-        element: withSuspense(<div>Academic Years</div>),
+        element: withSuspense(<AcademicYearPage />),
       },
       {
         path: ROUTES.baseData.subjectCategories,
