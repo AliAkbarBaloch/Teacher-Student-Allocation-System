@@ -1,0 +1,91 @@
+{
+  "title": "Lehrfachzuweisungen",
+  "subtitle": "Verwalten von Lehrfachzuweisungen und Verfügbarkeiten",
+  "table": {
+    "academicYear": "Akademisches Jahr",
+    "teacher": "Lehrkraft",
+    "subjectCode": "Fachcode",
+    "subjectTitle": "Fachbezeichnung",
+    "availabilityStatus": "Verfügbarkeitsstatus",
+    "available": "Verfügbar",
+    "notAvailable": "Nicht verfügbar",
+    "limited": "Begrenzt",
+    "preferred": "Bevorzugt",
+    "gradeLevelFrom": "Klassenstufe von",
+    "gradeLevelTo": "Klassenstufe bis",
+    "notes": "Notizen",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Lehrfachzuweisungen gefunden.",
+    "searchPlaceholder": "Lehrfachzuweisungen suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Lehrkraft einem Fach zuweisen",
+      "edit": "Lehrfachzuweisung bearbeiten",
+      "view": "Details zur Lehrfachzuweisung"
+    },
+    "fields": {
+      "academicYear": "Akademisches Jahr",
+      "teacher": "Lehrkraft",
+      "subject": "Fach",
+      "subjectCode": "Fachcode",
+      "subjectTitle": "Fachbezeichnung",
+      "availabilityStatus": "Verfügbarkeitsstatus",
+      "gradeLevelFrom": "Klassenstufe von",
+      "gradeLevelTo": "Klassenstufe bis",
+      "notes": "Notizen",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "academicYear": "ID des akademischen Jahres eingeben",
+      "teacher": "Wählen Sie eine Lehrkraft",
+      "noTeachers": "Keine Lehrkräfte verfügbar",
+      "subject": "Wählen Sie ein Fach",
+      "noSubjects": "Keine Fächer verfügbar",
+      "subjectCode": "Fachcode eingeben",
+      "subjectTitle": "Fachbezeichnung eingeben",
+      "availabilityStatus": "Verfügbarkeitsstatus wählen",
+      "gradeLevelFrom": "Anfangsklassenstufe eingeben (optional)",
+      "gradeLevelTo": "Endklassenstufe eingeben (optional)",
+      "notes": "Notizen eingeben (optional)"
+    },
+    "errors": {
+      "academicYearRequired": "Akademisches Jahr ist erforderlich",
+      "teacherRequired": "Lehrkraft ist erforderlich",
+      "subjectRequired": "Fach ist erforderlich",
+      "availabilityStatusRequired": "Verfügbarkeitsstatus ist erforderlich"
+    },
+    "actions": {
+      "create": "Zuweisen",
+      "update": "Aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Lehrkraft zuweisen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Lehrfachzuweisung löschen",
+    "message": "Möchten Sie diese Lehrfachzuweisung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Lehrfachzuweisung erfolgreich gelöscht",
+    "error": "Löschen der Lehrfachzuweisung fehlgeschlagen"
+  },
+  "create": {
+    "success": "Lehrfachzuweisung erfolgreich erstellt",
+    "error": "Zuweisung des Lehrfachs fehlgeschlagen"
+  },
+  "update": {
+    "success": "Lehrfachzuweisung erfolgreich aktualisiert",
+    "error": "Aktualisierung der Lehrfachzuweisung fehlgeschlagen"
+  }
+}

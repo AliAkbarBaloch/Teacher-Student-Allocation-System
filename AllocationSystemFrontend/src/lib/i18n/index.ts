@@ -16,6 +16,7 @@ import enSubjects from "./locales/en/subjects.json";
 import enSubjectCategories from "./locales/en/subjectCategories.json";
 import enTeacherFormSubmissions from "./locales/en/teacherFormSubmissions.json";
 import enAcademicYears from "./locales/en/academicYears.json";
+import enTeacherSubjects from "./locales/en/teacherSubjects.json"
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -30,6 +31,7 @@ import deSubjects from "./locales/de/subjects.json";
 import deSubjectCategories from "./locales/de/subjectCategories.json";
 import deTeacherFormSubmissions from "./locales/de/teacherFormSubmissions.json";
 import deAcademicYears from "./locales/de/academicYears.json";
+import deTeacherSubjects from "./locales/de/teacherSubjects.json"
 
 // Language metadata configuration
 export const languages = [
@@ -60,6 +62,7 @@ export const resources = {
         subjectCategories: enSubjectCategories,
         teacherFormSubmissions: enTeacherFormSubmissions,
         academicYears: enAcademicYears,
+        teacherSubjects: enTeacherSubjects,
     },
     de: {
         common: deCommon,
@@ -75,6 +78,7 @@ export const resources = {
         subjectCategories: deSubjectCategories,
         teacherFormSubmissions: deTeacherFormSubmissions,
         academicYears: deAcademicYears,
+        teacherSubjects: deTeacherSubjects,
     }
 } as const;
 
