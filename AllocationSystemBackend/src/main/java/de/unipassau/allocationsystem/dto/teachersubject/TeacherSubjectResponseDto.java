@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TeacherSubjectResponseDto {
     private Long id;
-    private Long yearId;
+    private Long academicYearId;
     private Long teacherId;
     private Long subjectId;
     private String availabilityStatus;
