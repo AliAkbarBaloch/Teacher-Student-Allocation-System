@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '10.14.0'
     id 'checkstyle'
     id 'application'
 }
@@ -99,3 +100,8 @@ tasks.named('check') {
 }
 
 //--- Checkstyle Configuration END ---
+flyway {
+    url = 'jdbc:h2:file:./data/allocdb;AUTO_SERVER=TRUE'
+    user = 'sa'
+    password = ''
+}

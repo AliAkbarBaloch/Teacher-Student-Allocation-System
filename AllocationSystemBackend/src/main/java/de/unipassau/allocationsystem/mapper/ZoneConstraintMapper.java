@@ -58,7 +58,7 @@ public class ZoneConstraintMapper implements BaseMapper<ZoneConstraint, ZoneCons
                 zoneConstraint.getIsAllowed(),
                 zoneConstraint.getDescription(),
                 zoneConstraint.getCreatedAt(),
-                zoneConstraint.getLastModified()
+                zoneConstraint.getUpdatedAt()
         );
     }
 
