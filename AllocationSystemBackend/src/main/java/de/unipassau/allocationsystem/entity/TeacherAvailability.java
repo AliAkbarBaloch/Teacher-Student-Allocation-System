@@ -45,7 +45,7 @@ public class TeacherAvailability {
 
     @NotNull(message = "Academic year is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "year_id", nullable = false)
+    @JoinColumn(name = "academic_year_id", nullable = false)
     private AcademicYear academicYear;
 
     @NotNull(message = "Internship type is required")

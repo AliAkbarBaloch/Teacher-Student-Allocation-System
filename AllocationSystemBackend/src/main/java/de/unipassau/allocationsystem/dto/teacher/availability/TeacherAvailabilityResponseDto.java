@@ -24,8 +24,8 @@ public class TeacherAvailabilityResponseDto {
     private String teacherLastName;
     private String teacherEmail;
 
-    private Long yearId;
-    private String yearName;
+    private Long academicYearId;
+    private String academicYearName;
 
     private Long internshipTypeId;
     private String internshipTypeName;

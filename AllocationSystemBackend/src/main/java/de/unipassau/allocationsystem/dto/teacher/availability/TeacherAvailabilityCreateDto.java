@@ -20,7 +20,7 @@ public class TeacherAvailabilityCreateDto {
     private Long teacherId;
 
     @NotNull(message = "Academic year ID is required")
-    private Long yearId;
+    private Long academicYearId;
 
     @NotNull(message = "Internship type ID is required")
     private Long internshipTypeId;

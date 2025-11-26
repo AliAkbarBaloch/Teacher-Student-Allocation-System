@@ -1,38 +1,101 @@
+// src/main/java/de/unipassau/allocationsystem/mapper/TeacherAvailabilityMapper.java
 package de.unipassau.allocationsystem.mapper;
 
+import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
 import de.unipassau.allocationsystem.entity.TeacherAvailability;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
+import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import org.springframework.stereotype.Component;
 
-/**
- * Mapper for TeacherAvailability entity and DTOs.
- */
-@Component
-public class TeacherAvailabilityMapper {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    /**
-     * Convert TeacherAvailability entity to response DTO with denormalized fields.
-     *
-     * @param entity TeacherAvailability entity
-     * @return TeacherAvailabilityResponseDto
-     */
-    public TeacherAvailabilityResponseDto toDto(TeacherAvailability entity) {
+@Component
+public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability, TeacherAvailabilityCreateDto, TeacherAvailabilityUpdateDto, TeacherAvailabilityResponseDto> {
+
+    private final TeacherRepository teacherRepository;
+    private final AcademicYearRepository academicYearRepository;
+    private final InternshipTypeRepository internshipTypeRepository;
+
+    public TeacherAvailabilityMapper(
+            TeacherRepository teacherRepository,
+            AcademicYearRepository academicYearRepository,
+            InternshipTypeRepository internshipTypeRepository
+    ) {
+        this.teacherRepository = teacherRepository;
+        this.academicYearRepository = academicYearRepository;
+        this.internshipTypeRepository = internshipTypeRepository;
+    }
+
+    @Override
+    public TeacherAvailability toEntityCreate(TeacherAvailabilityCreateDto createDto) {
+        if (createDto == null) {
+            return null;
+        }
+        TeacherAvailability entity = new TeacherAvailability();
+        entity.setIsAvailable(createDto.getIsAvailable());
+        entity.setPreferenceRank(createDto.getPreferenceRank());
+        entity.setNotes(createDto.getNotes());
+
+        Teacher teacher = teacherRepository.findById(createDto.getTeacherId()).orElse(null);
+        AcademicYear year = academicYearRepository.findById(createDto.getAcademicYearId()).orElse(null);
+        InternshipType internshipType = internshipTypeRepository.findById(createDto.getInternshipTypeId()).orElse(null);
+
+        entity.setTeacher(teacher);
+        entity.setAcademicYear(year);
+        entity.setInternshipType(internshipType);
+
+        return entity;
+    }
+
+    @Override
+    public TeacherAvailability toEntityUpdate(TeacherAvailabilityUpdateDto updateDto) {
+        if (updateDto == null) {
+            return null;
+        }
+        TeacherAvailability entity = new TeacherAvailability();
+        entity.setIsAvailable(updateDto.getIsAvailable());
+        entity.setPreferenceRank(updateDto.getPreferenceRank());
+        entity.setNotes(updateDto.getNotes());
+
+        if (updateDto.getTeacherId() != null) {
+            Teacher teacher = teacherRepository.findById(updateDto.getTeacherId()).orElse(null);
+            entity.setTeacher(teacher);
+        }
+        if (updateDto.getAcademicYearId() != null) {
+            AcademicYear year = academicYearRepository.findById(updateDto.getAcademicYearId()).orElse(null);
+            entity.setAcademicYear(year);
+        }
+        if (updateDto.getInternshipTypeId() != null) {
+            InternshipType internshipType = internshipTypeRepository.findById(updateDto.getInternshipTypeId()).orElse(null);
+            entity.setInternshipType(internshipType);
+        }
+
+        return entity;
+    }
+
+    @Override
+    public TeacherAvailabilityResponseDto toResponseDto(TeacherAvailability entity) {
         if (entity == null) {
             return null;
         }
-
         return TeacherAvailabilityResponseDto.builder()
                 .availabilityId(entity.getAvailabilityId())
-                .teacherId(entity.getTeacher().getId())
-                .teacherFirstName(entity.getTeacher().getFirstName())
-                .teacherLastName(entity.getTeacher().getLastName())
-                .teacherEmail(entity.getTeacher().getEmail())
-                .yearId(entity.getAcademicYear().getId())
-                .yearName(entity.getAcademicYear().getYearName())
-                .internshipTypeId(entity.getInternshipType().getId())
-                .internshipTypeName(entity.getInternshipType().getFullName())
-                .internshipTypeCode(entity.getInternshipType().getInternshipCode())
+                .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
+                .teacherFirstName(entity.getTeacher() != null ? entity.getTeacher().getFirstName() : null)
+                .teacherLastName(entity.getTeacher() != null ? entity.getTeacher().getLastName() : null)
+                .teacherEmail(entity.getTeacher() != null ? entity.getTeacher().getEmail() : null)
+                .academicYearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
+                .academicYearName(entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null)
+                .internshipTypeId(entity.getInternshipType() != null ? entity.getInternshipType().getId() : null)
+                .internshipTypeName(entity.getInternshipType() != null ? entity.getInternshipType().getFullName() : null)
+                .internshipTypeCode(entity.getInternshipType() != null ? entity.getInternshipType().getInternshipCode() : null)
                 .isAvailable(entity.getIsAvailable())
                 .preferenceRank(entity.getPreferenceRank())
                 .notes(entity.getNotes())
@@ -41,36 +104,44 @@ public class TeacherAvailabilityMapper {
                 .build();
     }
 
-    /**
-     * Update entity from DTO. Only updates non-null fields.
-     *
-     * @param entity TeacherAvailability entity to update
-     * @param dto TeacherAvailabilityUpdateDto with new values
-     */
-    public void updateEntityFromDto(TeacherAvailability entity, TeacherAvailabilityUpdateDto dto) {
-        if (dto == null) {
+    @Override
+    public List<TeacherAvailabilityResponseDto> toResponseDtoList(List<TeacherAvailability> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(TeacherAvailabilityUpdateDto updateDto, TeacherAvailability entity) {
+        if (updateDto == null || entity == null) {
             return;
         }
-
-        // Note: yearId, teacherId, internshipTypeId are updated in service layer
-        // Only availability status, preference rank, and notes can be updated here
-        
-        if (dto.getIsAvailable() != null) {
-            entity.setIsAvailable(dto.getIsAvailable());
-            // If setting to not available, also clear preference rank
-            if (Boolean.FALSE.equals(dto.getIsAvailable())) {
+        if (updateDto.getIsAvailable() != null) {
+            entity.setIsAvailable(updateDto.getIsAvailable());
+            if (Boolean.FALSE.equals(updateDto.getIsAvailable())) {
                 entity.setPreferenceRank(null);
             }
         }
-        // Always update preference rank if provided (even if null, to allow clearing it)
-        // Only skip if not provided at all - but for DTOs, we need to check if field was set
-        // Since we can't distinguish between "not set" and "set to null" in Java,
-        // we handle this in conjunction with isAvailable flag above
-        if (dto.getPreferenceRank() != null || Boolean.FALSE.equals(dto.getIsAvailable())) {
-            entity.setPreferenceRank(dto.getPreferenceRank());
+        if (updateDto.getPreferenceRank() != null || Boolean.FALSE.equals(updateDto.getIsAvailable())) {
+            entity.setPreferenceRank(updateDto.getPreferenceRank());
         }
-        if (dto.getNotes() != null) {
-            entity.setNotes(dto.getNotes());
+        if (updateDto.getNotes() != null) {
+            entity.setNotes(updateDto.getNotes());
+        }
+        if (updateDto.getTeacherId() != null) {
+            Teacher teacher = teacherRepository.findById(updateDto.getTeacherId()).orElse(null);
+            entity.setTeacher(teacher);
+        }
+        if (updateDto.getAcademicYearId() != null) {
+            AcademicYear year = academicYearRepository.findById(updateDto.getAcademicYearId()).orElse(null);
+            entity.setAcademicYear(year);
+        }
+        if (updateDto.getInternshipTypeId() != null) {
+            InternshipType internshipType = internshipTypeRepository.findById(updateDto.getInternshipTypeId()).orElse(null);
+            entity.setInternshipType(internshipType);
         }
     }
 }

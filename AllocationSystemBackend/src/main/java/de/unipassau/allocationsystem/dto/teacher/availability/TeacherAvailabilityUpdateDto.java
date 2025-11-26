@@ -20,7 +20,7 @@ public class TeacherAvailabilityUpdateDto {
     @NotNull(message = "Teacher ID is required")
     private Long teacherId;
 
-    private Long yearId;
+    private Long academicYearId;
 
     private Long internshipTypeId;
 
