@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.dto.teacher.availability;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO for updating an existing teacher availability record.
- * All fields are optional to allow partial updates.
+ * Permission-style controller requires teacherId in the request body for update.
  */
 @Data
 @Builder
@@ -16,7 +17,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TeacherAvailabilityUpdateDto {
 
-    private Long yearId;
+    @NotNull(message = "Teacher ID is required")
+    private Long teacherId;
+
+    private Long academicYearId;
 
     private Long internshipTypeId;
 

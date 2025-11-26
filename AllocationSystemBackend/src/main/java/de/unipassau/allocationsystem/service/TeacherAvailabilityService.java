@@ -2,17 +2,11 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
-import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityResponseDto;
-import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityUpdateDto;
-import de.unipassau.allocationsystem.entity.*;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
-import de.unipassau.allocationsystem.mapper.TeacherAvailabilityMapper;
-import de.unipassau.allocationsystem.repository.AcademicYearRepository;
-import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.repository.TeacherAvailabilityRepository;
-import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,189 +18,148 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
+import java.util.*;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
-public class TeacherAvailabilityService {
+public class TeacherAvailabilityService implements CrudService<TeacherAvailability, Long> {
 
     private final TeacherAvailabilityRepository teacherAvailabilityRepository;
-    private final TeacherRepository teacherRepository;
-    private final AcademicYearRepository academicYearRepository;
-    private final InternshipTypeRepository internshipTypeRepository;
-    private final TeacherAvailabilityMapper teacherAvailabilityMapper;
+
+    @Override
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "teacherId", "label", "Teacher ID"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
+
+    public List<String> getSortFieldKeys() {
+        List<String> keys = new ArrayList<>();
+        for (Map<String, String> field : getSortFields()) {
+            keys.add(field.get("key"));
+        }
+        return keys;
+    }
+
+    private Specification<TeacherAvailability> buildSearchSpecification(String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
+        return (root, query, cb) -> cb.like(cb.lower(root.get("notes")), likePattern);
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return teacherAvailabilityRepository.findById(id).isPresent();
+    }
 
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
+            action = AuditAction.VIEW,
             entityName = AuditEntityNames.TEACHER_AVAILABILITY,
-            description = "Viewed list of teacher availability entries",
+            description = "Viewed list of teacher availabilities",
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public Map<String, Object> getTeacherAvailability(
-            Long teacherId, Long yearId, Long internshipTypeId, Map<String, String> queryParams) {
-
-        if (!teacherRepository.existsById(teacherId)) {
-            throw new ResourceNotFoundException("Teacher not found with ID: " + teacherId);
-        }
-
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-
-        Specification<TeacherAvailability> spec = (root, query, cb) ->
-                cb.equal(root.get("teacher").get("id"), teacherId);
-
-        if (yearId != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("academicYear").get("id"), yearId));
-        }
-
-        if (internshipTypeId != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("internshipType").get("id"), internshipTypeId));
-        }
-
-        String sortField = "id".equals(params.sortBy()) ? "availabilityId" : params.sortBy();
-        Sort sort = Sort.by(params.sortOrder(), sortField);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
+        Specification<TeacherAvailability> spec = buildSearchSpecification(searchValue);
         Page<TeacherAvailability> page = teacherAvailabilityRepository.findAll(spec, pageable);
-        Page<TeacherAvailabilityResponseDto> dtoPage = page.map(teacherAvailabilityMapper::toDto);
 
-        return PaginationUtils.formatPaginationResponse(dtoPage);
+        return PaginationUtils.formatPaginationResponse(page);
     }
 
     @Audited(
-            action = AuditLog.AuditAction.VIEW,
+            action = AuditAction.VIEW,
             entityName = AuditEntityNames.TEACHER_AVAILABILITY,
-            description = "Viewed teacher availability entry details",
+            description = "Viewed all teacher availabilities",
             captureNewValue = false
     )
     @Transactional(readOnly = true)
-    public TeacherAvailabilityResponseDto getAvailabilityById(Long teacherId, Long availabilityId) {
-        TeacherAvailability availability = teacherAvailabilityRepository
-                .findByAvailabilityIdAndTeacherId(availabilityId, teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Availability entry not found with ID: " + availabilityId + " for teacher ID: " + teacherId));
-
-        return teacherAvailabilityMapper.toDto(availability);
+    @Override
+    public List<TeacherAvailability> getAll() {
+        return teacherAvailabilityRepository.findAll();
     }
 
     @Audited(
-            action = AuditLog.AuditAction.CREATE,
+            action = AuditAction.VIEW,
             entityName = AuditEntityNames.TEACHER_AVAILABILITY,
-            description = "Created new teacher availability entry",
+            description = "Viewed teacher availability by id",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<TeacherAvailability> getById(Long id) {
+        return teacherAvailabilityRepository.findById(id);
+    }
+
+    @Audited(
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.TEACHER_AVAILABILITY,
+            description = "Created new teacher availability",
             captureNewValue = true
     )
     @Transactional
-    public TeacherAvailabilityResponseDto createAvailability(Long teacherId, TeacherAvailabilityCreateDto createDto) {
-        if (!teacherId.equals(createDto.getTeacherId())) {
-            throw new IllegalArgumentException("Teacher ID in path and request body must match");
-        }
-
-        Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + teacherId));
-
-        if (!teacher.getIsActive()) {
-            throw new IllegalArgumentException("Cannot create availability for inactive teacher: " +
-                    teacher.getFirstName() + " " + teacher.getLastName());
-        }
-
-        AcademicYear academicYear = academicYearRepository.findById(createDto.getYearId())
-                .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with ID: " + createDto.getYearId()));
-
-        InternshipType internshipType = internshipTypeRepository.findById(createDto.getInternshipTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with ID: " + createDto.getInternshipTypeId()));
-
-        validatePreferenceRank(createDto.getIsAvailable(), createDto.getPreferenceRank());
-
+    @Override
+    public TeacherAvailability create(TeacherAvailability availability) {
+        // Example duplicate check, adjust as needed
         if (teacherAvailabilityRepository.existsByTeacherIdAndAcademicYearIdAndInternshipTypeId(
-                teacherId, createDto.getYearId(), createDto.getInternshipTypeId())) {
-            throw new DuplicateResourceException(
-                    "Availability entry already exists for this teacher, year, and internship type");
+                availability.getTeacher().getId(),
+                availability.getAcademicYear().getId(),
+                availability.getInternshipType().getId())) {
+            throw new DuplicateResourceException("Teacher availability already exists for this teacher, year, and internship type");
         }
-
-        TeacherAvailability availability = new TeacherAvailability();
-        availability.setTeacher(teacher);
-        availability.setAcademicYear(academicYear);
-        availability.setInternshipType(internshipType);
-        availability.setIsAvailable(createDto.getIsAvailable());
-        availability.setPreferenceRank(createDto.getPreferenceRank());
-        availability.setNotes(createDto.getNotes());
-
-        TeacherAvailability saved = teacherAvailabilityRepository.save(availability);
-        return teacherAvailabilityMapper.toDto(saved);
+        return teacherAvailabilityRepository.save(availability);
     }
 
     @Audited(
-            action = AuditLog.AuditAction.UPDATE,
+            action = AuditAction.UPDATE,
             entityName = AuditEntityNames.TEACHER_AVAILABILITY,
-            description = "Updated teacher availability entry",
+            description = "Updated teacher availability",
             captureNewValue = true
     )
     @Transactional
-    public TeacherAvailabilityResponseDto updateAvailability(
-            Long teacherId, Long availabilityId, TeacherAvailabilityUpdateDto updateDto) {
+    @Override
+    public TeacherAvailability update(Long id, TeacherAvailability data) {
+        TeacherAvailability existing = teacherAvailabilityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher availability not found with id: " + id));
 
-        TeacherAvailability availability = teacherAvailabilityRepository
-                .findByAvailabilityIdAndTeacherId(availabilityId, teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Availability entry not found with ID: " + availabilityId + " for teacher ID: " + teacherId));
-
-        Long newYearId = updateDto.getYearId() != null ? updateDto.getYearId() : availability.getAcademicYear().getId();
-        Long newInternshipTypeId = updateDto.getInternshipTypeId() != null ? updateDto.getInternshipTypeId() : availability.getInternshipType().getId();
-
-        if ((updateDto.getYearId() != null && !updateDto.getYearId().equals(availability.getAcademicYear().getId())) ||
-            (updateDto.getInternshipTypeId() != null && !updateDto.getInternshipTypeId().equals(availability.getInternshipType().getId()))) {
-
-            if (teacherAvailabilityRepository.existsByTeacherIdAndYearIdAndInternshipTypeIdAndIdNot(
-                    teacherId, newYearId, newInternshipTypeId, availabilityId)) {
-                throw new DuplicateResourceException(
-                        "Availability entry already exists for this teacher, year, and internship type");
-            }
+        // Example update logic, adjust as needed
+        if (data.getNotes() != null) {
+            existing.setNotes(data.getNotes());
         }
-
-        if (updateDto.getYearId() != null) {
-            AcademicYear academicYear = academicYearRepository.findById(updateDto.getYearId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with ID: " + updateDto.getYearId()));
-            availability.setAcademicYear(academicYear);
+        if (data.getIsAvailable() != null) {
+            existing.setIsAvailable(data.getIsAvailable());
         }
-
-        if (updateDto.getInternshipTypeId() != null) {
-            InternshipType internshipType = internshipTypeRepository.findById(updateDto.getInternshipTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with ID: " + updateDto.getInternshipTypeId()));
-            availability.setInternshipType(internshipType);
+        if (data.getPreferenceRank() != null) {
+            existing.setPreferenceRank(data.getPreferenceRank());
         }
+        // Add more fields as needed
 
-        teacherAvailabilityMapper.updateEntityFromDto(availability, updateDto);
-
-        validatePreferenceRank(availability.getIsAvailable(), availability.getPreferenceRank());
-
-        TeacherAvailability updated = teacherAvailabilityRepository.save(availability);
-        return teacherAvailabilityMapper.toDto(updated);
+        return teacherAvailabilityRepository.save(existing);
     }
 
     @Audited(
-            action = AuditLog.AuditAction.DELETE,
+            action = AuditAction.DELETE,
             entityName = AuditEntityNames.TEACHER_AVAILABILITY,
-            description = "Deleted teacher availability entry",
+            description = "Deleted teacher availability",
             captureNewValue = false
     )
     @Transactional
-    public void deleteAvailability(Long teacherId, Long availabilityId) {
-        TeacherAvailability availability = teacherAvailabilityRepository
-                .findByAvailabilityIdAndTeacherId(availabilityId, teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Availability entry not found with ID: " + availabilityId + " for teacher ID: " + teacherId));
-
-        teacherAvailabilityRepository.delete(availability);
-    }
-
-    private void validatePreferenceRank(Boolean isAvailable, Integer preferenceRank) {
-        if (Boolean.FALSE.equals(isAvailable) && preferenceRank != null) {
-            throw new IllegalArgumentException(
-                    "Preference rank should be null when teacher is not available");
+    @Override
+    public void delete(Long id) {
+        if (!teacherAvailabilityRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Teacher availability not found with id: " + id);
         }
+        teacherAvailabilityRepository.deleteById(id);
     }
 }

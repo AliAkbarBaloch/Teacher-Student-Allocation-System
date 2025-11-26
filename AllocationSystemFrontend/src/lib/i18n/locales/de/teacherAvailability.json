@@ -1,0 +1,82 @@
+{
+  "title": "Lehrerverfügbarkeit",
+  "subtitle": "Verwalten der Verfügbarkeit von Lehrkräften für Praktikumszuweisungen",
+  "table": {
+    "teacher": "Lehrkraft",
+    "academicYear": "Akademisches Jahr",
+    "internshipType": "Praktikumstyp",
+    "isAvailable": "Verfügbar",
+    "available": "Verfügbar",
+    "notAvailable": "Nicht verfügbar",
+    "preferenceRank": "Präferenzrang",
+    "notes": "Notizen",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Verfügbarkeitsdatensätze für Lehrkräfte gefunden.",
+    "searchPlaceholder": "Lehrerverfügbarkeiten suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Lehrerverfügbarkeit hinzufügen",
+      "edit": "Lehrerverfügbarkeit bearbeiten",
+      "view": "Details zur Lehrerverfügbarkeit"
+    },
+    "fields": {
+      "teacher": "Lehrkraft",
+      "academicYear": "Akademisches Jahr",
+      "internshipType": "Praktikumstyp",
+      "isAvailable": "Verfügbar",
+      "preferenceRank": "Präferenzrang",
+      "notes": "Notizen",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "teacher": "Wählen Sie eine Lehrkraft",
+      "noTeachers": "Keine Lehrkräfte verfügbar",
+      "academicYear": "Wählen Sie ein akademisches Jahr",
+      "noAcademicYears": "Keine akademischen Jahre verfügbar",
+      "internshipType": "Wählen Sie den Praktikumstyp",
+      "noInternshipTypes": "Keine Praktikumstypen verfügbar",
+      "isAvailable": "Verfügbarkeit wählen",
+      "preferenceRank": "Präferenzrang eingeben (optional)",
+      "notes": "Notizen eingeben (optional)"
+    },
+    "errors": {
+      "teacherRequired": "Lehrkraft ist erforderlich",
+      "academicYearRequired": "Akademisches Jahr ist erforderlich",
+      "internshipTypeRequired": "Praktikumstyp ist erforderlich",
+      "preferenceRankPositive": "Der Präferenzrang muss positiv sein"
+    },
+    "actions": {
+      "create": "Hinzufügen",
+      "update": "Aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Speichern...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Verfügbarkeit hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Lehrerverfügbarkeit löschen",
+    "message": "Möchten Sie diesen Verfügbarkeitsdatensatz für die Lehrkraft wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Lehrerverfügbarkeit erfolgreich gelöscht",
+    "error": "Löschen der Lehrerverfügbarkeit fehlgeschlagen"
+  },
+  "create": {
+    "success": "Lehrerverfügbarkeit erfolgreich hinzugefügt",
+    "error": "Hinzufügen der Lehrerverfügbarkeit fehlgeschlagen"
+  },
+  "update": {
+    "success": "Lehrerverfügbarkeit erfolgreich aktualisiert",
+    "error": "Aktualisierung der Lehrerverfügbarkeit fehlgeschlagen"
+  }
+}
