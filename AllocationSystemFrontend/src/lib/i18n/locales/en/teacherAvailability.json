@@ -1,0 +1,82 @@
+{
+  "title": "Teacher Availability",
+  "subtitle": "Manage teacher availability for internship assignments",
+  "table": {
+    "teacher": "Teacher",
+    "academicYear": "Academic Year",
+    "internshipType": "Internship Type",
+    "isAvailable": "Available",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "preferenceRank": "Preference Rank",
+    "notes": "Notes",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No teacher availability records found.",
+    "searchPlaceholder": "Search teacher availability..."
+  },
+  "form": {
+    "title": {
+      "create": "Add Teacher Availability",
+      "edit": "Edit Teacher Availability",
+      "view": "Teacher Availability Details"
+    },
+    "fields": {
+      "teacher": "Teacher",
+      "academicYear": "Academic Year",
+      "internshipType": "Internship Type",
+      "isAvailable": "Available",
+      "preferenceRank": "Preference Rank",
+      "notes": "Notes",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "teacher": "Select a teacher",
+      "noTeachers": "No teachers available",
+      "academicYear": "Select an academic year",
+      "noAcademicYears": "No academic years available",
+      "internshipType": "Select internship type",
+      "noInternshipTypes": "No internship types available",
+      "isAvailable": "Select availability",
+      "preferenceRank": "Enter preference rank (optional)",
+      "notes": "Enter notes (optional)"
+    },
+    "errors": {
+      "teacherRequired": "Teacher is required",
+      "academicYearRequired": "Academic year is required",
+      "internshipTypeRequired": "Internship type is required",
+      "preferenceRankPositive": "Preference rank must be positive"
+    },
+    "actions": {
+      "create": "Add",
+      "update": "Update",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Add Availability",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Teacher Availability",
+    "message": "Are you sure you want to delete this teacher availability record? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Teacher availability deleted successfully",
+    "error": "Failed to delete teacher availability"
+  },
+  "create": {
+    "success": "Teacher availability added successfully",
+    "error": "Failed to add teacher availability"
+  },
+  "update": {
+    "success": "Teacher availability updated successfully",
+    "error": "Failed to update teacher availability"
+  }
+}
