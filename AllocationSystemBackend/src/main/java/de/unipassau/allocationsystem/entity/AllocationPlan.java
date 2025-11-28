@@ -81,54 +81,27 @@ public class AllocationPlan {
     @NotNull(message = "Creator user is required")
     private User createdByUser;
 
-    /**
-     * Timestamp when this plan was created.
-     */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    /**
-     * Timestamp when this plan was last modified.
-     */
-    @Column(name = "last_modified", nullable = false)
-    private LocalDateTime lastModified;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
-    /**
-     * Flag indicating if this is the current active plan for the academic year.
-     * Only one plan per year can have is_current = true.
-     */
     @Column(name = "is_current", nullable = false)
     private Boolean isCurrent = false;
 
-    /**
-     * Additional notes or comments about this plan.
-     */
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    /**
-     * Lifecycle callback to set timestamps on creation.
-     */
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        if (createdAt == null) {
-            createdAt = now;
-        }
-        if (lastModified == null) {
-            lastModified = now;
-        }
-        if (isCurrent == null) {
-            isCurrent = false;
-        }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Lifecycle callback to update lastModified timestamp on updates.
-     */
     @PreUpdate
     protected void onUpdate() {
-        lastModified = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     /**

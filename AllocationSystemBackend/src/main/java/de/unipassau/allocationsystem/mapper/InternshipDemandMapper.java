@@ -58,7 +58,8 @@ public class InternshipDemandMapper implements BaseMapper<InternshipDemand, Inte
         r.setRequiredTeachers(entity.getRequiredTeachers());
         r.setStudentCount(entity.getStudentCount());
         r.setIsForecasted(entity.getIsForecasted());
-        r.setLastUpdated(entity.getLastUpdated());
+        r.setCreatedAt(entity.getCreatedAt());
+        r.setUpdatedAt(entity.getUpdatedAt());
         return r;
     }
 

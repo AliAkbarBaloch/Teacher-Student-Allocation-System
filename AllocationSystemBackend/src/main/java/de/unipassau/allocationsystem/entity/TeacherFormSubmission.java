@@ -46,7 +46,7 @@ public class TeacherFormSubmission {
     @Column(name = "form_token", nullable = false, unique = true)
     private String formToken;
 
-    @Column(name = "submitted_at", nullable = true)
+    @Column(name = "submitted_at", nullable = true, columnDefinition = "TIMESTAMP")
     private LocalDateTime submittedAt;
 
     // Submission data fields (distinct columns instead of JSON)
@@ -78,10 +78,10 @@ public class TeacherFormSubmission {
     @Column(name = "is_processed", nullable = false)
     private Boolean isProcessed = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
 
     @PrePersist

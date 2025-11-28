@@ -50,7 +50,7 @@ public class PlanChangeLog {
     @Column(name = "new_value", columnDefinition = "TEXT")
     private String newValue;
 
-    @Column(name = "event_timestamp", nullable = false)
+    @Column(name = "event_timestamp", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime eventTimestamp;
 
     @Column(name = "reason", length = 500)
