@@ -18,14 +18,14 @@ import java.time.LocalDateTime;
 @Table(name = "teacher_availability",
     uniqueConstraints = {
         @UniqueConstraint(name = "uk_teacher_year_internship",
-            columnNames = {"teacher_id", "year_id", "internship_type_id"})
+            columnNames = {"teacher_id", "academic_year_id", "internship_type_id"})
     },
     indexes = {
         @Index(name = "idx_teacher_availability_teacher_id", columnList = "teacher_id"),
-        @Index(name = "idx_teacher_availability_year_id", columnList = "year_id"),
+        @Index(name = "idx_teacher_availability_year_id", columnList = "academic_year_id"),
         @Index(name = "idx_teacher_availability_internship_type", columnList = "internship_type_id"),
         @Index(name = "idx_teacher_availability_is_available", columnList = "is_available"),
-        @Index(name = "idx_teacher_availability_composite", columnList = "teacher_id, year_id")
+        @Index(name = "idx_teacher_availability_composite", columnList = "teacher_id, academic_year_id")
     })
 @Getter
 @Setter

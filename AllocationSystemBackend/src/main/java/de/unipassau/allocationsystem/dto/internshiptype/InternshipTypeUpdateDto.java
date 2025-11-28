@@ -12,7 +12,7 @@ public class InternshipTypeUpdateDto {
     private String fullName;
     private String timing;
     private String periodType;
-    private String semester;
+    private Integer semester;
     private Boolean isSubjectSpecific;
     private Integer priorityOrder;
 }

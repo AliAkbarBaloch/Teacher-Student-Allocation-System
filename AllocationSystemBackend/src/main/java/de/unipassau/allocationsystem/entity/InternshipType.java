@@ -49,7 +49,7 @@ public class InternshipType {
 
     @Size(max = 50, message = "Semester must not exceed 50 characters")
     @Column(name = "semester", length = 50)
-    private String semester;
+    private Integer semester;
 
     @Column(name = "is_subject_specific", nullable = false)
     private Boolean isSubjectSpecific = false;
