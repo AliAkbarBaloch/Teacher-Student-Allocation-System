@@ -68,7 +68,7 @@ class CreditHourTrackingControllerTest {
         teacher.setLastName("Doe");
         teacher.setSchool(school);
         teacher.setEmail("john.doe@example.test");
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         teacher = teacherRepo.save(teacher);
 
         AcademicYear year = new AcademicYear();

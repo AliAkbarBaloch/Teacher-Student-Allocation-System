@@ -90,8 +90,7 @@ class TeacherSubjectControllerTest {
         testTeacher.setEmail("ts-controller@test.example");
         testTeacher.setFirstName("Test");
         testTeacher.setLastName("Subject");
-        testTeacher.setIsActive(true);
-        testTeacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
+        testTeacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         testTeacher.setSchool(school);
         testTeacher = teacherRepository.save(testTeacher);
 

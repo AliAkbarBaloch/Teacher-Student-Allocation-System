@@ -52,7 +52,7 @@ class TeacherSubjectServiceTest {
 
         teacher = new Teacher();
         teacher.setId(2L);
-        teacher.setIsActive(true);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
 
         subject = new Subject();
         subject.setId(3L);

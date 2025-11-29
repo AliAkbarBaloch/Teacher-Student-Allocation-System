@@ -78,8 +78,7 @@ class TeacherFormSubmissionControllerTest {
         teacher.setLastName("Doe");
         teacher.setEmail("john.doe@test.com");
         teacher.setIsPartTime(false);
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
-        teacher.setIsActive(true);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         teacher = teacherRepository.save(teacher);
 
         // Create test academic year

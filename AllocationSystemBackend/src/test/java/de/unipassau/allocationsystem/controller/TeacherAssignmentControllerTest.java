@@ -112,9 +112,8 @@ class TeacherAssignmentControllerTest {
         teacher.setFirstName("John");
         teacher.setLastName("Doe");
         teacher.setEmail("john.doe@example.com");
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         teacher.setSchool(school);
-        teacher.setIsActive(true);
         teacher = teacherRepository.save(teacher);
 
         internshipType = new InternshipType();

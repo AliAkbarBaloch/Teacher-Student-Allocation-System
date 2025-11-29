@@ -87,9 +87,8 @@ class TeacherAvailabilityControllerTest {
         testTeacher.setFirstName("John");
         testTeacher.setLastName("Doe");
         testTeacher.setEmail("john.doe@example.com"); // required
-        testTeacher.setEmploymentStatus(EmploymentStatus.FULL_TIME);
+        testTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
         testTeacher.setSchool(testSchool);
-        testTeacher.setIsActive(true);
         testTeacher = teacherRepository.save(testTeacher);
 
         // create academic year with required fields to satisfy validation
@@ -112,7 +111,7 @@ class TeacherAvailabilityControllerTest {
         testAvailability.setTeacher(testTeacher);
         testAvailability.setAcademicYear(testYear);
         testAvailability.setInternshipType(testInternshipType);
-        testAvailability.setIsAvailable(true);
+        testAvailability.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
         testAvailability.setPreferenceRank(1);
         testAvailability = teacherAvailabilityRepository.save(testAvailability);
     }
@@ -132,7 +131,7 @@ class TeacherAvailabilityControllerTest {
     @WithMockUser(roles = "ADMIN")
     void getById_Success() throws Exception {
         mockMvc.perform(get("/api/teacher-availability/{teacherId}/{availabilityId}",
-                        testTeacher.getId(), testAvailability.getAvailabilityId())
+                        testTeacher.getId(), testAvailability.getStatus())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
@@ -153,9 +152,9 @@ class TeacherAvailabilityControllerTest {
     void createAvailability_Duplicate_ShouldFail() throws Exception {
         TeacherAvailabilityCreateDto dto = new TeacherAvailabilityCreateDto();
         dto.setTeacherId(testTeacher.getId());
-        dto.setYearId(testYear.getId());
+        dto.setAcademicYearId(testYear.getId());
         dto.setInternshipTypeId(testInternshipType.getId());
-        dto.setIsAvailable(true);
+        dto.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
 
         mockMvc.perform(post("/api/teacher-availability/{teacherId}", testTeacher.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -169,9 +168,9 @@ class TeacherAvailabilityControllerTest {
         // invalid: teacherId mismatch between path and body
         TeacherAvailabilityCreateDto dto = new TeacherAvailabilityCreateDto();
         dto.setTeacherId(testTeacher.getId() + 1);
-        dto.setYearId(testYear.getId());
+        dto.setAcademicYearId(testYear.getId());
         dto.setInternshipTypeId(testInternshipType.getId());
-        dto.setIsAvailable(true);
+        dto.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
 
         mockMvc.perform(post("/api/teacher-availability/{teacherId}", testTeacher.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -183,12 +182,12 @@ class TeacherAvailabilityControllerTest {
     @WithMockUser(roles = "ADMIN")
     void updateAvailability_Success() throws Exception {
         TeacherAvailabilityUpdateDto dto = new TeacherAvailabilityUpdateDto();
-        dto.setIsAvailable(false);
+        dto.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
         dto.setPreferenceRank(null);
         dto.setNotes("Now unavailable");
 
         mockMvc.perform(put("/api/teacher-availability/{teacherId}/{availabilityId}",
-                        testTeacher.getId(), testAvailability.getAvailabilityId())
+                        testTeacher.getId(), testAvailability.getStatus())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -199,7 +198,7 @@ class TeacherAvailabilityControllerTest {
     @WithMockUser(roles = "ADMIN")
     void updateAvailability_NotFound_ShouldFail() throws Exception {
         TeacherAvailabilityUpdateDto dto = new TeacherAvailabilityUpdateDto();
-        dto.setIsAvailable(true);
+        dto.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
 
         mockMvc.perform(put("/api/teacher-availability/{teacherId}/{availabilityId}",
                         testTeacher.getId(), 99999L)
@@ -212,7 +211,7 @@ class TeacherAvailabilityControllerTest {
     @WithMockUser(roles = "ADMIN")
     void deleteAvailability_Success() throws Exception {
         mockMvc.perform(delete("/api/teacher-availability/{teacherId}/{availabilityId}",
-                        testTeacher.getId(), testAvailability.getAvailabilityId()))
+                        testTeacher.getId(), testAvailability.getStatus()))
                 .andExpect(status().isNoContent());
     }
 
