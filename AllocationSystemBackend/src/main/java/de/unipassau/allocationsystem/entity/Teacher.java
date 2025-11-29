@@ -75,8 +75,9 @@ public class Teacher {
     private UsageCycle usageCycle = UsageCycle.FLEXIBLE;
 
     // --- Allocation Specific Constraints ---
-    // "Teachers' 'credit/debt' for over- or under-supervision in prior years"
-    // Positive = University owes teacher hours. Negative = Teacher owes university.
+    // Positive = University owes teacher.
+    // Negative = Teacher owes university.
+    // Default = 0 (Neutral)
     @Column(name = "credit_hour_balance", nullable = false)
     private Integer creditHourBalance = 0;
 

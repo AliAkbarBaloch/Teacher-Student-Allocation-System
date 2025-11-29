@@ -58,22 +58,27 @@ class AuditLogControllerTest {
     void setUp() {
         // Clean up audit logs before each test
         auditLogRepository.deleteAll();
-        
-        // Create test user
-        testUser = new User();
-        testUser.setEmail("testuser@example.com");
-        testUser.setPassword("password123");
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser = userRepository.save(testUser);
 
-        // Create admin user
-        adminUser = new User();
-        adminUser.setEmail("admin@example.com");
-        adminUser.setPassword("admin123");
-        adminUser.setFullName("Admin User");
-        adminUser.setEnabled(true);
-        adminUser = userRepository.save(adminUser);
+        // Reuse existing or create test user
+        testUser = userRepository.findByEmail("testuser@example.com").orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail("testuser@example.com");
+            newUser.setPassword("password123");
+            newUser.setFullName("Test User");
+            newUser.setEnabled(true);
+            return userRepository.save(newUser);
+        });
+
+        // Reuse existing admin if data.sql already inserted one, otherwise create
+        adminUser = userRepository.findByEmail("admin@example.com").orElseGet(() -> {
+            User newAdmin = new User();
+            newAdmin.setEmail("admin@example.com");
+            newAdmin.setPassword("admin123");
+            newAdmin.setFullName("Admin User");
+            newAdmin.setEnabled(true);
+            newAdmin.setRole(User.UserRole.ADMIN);
+            return userRepository.save(newAdmin);
+        });
 
         // Create sample audit logs for testing
         createSampleAuditLogs();

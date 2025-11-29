@@ -10,6 +10,7 @@ import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,9 @@ class AllocationPlanControllerTest {
     private AcademicYearRepository academicYearRepository;
 
     @Autowired
+    private TeacherAssignmentRepository teacherAssignmentRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     private AcademicYear academicYear;
@@ -55,6 +59,7 @@ class AllocationPlanControllerTest {
     @BeforeEach
     void setUp() {
         // Delete in correct order (children first, then parents)
+        teacherAssignmentRepository.deleteAll();
         allocationPlanRepository.deleteAll();
         
         // Try to find existing user or create new one

@@ -91,6 +91,7 @@ class TeacherSubjectControllerTest {
         testTeacher.setFirstName("Test");
         testTeacher.setLastName("Subject");
         testTeacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
+
         testTeacher.setSchool(school);
         testTeacher = teacherRepository.save(testTeacher);
 
