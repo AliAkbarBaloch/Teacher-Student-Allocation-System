@@ -51,21 +51,6 @@ export default function Sidebar() {
       return crumbs;
     }
 
-    // User Access routes
-    if (path.startsWith("/user-access")) {
-      crumbs.push({ label: t("navigation.userAccess"), path: ROUTES.userAccess.users });
-      if (path === ROUTES.userAccess.users) {
-        crumbs.push({ label: t("navigation.userAccessUsers") });
-      } else if (path === ROUTES.userAccess.roles) {
-        crumbs.push({ label: t("navigation.userAccessRoles") });
-      } else if (path === ROUTES.userAccess.permissions) {
-        crumbs.push({ label: t("navigation.userAccessPermissions") });
-      } else if (path === ROUTES.userAccess.auditLogs) {
-        crumbs.push({ label: t("navigation.userAccessAuditLogs") });
-      }
-      return crumbs;
-    }
-
     // Base Data routes
     if (path.startsWith("/base-data")) {
       crumbs.push({ label: t("navigation.baseData"), path: ROUTES.baseData.academicYears });
