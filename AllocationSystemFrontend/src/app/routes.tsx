@@ -11,7 +11,6 @@ import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import RolesPage from "@/pages/roles/RolesPage";
-import AuditLogsPage from "@/pages/audit-logs/AuditLogsPage";
 import SchoolsPage from "@/pages/base-data/SchoolsPage";
 import TeachersPage from "@/pages/base-data/TeachersPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
@@ -89,23 +88,6 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.main.settings,
         element: withSuspense(<SettingsPage />),
-      },
-      // User & Access Management
-      {
-        path: ROUTES.userAccess.users,
-        element: withSuspense(<div>Users</div>),
-      },
-      {
-        path: ROUTES.userAccess.roles,
-        element: withSuspense(<RolesPage />),
-      },
-      {
-        path: ROUTES.userAccess.permissions,
-        element: withSuspense(<div>Permissions</div>),
-      },
-      {
-        path: ROUTES.userAccess.auditLogs,
-        element: withSuspense(<AuditLogsPage />),
       },
       // Base Data Management
       {

@@ -2,7 +2,6 @@ import React from "react"
 // icons
 import {
   LayoutDashboard,
-  Shield,
   UserCog,
   ClipboardList,
   TrendingUp,
@@ -47,35 +46,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: ROUTES.main.dashboard,
           icon: LayoutDashboard,
           isActive: location.pathname === ROUTES.main.dashboard,
-        },
-      ],
-    },
-    {
-      label: t("navigation.groups.userManagement"),
-      items: [
-        {
-          title: t("navigation.userAccess"),
-          url: ROUTES.userAccess.users,
-          icon: Shield,
-          isActive: location.pathname.startsWith("/user-access"),
-          items: [
-            {
-              title: t("navigation.userAccessUsers"),
-              url: ROUTES.userAccess.users,
-            },
-            {
-              title: t("navigation.userAccessRoles"),
-              url: ROUTES.userAccess.roles,
-            },
-            {
-              title: t("navigation.userAccessPermissions"),
-              url: ROUTES.userAccess.permissions,
-            },
-            {
-              title: t("navigation.userAccessAuditLogs"),
-              url: ROUTES.userAccess.auditLogs,
-            },
-          ],
         },
       ],
     },
