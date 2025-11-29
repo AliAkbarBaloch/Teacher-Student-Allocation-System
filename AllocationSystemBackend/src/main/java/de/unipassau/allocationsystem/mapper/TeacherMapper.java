@@ -30,7 +30,7 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         teacher.setIsPartTime(createDto.getIsPartTime());
         teacher.setEmploymentStatus(createDto.getEmploymentStatus());
         teacher.setUsageCycle(createDto.getUsageCycle());
-        teacher.setIsActive(true); // default active
+        teacher.setEmploymentStatus(createDto.getEmploymentStatus());
         return teacher;
     }
 
@@ -68,7 +68,7 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
                 .isPartTime(teacher.getIsPartTime())
                 .employmentStatus(teacher.getEmploymentStatus())
                 .usageCycle(teacher.getUsageCycle())
-                .isActive(teacher.getIsActive())
+                .employmentStatus(teacher.getEmploymentStatus())
                 .createdAt(teacher.getCreatedAt())
                 .updatedAt(teacher.getUpdatedAt())
                 .build();

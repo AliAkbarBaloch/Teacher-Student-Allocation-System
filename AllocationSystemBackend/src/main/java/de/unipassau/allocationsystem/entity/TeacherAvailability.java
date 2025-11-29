@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
         @Index(name = "idx_teacher_availability_teacher_id", columnList = "teacher_id"),
         @Index(name = "idx_teacher_availability_year_id", columnList = "academic_year_id"),
         @Index(name = "idx_teacher_availability_internship_type", columnList = "internship_type_id"),
-        @Index(name = "idx_teacher_availability_is_available", columnList = "is_available"),
         @Index(name = "idx_teacher_availability_composite", columnList = "teacher_id, academic_year_id")
     })
 @Getter
@@ -32,11 +31,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherAvailability {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "availability_id")
-    private Long availabilityId;
+    @Column(name = "id")
+    private Long id;
 
     @NotNull(message = "Teacher is required")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,9 +51,10 @@ public class TeacherAvailability {
     @JoinColumn(name = "internship_type_id", nullable = false)
     private InternshipType internshipType;
 
-    @NotNull(message = "Availability status is required")
-    @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable;
+    // Use an Enum for status instead of Boolean for more nuance
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AvailabilityStatus status;
 
     @Positive(message = "Preference rank must be positive")
     @Column(name = "preference_rank")
@@ -79,5 +78,12 @@ public class TeacherAvailability {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public enum AvailabilityStatus {
+        AVAILABLE,
+        PREFERRED,
+        NOT_AVAILABLE,
+        BACKUP_ONLY // Good for "Waitlist" logic
     }
 }

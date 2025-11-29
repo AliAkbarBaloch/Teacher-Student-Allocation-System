@@ -1,4 +1,3 @@
-// src/main/java/de/unipassau/allocationsystem/mapper/TeacherAvailabilityMapper.java
 package de.unipassau.allocationsystem.mapper;
 
 import de.unipassau.allocationsystem.dto.teacher.availability.TeacherAvailabilityCreateDto;
@@ -39,7 +38,7 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
             return null;
         }
         TeacherAvailability entity = new TeacherAvailability();
-        entity.setIsAvailable(createDto.getIsAvailable());
+        entity.setStatus(createDto.getStatus());
         entity.setPreferenceRank(createDto.getPreferenceRank());
         entity.setNotes(createDto.getNotes());
 
@@ -60,7 +59,7 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
             return null;
         }
         TeacherAvailability entity = new TeacherAvailability();
-        entity.setIsAvailable(updateDto.getIsAvailable());
+        entity.setStatus(updateDto.getStatus());
         entity.setPreferenceRank(updateDto.getPreferenceRank());
         entity.setNotes(updateDto.getNotes());
 
@@ -86,7 +85,7 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
             return null;
         }
         return TeacherAvailabilityResponseDto.builder()
-                .availabilityId(entity.getAvailabilityId())
+                .id(entity.getId())
                 .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
                 .teacherFirstName(entity.getTeacher() != null ? entity.getTeacher().getFirstName() : null)
                 .teacherLastName(entity.getTeacher() != null ? entity.getTeacher().getLastName() : null)
@@ -96,7 +95,7 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
                 .internshipTypeId(entity.getInternshipType() != null ? entity.getInternshipType().getId() : null)
                 .internshipTypeName(entity.getInternshipType() != null ? entity.getInternshipType().getFullName() : null)
                 .internshipTypeCode(entity.getInternshipType() != null ? entity.getInternshipType().getInternshipCode() : null)
-                .isAvailable(entity.getIsAvailable())
+                .status(entity.getStatus())
                 .preferenceRank(entity.getPreferenceRank())
                 .notes(entity.getNotes())
                 .createdAt(entity.getCreatedAt())
@@ -119,13 +118,13 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
         if (updateDto == null || entity == null) {
             return;
         }
-        if (updateDto.getIsAvailable() != null) {
-            entity.setIsAvailable(updateDto.getIsAvailable());
-            if (Boolean.FALSE.equals(updateDto.getIsAvailable())) {
+        if (updateDto.getStatus() != null) {
+            entity.setStatus(updateDto.getStatus());
+            if (updateDto.getStatus() == TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE) {
                 entity.setPreferenceRank(null);
             }
         }
-        if (updateDto.getPreferenceRank() != null || Boolean.FALSE.equals(updateDto.getIsAvailable())) {
+        if (updateDto.getPreferenceRank() != null || updateDto.getStatus() == TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE) {
             entity.setPreferenceRank(updateDto.getPreferenceRank());
         }
         if (updateDto.getNotes() != null) {

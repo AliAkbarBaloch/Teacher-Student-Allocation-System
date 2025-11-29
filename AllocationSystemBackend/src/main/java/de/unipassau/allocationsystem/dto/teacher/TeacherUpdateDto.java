@@ -32,8 +32,8 @@ public class TeacherUpdateDto {
     @Email(message = "Email must be valid")
     private String email;
 
-    @Pattern(regexp = "^[+]?[(]?[0-9]{1,4}[)]?[-\\s./0-9]*$", 
-             message = "Phone must be a valid phone number")
+    @Pattern(regexp = "^[+]?[(]?[0-9]{1,4}[)]?[-\\s./0-9]*$",
+            message = "Phone must be a valid phone number")
     private String phone;
 
     private Boolean isPartTime;
@@ -41,4 +41,6 @@ public class TeacherUpdateDto {
     private Teacher.EmploymentStatus employmentStatus;
 
     private Teacher.UsageCycle usageCycle;
+
+    private Integer creditHourBalance;
 }

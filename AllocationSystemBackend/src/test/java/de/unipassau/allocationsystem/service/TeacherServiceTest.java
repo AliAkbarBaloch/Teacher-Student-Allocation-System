@@ -75,9 +75,8 @@ class TeacherServiceTest {
         testTeacher.setEmail("john.doe@school.de");
         testTeacher.setPhone("+49841123456");
         testTeacher.setIsPartTime(false);
-        testTeacher.setEmploymentStatus(EmploymentStatus.FULL_TIME);
-        testTeacher.setUsageCycle(UsageCycle.FULL_YEAR);
-        testTeacher.setIsActive(true);
+        testTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        testTeacher.setUsageCycle(UsageCycle.FLEXIBLE);
 
         createDto = new TeacherCreateDto();
         createDto.setSchoolId(1L);
@@ -86,8 +85,8 @@ class TeacherServiceTest {
         createDto.setEmail("jane.smith@school.de");
         createDto.setPhone("+49841654321");
         createDto.setIsPartTime(false);
-        createDto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
-        createDto.setUsageCycle(UsageCycle.FULL_YEAR);
+        createDto.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        createDto.setUsageCycle(UsageCycle.FLEXIBLE);
 
         updateDto = new TeacherUpdateDto();
         updateDto.setFirstName("Updated");
@@ -103,9 +102,9 @@ class TeacherServiceTest {
                 .email("john.doe@school.de")
                 .phone("+49841123456")
                 .isPartTime(false)
-                .employmentStatus(EmploymentStatus.FULL_TIME)
-                .usageCycle(UsageCycle.FULL_YEAR)
-                .isActive(true)
+                .employmentStatus(EmploymentStatus.ACTIVE)
+                .usageCycle(UsageCycle.FLEXIBLE)
+                .employmentStatus(EmploymentStatus.ACTIVE)
                 .build();
     }
 
