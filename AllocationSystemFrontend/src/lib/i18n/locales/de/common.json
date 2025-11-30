@@ -12,18 +12,12 @@
     "navigation": {
         "groups": {
             "overview": "Übersicht",
-            "userManagement": "Benutzerverwaltung",
             "dataManagement": "Datenverwaltung",
             "planning": "Planung & Zuweisung",
             "reports": "Berichte",
             "settings": "Einstellungen"
         },
         "dashboard": "Dashboard",
-        "userAccess": "Zugriffsverwaltung",
-        "userAccessUsers": "Benutzer",
-        "userAccessRoles": "Rollen",
-        "userAccessPermissions": "Berechtigungen",
-        "userAccessAuditLogs": "Audit-Protokolle",
         "baseData": "Stammdatenverwaltung",
         "baseDataAcademicYears": "Studienjahre",
         "baseDataSubjectCategories": "Fachkategorien",

@@ -36,15 +36,6 @@ export function Navigation() {
     () => [
       { path: ROUTES.main.dashboard, translationKey: "navigation.dashboard" },
       {
-        translationKey: "navigation.userAccess",
-        submenu: [
-          { path: ROUTES.userAccess.users, translationKey: "navigation.userAccessUsers" },
-          { path: ROUTES.userAccess.roles, translationKey: "navigation.userAccessRoles" },
-          { path: ROUTES.userAccess.permissions, translationKey: "navigation.userAccessPermissions" },
-          { path: ROUTES.userAccess.auditLogs, translationKey: "navigation.userAccessAuditLogs" },
-        ],
-      },
-      {
         translationKey: "navigation.baseData",
         submenu: [
           { path: ROUTES.baseData.academicYears, translationKey: "navigation.baseDataAcademicYears" },

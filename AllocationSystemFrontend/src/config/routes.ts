@@ -9,12 +9,6 @@ export const ROUTES = {
     dashboard: "/dashboard",
     settings: "/settings",
   },
-  userAccess: {
-    users: "/user-access/users",
-    roles: "/user-access/roles",
-    permissions: "/user-access/permissions",
-    auditLogs: "/user-access/audit-logs",
-  },
   baseData: {
     academicYears: "/base-data/academic-years",
     subjectCategories: "/base-data/subject-categories",
