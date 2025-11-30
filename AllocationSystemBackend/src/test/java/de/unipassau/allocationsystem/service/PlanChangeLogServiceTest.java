@@ -54,7 +54,7 @@ class PlanChangeLogServiceTest {
 
         // Create and save a minimal valid AcademicYear for the plan
         var year = new de.unipassau.allocationsystem.entity.AcademicYear();
-        year.setYearName("2025/2026");
+        year.setYearName("2024/2025");
         year.setTotalCreditHours(100);
         year.setElementarySchoolHours(20);
         year.setMiddleSchoolHours(30);

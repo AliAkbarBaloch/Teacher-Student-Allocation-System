@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for TeacherController (updated to match controller/service).
  */
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional

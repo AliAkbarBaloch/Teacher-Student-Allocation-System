@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for ZoneConstraintController.
  * Tests all REST endpoints with security, validation, and error scenarios.
  */
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
@@ -58,6 +58,7 @@ class ZoneConstraintControllerTest {
         testInternshipType.setInternshipCode("TEST-INT-01");
         testInternshipType.setFullName("Test Internship Type");
         testInternshipType.setIsSubjectSpecific(false);
+        testInternshipType.setSemester(1); // <-- required to satisfy @NotNull validation
         testInternshipType = internshipTypeRepository.save(testInternshipType);
 
         // Create test constraint

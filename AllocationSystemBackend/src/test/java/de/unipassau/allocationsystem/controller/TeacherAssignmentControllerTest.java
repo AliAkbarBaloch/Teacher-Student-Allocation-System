@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional
@@ -119,6 +119,7 @@ class TeacherAssignmentControllerTest {
         internshipType = new InternshipType();
         internshipType.setInternshipCode("PRACT");
         internshipType.setFullName("Practical");
+        internshipType.setSemester(1); // added to satisfy @NotNull validation
         internshipType = internshipTypeRepository.save(internshipType);
 
         SubjectCategory cat = new SubjectCategory();
@@ -174,11 +175,11 @@ class TeacherAssignmentControllerTest {
 
         boolean exists = teacherAssignmentRepository.existsById(createdId);
         assertFalse(exists);
-        }
+    }
 
-        @Test
-        void unauthorizedAccess_ShouldReturnUnauthorized() throws Exception {
-                mockMvc.perform(get("/api/allocation-plans/{planId}/assignments", plan.getId()))
-                                .andExpect(status().isUnauthorized());
-        }
+    @Test
+    void unauthorizedAccess_ShouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/allocation-plans/{planId}/assignments", plan.getId()))
+                .andExpect(status().isUnauthorized());
+    }
 }

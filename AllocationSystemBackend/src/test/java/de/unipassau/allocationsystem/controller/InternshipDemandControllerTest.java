@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional
@@ -52,6 +52,7 @@ class InternshipDemandControllerTest {
     private AcademicYear testYear;
     private InternshipType it1;
     private InternshipType it2;
+    private InternshipType it3;
     private Subject testSubject;
 
     @BeforeEach
@@ -60,6 +61,7 @@ class InternshipDemandControllerTest {
         internshipTypeRepository.deleteAll();
         academicYearRepository.deleteAll();
         subjectRepository.deleteAll();
+        subjectCategoryRepository.deleteAll();
 
         // create academic year
         testYear = new AcademicYear();
@@ -74,12 +76,21 @@ class InternshipDemandControllerTest {
         it1 = new InternshipType();
         it1.setInternshipCode("IT1");
         it1.setFullName("Type 1");
+        it1.setSemester(1); // <--- set required semester
         it1 = internshipTypeRepository.save(it1);
 
         it2 = new InternshipType();
         it2.setInternshipCode("IT2");
         it2.setFullName("Type 2");
+        it2.setSemester(2); // <--- set required semester
         it2 = internshipTypeRepository.save(it2);
+
+        // extra distinct internship type for create test to avoid unique constraint collision
+        it3 = new InternshipType();
+        it3.setInternshipCode("IT3");
+        it3.setFullName("Type 3");
+        it3.setSemester(1);
+        it3 = internshipTypeRepository.save(it3);
 
         // create subject category
         SubjectCategory cat = new SubjectCategory();
@@ -127,61 +138,61 @@ class InternshipDemandControllerTest {
                 .andExpect(jsonPath("$.data[0].totalRequiredTeachers", notNullValue()));
     }
 
-        @Test
-        @WithMockUser(roles = "ADMIN")
-        void create_Get_Update_Delete_Success() throws Exception {
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void create_Get_Update_Delete_Success() throws Exception {
         var createPayload = java.util.Map.<String, Object>of(
-            "yearId", testYear.getId(),
-            "internshipTypeId", it1.getId(),
-            "schoolType", "PRIMARY",
-            "subjectId", testSubject.getId(),
-            "requiredTeachers", 12,
-            "studentCount", 120,
-            "isForecasted", true
+                "yearId", testYear.getId(),
+                "internshipTypeId", it3.getId(), // use distinct internship type to avoid unique constraint collision
+                "schoolType", "PRIMARY",
+                "subjectId", testSubject.getId(),
+                "requiredTeachers", 12,
+                "studentCount", 120,
+                "isForecasted", true
         );
 
         var createResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/internship-demand")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createPayload)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.data.id").exists())
-            .andExpect(jsonPath("$.data.requiredTeachers").value(12))
-            .andReturn();
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createPayload)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.id").exists())
+                .andExpect(jsonPath("$.data.requiredTeachers").value(12))
+                .andReturn();
 
         String resp = createResult.getResponse().getContentAsString();
         var root = objectMapper.readTree(resp);
         Long createdId = root.path("data").path("id").asLong();
 
         mockMvc.perform(get("/api/internship-demand/" + createdId))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.id").value(createdId));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(createdId));
 
         var updatePayload = java.util.Map.<String, Object>of(
-            "requiredTeachers", 20
+                "requiredTeachers", 20
         );
         mockMvc.perform(MockMvcRequestBuilders.put("/api/internship-demand/" + createdId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatePayload)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.requiredTeachers").value(20));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatePayload)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.requiredTeachers").value(20));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/internship-demand/" + createdId))
-            .andExpect(status().isNoContent());
-        }
+                .andExpect(status().isNoContent());
+    }
 
-        @Test
-        void create_Unauthorized_ShouldFail() throws Exception {
+    @Test
+    void create_Unauthorized_ShouldFail() throws Exception {
         var createPayload = java.util.Map.<String, Object>of(
-            "yearId", testYear.getId(),
-            "internshipTypeId", it1.getId(),
-            "schoolType", "PRIMARY",
-            "subjectId", testSubject.getId(),
-            "requiredTeachers", 5
+                "yearId", testYear.getId(),
+                "internshipTypeId", it1.getId(),
+                "schoolType", "PRIMARY",
+                "subjectId", testSubject.getId(),
+                "requiredTeachers", 5
         );
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/internship-demand")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createPayload)))
-            .andExpect(status().isUnauthorized());
-        }
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createPayload)))
+                .andExpect(status().isUnauthorized());
+    }
 }

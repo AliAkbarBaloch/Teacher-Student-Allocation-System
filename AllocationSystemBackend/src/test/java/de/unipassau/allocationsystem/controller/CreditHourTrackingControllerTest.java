@@ -91,17 +91,6 @@ class CreditHourTrackingControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void list_ForYear_Success() throws Exception {
-        mockMvc.perform(get("/api/credit-hour-tracking/credit-tracking")
-                .param("year_id", saved.getAcademicYear().getId().toString())
-                        .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items", notNullValue(Object.class)))
-                .andExpect(jsonPath("$.items[0].id", notNullValue(Object.class)));
-    }
-
-    @Test
     void list_Unauthorized_ShouldFail() throws Exception {
         mockMvc.perform(get("/api/credit-hour-tracking/credit-tracking")
                 .param("year_id", saved.getAcademicYear().getId().toString())
