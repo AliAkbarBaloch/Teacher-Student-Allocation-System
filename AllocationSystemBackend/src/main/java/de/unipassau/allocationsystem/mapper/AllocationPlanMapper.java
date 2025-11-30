@@ -36,7 +36,7 @@ public class AllocationPlanMapper {
                 .isCurrent(allocationPlan.getIsCurrent())
                 .notes(allocationPlan.getNotes())
                 .createdAt(allocationPlan.getCreatedAt())
-                .lastModified(allocationPlan.getLastModified())
+                .lastModified(allocationPlan.getUpdatedAt())
                 .build();
     }
 

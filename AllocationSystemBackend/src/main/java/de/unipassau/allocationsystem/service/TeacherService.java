@@ -132,16 +132,6 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
                 }
             }
 
-            // Active status filter
-            String isActiveParam = queryParams.get("isActive");
-            if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
-                try {
-                    Boolean isActive = Boolean.parseBoolean(isActiveParam);
-                    predicates.add(cb.equal(root.get("isActive"), isActive));
-                } catch (Exception e) {
-                    // Invalid boolean, ignore filter
-                }
-            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -244,14 +234,14 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
             entityName = AuditEntityNames.TEACHER,
-            description = "Updated teacher status",
+            description = "Updated teacher employment status",
             captureNewValue = true
     )
     @Transactional
-    public TeacherResponseDto updateStatus(Long id, Boolean isActive) {
+    public TeacherResponseDto updateEmploymentStatus(Long id, Teacher.EmploymentStatus employmentStatus) {
         Teacher existing = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
-        existing.setIsActive(isActive);
+        existing.setEmploymentStatus(employmentStatus);
         Teacher updated = teacherRepository.save(existing);
         return teacherMapper.toResponseDto(updated);
     }

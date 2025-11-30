@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Transactional
 class TeacherFormSubmissionControllerTest {
@@ -78,8 +78,7 @@ class TeacherFormSubmissionControllerTest {
         teacher.setLastName("Doe");
         teacher.setEmail("john.doe@test.com");
         teacher.setIsPartTime(false);
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
-        teacher.setIsActive(true);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         teacher = teacherRepository.save(teacher);
 
         // Create test academic year

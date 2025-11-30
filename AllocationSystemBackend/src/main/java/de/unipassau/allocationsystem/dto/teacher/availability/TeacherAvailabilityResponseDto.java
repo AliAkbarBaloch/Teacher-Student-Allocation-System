@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.dto.teacher.availability;
 
+import de.unipassau.allocationsystem.entity.TeacherAvailability.AvailabilityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,17 +8,12 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO for teacher availability responses.
- * Includes denormalized fields for convenient display.
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherAvailabilityResponseDto {
-
-    private Long availabilityId;
+    private Long id;
 
     private Long teacherId;
     private String teacherFirstName;
@@ -31,7 +27,7 @@ public class TeacherAvailabilityResponseDto {
     private String internshipTypeName;
     private String internshipTypeCode;
 
-    private Boolean isAvailable;
+    private AvailabilityStatus status;
 
     private Integer preferenceRank;
 

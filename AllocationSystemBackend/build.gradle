@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '10.14.0'
     id 'checkstyle'
     id 'application'
 }
@@ -40,6 +41,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     
     // DB
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
     implementation 'org.flywaydb:flyway-core'
     runtimeOnly 'com.h2database:h2'
     compileOnly 'org.projectlombok:lombok'
@@ -99,3 +101,8 @@ tasks.named('check') {
 }
 
 //--- Checkstyle Configuration END ---
+flyway {
+    url = 'jdbc:h2:file:./data/allocdb;AUTO_SERVER=TRUE'
+    user = 'sa'
+    password = ''
+}

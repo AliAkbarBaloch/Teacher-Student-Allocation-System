@@ -38,7 +38,7 @@ public interface TeacherAvailabilityRepository extends JpaRepository<TeacherAvai
      */
     @Query("SELECT CASE WHEN COUNT(ta) > 0 THEN true ELSE false END FROM TeacherAvailability ta " +
            "WHERE ta.teacher.id = :teacherId AND ta.academicYear.id = :yearId " +
-           "AND ta.internshipType.id = :internshipTypeId AND ta.availabilityId != :availabilityId")
+           "AND ta.internshipType.id = :internshipTypeId AND ta.id != :availabilityId")
     boolean existsByTeacherIdAndYearIdAndInternshipTypeIdAndIdNot(
             @Param("teacherId") Long teacherId,
             @Param("yearId") Long yearId,
@@ -70,7 +70,7 @@ public interface TeacherAvailabilityRepository extends JpaRepository<TeacherAvai
      * @param teacherId Teacher ID
      * @return Optional availability entry
      */
-    Optional<TeacherAvailability> findByAvailabilityIdAndTeacherId(Long availabilityId, Long teacherId);
+    Optional<TeacherAvailability> findByIdAndTeacherId(Long availabilityId, Long teacherId);
 
     /**
      * Count availability entries by teacher ID and year ID.

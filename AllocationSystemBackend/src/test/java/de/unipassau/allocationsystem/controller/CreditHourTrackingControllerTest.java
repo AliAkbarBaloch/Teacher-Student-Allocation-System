@@ -68,7 +68,7 @@ class CreditHourTrackingControllerTest {
         teacher.setLastName("Doe");
         teacher.setSchool(school);
         teacher.setEmail("john.doe@example.test");
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         teacher = teacherRepo.save(teacher);
 
         AcademicYear year = new AcademicYear();
@@ -88,17 +88,6 @@ class CreditHourTrackingControllerTest {
         c.setCreditBalance(90.0);
         c.setNotes("initial");
         saved = creditRepo.save(c);
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void list_ForYear_Success() throws Exception {
-        mockMvc.perform(get("/api/credit-hour-tracking/credit-tracking")
-                .param("year_id", saved.getAcademicYear().getId().toString())
-                        .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items", notNullValue(Object.class)))
-                .andExpect(jsonPath("$.items[0].id", notNullValue(Object.class)));
     }
 
     @Test

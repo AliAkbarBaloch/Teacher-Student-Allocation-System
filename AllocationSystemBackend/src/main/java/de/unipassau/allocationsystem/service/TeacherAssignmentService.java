@@ -64,7 +64,7 @@ public class TeacherAssignmentService {
         Teacher teacher = teacherRepository.findById(dto.getTeacherId())
                 .orElseThrow(() -> new NoSuchElementException("Teacher not found with id: " + dto.getTeacherId()));
 
-        if (!Boolean.TRUE.equals(teacher.getIsActive())) {
+        if (!teacher.getEmploymentStatus().equals(Teacher.EmploymentStatus.ACTIVE)) {
             throw new IllegalStateException("Teacher is not active");
         }
 

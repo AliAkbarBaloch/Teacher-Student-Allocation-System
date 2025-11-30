@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entity representing a teacher in the allocation system.
@@ -19,10 +21,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "teachers", indexes = {
-        @Index(name = "idx_teacher_school_id", columnList = "school_id"),
-        @Index(name = "idx_teacher_email", columnList = "email"),
-        @Index(name = "idx_teacher_employment_status", columnList = "employment_status"),
-        @Index(name = "idx_teacher_is_active", columnList = "is_active"),
+        @Index(name = "idx_teacher_school", columnList = "school_id"),
+        @Index(name = "idx_teacher_status", columnList = "employment_status"),
         @Index(name = "idx_teacher_name", columnList = "last_name, first_name")
 })
 @Getter
@@ -60,6 +60,7 @@ public class Teacher {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    // --- Availability & Status ---
     @NotNull(message = "Part-time status is required")
     @Column(name = "is_part_time", nullable = false)
     private Boolean isPartTime = false;
@@ -67,31 +68,40 @@ public class Teacher {
     @NotNull(message = "Employment status is required")
     @Column(name = "employment_status", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private EmploymentStatus employmentStatus;
+    private EmploymentStatus employmentStatus = EmploymentStatus.ACTIVE;
 
     @Column(name = "usage_cycle", length = 50)
     @Enumerated(EnumType.STRING)
-    private UsageCycle usageCycle;
+    private UsageCycle usageCycle = UsageCycle.FLEXIBLE;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    // --- Allocation Specific Constraints ---
+    // Positive = University owes teacher.
+    // Negative = Teacher owes university.
+    // Default = 0 (Neutral)
+    @Column(name = "credit_hour_balance", nullable = false)
+    private Integer creditHourBalance = 0;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    // --- Relationships ---
+
+    // 1. Static Qualifications (What they CAN teach)
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TeacherQualification> qualifications = new HashSet<>();
+
+    // 2. Annual Availability (When/What they WANT to teach per year)
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    private Set<TeacherAvailability> availabilities = new HashSet<>();
+
+
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (this.isActive == null) {
-            this.isActive = true;
-        }
-        if (this.isPartTime == null) {
-            this.isPartTime = false;
-        }
     }
 
     @PreUpdate
@@ -103,21 +113,19 @@ public class Teacher {
      * Enum representing employment status of a teacher.
      */
     public enum EmploymentStatus {
-        FULL_TIME,
-        PART_TIME,
-        ON_LEAVE,
-        CONTRACT,
-        PROBATION,
-        RETIRED
+        ACTIVE,             // Available for assignment
+        INACTIVE_THIS_YEAR, // Marked "nicht" for this specific year
+        ON_LEAVE,           // Sabbatical/Parental leave
+        ARCHIVED            // No longer in the system (Retired/Left)
     }
 
     /**
      * Enum representing usage cycle/availability periods.
      */
     public enum UsageCycle {
-        SEMESTER_1,
-        SEMESTER_2,
-        FULL_YEAR,
-        QUARTERLY
+        GRADES_1_2,
+        GRADES_3_4,
+        GRADES_5_TO_9,
+        FLEXIBLE
     }
 }

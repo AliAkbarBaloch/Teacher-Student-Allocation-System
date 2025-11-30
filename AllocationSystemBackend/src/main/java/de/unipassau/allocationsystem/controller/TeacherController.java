@@ -188,7 +188,7 @@ public class TeacherController {
             @PathVariable Long id,
             @Valid @RequestBody TeacherStatusUpdateDto statusDto) {
         try {
-            TeacherResponseDto updated = teacherService.updateStatus(id, statusDto.getIsActive());
+            TeacherResponseDto updated = teacherService.updateEmploymentStatus(id, statusDto.getEmploymentStatus());
             return ResponseHandler.updated("Teacher status updated successfully", updated);
         } catch (NoSuchElementException e) {
             return ResponseHandler.notFound("Teacher not found");

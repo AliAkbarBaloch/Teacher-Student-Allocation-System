@@ -283,13 +283,13 @@ public class ExcelParser {
 
     private static Teacher.EmploymentStatus parseEmploymentStatus(String value) {
         if (value == null || value.trim().isEmpty()) {
-            return Teacher.EmploymentStatus.FULL_TIME;
+            return Teacher.EmploymentStatus.ACTIVE;
         }
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return Teacher.EmploymentStatus.valueOf(normalized);
         } catch (IllegalArgumentException e) {
-            return Teacher.EmploymentStatus.FULL_TIME; // Default
+            return Teacher.EmploymentStatus.ACTIVE; // Default
         }
     }
 

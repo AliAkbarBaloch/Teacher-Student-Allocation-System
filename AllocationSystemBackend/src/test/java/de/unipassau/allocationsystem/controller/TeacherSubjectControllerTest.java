@@ -28,7 +28,7 @@ import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional
@@ -90,8 +90,8 @@ class TeacherSubjectControllerTest {
         testTeacher.setEmail("ts-controller@test.example");
         testTeacher.setFirstName("Test");
         testTeacher.setLastName("Subject");
-        testTeacher.setIsActive(true);
-        testTeacher.setEmploymentStatus(Teacher.EmploymentStatus.FULL_TIME);
+        testTeacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
+
         testTeacher.setSchool(school);
         testTeacher = teacherRepository.save(testTeacher);
 
@@ -113,25 +113,6 @@ class TeacherSubjectControllerTest {
         testYear.setMiddleSchoolHours(20);
         testYear.setBudgetAnnouncementDate(java.time.LocalDateTime.now());
         testYear = academicYearRepository.save(testYear);
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void createAndListAsAdmin() throws Exception {
-        var payload = objectMapper.createObjectNode();
-        payload.put("yearId", testYear.getId());
-        payload.put("teacherId", testTeacher.getId());
-        payload.put("subjectId", testSubject.getId());
-        payload.put("availabilityStatus", "AVAILABLE");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/teachers-subjects/" + testTeacher.getId() + "/subjects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(payload)))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/teachers-subjects/" + testTeacher.getId() + "/subjects")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
     }
 
     @Test

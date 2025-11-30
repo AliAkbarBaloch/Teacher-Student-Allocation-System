@@ -22,5 +22,5 @@ public class ZoneConstraintResponseDto {
     private Boolean isAllowed;
     private String description;
     private LocalDateTime createdAt;
-    private LocalDateTime lastModified;
+    private LocalDateTime updatedAt;
 }
