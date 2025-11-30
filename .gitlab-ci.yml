@@ -33,19 +33,19 @@ backend-build:
         - .gitlab-ci.yml
         - Data/**
 
-# backend-test:
-#   stage: test
-#   # 21: eclipse-temurin:21-jdk-alpine-3.22
-#   image: eclipse-temurin:17-jdk-alpine-3.22
-#   script:
-#     - cd AllocationSystemBackend
-#     - chmod +x ./gradlew
-#     - ./gradlew test
-#   rules:
-#     - changes:
-#         - AllocationSystemBackend/**
-#         - .gitlab-ci.yml
-#         - Data/**
+backend-test:
+  stage: test
+  # 21: eclipse-temurin:21-jdk-alpine-3.22
+  image: eclipse-temurin:17-jdk-alpine-3.22
+  script:
+    - cd AllocationSystemBackend
+    - chmod +x ./gradlew
+    - ./gradlew test
+  rules:
+    - changes:
+        - AllocationSystemBackend/**
+        - .gitlab-ci.yml
+        - Data/**
 
 backend-checkstyle:
   stage: test
