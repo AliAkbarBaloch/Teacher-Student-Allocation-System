@@ -64,7 +64,7 @@ class TeacherAssignmentServiceTest {
 
         teacher = new Teacher();
         teacher.setId(3L);
-        teacher.setIsActive(true);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
 
         internshipType = new InternshipType();
         internshipType.setId(4L);

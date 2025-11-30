@@ -137,8 +137,8 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
         if (data.getNotes() != null) {
             existing.setNotes(data.getNotes());
         }
-        if (data.getIsAvailable() != null) {
-            existing.setIsAvailable(data.getIsAvailable());
+        if (data.getStatus() != null) {
+            existing.setStatus(data.getStatus());
         }
         if (data.getPreferenceRank() != null) {
             existing.setPreferenceRank(data.getPreferenceRank());

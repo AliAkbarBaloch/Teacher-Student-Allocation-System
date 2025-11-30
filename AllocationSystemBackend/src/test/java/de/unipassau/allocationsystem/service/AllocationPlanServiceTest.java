@@ -84,7 +84,7 @@ class AllocationPlanServiceTest {
         testPlan.setIsCurrent(false);
         testPlan.setNotes("Test plan");
         testPlan.setCreatedAt(LocalDateTime.now());
-        testPlan.setLastModified(LocalDateTime.now());
+        testPlan.setUpdatedAt(LocalDateTime.now());
 
         // Setup create DTO
         createDto = new AllocationPlanCreateDto();

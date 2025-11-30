@@ -140,7 +140,7 @@ public class TeacherSubjectService {
 
         Teacher teacher = teacherRepository.findById(entity.getTeacher().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + entity.getTeacher().getId()));
-        if (!teacher.getIsActive()) {
+        if (!teacher.getEmploymentStatus().equals(Teacher.EmploymentStatus.ACTIVE)) {
             throw new IllegalArgumentException("Teacher is not active");
         }
 

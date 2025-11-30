@@ -22,5 +22,6 @@ public class InternshipDemandResponseDto {
     private Integer requiredTeachers;
     private Integer studentCount;
     private Boolean isForecasted;
-    private LocalDateTime lastUpdated;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

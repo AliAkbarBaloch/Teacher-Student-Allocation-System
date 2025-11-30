@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.dto.teacher;
 
+import de.unipassau.allocationsystem.entity.Teacher;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TeacherStatusUpdateDto {
 
-    @NotNull(message = "Active status is required")
-    private Boolean isActive;
+    @NotNull(message = "Employment status is required")
+    private Teacher.EmploymentStatus employmentStatus;
 }

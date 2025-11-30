@@ -53,10 +53,10 @@ public class User implements UserDetails {
     @Column(name = "failed_login_attempts")
     private int failedLoginAttempts = 0;
 
-    @Column(name = "last_login_date")
+    @Column(name = "last_login_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoginDate;
 
-    @Column(name = "last_password_reset_date")
+    @Column(name = "last_password_reset_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastPasswordResetDate;
 
     @Column(name = "account_status")
@@ -70,10 +70,10 @@ public class User implements UserDetails {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
 
     @PrePersist

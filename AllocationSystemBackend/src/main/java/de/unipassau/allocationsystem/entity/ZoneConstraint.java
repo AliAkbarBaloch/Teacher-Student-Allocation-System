@@ -56,23 +56,23 @@ public class ZoneConstraint {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "last_modified", nullable = false)
-    private LocalDateTime lastModified;
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.lastModified = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.lastModified = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
-
+    
     /**
      * Get a display-friendly description of this zone constraint
      */

@@ -38,19 +38,19 @@ public class AcademicYear {
     private Integer middleSchoolHours;
 
     @NotNull(message = "Budget announcement Date is required")
-    @Column(name = "budget_announcement_date", nullable = false)
+    @Column(name = "budget_announcement_date", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime budgetAnnouncementDate;
 
-    @Column(name = "allocation_deadline")
+    @Column(name = "allocation_deadline", columnDefinition = "TIMESTAMP")
     private LocalDateTime allocationDeadline;
 
     @Column(name = "is_locked")
     private Boolean isLocked;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -62,5 +62,21 @@ public class AcademicYear {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "AcademicYear{" +
+                "id=" + id +
+                ", yearName='" + yearName + '\'' +
+                ", totalCreditHours=" + totalCreditHours +
+                ", elementarySchoolHours=" + elementarySchoolHours +
+                ", middleSchoolHours=" + middleSchoolHours +
+                ", budgetAnnouncementDate=" + budgetAnnouncementDate +
+                ", allocationDeadline=" + allocationDeadline +
+                ", isLocked=" + isLocked +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

@@ -59,12 +59,21 @@ public class InternshipDemand {
     @Column(name = "is_forecasted", nullable = false)
     private Boolean isForecasted = Boolean.FALSE;
 
-    @Column(name = "last_updated")
-    private LocalDateTime lastUpdated;
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
     @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
     @PreUpdate
     protected void onUpdate() {
-        this.lastUpdated = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
+
 }

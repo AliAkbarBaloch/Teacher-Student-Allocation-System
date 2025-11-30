@@ -68,25 +68,45 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
+        // Clean up tokens and other non-user state (avoid deleting users because seeded data references them)
         passwordResetTokenRepository.deleteAll();
-        userRepository.deleteAll();
 
-        // Create a test user
-        testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword(passwordEncoder.encode(testUserPassword));
-        testUser.setFullName("Test User");
-        testUser.setPhoneNumber("1234567890");
-        testUser.setRole(User.UserRole.USER);
-        testUser.setAccountLocked(false);
-        testUser.setEnabled(true);
-        testUser.setFailedLoginAttempts(0);
-        testUser = userRepository.save(testUser);
+        String email = "testuser@example.com";
+        String rawPassword = testUserPassword;
 
-        // Reset mock
+        // Find existing user or create
+        testUser = userRepository.findByEmail(email).orElseGet(() -> {
+            User u = new User();
+            u.setEmail(email);
+            u.setFullName("Test User");
+            u.setRole(User.UserRole.USER);
+            u.setEnabled(true);
+            u.setAccountLocked(false);
+            u.setAccountStatus(User.AccountStatus.ACTIVE);
+            u.setPassword(passwordEncoder.encode(rawPassword));
+            return userRepository.save(u);
+        });
+
+        // Ensure stored password matches the expected raw password and user is active
+        boolean changed = false;
+        if (!passwordEncoder.matches(rawPassword, testUser.getPassword())) {
+            testUser.setPassword(passwordEncoder.encode(rawPassword));
+            changed = true;
+        }
+        if (!testUser.isEnabled() || testUser.isAccountNonLocked() == false || testUser.getAccountStatus() != User.AccountStatus.ACTIVE) {
+            testUser.setEnabled(true);
+            testUser.setAccountLocked(false);
+            testUser.setAccountStatus(User.AccountStatus.ACTIVE);
+            changed = true;
+        }
+        if (changed) {
+            testUser = userRepository.save(testUser);
+        }
+
+        // Reset mocks
         reset(emailService);
     }
+
 
     // ==================== LOGIN TESTS ====================
 
@@ -98,8 +118,7 @@ class AuthControllerTest {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequestDto)))
-                .andExpect(status().isOk())
+                        .content(objectMapper.writeValueAsString(loginRequestDto))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").exists())
                 .andExpect(jsonPath("$.data.userId").value(testUser.getId()))
                 .andExpect(jsonPath("$.data.email").value(testUser.getEmail()))

@@ -111,7 +111,7 @@ public class AuditLog {
     /**
      * Timestamp when this audit record was created (usually same as eventTimestamp).
      */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @PrePersist

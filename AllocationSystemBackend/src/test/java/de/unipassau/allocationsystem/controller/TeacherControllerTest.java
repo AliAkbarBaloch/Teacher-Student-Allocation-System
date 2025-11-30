@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for TeacherController (updated to match controller/service).
  */
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
 @Transactional
@@ -70,9 +70,8 @@ class TeacherControllerTest {
         testTeacher.setEmail("john.doe@school.de");
         testTeacher.setPhone("+49841123456");
         testTeacher.setIsPartTime(false);
-        testTeacher.setEmploymentStatus(EmploymentStatus.FULL_TIME);
-        testTeacher.setUsageCycle(UsageCycle.FULL_YEAR);
-        testTeacher.setIsActive(true);
+        testTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        testTeacher.setUsageCycle(UsageCycle.FLEXIBLE);
         testTeacher = teacherRepository.save(testTeacher);
     }
 
@@ -167,8 +166,8 @@ class TeacherControllerTest {
         dto.setEmail("jane.smith@school.de");
         dto.setPhone("+49841654321");
         dto.setIsPartTime(false);
-        dto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
-        dto.setUsageCycle(UsageCycle.FULL_YEAR);
+        dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        dto.setUsageCycle(UsageCycle.FLEXIBLE);
 
         mockMvc.perform(post("/api/teachers")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +189,7 @@ class TeacherControllerTest {
         dto.setLastName("Teacher");
         dto.setEmail(testTeacher.getEmail()); // Duplicate email
         dto.setIsPartTime(false);
-        dto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
+        dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
 
         mockMvc.perform(post("/api/teachers")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -219,7 +218,7 @@ class TeacherControllerTest {
         dto.setLastName("Teacher");
         dto.setEmail("test@school.de");
         dto.setIsPartTime(false);
-        dto.setEmploymentStatus(EmploymentStatus.FULL_TIME);
+        dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
 
         mockMvc.perform(post("/api/teachers")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -270,7 +269,7 @@ class TeacherControllerTest {
         anotherTeacher.setLastName("Teacher");
         anotherTeacher.setEmail("another@school.de");
         anotherTeacher.setIsPartTime(false);
-        anotherTeacher.setEmploymentStatus(EmploymentStatus.FULL_TIME);
+        anotherTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
         teacherRepository.save(anotherTeacher);
 
         // Try to update testTeacher with anotherTeacher's email

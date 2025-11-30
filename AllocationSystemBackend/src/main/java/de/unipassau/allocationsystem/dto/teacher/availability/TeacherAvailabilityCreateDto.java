@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.dto.teacher.availability;
 
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class TeacherAvailabilityCreateDto {
     private Long internshipTypeId;
 
     @NotNull(message = "Availability status is required")
-    private Boolean isAvailable;
+    private TeacherAvailability.AvailabilityStatus status;
 
     @Positive(message = "Preference rank must be positive")
     private Integer preferenceRank;

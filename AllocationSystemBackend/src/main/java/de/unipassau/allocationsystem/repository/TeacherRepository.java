@@ -47,10 +47,10 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>, JpaSpec
      * Count active teachers by school ID.
      *
      * @param schoolId School ID
-     * @param isActive Active status
+     * @param employmentStatus Teacher.EmploymentStatus
      * @return Count of teachers
      */
-    long countBySchoolIdAndIsActive(Long schoolId, Boolean isActive);
+    long countBySchoolIdAndEmploymentStatus(Long schoolId, Teacher.EmploymentStatus employmentStatus);
 
     /**
      * Count teachers by employment status.

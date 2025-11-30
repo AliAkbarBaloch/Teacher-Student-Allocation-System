@@ -3,7 +3,12 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
+import de.unipassau.allocationsystem.repository.SubjectRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
+import de.unipassau.allocationsystem.repository.TeacherSubjectRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.sql.init.mode=never")
 @ActiveProfiles("test")
 @Transactional
 class SubjectCategoryServiceTest {
@@ -29,9 +34,41 @@ class SubjectCategoryServiceTest {
     @Autowired
     private SubjectCategoryRepository subjectCategoryRepository;
 
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private TeacherAssignmentRepository teacherAssignmentRepository;
+
+    @Autowired
+    private TeacherSubjectRepository teacherSubjectRepository;
+
+    @Autowired
+    private InternshipDemandRepository internshipDemandRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
     @BeforeEach
     void setUp() {
+        // Clear join tables referencing subjects first
+        teacherSubjectRepository.deleteAll();
+        entityManager.flush();
+
+        // Clear other child tables that reference subjects
+        teacherAssignmentRepository.deleteAll();
+        entityManager.flush();
+
+        internshipDemandRepository.deleteAll();
+        entityManager.flush();
+
+        // Now safe to remove subjects
+        subjectRepository.deleteAll();
+        entityManager.flush();
+
+        // Finally remove categories
         subjectCategoryRepository.deleteAll();
+        entityManager.flush();
     }
 
     private SubjectCategory createCategory(String title) {
@@ -167,4 +204,3 @@ class SubjectCategoryServiceTest {
         assertTrue(items.stream().allMatch(item -> item.getCategoryTitle().toLowerCase().contains("alpha")));
     }
 }
-
