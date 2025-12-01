@@ -31,9 +31,13 @@ public class UserCreateDto {
     @NotNull(message = "Role is required")
     private User.UserRole role;
 
+    private Long roleId;
+
     private String phoneNumber;
 
     private Boolean enabled = true;
+
+    private Boolean isActive = true;
 
     private User.AccountStatus accountStatus = User.AccountStatus.ACTIVE;
 }

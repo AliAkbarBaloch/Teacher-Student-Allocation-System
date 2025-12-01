@@ -117,7 +117,7 @@ class AllocationPlanServiceTest {
                 .isCurrent(false)
                 .notes("Test plan")
                 .createdAt(LocalDateTime.now())
-                .lastModified(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 

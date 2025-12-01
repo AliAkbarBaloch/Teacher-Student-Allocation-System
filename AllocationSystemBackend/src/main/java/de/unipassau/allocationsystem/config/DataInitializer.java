@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -38,17 +37,36 @@ public class DataInitializer {
 
     private void insertUsers() {
         String[] rawPasswords = {"password123", "admin123"};
-        List<User> users = new ArrayList<>();
-        users.add(new User(null, "test@example.com", passwordEncoder.encode(rawPasswords[0]),
-                "Test User", true, false, 0, null,
-                null, User.AccountStatus.ACTIVE, User.UserRole.USER, "1234567890",
-                null, null
-        ));
-        users.add(new User(null, "admin@example.com", passwordEncoder.encode(rawPasswords[1]),
-                "Admin User", true, false, 0, null,
-                null, User.AccountStatus.ACTIVE, User.UserRole.ADMIN, "0987654321",
-                null, null
-        ));
+        
+        // Create test user
+        User testUser = new User();
+        testUser.setEmail("test@example.com");
+        testUser.setPassword(passwordEncoder.encode(rawPasswords[0]));
+        testUser.setFullName("Test User");
+        testUser.setEnabled(true);
+        testUser.setIsActive(true);
+        testUser.setAccountLocked(false);
+        testUser.setFailedLoginAttempts(0);
+        testUser.setLoginAttempt(0);
+        testUser.setAccountStatus(User.AccountStatus.ACTIVE);
+        testUser.setRole(User.UserRole.USER);
+        testUser.setPhoneNumber("1234567890");
+
+        // Create admin user
+        User adminUser = new User();
+        adminUser.setEmail("admin@example.com");
+        adminUser.setPassword(passwordEncoder.encode(rawPasswords[1]));
+        adminUser.setFullName("Admin User");
+        adminUser.setEnabled(true);
+        adminUser.setIsActive(true);
+        adminUser.setAccountLocked(false);
+        adminUser.setFailedLoginAttempts(0);
+        adminUser.setLoginAttempt(0);
+        adminUser.setAccountStatus(User.AccountStatus.ACTIVE);
+        adminUser.setRole(User.UserRole.ADMIN);
+        adminUser.setPhoneNumber("0987654321");
+
+        List<User> users = List.of(testUser, adminUser);
 
         log.info("Test Users Available:");
         for (int i = 0; i < users.size(); i++) {

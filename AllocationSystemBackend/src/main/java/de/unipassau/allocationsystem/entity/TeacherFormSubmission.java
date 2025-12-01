@@ -49,6 +49,10 @@ public class TeacherFormSubmission {
     @Column(name = "submitted_at", nullable = true, columnDefinition = "TIMESTAMP")
     private LocalDateTime submittedAt;
 
+    // submission_data as per ER diagram - stores JSON data
+    @Column(name = "submission_data", columnDefinition = "TEXT", nullable = true)
+    private String submissionData;
+
     // Submission data fields (distinct columns instead of JSON)
     @Column(name = "school_id", nullable = true)
     private Long schoolId;

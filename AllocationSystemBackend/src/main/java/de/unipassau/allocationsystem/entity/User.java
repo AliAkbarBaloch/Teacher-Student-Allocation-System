@@ -47,11 +47,17 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     @Column(name = "account_locked")
     private boolean accountLocked = false;
 
     @Column(name = "failed_login_attempts")
     private int failedLoginAttempts = 0;
+
+    @Column(name = "login_attempt")
+    private Integer loginAttempt = 0;
 
     @Column(name = "last_login_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLoginDate;
@@ -59,9 +65,16 @@ public class User implements UserDetails {
     @Column(name = "last_password_reset_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime lastPasswordResetDate;
 
+    @Column(name = "password_update_date", columnDefinition = "TIMESTAMP")
+    private LocalDateTime passwordUpdateDate;
+
     @Column(name = "account_status")
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_user_role"))
+    private Role roleEntity;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)

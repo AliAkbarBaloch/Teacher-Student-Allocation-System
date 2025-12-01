@@ -29,6 +29,8 @@ public class TeacherAvailabilityResponseDto {
 
     private AvailabilityStatus status;
 
+    private Boolean isAvailable;
+
     private Integer preferenceRank;
 
     private String notes;
