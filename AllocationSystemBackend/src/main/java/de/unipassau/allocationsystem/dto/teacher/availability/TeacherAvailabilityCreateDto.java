@@ -29,6 +29,8 @@ public class TeacherAvailabilityCreateDto {
     @NotNull(message = "Availability status is required")
     private TeacherAvailability.AvailabilityStatus status;
 
+    private Boolean isAvailable;
+
     @Positive(message = "Preference rank must be positive")
     private Integer preferenceRank;
 

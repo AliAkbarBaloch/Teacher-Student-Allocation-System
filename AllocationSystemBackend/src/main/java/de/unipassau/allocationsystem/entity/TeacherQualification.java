@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "teacher_qualifications", uniqueConstraints = {
         @UniqueConstraint(name = "uk_teacher_qualification", columnNames = {"teacher_id", "subject_id"})
@@ -36,4 +38,21 @@ public class TeacherQualification {
 
     @Column(name = "is_main_subject")
     private Boolean isMainSubject = true; // Helpful for SFP prioritization
+
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

@@ -74,6 +74,9 @@ public class Teacher {
     @Enumerated(EnumType.STRING)
     private UsageCycle usageCycle = UsageCycle.FLEXIBLE;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     // --- Allocation Specific Constraints ---
     // Positive = University owes teacher.
     // Negative = Teacher owes university.

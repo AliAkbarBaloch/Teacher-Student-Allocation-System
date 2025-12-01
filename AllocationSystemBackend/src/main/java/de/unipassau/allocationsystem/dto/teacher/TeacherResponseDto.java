@@ -28,6 +28,7 @@ public class TeacherResponseDto {
     private Boolean isPartTime;
     private Teacher.EmploymentStatus employmentStatus;
     private Teacher.UsageCycle usageCycle;
+    private Boolean isActive;
     private Integer creditHourBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

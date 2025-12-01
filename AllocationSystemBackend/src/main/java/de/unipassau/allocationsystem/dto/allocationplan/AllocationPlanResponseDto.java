@@ -28,7 +28,7 @@ public class AllocationPlanResponseDto {
     private String createdByUserName;
     private String createdByUserEmail;
     private LocalDateTime createdAt;
-    private LocalDateTime lastModified;
+    private LocalDateTime updatedAt;
     private Boolean isCurrent;
     private String notes;
 }

@@ -21,9 +21,13 @@ public class UserUpdateDto {
 
     private User.UserRole role;
 
+    private Long roleId;
+
     private String phoneNumber;
 
     private Boolean enabled;
+
+    private Boolean isActive;
 
     private User.AccountStatus accountStatus;
 }

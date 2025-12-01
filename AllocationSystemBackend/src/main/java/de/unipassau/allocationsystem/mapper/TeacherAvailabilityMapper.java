@@ -39,6 +39,8 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
         }
         TeacherAvailability entity = new TeacherAvailability();
         entity.setStatus(createDto.getStatus());
+        entity.setIsAvailable(createDto.getIsAvailable() != null ? createDto.getIsAvailable() : 
+                (createDto.getStatus() != TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE));
         entity.setPreferenceRank(createDto.getPreferenceRank());
         entity.setNotes(createDto.getNotes());
 
@@ -96,6 +98,7 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
                 .internshipTypeName(entity.getInternshipType() != null ? entity.getInternshipType().getFullName() : null)
                 .internshipTypeCode(entity.getInternshipType() != null ? entity.getInternshipType().getInternshipCode() : null)
                 .status(entity.getStatus())
+                .isAvailable(entity.getIsAvailable())
                 .preferenceRank(entity.getPreferenceRank())
                 .notes(entity.getNotes())
                 .createdAt(entity.getCreatedAt())

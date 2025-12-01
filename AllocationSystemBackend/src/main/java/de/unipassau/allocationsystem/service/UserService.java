@@ -183,9 +183,11 @@ public class UserService {
         user.setRole(dto.getRole());
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setEnabled(dto.getEnabled() != null ? dto.getEnabled() : true);
+        user.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         user.setAccountStatus(dto.getAccountStatus() != null ? dto.getAccountStatus() : User.AccountStatus.ACTIVE);
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
+        user.setLoginAttempt(0);
 
         User savedUser = userRepository.save(user);
         return mapToResponseDto(savedUser);
@@ -224,6 +226,9 @@ public class UserService {
         }
         if (dto.getEnabled() != null) {
             user.setEnabled(dto.getEnabled());
+        }
+        if (dto.getIsActive() != null) {
+            user.setIsActive(dto.getIsActive());
         }
         if (dto.getAccountStatus() != null) {
             user.setAccountStatus(dto.getAccountStatus());
@@ -302,6 +307,7 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
+        user.setPasswordUpdateDate(LocalDateTime.now());
         User savedUser = userRepository.save(user);
         
         return mapToResponseDto(savedUser);
@@ -386,20 +392,24 @@ public class UserService {
      * Map User entity to UserResponseDto.
      */
     private UserResponseDto mapToResponseDto(User user) {
-        return new UserResponseDto(
-            user.getId(),
-            user.getEmail(),
-            user.getFullName(),
-            user.getRole(),
-            user.getPhoneNumber(),
-            user.isEnabled(),
-            user.isAccountLocked(),
-            user.getAccountStatus(),
-            user.getFailedLoginAttempts(),
-            user.getLastLoginDate(),
-            user.getLastPasswordResetDate(),
-            user.getCreatedAt(),
-            user.getUpdatedAt()
-        );
+        UserResponseDto dto = new UserResponseDto();
+        dto.setId(user.getId());
+        dto.setRoleId(user.getRoleEntity() != null ? user.getRoleEntity().getId() : null);
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setRole(user.getRole());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setEnabled(user.isEnabled());
+        dto.setIsActive(user.getIsActive());
+        dto.setAccountLocked(user.isAccountLocked());
+        dto.setAccountStatus(user.getAccountStatus());
+        dto.setFailedLoginAttempts(user.getFailedLoginAttempts());
+        dto.setLoginAttempt(user.getLoginAttempt());
+        dto.setLastLoginDate(user.getLastLoginDate());
+        dto.setLastPasswordResetDate(user.getLastPasswordResetDate());
+        dto.setPasswordUpdateDate(user.getPasswordUpdateDate());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        return dto;
     }
 }
