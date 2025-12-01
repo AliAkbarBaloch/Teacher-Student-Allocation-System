@@ -49,5 +49,7 @@ public class TeacherCreateDto {
 
     private Teacher.UsageCycle usageCycle;
 
+    private Boolean isActive = true;
+
     private Integer creditHourBalance;
 }

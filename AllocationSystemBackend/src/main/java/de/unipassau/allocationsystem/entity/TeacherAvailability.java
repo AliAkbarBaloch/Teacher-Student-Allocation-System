@@ -56,6 +56,10 @@ public class TeacherAvailability {
     @Column(name = "status", nullable = false)
     private AvailabilityStatus status;
 
+    // is_available as per ER diagram - derived from status for backward compatibility
+    @Column(name = "is_available")
+    private Boolean isAvailable = true;
+
     @Positive(message = "Preference rank must be positive")
     @Column(name = "preference_rank")
     private Integer preferenceRank;

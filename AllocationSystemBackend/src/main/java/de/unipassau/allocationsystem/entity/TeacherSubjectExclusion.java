@@ -3,6 +3,8 @@ package de.unipassau.allocationsystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 /**
  * Tracks one-year exceptions where a teacher cannot teach a specific subject
  * they are otherwise qualified for.
@@ -35,4 +37,21 @@ public class TeacherSubjectExclusion {
 
     @Column(name = "reason")
     private String reason; // e.g., "Teaching load too high in this subject"
+
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

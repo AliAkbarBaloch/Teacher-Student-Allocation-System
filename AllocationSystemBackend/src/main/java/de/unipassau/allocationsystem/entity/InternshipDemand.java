@@ -59,6 +59,7 @@ public class InternshipDemand {
     @Column(name = "is_forecasted", nullable = false)
     private Boolean isForecasted = Boolean.FALSE;
 
+
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
