@@ -1,0 +1,85 @@
+flowchart TD
+    Start([Start Allocation<br/>Planning]) --> Phase1["Phase 1: Preparation<br/>━━━━━━━━━━━━━━━━<br/>✓ Load Budget 210h<br/>✓ Load Teacher Pool<br/>✓ Load Demand Data<br/>✓ Validate Inputs"]
+    
+    Phase1 --> InitPlan[Initialize Draft Plan<br/>━━━━━━━━━━━━━━━━<br/>• Create Draft Version<br/>• Set Status: DRAFT<br/>• Link to Academic Year]
+    
+    InitPlan --> Phase2["Phase 2: Automatic Allocation<br/>━━━━━━━━━━━━━━━━<br/>Priority-Based Sequential Processing"]
+    
+    Phase2 --> Step1["Step 1: SFP Allocation<br/>Summer Wednesday<br/>━━━━━━━━━━━━━━━━<br/>Priority: HIGH<br/>Subject: 100% Match Required<br/>Bottlenecks: English, Social Studies<br/>Zone: 1 & 2 only<br/>Sequential by subject priority"]
+    
+    Step1 --> Step2["Step 2: ZSP Allocation<br/>Winter Wednesday<br/>━━━━━━━━━━━━━━━━<br/>Priority: MEDIUM<br/>Subject: Match with Flexibility<br/>Constraints: No SFP conflicts<br/>Zone: 1 & 2 only<br/>Validate combinations with SFP"]
+    
+    Step2 --> Step3["Step 3: PDP Allocation<br/>Block Internships<br/>━━━━━━━━━━━━━━━━<br/>Priority: NORMAL<br/>Subject: Not Required<br/>Allocate: PDP1 then PDP2<br/>Zone: 2 & 3 preferred<br/>Complete teacher pairs"]
+    
+    Step3 --> Phase3["Phase 3: Validation & Issues<br/>━━━━━━━━━━━━━━━━<br/>Multi-layer validation process"]
+    
+    Phase3 --> Check1{All Teachers<br/>Assigned?<br/>All Demand Met?}
+    
+    Check1 -->|Issues Found| Phase3A["Phase 3A: Problem Resolution<br/>━━━━━━━━━━━━━━━━<br/>• Flag unused teachers<br/>• Identify unmet demand<br/>• Suggest adjustments<br/>• Increase group sizes"]
+    
+    Phase3A --> Phase3B
+    
+    Check1 -->|Valid| Check2{Budget Validation<br/>Elementary: 169h?<br/>Middle: 41h?<br/>Total: 210h?}
+    
+    Check2 -->|Budget Issues| Phase3A
+    Check2 -->|Valid| Check3{School Balance<br/>No Conflicts?<br/>Wednesday Load OK?}
+    
+    Check3 -->|Conflicts Found| Phase3A
+    Check3 -->|All Valid| GenerateReport[Generate Initial Report<br/>━━━━━━━━━━━━━━━━<br/>• By internship type<br/>• By school & zone<br/>• Credit hour summary]
+    
+    GenerateReport --> Phase3B["Phase 3B: Manual Review<br/>━━━━━━━━━━━━━━━━<br/>• Admin adjustments<br/>• Override assignments<br/>• Swap teachers<br/>• Log all changes<br/>• Warning system active"]
+    
+    Phase3B --> FinalValidation{Final Validation<br/>All Checks Pass?<br/>Ready for Approval?}
+    
+    FinalValidation -->|Issues Remain| Phase3B
+    FinalValidation -->|Valid| Decision{Approve Plan?}
+    
+    Decision -->|Not Ready| SaveDraft["Save as Draft<br/>━━━━━━━━━━━━━━━━<br/>• Export to Excel<br/>• Allow later revision<br/>• Status: DRAFT"]
+    
+    SaveDraft --> End1([Plan Saved<br/>Return Later])
+    
+    Decision -->|Ready| Phase4["Phase 4: Finalization<br/>━━━━━━━━━━━━━━━━<br/>✓ Approve & Lock Plan<br/>✓ Generate Reports<br/>✓ Export for Distribution<br/>✓ Set as Current<br/>✓ Archive old version"]
+    
+    Phase4 --> Phase5["Phase 5: Monitoring<br/>━━━━━━━━━━━━━━━━<br/>• Track changes<br/>• Handle dropouts<br/>• Ad-hoc reassignments<br/>• Credit hour tracking<br/>• Impact analysis"]
+    
+    Phase5 --> AdHocCheck{Ad-hoc Changes<br/>Required?}
+    
+    AdHocCheck -->|Yes| AdHocProcess["Ad-hoc Management<br/>━━━━━━━━━━━━━━━━<br/>• Impact analysis<br/>• Targeted reassignment<br/>• Keep others fixed<br/>• Update tracking"]
+    
+    AdHocProcess --> Phase5
+    
+    AdHocCheck -->|No| End2([Year in Progress<br/>Ongoing Management])
+    
+    %% Enhanced styling aligned with detailed diagram
+    style Start fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000000
+    style Phase1 fill:#bbdefb,stroke:#0d47a1,stroke-width:2px,color:#000000
+    style InitPlan fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000
+    style Phase2 fill:#ffcc80,stroke:#e65100,stroke-width:3px,color:#000000
+    
+    %% Priority-based coloring for steps
+    style Step1 fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000000
+    style Step2 fill:#fff8e1,stroke:#ff8f00,stroke-width:2px,color:#000000
+    style Step3 fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000000
+    
+    %% Validation phase with multiple checks
+    style Phase3 fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000000
+    style Check1 fill:#a5d6a7,stroke:#2e7d32,stroke-width:2px,color:#000000
+    style Check2 fill:#81c784,stroke:#388e3c,stroke-width:2px,color:#000000
+    style Check3 fill:#66bb6a,stroke:#2e7d32,stroke-width:2px,color:#000000
+    style GenerateReport fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
+    
+    style Phase3A fill:#ffab91,stroke:#d84315,stroke-width:2px,color:#000000
+    style Phase3B fill:#b3e5fc,stroke:#0277bd,stroke-width:2px,color:#000000
+    style FinalValidation fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    style Decision fill:#fff176,stroke:#f57c00,stroke-width:3px,color:#000000
+    
+    style Phase4 fill:#81c784,stroke:#388e3c,stroke-width:3px,color:#000000
+    style Phase5 fill:#b3e5fc,stroke:#0288d1,stroke-width:2px,color:#000000
+    
+    %% Ad-hoc management
+    style AdHocCheck fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    style AdHocProcess fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000
+    
+    style SaveDraft fill:#eeeeee,stroke:#757575,stroke-width:2px,color:#000000
+    style End1 fill:#ffab91,stroke:#d84315,stroke-width:2px,color:#000000
+    style End2 fill:#66bb6a,stroke:#1b5e20,stroke-width:3px,color:#000000
