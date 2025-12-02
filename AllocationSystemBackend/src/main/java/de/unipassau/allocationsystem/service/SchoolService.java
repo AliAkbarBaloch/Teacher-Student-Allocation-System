@@ -200,6 +200,28 @@ public class SchoolService implements CrudService<School, Long> {
         if (data.getIsActive() != null) {
             existing.setIsActive(data.getIsActive());
         }
+        // Add missing fields update
+        if (data.getAddress() != null) {
+            existing.setAddress(data.getAddress());
+        }
+        if (data.getLatitude() != null) {
+            existing.setLatitude(data.getLatitude());
+        }
+        if (data.getLongitude() != null) {
+            existing.setLongitude(data.getLongitude());
+        }
+        if (data.getDistanceFromCenter() != null) {
+            existing.setDistanceFromCenter(data.getDistanceFromCenter());
+        }
+        if (data.getTransportAccessibility() != null) {
+            existing.setTransportAccessibility(data.getTransportAccessibility());
+        }
+        if (data.getContactEmail() != null) {
+            existing.setContactEmail(data.getContactEmail());
+        }
+        if (data.getContactPhone() != null) {
+            existing.setContactPhone(data.getContactPhone());
+        }
 
         return schoolRepository.save(existing);
     }

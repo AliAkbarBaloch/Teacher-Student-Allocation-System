@@ -62,6 +62,10 @@ public class School {
     @Column(name = "distance_from_center", precision = 10, scale = 2)
     private BigDecimal distanceFromCenter;
 
+    /*
+    4a: Reachable within 30 minutes (suitable for all internships)
+    4b: Reachable within 1 hour (only for Wednesday internships)
+    */
     @Column(name = "transport_accessibility", length = 255)
     private String transportAccessibility;
 
