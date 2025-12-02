@@ -57,9 +57,9 @@ class InternshipDemandServiceTest {
         var dtos = service.getAggregationForYear(yearId);
 
         assertEquals(2, dtos.size());
-        assertEquals(1L, dtos.get(0).internshipTypeId());
-        assertEquals(10, dtos.get(0).totalRequiredTeachers());
-        assertEquals(2L, dtos.get(1).internshipTypeId());
-        assertEquals(5, dtos.get(1).totalRequiredTeachers());
+        assertEquals(1L, dtos.get(0).getInternshipTypeId());
+        assertEquals(10, dtos.get(0).getTotalRequiredTeachers());
+        assertEquals(2L, dtos.get(1).getInternshipTypeId());
+        assertEquals(5, dtos.get(1).getTotalRequiredTeachers());
     }
 }

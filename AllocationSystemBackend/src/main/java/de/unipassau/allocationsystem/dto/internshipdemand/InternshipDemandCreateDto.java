@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class InternshipDemandCreateDto {
-    @NotNull
-    private Long yearId;
+    @NotNull(message = "Academic year ID is required")
+    private Long academicYearId;
 
     @NotNull
     private Long internshipTypeId;

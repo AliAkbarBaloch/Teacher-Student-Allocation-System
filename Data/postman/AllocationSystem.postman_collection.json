@@ -26,6 +26,27 @@
 						"url": "http://localhost:8080/api/auth/login"
 					},
 					"response": []
+				},
+				{
+					"name": "profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"admin@example.com\",\r\n  \"password\": \"admin123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/auth/profile"
+					},
+					"response": []
 				}
 			]
 		},
@@ -114,12 +135,614 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "roles",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/roles"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/roles/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/roles/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/roles/2"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"title\",\r\n  \"description\": \"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/roles"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"title\",\r\n  \"description\": \"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/roles/1"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/roles/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "role-permissions",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/role-permissions"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/role-permissions/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/role-permissions/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/role-permissions/2"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"roleId\": 1,\r\n  \"permissionId\": 2,\r\n  \"accessLevel\": \"create,view\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/role-permissions"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"roleId\": 1,\r\n  \"permissionId\": 2,\r\n  \"accessLevel\": \"create,view,update\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/role-permissions/1"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/roles/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "academic-years",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/academic-years"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/academic-years/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/academic-years/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/academic-years/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"yearName\": \"2025\",\r\n  \"totalCreditHours\": 210,\r\n  \"elementarySchoolHours\": 110,\r\n  \"middleSchoolHours\": 100,\r\n  \"budgetAnnouncementDate\": \"2025-11-18T21:06:38.945Z\",\r\n  \"allocationDeadline\": \"2025-11-18T21:06:38.945Z\",\r\n  \"isLocked\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/academic-years"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"yearName\": \"2025\",\r\n  \"totalCreditHours\": 210,\r\n  \"elementarySchoolHours\": 110,\r\n  \"middleSchoolHours\": 100,\r\n  \"budgetAnnouncementDate\": \"2025-11-18T21:06:38.945Z\",\r\n  \"allocationDeadline\": \"2025-11-18T21:06:38.945Z\",\r\n  \"isLocked\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/academic-years/2"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/academic-years/2"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "subject-categories",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/subject-categories"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/subject-categories/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/subject-categories/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/subject-categories/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"categoryTitle\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/subject-categories"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"categoryTitle\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/subject-categories/7"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/subject-categories/7"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "internship-types",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"timing\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": \"1\",\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-types"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"Winter\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": 3,\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-types/5"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/5"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "schools",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/schools"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/schools/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/schools/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/schools/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 0,\r\n  \"schoolName\": \"my school\",\r\n  \"schoolType\": \"PRIMARY\",\r\n  \"zoneNumber\": 1,\r\n  \"address\": \"string\",\r\n  \"latitude\": 0,\r\n  \"longitude\": 0,\r\n  \"distanceFromCenter\": 0,\r\n  \"transportAccessibility\": \"string\",\r\n  \"contactEmail\": \"contact@gmail.com\",\r\n  \"contactPhone\": \"0586941612-3 3/2-\",\r\n  \"isActive\": true,\r\n  \"createdAt\": \"2025-11-18T21:25:17.961Z\",\r\n  \"updatedAt\": \"2025-11-18T21:25:17.961Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/schools"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"schoolName\": \"My School\",\r\n  \"schoolType\": \"PRIMARY\",\r\n  \"zoneNumber\": 2,\r\n  \"address\": \"Freyung Stadtplatz\",\r\n  \"latitude\": null,\r\n  \"longitude\": null,\r\n  \"distanceFromCenter\": 45,\r\n  \"transportAccessibility\": \"4a\",\r\n  \"contactEmail\": \"contact@example.com\",\r\n  \"contactPhone\": \"+4912345678\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/schools/5"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/schools/5"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "teachers",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teachers"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teachers/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teachers/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teachers/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"schoolId\": 1,\r\n  \"firstName\": \"string\",\r\n  \"lastName\": \"string\",\r\n  \"email\": \"school@example.com\",\r\n  \"phone\": \"5.56.982498 895958\",\r\n  \"isPartTime\": true,\r\n  \"employmentStatus\": \"ACTIVE\",\r\n  \"usageCycle\": \"GRADES_1_2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teachers"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"schoolId\": 1,\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Wick\",\r\n  \"email\": \"school@example.com\",\r\n  \"phone\": \"895958\",\r\n  \"isPartTime\": true,\r\n  \"employmentStatus\": \"ACTIVE\",\r\n  \"usageCycle\": \"GRADES_5_TO_9\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teachers/6"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/teachers/1"
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {
 		"type": "bearer",
 		"bearer": {
-			"token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc2MzQ5ODQ2MiwiZXhwIjoxNzYzNTg0ODYyfQ.28nx9kHVIr1N8Dx4FL_xuP3hZrLPNJbE6pA7-BWYLYo0AI78p_2T2LZ29yPN57VI"
+			"token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDYzNDU4OSwiZXhwIjoxNzY0NzIwOTg5fQ.6SUMC9r09XZ8cMErDjISv4ln17AhaIpMmLO1qa9vnsWbqLIUp0S86xbcPdmp9OHm"
 		}
 	},
 	"event": [

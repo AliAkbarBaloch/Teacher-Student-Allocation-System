@@ -85,6 +85,14 @@ public class ZoneConstraintController {
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         Map<String, Object> result = zoneConstraintService.getPaginated(queryParams, searchValue);
+
+        // Convert items to DTOs to avoid lazy loading serialization issues
+        if (result.containsKey("items")) {
+            List<?> items = (List<?>) result.get("items");
+            List<ZoneConstraintResponseDto> dtoItems = zoneConstraintMapper.toResponseDtoList((List) items);
+            result.put("items", dtoItems);
+        }
+
         return ResponseHandler.success("Zone constraints retrieved successfully (paginated)", result);
     }
 

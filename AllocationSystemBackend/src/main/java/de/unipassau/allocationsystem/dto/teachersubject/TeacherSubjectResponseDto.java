@@ -14,8 +14,11 @@ import java.time.LocalDateTime;
 public class TeacherSubjectResponseDto {
     private Long id;
     private Long academicYearId;
+    private String academicYearTitle;
     private Long teacherId;
+    private String teacherTitle;
     private Long subjectId;
+    private String subjectTitle;
     private String availabilityStatus;
     private Integer gradeLevelFrom;
     private Integer gradeLevelTo;
