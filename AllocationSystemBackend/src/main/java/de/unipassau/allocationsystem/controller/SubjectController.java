@@ -79,6 +79,14 @@ public class SubjectController {
     ) {
         log.info("Fetching paginated subjects with params: {}", queryParams);
         Map<String, Object> result = subjectService.getPaginated(queryParams, searchValue);
+
+        // Convert items to DTOs to avoid lazy loading serialization issues
+        if (result.containsKey("items")) {
+            List<Subject> items = (List<Subject>) result.get("items");
+            List<SubjectResponseDto> dtoItems = subjectMapper.toResponseDtoList(items);
+            result.put("items", dtoItems);
+        }
+
         return ResponseHandler.success("Subjects retrieved successfully (paginated)", result);
     }
 
