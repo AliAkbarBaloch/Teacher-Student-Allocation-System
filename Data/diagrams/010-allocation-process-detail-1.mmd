@@ -1,0 +1,240 @@
+flowchart TD
+    Start([Start Annual Allocation]) --> LoadData[Load Academic Year Data<br/>- Budget: 210 hours<br/>- Elementary: 169h<br/>- Middle: 41h]
+    
+    LoadData --> LoadTeachers[Load Teacher Pool<br/>- Qualifications<br/>- Availabilities<br/>- Credit Balance<br/>- Zone/School Info]
+    
+    LoadTeachers --> LoadDemand[Load Internship Demand<br/>- PDP1, ZSP: Fixed<br/>- PDP2, SFP: Forecasted<br/>- By Subject & School Type]
+    
+    LoadDemand --> ValidateInput{Validate Input<br/>Budget = Demand?<br/>All teachers available?}
+    
+    ValidateInput -->|Invalid| ShowErrors[Show Validation Errors<br/>- Budget mismatch<br/>- Missing teachers<br/>- Incomplete data]
+    ShowErrors --> End([Manual Review Required])
+    
+    ValidateInput -->|Valid| InitPlan[Initialize Allocation Plan<br/>- Create Draft Version<br/>- Set Status: DRAFT<br/>- Link to Academic Year]
+    
+    InitPlan --> Priority1[PRIORITY 1: Allocate SFP<br/>Summer Wednesday Internship<br/>100% Subject Coverage Required]
+    
+    Priority1 --> SFP_Bottleneck[Identify SFP Bottlenecks<br/>1. English<br/>2. Social Studies/History/Geo<br/>3. Catholic Religion]
+    
+    SFP_Bottleneck --> SFP_Loop{For Each<br/>SFP Subject<br/>by Priority}
+    
+    SFP_Loop --> SFP_Filter[Filter Available Teachers<br/>- Subject qualification matches<br/>- Zone 1 or Zone 2 schools<br/>- Available for SFP<br/>- Max 2 assignments/year<br/>- Transport accessible]
+    
+    SFP_Filter --> SFP_Check{Enough<br/>Teachers?}
+    
+    SFP_Check -->|No| SFP_Increase[Increase Group Size<br/>Max 4 students/teacher<br/>OR Flag Manual Review]
+    
+    SFP_Increase --> SFP_Assign
+    
+    SFP_Check -->|Yes| SFP_Assign[Assign Teachers to SFP<br/>- Regional distribution<br/>- Prefer teacher preferences<br/>- Balance schools<br/>- Mark as PLANNED]
+    
+    SFP_Assign --> SFP_Track[Update Tracking<br/>- Credit hours used<br/>- Teacher assignment count<br/>- Remaining capacity]
+    
+    SFP_Track --> SFP_Next{More SFP<br/>Subjects?}
+    
+    SFP_Next -->|Yes| SFP_Loop
+    SFP_Next -->|No| Priority2[PRIORITY 2: Allocate ZSP<br/>Winter Wednesday Internship<br/>Subject Coverage with Flexibility]
+    
+    Priority2 --> ZSP_Bottleneck[Identify ZSP Bottlenecks<br/>Same priority subjects<br/>Alternative subjects allowed]
+    
+    ZSP_Bottleneck --> ZSP_Loop{For Each<br/>ZSP Subject<br/>by Priority}
+    
+    ZSP_Loop --> ZSP_Filter[Filter Available Teachers<br/>- Subject qualification<br/>- Zone 1 or Zone 2<br/>- Available for ZSP<br/>- Not in conflicting internship<br/>- Check valid combinations]
+    
+    ZSP_Filter --> ZSP_Validate{Valid<br/>Combination<br/>with SFP?}
+    
+    ZSP_Validate -->|Invalid| ZSP_Skip[Skip Teacher<br/>Violates combination rules]
+    ZSP_Skip --> ZSP_Filter
+    
+    ZSP_Validate -->|Valid| ZSP_Check{Enough<br/>Teachers?}
+    
+    ZSP_Check -->|No| ZSP_Alternative[Try Alternative Subjects<br/>OR Increase Group Size<br/>OR Flag for Review]
+    
+    ZSP_Alternative --> ZSP_Assign
+    
+    ZSP_Check -->|Yes| ZSP_Assign[Assign Teachers to ZSP<br/>- Regional distribution<br/>- Avoid school conflicts<br/>- Balance Wednesday load<br/>- Mark as PLANNED]
+    
+    ZSP_Assign --> ZSP_Track[Update Tracking<br/>- Credit hours<br/>- Assignment count<br/>- School balance check]
+    
+    ZSP_Track --> ZSP_Next{More ZSP<br/>Subjects?}
+    
+    ZSP_Next -->|Yes| ZSP_Loop
+    ZSP_Next -->|No| Priority3[PRIORITY 3: Allocate PDP<br/>Block Internships<br/>No Subject Requirement]
+    
+    Priority3 --> PDP_Winter[Allocate PDP1<br/>Winter Block]
+    
+    PDP_Winter --> PDP1_Filter[Filter Available Teachers<br/>- Available for PDP1<br/>- Zone 2 or Zone 3 preferred<br/>- Not yet at 2 assignments<br/>- Valid combination check]
+    
+    PDP1_Filter --> PDP1_Assign[Assign Teachers to PDP1<br/>- Prefer distant zones<br/>- Balance school types<br/>- Elementary vs Middle split<br/>- Mark as PLANNED]
+    
+    PDP1_Assign --> PDP_Summer[Allocate PDP2<br/>Summer Block]
+    
+    PDP_Summer --> PDP2_Filter[Filter Remaining Teachers<br/>- Available for PDP2<br/>- Not yet at 2 assignments<br/>- Zone 2 or Zone 3<br/>- Valid with first assignment]
+    
+    PDP2_Filter --> PDP2_Assign[Assign Teachers to PDP2<br/>- Complete teacher pairs<br/>- Ensure all teachers used<br/>- Balance zones<br/>- Mark as PLANNED]
+    
+    PDP2_Assign --> ValidateComplete{All Teachers<br/>Assigned?<br/>All Demand<br/>Met?}
+    
+    ValidateComplete -->|No| CheckUnused[Identify Issues<br/>- Unused teachers<br/>- Unmet demand<br/>- Budget surplus/deficit]
+    
+    CheckUnused --> FlagReview[Flag for Manual Review<br/>- List unused teachers<br/>- List unmet demands<br/>- Suggest adjustments]
+    
+    FlagReview --> ManualAdjust
+    
+    ValidateComplete -->|Yes| BudgetCheck{Budget<br/>Utilized<br/>Correctly?}
+    
+    BudgetCheck -->|No| BudgetIssue[Budget Validation Failed<br/>- Elementary: 169h used?<br/>- Middle: 41h used?<br/>- Total: 210h]
+    
+    BudgetIssue --> FlagReview
+    
+    BudgetCheck -->|Yes| SchoolBalance{Schools<br/>Balanced?<br/>No conflicts?}
+    
+    SchoolBalance -->|No| SchoolIssue[School Conflict Detected<br/>- Same school, same Wednesday<br/>- Rebalance assignments]
+    
+    SchoolIssue --> ManualAdjust
+    
+    SchoolBalance -->|Yes| GenerateReport[Generate Allocation Report<br/>- By internship type<br/>- By school<br/>- By subject<br/>- By zone<br/>- Credit hour summary]
+    
+    GenerateReport --> SavePlan[Save Allocation Plan<br/>- Status: IN_REVIEW<br/>- Version tracked<br/>- Timestamp recorded]
+    
+    SavePlan --> ManualAdjust{Manual<br/>Adjustments<br/>Needed?}
+    
+    ManualAdjust -->|Yes| AdminReview[Admin Manual Review<br/>- Override assignments<br/>- Swap teachers<br/>- Adjust group sizes<br/>- Log all changes]
+    
+    AdminReview --> LogChanges[Log Changes<br/>- Old value<br/>- New value<br/>- Reason<br/>- User & timestamp]
+    
+    LogChanges --> Warnings{Trigger<br/>Warnings?}
+    
+    Warnings -->|Yes| ShowWarning[Display Warnings<br/>- Related assignments affected<br/>- Budget impact<br/>- Require confirmation]
+    
+    ShowWarning --> ConfirmChange{User<br/>Confirms?}
+    
+    ConfirmChange -->|No| AdminReview
+    ConfirmChange -->|Yes| ApplyChange[Apply Manual Changes<br/>Update assignments<br/>Recalculate tracking]
+    
+    ApplyChange --> ValidateAfterChange{Still<br/>Valid?}
+    
+    ValidateAfterChange -->|No| ShowWarning
+    ValidateAfterChange -->|Yes| ManualAdjust
+    
+    Warnings -->|No| ApplyChange
+    
+    ManualAdjust -->|No| FinalValidation[Final Validation<br/>- Every teacher: 2 assignments<br/>- All demand met<br/>- Budget exact<br/>- No conflicts]
+    
+    FinalValidation --> ValidationPass{All Checks<br/>Pass?}
+    
+    ValidationPass -->|No| DisplayIssues[Display Final Issues<br/>- Must be resolved<br/>- Cannot approve]
+    
+    DisplayIssues --> AdminReview
+    
+    ValidationPass -->|Yes| ApproveReady{Ready to<br/>Approve?}
+    
+    ApproveReady -->|No| SaveDraft[Save as Draft<br/>Allow return later]
+    SaveDraft --> ExportDraft[Export to Excel<br/>For review/backup]
+    ExportDraft --> End
+    
+    ApproveReady -->|Yes| ApprovePlan[Approve Plan<br/>- Status: APPROVED<br/>- Lock assignments<br/>- Set as current plan<br/>- Archive old version]
+    
+    ApprovePlan --> ExportFinal[Export Final Plan<br/>- Excel for mail merge<br/>- PDF reports<br/>- By school/teacher]
+    
+    ExportFinal --> NotifyTeachers[Generate Notifications<br/>Deployment plans ready<br/>for distribution]
+    
+    NotifyTeachers --> MonitorChanges[Monitor for Changes<br/>- Teacher dropouts<br/>- Illness<br/>- Student demand shifts]
+    
+    MonitorChanges --> AdHocChange{Ad-hoc<br/>Change<br/>Required?}
+    
+    AdHocChange -->|Yes| ImpactAnalysis[Analyze Impact<br/>- Which assignments affected?<br/>- Replacement needed?<br/>- Budget still valid?]
+    
+    ImpactAnalysis --> Reassign[Reassign Affected Only<br/>- Keep others fixed<br/>- Find replacement<br/>- Log as manual override]
+    
+    Reassign --> UpdateTracking[Update Credit Tracking<br/>- Teacher debt/credit<br/>- Multi-year balance<br/>- Emergency assignments]
+    
+    UpdateTracking --> MonitorChanges
+    
+    AdHocChange -->|No| Complete([Allocation Complete<br/>Year in Progress])
+    
+    %% Color scheme for better visibility and hierarchy
+    style Start fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000000
+    style Complete fill:#81c784,stroke:#2e7d32,stroke-width:3px,color:#000000
+    style End fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000000
+    
+    %% Priority phases with distinct colors
+    style Priority1 fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000000
+    style Priority2 fill:#fff8e1,stroke:#ff8f00,stroke-width:3px,color:#000000
+    style Priority3 fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000000
+    
+    %% SFP Phase (Orange theme)
+    style SFP_Bottleneck fill:#ffcc80,stroke:#ef6c00,stroke-width:2px,color:#000000
+    style SFP_Loop fill:#ffb74d,stroke:#e65100,stroke-width:2px,color:#000000
+    style SFP_Filter fill:#ffa726,stroke:#d84315,stroke-width:1px,color:#000000
+    style SFP_Check fill:#ff9800,stroke:#bf360c,stroke-width:2px,color:#000000
+    style SFP_Increase fill:#ffab91,stroke:#d84315,stroke-width:1px,color:#000000
+    style SFP_Assign fill:#ffcc80,stroke:#ef6c00,stroke-width:2px,color:#000000
+    style SFP_Track fill:#ffd54f,stroke:#f57c00,stroke-width:1px,color:#000000
+    style SFP_Next fill:#ff9800,stroke:#bf360c,stroke-width:2px,color:#000000
+    
+    %% ZSP Phase (Amber theme)
+    style ZSP_Bottleneck fill:#fff176,stroke:#f9a825,stroke-width:2px,color:#000000
+    style ZSP_Loop fill:#ffeb3b,stroke:#f57f17,stroke-width:2px,color:#000000
+    style ZSP_Filter fill:#fff59d,stroke:#fbc02d,stroke-width:1px,color:#000000
+    style ZSP_Validate fill:#ffee58,stroke:#f9a825,stroke-width:2px,color:#000000
+    style ZSP_Skip fill:#ffecb3,stroke:#ff8f00,stroke-width:1px,color:#000000
+    style ZSP_Check fill:#ffeb3b,stroke:#f57f17,stroke-width:2px,color:#000000
+    style ZSP_Alternative fill:#fff59d,stroke:#fbc02d,stroke-width:1px,color:#000000
+    style ZSP_Assign fill:#fff176,stroke:#f9a825,stroke-width:2px,color:#000000
+    style ZSP_Track fill:#fff9c4,stroke:#f57f17,stroke-width:1px,color:#000000
+    style ZSP_Next fill:#ffeb3b,stroke:#f57f17,stroke-width:2px,color:#000000
+    
+    %% PDP Phase (Purple theme)
+    style PDP_Winter fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000000
+    style PDP1_Filter fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px,color:#000000
+    style PDP1_Assign fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000000
+    style PDP_Summer fill:#ce93d8,stroke:#7b1fa2,stroke-width:2px,color:#000000
+    style PDP2_Filter fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px,color:#000000
+    style PDP2_Assign fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000000
+    
+    %% Validation and Control Flow (Blue theme)
+    style ValidateInput fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000000
+    style InitPlan fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000
+    style ValidateComplete fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000000
+    style BudgetCheck fill:#90caf9,stroke:#1565c0,stroke-width:2px,color:#000000
+    style SchoolBalance fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    style FinalValidation fill:#b3e5fc,stroke:#0288d1,stroke-width:2px,color:#000000
+    style ValidationPass fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    
+    %% Manual Review Process (Cyan theme)
+    style ManualAdjust fill:#b2dfdb,stroke:#00796b,stroke-width:3px,color:#000000
+    style AdminReview fill:#80cbc4,stroke:#00695c,stroke-width:2px,color:#000000
+    style LogChanges fill:#a7ffeb,stroke:#00bfa5,stroke-width:1px,color:#000000
+    style Warnings fill:#b2dfdb,stroke:#00796b,stroke-width:2px,color:#000000
+    style ShowWarning fill:#ffecb3,stroke:#ff8f00,stroke-width:2px,color:#000000
+    style ConfirmChange fill:#b2dfdb,stroke:#00796b,stroke-width:2px,color:#000000
+    style ApplyChange fill:#80cbc4,stroke:#00695c,stroke-width:2px,color:#000000
+    style ValidateAfterChange fill:#a7ffeb,stroke:#00bfa5,stroke-width:2px,color:#000000
+    
+    %% Final Approval Process (Green theme)
+    style ApproveReady fill:#c8e6c9,stroke:#388e3c,stroke-width:3px,color:#000000
+    style ApprovePlan fill:#81c784,stroke:#2e7d32,stroke-width:3px,color:#000000
+    style ExportFinal fill:#a5d6a7,stroke:#388e3c,stroke-width:2px,color:#000000
+    style NotifyTeachers fill:#dcedc8,stroke:#689f38,stroke-width:2px,color:#000000
+    
+    %% Monitoring and Change Management (Light Blue theme)
+    style MonitorChanges fill:#b3e5fc,stroke:#0288d1,stroke-width:2px,color:#000000
+    style AdHocChange fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    style ImpactAnalysis fill:#e1f5fe,stroke:#0288d1,stroke-width:1px,color:#000000
+    style Reassign fill:#b3e5fc,stroke:#0277bd,stroke-width:2px,color:#000000
+    style UpdateTracking fill:#e1f5fe,stroke:#0288d1,stroke-width:1px,color:#000000
+    
+    %% Error and Issue Handling (Red/Orange theme)
+    style ShowErrors fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000000
+    style CheckUnused fill:#ffecb3,stroke:#f57c00,stroke-width:2px,color:#000000
+    style FlagReview fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000000
+    style BudgetIssue fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000000
+    style SchoolIssue fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000000
+    style DisplayIssues fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000000
+    
+    %% Reports and Exports (Grey/Neutral theme)
+    style GenerateReport fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000000
+    style SavePlan fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000000
+    style SaveDraft fill:#eeeeee,stroke:#757575,stroke-width:2px,color:#000000
+    style ExportDraft fill:#f5f5f5,stroke:#616161,stroke-width:1px,color:#000000

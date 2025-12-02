@@ -1,0 +1,82 @@
+flowchart TD
+    subgraph Phase1["📥 PHASE 1: Data Initialization"]
+        Start([Start Annual Allocation]) --> LoadData[Load Data<br/>Budget, Teachers, Demand]
+        LoadData --> Validate{Validate Inputs}
+        Validate -->|Invalid| Error([Manual Review Required])
+        Validate -->|Valid| InitPlan[Create Draft Plan]
+    end
+
+    subgraph Phase2["⚙️ PHASE 2: Automated Allocation"]
+        InitPlan --> P1[🔴 Priority 1: SFP<br/>Subject-Specific, 100% Coverage]
+        P1 --> P2[🟠 Priority 2: ZSP<br/>Subject-Specific, Flexible]
+        P2 --> P3[🟣 Priority 3: PDP<br/>Block Internships]
+    end
+
+    subgraph Phase3["✅ PHASE 3: Validation"]
+        P3 --> ValidateAll{Validate Allocation<br/>Teachers, Budget, Constraints}
+        ValidateAll -->|Issues Found| FlagIssues[Flag for Review]
+        FlagIssues --> ManualReview
+        ValidateAll -->|Valid| GenerateReport[Generate Reports]
+    end
+
+    subgraph Phase4["👤 PHASE 4: Review & Approval"]
+        GenerateReport --> ManualReview{Manual Adjustments?}
+        ManualReview -->|Yes| AdminAdjust[Admin Override<br/>with Change Logging]
+        AdminAdjust --> ManualReview
+        ManualReview -->|No| FinalCheck{Final Validation}
+        FinalCheck -->|Fail| AdminAdjust
+        FinalCheck -->|Pass| Approve{Approve Plan?}
+        Approve -->|No| SaveDraft[Save Draft & Export]
+        Approve -->|Yes| Lock[Approve & Lock Plan]
+    end
+
+    subgraph Phase5["📡 PHASE 5: Deployment & Monitoring"]
+        Lock --> Export[Export & Notify]
+        Export --> Monitor{Monitor Changes}
+        Monitor -->|Ad-hoc Change| Reassign[Reassign & Update Tracking]
+        Reassign --> Monitor
+        Monitor -->|No Change| Complete([Year Complete])
+    end
+
+    SaveDraft --> End([End])
+
+    %% Enhanced Styling with better contrast and readability
+    style Start fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000000
+    style Complete fill:#66bb6a,stroke:#1b5e20,stroke-width:3px,color:#000000
+    style End fill:#e0e0e0,stroke:#424242,stroke-width:2px,color:#000000
+    style Error fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000000
+
+    %% Priority levels with distinct colors and good contrast
+    style P1 fill:#ffab91,stroke:#d84315,stroke-width:3px,color:#000000
+    style P2 fill:#ffcc80,stroke:#f57c00,stroke-width:3px,color:#000000
+    style P3 fill:#ce93d8,stroke:#7b1fa2,stroke-width:3px,color:#000000
+
+    %% Data loading and validation nodes
+    style LoadData fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000000
+    style Validate fill:#90caf9,stroke:#1565c0,stroke-width:2px,color:#000000
+    style InitPlan fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px,color:#000000
+
+    %% Validation phase nodes
+    style ValidateAll fill:#a5d6a7,stroke:#388e3c,stroke-width:2px,color:#000000
+    style FlagIssues fill:#ffcc80,stroke:#f57c00,stroke-width:2px,color:#000000
+    style GenerateReport fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
+
+    %% Review and approval phase nodes
+    style ManualReview fill:#b39ddb,stroke:#673ab7,stroke-width:2px,color:#000000
+    style AdminAdjust fill:#f8bbd9,stroke:#ad1457,stroke-width:2px,color:#000000
+    style FinalCheck fill:#81c784,stroke:#388e3c,stroke-width:2px,color:#000000
+    style Approve fill:#fff176,stroke:#f9a825,stroke-width:3px,color:#000000
+    style SaveDraft fill:#d7ccc8,stroke:#5d4037,stroke-width:2px,color:#000000
+    style Lock fill:#66bb6a,stroke:#2e7d32,stroke-width:3px,color:#000000
+
+    %% Deployment and monitoring phase nodes
+    style Export fill:#81d4fa,stroke:#0277bd,stroke-width:2px,color:#000000
+    style Monitor fill:#b3e5fc,stroke:#0288d1,stroke-width:2px,color:#000000
+    style Reassign fill:#ffab91,stroke:#d84315,stroke-width:2px,color:#000000
+
+    %% Phase containers with lighter colors for better text readability
+    style Phase1 fill:#e8f4fd,stroke:#1976d2,stroke-width:2px,color:#000000
+    style Phase2 fill:#fff8e1,stroke:#ff9800,stroke-width:2px,color:#000000
+    style Phase3 fill:#f1f8e9,stroke:#43a047,stroke-width:2px,color:#000000
+    style Phase4 fill:#fce4ec,stroke:#7b1fa2,stroke-width:2px,color:#000000
+    style Phase5 fill:#e0f2f1,stroke:#0288d1,stroke-width:2px,color:#000000
