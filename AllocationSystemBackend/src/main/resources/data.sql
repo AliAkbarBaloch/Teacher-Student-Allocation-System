@@ -17,14 +17,14 @@ VALUES
 
 -- -- 3. INTERNSHIP_COMBINATION_RULE
 -- -- Defining valid pairs for a teacher (e.g., PDP 1 + PDP 2 is valid).
-INSERT INTO INTERNSHIP_COMBINATION_RULES (id, internship_type_1_id, internship_type_2_id, is_valid_combination)
+INSERT INTO INTERNSHIP_COMBINATION_RULES (id, internship_type_1_id, internship_type_2_id, is_valid_combination, created_at)
 VALUES
-    (1, 1, 2, TRUE), -- PDP 1 + PDP 2
-    (2, 1, 4, TRUE), -- PDP 1 + SFP
-    (3, 1, 3, TRUE), -- PDP 1 + ZSP
-    (4, 2, 4, TRUE), -- PDP 2 + SFP
-    (5, 2, 3, TRUE), -- PDP 2 + ZSP
-    (6, 4, 3, TRUE); -- SFP + ZSP
+    (1, 1, 2, TRUE, NOW()), -- PDP 1 + PDP 2
+    (2, 1, 4, TRUE, NOW()), -- PDP 1 + SFP
+    (3, 1, 3, TRUE, NOW()), -- PDP 1 + ZSP
+    (4, 2, 4, TRUE, NOW()), -- PDP 2 + SFP
+    (5, 2, 3, TRUE, NOW()), -- PDP 2 + ZSP
+    (6, 4, 3, TRUE, NOW()); -- SFP + ZSP
 
 
 -- 4. ZONE_CONSTRAINT
@@ -82,16 +82,16 @@ VALUES
 
 -- 7. TEACHER
 -- Creating supervisors. Note usage_cycle for HSU rotation.
-INSERT INTO teachers (id, school_id, first_name, last_name, email, phone, is_part_time, employment_status, usage_cycle, credit_hour_balance, created_at, updated_at)
+INSERT INTO teachers (id, school_id, first_name, last_name, email, phone, is_part_time, employment_status, usage_cycle, credit_hour_balance, is_active, created_at, updated_at)
 VALUES
     -- Teacher 1: Flexible Primary School Teacher (Zone 1)
-    (1, 1, 'Hans', 'Müller', 'hans.mueller@gs-passau.de', '+49 851 123456', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (1, 1, 'Hans', 'Müller', 'hans.mueller@gs-passau.de', '+49 851 123456', FALSE, 'ACTIVE', 'FLEXIBLE', 0, true, NOW(), NOW()),
     -- Teacher 2: Part-time (usually Wednesday constrained)
-    (2, 1, 'Anna', 'Schmidt', 'anna.schmidt@gs-passau.de', NULL, TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (2, 1, 'Anna', 'Schmidt', 'anna.schmidt@gs-passau.de', NULL, TRUE, 'ACTIVE', 'FLEXIBLE', 0, true, NOW(), NOW()),
     -- Teacher 3: Middle School Teacher (Fixed to Grades 5-9 cycle)
-    (3, 2, 'Peter', 'Weber', 'peter.weber@ms-salzweg.de', '+49 851 987654', FALSE, 'ACTIVE', 'GRADES_5_TO_9', 0, NOW(), NOW()),
+    (3, 2, 'Peter', 'Weber', 'peter.weber@ms-salzweg.de', '+49 851 987654', FALSE, 'ACTIVE', 'GRADES_5_TO_9', 0, true, NOW(), NOW()),
     -- Teacher 4: Primary Teacher (Fixed to Grades 1-2 cycle)
-    (4, 3, 'Julia', 'Wagner', 'julia.wagner@gs-freyung.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW());
+    (4, 3, 'Julia', 'Wagner', 'julia.wagner@gs-freyung.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, true, NOW(), NOW());
 
 -- 8. TEACHER_SUBJECT
 -- Linking teachers to what they are allowed to supervise.
