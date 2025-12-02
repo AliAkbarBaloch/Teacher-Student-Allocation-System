@@ -2,11 +2,11 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherSubject;
-import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
@@ -20,42 +20,112 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TeacherSubjectService {
+@Transactional
+public class TeacherSubjectService implements CrudService<TeacherSubject, Long> {
 
     private final TeacherSubjectRepository teacherSubjectRepository;
     private final AcademicYearRepository academicYearRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
 
-    public Page<TeacherSubject> listByFilters(Map<String, String> queryParams, Long teacherId) {
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "academicYearId", "label", "Academic Year"));
+        fields.add(Map.of("key", "teacherId", "label", "Teacher"));
+        fields.add(Map.of("key", "subjectId", "label", "Subject"));
+        fields.add(Map.of("key", "availabilityStatus", "label", "Availability Status"));
+        fields.add(Map.of("key", "gradeLevelFrom", "label", "Grade Level From"));
+        fields.add(Map.of("key", "gradeLevelTo", "label", "Grade Level To"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
+
+    public List<String> getSortFieldKeys() {
+        List<String> keys = new ArrayList<>();
+        for (Map<String, String> field : getSortFields()) {
+            keys.add(field.get("key"));
+        }
+        return keys;
+    }
+
+    private Specification<TeacherSubject> buildSearchSpecification(String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
+        return (root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("availabilityStatus")), likePattern),
+                cb.like(cb.lower(root.get("notes")), likePattern)
+        );
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return teacherSubjectRepository.existsById(id);
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Viewed list of teacher-subjects",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        Long yearId = queryParams.containsKey("yearId") ? Long.valueOf(queryParams.get("yearId")) : null;
-        Long subjectId = queryParams.containsKey("subjectId") ? Long.valueOf(queryParams.get("subjectId")) : null;
-        String availability = queryParams.getOrDefault("availabilityStatus", null);
-        Integer gradeFrom = queryParams.containsKey("gradeLevelFrom") ? Integer.valueOf(queryParams.get("gradeLevelFrom")) : null;
-        Integer gradeTo = queryParams.containsKey("gradeLevelTo") ? Integer.valueOf(queryParams.get("gradeLevelTo")) : null;
+        Specification<TeacherSubject> spec = buildSearchSpecification(searchValue);
+        Page<TeacherSubject> page = teacherSubjectRepository.findAll(spec, pageable);
 
-        return teacherSubjectRepository.findByFilters(teacherId, yearId, subjectId, availability, gradeFrom, gradeTo, pageable);
+        return PaginationUtils.formatPaginationResponse(page);
     }
 
-    public TeacherSubject getById(Long id) {
-        return teacherSubjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TeacherSubject not found with id: " + id));
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Viewed all teacher-subjects",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public List<TeacherSubject> getAll() {
+        return teacherSubjectRepository.findAll();
     }
 
-    @Audited(action = AuditLog.AuditAction.CREATE, entityName = AuditEntityNames.TEACHER_SUBJECT, description = "Created teacher-subject mapping", captureNewValue = true)
+    @Audited(
+            action = AuditLog.AuditAction.VIEW,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Viewed teacher-subject by id",
+            captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<TeacherSubject> getById(Long id) {
+        return teacherSubjectRepository.findById(id);
+    }
+
+    @Audited(
+            action = AuditLog.AuditAction.CREATE,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Created teacher-subject mapping",
+            captureNewValue = true
+    )
     @Transactional
+    @Override
     public TeacherSubject create(TeacherSubject entity) {
         validateReferences(entity);
         // uniqueness
@@ -66,8 +136,14 @@ public class TeacherSubjectService {
         return teacherSubjectRepository.save(entity);
     }
 
-    @Audited(action = AuditLog.AuditAction.UPDATE, entityName = AuditEntityNames.TEACHER_SUBJECT, description = "Updated teacher-subject mapping", captureNewValue = true)
+    @Audited(
+            action = AuditLog.AuditAction.UPDATE,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Updated teacher-subject mapping",
+            captureNewValue = true
+    )
     @Transactional
+    @Override
     public TeacherSubject update(Long id, TeacherSubject update) {
         TeacherSubject existing = teacherSubjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TeacherSubject not found with id: " + id));
@@ -115,8 +191,14 @@ public class TeacherSubjectService {
         return teacherSubjectRepository.save(existing);
     }
 
-    @Audited(action = AuditLog.AuditAction.DELETE, entityName = AuditEntityNames.TEACHER_SUBJECT, description = "Deleted teacher-subject mapping", captureNewValue = false)
+    @Audited(
+            action = AuditLog.AuditAction.DELETE,
+            entityName = AuditEntityNames.TEACHER_SUBJECT,
+            description = "Deleted teacher-subject mapping",
+            captureNewValue = false
+    )
     @Transactional
+    @Override
     public void delete(Long id) {
         if (!teacherSubjectRepository.existsById(id)) {
             throw new ResourceNotFoundException("TeacherSubject not found with id: " + id);
@@ -126,7 +208,7 @@ public class TeacherSubjectService {
 
     private void validateReferences(TeacherSubject entity) {
         if (entity.getAcademicYear() == null || entity.getAcademicYear().getId() == null) {
-            throw new IllegalArgumentException("yearId is required");
+            throw new IllegalArgumentException("academicYearId is required");
         }
         if (entity.getTeacher() == null || entity.getTeacher().getId() == null) {
             throw new IllegalArgumentException("teacherId is required");
