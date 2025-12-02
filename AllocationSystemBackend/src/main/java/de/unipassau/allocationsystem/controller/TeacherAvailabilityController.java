@@ -82,6 +82,14 @@ public class TeacherAvailabilityController {
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         Map<String, Object> result = teacherAvailabilityService.getPaginated(queryParams, searchValue);
+
+        // Convert items to DTOs to avoid lazy loading serialization issues
+        if (result.containsKey("items")) {
+            List<TeacherAvailability> items = (List<TeacherAvailability>) result.get("items");
+            List<TeacherAvailabilityResponseDto> dtoItems = teacherAvailabilityMapper.toResponseDtoList(items);
+            result.put("items", dtoItems);
+        }
+        
         return ResponseHandler.success("Teacher availability retrieved successfully (paginated)", result);
     }
 
