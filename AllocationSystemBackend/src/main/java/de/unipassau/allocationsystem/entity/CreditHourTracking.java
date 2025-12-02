@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "credit_hour_tracking", indexes = {
         @Index(name = "idx_credit_hour_teacher", columnList = "teacher_id"),
-        @Index(name = "idx_credit_hour_year", columnList = "year_id")
+        @Index(name = "idx_credit_hour_year", columnList = "academic_year_id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "uk_credit_hour_teacher_year", columnNames = {"teacher_id", "year_id"})
+        @UniqueConstraint(name = "uk_credit_hour_teacher_year", columnNames = {"teacher_id", "academic_year_id"})
 })
 @Getter
 @Setter
@@ -32,7 +32,7 @@ public class CreditHourTracking {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "year_id", nullable = false)
+    @JoinColumn(name = "academic_year_id", nullable = false)
     private AcademicYear academicYear;
 
     @NotNull

@@ -1,108 +1,185 @@
 package de.unipassau.allocationsystem.controller;
 
+import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingCreateDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingResponseDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingUpdateDto;
+import de.unipassau.allocationsystem.entity.CreditHourTracking;
+import de.unipassau.allocationsystem.mapper.CreditHourTrackingMapper;
 import de.unipassau.allocationsystem.service.CreditHourTrackingService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
-import de.unipassau.allocationsystem.utils.PaginationUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/credit-hour-tracking")
 @RequiredArgsConstructor
-@Tag(name = "Credit Hour Tracking", description = "Manage supervising teacher credit hour tracking per academic year")
+@Slf4j
+@Tag(name = "Credit Hour Tracking", description = "Credit hour tracking management APIs")
 public class CreditHourTrackingController {
 
     private final CreditHourTrackingService service;
+    private final CreditHourTrackingMapper mapper;
 
-    @Operation(summary = "List credit tracking entries for a year")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Entries retrieved"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @Operation(
+            summary = "Get sort fields",
+            description = "Retrieves available fields that can be used for sorting credit hour tracking"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/credit-tracking")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> list(
-            @RequestParam(name = "year_id") Long yearId,
-            @RequestParam(name = "teacher_id", required = false) Long teacherId,
-            @RequestParam(name = "min_balance", required = false) Double minBalance,
-            @RequestParam(name = "max_balance", required = false) Double maxBalance,
-            @RequestParam(name = "min_hours", required = false) Double minHours,
-            @RequestParam(name = "max_hours", required = false) Double maxHours,
-            @RequestParam Map<String, String> queryParams
-    ) {
-        // Validate and extract pagination params using PaginationUtils
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        int page = Math.max(0, params.page() - 1); // PaginationUtils pages are 1-based
-        int size = params.pageSize();
-        Sort.Direction dir = params.sortOrder();
-        String sortBy = params.sortBy();
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sortBy));
-        Page<CreditHourTrackingResponseDto> pageResult = service.listByYearWithFilters(yearId, teacherId, minBalance, maxBalance, minHours, maxHours, pageable);
-        return ResponseHandler.paginated("Credit tracking entries retrieved", PaginationUtils.formatPaginationResponse(pageResult));
+    @GetMapping("/sort-fields")
+    public ResponseEntity<?> getSortFields() {
+        List<Map<String, String>> result = service.getSortFields();
+        return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
-    @Operation(summary = "Get credit tracking entry by id")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found"),
-            @ApiResponse(responseCode = "404", description = "Not found")
+    @Operation(
+            summary = "Get paginated credit hour tracking",
+            description = "Retrieves credit hour tracking with pagination, sorting, and optional search"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Entries retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/credit-tracking/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/paginate")
+    public ResponseEntity<?> getPaginate(
+            @RequestParam Map<String, String> queryParams,
+            @RequestParam(value = "searchValue", required = false) String searchValue
+    ) {
+        Map<String, Object> result = service.getPaginated(queryParams, searchValue);
+
+        // Convert items to DTOs to avoid lazy loading serialization issues
+        if (result.containsKey("items")) {
+            List<CreditHourTracking> items = (List<CreditHourTracking>) result.get("items");
+            List<CreditHourTrackingResponseDto> dtoItems = mapper.toResponseDtoList(items);
+            result.put("items", dtoItems);
+        }
+
+        return ResponseHandler.success("Credit hour tracking retrieved successfully (paginated)", result);
+    }
+
+    @Operation(
+            summary = "Get all credit hour tracking entries",
+            description = "Retrieves all credit hour tracking entries without pagination"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Entries retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        List<CreditHourTrackingResponseDto> result = mapper.toResponseDtoList(service.getAll());
+        return ResponseHandler.success("Credit hour tracking entries retrieved successfully", result);
+    }
+
+    @Operation(
+            summary = "Get credit hour tracking by ID",
+            description = "Retrieves a specific credit hour tracking entry by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Entry found",
+                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Entry not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
+        CreditHourTrackingResponseDto result = service.getById(id)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new NoSuchElementException("Credit hour tracking not found with id: " + id));
+        return ResponseHandler.success("Credit hour tracking entry retrieved successfully", result);
+    }
+
+    @Operation(
+            summary = "Create new credit hour tracking entry",
+            description = "Creates a new credit hour tracking entry with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Entry created successfully",
+                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate entry"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody CreditHourTrackingCreateDto dto) {
         try {
-            CreditHourTrackingResponseDto res = service.getById(id);
-            return ResponseHandler.success("Credit tracking entry retrieved", res);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Credit tracking entry not found");
+            CreditHourTracking entity = mapper.toEntityCreate(dto);
+            CreditHourTracking created = service.create(entity);
+            return ResponseHandler.created("Credit hour tracking entry created successfully", mapper.toResponseDto(created));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseHandler.badRequest(e.getMessage(), Map.of());
         }
     }
 
-    @Operation(summary = "Get all credit tracking entries for a year (no paging)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Found"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")
-    })
-    @GetMapping("/years/{yearId}/credit-tracking")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> listForYear(@PathVariable Long yearId) {
-        // reuse list endpoint with large page size
-        Page<CreditHourTrackingResponseDto> result = service.listByYearWithFilters(yearId, null, null, null, null, null, PageRequest.of(0, Integer.MAX_VALUE));
-        return ResponseHandler.success("Credit tracking entries for year retrieved", result.getContent());
-    }
-
-    @Operation(summary = "Update credit tracking entry (admin)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Updated"),
+    @Operation(
+            summary = "Update credit hour tracking entry",
+            description = "Updates an existing credit hour tracking entry with the provided details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Entry updated successfully",
+                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "Not found")
+            @ApiResponse(responseCode = "404", description = "Entry not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/credit-tracking/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody CreditHourTrackingUpdateDto dto) {
         try {
-            CreditHourTrackingResponseDto updated = service.update(id, dto);
-            return ResponseHandler.updated("Credit tracking updated", updated);
+            CreditHourTracking entity = mapper.toEntityUpdate(dto);
+            CreditHourTracking updated = service.update(id, entity);
+            return ResponseHandler.updated("Credit hour tracking entry updated successfully", mapper.toResponseDto(updated));
         } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Credit tracking entry not found");
-        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseHandler.notFound("Credit hour tracking entry not found");
+        } catch (DataIntegrityViolationException e) {
             return ResponseHandler.badRequest(e.getMessage(), Map.of());
+        }
+    }
+
+    @Operation(
+            summary = "Delete credit hour tracking entry",
+            description = "Deletes a credit hour tracking entry by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Entry deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Entry not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+            return ResponseHandler.noContent();
+        } catch (NoSuchElementException e) {
+            return ResponseHandler.notFound("Credit hour tracking entry not found");
         }
     }
 }

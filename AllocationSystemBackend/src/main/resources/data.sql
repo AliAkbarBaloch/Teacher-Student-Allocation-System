@@ -140,6 +140,6 @@ VALUES
 
 -- 13. CREDIT_HOUR_TRACKING
 -- Hans has 2 assignments, so he earns 1.0 credit hour (Reduction hour).
-INSERT INTO CREDIT_HOUR_TRACKING (id, teacher_id, year_id, assignments_count, credit_hours_allocated, credit_balance, notes, created_at)
+INSERT INTO CREDIT_HOUR_TRACKING (id, teacher_id, academic_year_id, assignments_count, credit_hours_allocated, credit_balance, notes, created_at)
 VALUES
 (1, 1, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW());

@@ -1,25 +1,23 @@
 package de.unipassau.allocationsystem.dto.credittracking;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreditHourTrackingResponseDto {
     private Long id;
     private Long teacherId;
-    private Long yearId;
+    private String teacherName;
+    private Long academicYearId;
+    private String academicYearTitle;
     private Integer assignmentsCount;
     private Double creditHoursAllocated;
     private Double creditBalance;
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }
