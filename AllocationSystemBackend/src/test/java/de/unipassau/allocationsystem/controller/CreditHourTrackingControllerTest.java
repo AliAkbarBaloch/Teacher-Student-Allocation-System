@@ -1,6 +1,8 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingCreateDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingUpdateDto;
 import de.unipassau.allocationsystem.entity.*;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
@@ -92,16 +94,15 @@ class CreditHourTrackingControllerTest {
 
     @Test
     void list_Unauthorized_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/credit-hour-tracking/credit-tracking")
-                .param("year_id", saved.getAcademicYear().getId().toString())
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/credit-hour-tracking")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void getById_Success() throws Exception {
-        mockMvc.perform(get("/api/credit-hour-tracking/credit-tracking/{id}", saved.getId())
+        mockMvc.perform(get("/api/credit-hour-tracking/{id}", saved.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id", is(saved.getId().intValue())))
@@ -116,11 +117,69 @@ class CreditHourTrackingControllerTest {
         dto.setCreditHoursAllocated(5.0);
         dto.setCreditBalance(95.0);
 
-        mockMvc.perform(put("/api/credit-hour-tracking/credit-tracking/{id}", saved.getId())
+        mockMvc.perform(put("/api/credit-hour-tracking/{id}", saved.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.notes", is("updated")))
                 .andExpect(jsonPath("$.data.creditBalance", is(95.0)));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void getAll_Success() throws Exception {
+        mockMvc.perform(get("/api/credit-hour-tracking")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", not(empty())))
+                .andExpect(jsonPath("$.data[0].id", is(saved.getId().intValue())));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void paginate_Success() throws Exception {
+        mockMvc.perform(get("/api/credit-hour-tracking/paginate")
+                        .param("page", "1")
+                        .param("pageSize", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.items", not(empty())));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void create_Success() throws Exception {
+        // create a different academic year to avoid duplicate (teacher+year) constraint
+        AcademicYear newYear = new AcademicYear();
+        newYear.setYearName("2026/27");
+        newYear.setTotalCreditHours(100);
+        newYear.setElementarySchoolHours(10);
+        newYear.setMiddleSchoolHours(20);
+        newYear.setBudgetAnnouncementDate(LocalDateTime.now());
+        newYear.setCreatedAt(LocalDateTime.now());
+        newYear = yearRepo.save(newYear);
+
+        CreditHourTrackingCreateDto dto = new CreditHourTrackingCreateDto();
+        dto.setTeacherId(saved.getTeacher().getId());
+        dto.setAcademicYearId(newYear.getId()); // use the new year id
+        dto.setAssignmentsCount(2);
+        dto.setCreditHoursAllocated(20.0);
+        dto.setCreditBalance(80.0);
+        dto.setNotes("created");
+
+        mockMvc.perform(post("/api/credit-hour-tracking")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.notes", is("created")))
+                .andExpect(jsonPath("$.data.creditBalance", is(80.0)));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void delete_Success() throws Exception {
+        mockMvc.perform(delete("/api/credit-hour-tracking/{id}", saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }
