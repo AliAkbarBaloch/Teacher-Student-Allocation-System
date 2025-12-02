@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.subject.SubjectResponseDto;
 import de.unipassau.allocationsystem.dto.subject.SubjectUpdateDto;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Subject category not found with id: " + dto.getSubjectCategoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
         
@@ -51,7 +52,7 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Subject category not found with id: " + dto.getSubjectCategoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
         
@@ -99,7 +100,7 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         }
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Subject category not found with id: " + dto.getSubjectCategoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
         if (dto.getSchoolType() != null) {
