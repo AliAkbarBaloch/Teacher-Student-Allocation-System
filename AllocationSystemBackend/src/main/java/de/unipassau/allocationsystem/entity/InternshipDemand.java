@@ -10,13 +10,13 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "internship_demand", indexes = {
-        @Index(name = "idx_internship_demand_year", columnList = "year_id"),
+@Table(name = "internship_demands", indexes = {
+        @Index(name = "idx_internship_demand_year", columnList = "academic_year_id"),
         @Index(name = "idx_internship_demand_internship_type", columnList = "internship_type_id"),
         @Index(name = "idx_internship_demand_school_type", columnList = "school_type"),
         @Index(name = "idx_internship_demand_subject", columnList = "subject_id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "uk_internship_demand_unique", columnNames = {"year_id", "internship_type_id", "school_type", "subject_id", "is_forecasted"})
+        @UniqueConstraint(name = "uk_internship_demand_unique", columnNames = {"academic_year_id", "internship_type_id", "school_type", "subject_id", "is_forecasted"})
 })
 @Getter
 @Setter
@@ -27,9 +27,9 @@ public class InternshipDemand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Academic year is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "year_id", nullable = false)
+    @JoinColumn(name = "academic_year_id", nullable = false)
     private AcademicYear academicYear;
 
     @NotNull

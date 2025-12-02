@@ -112,9 +112,9 @@ VALUES
 (3, 2, 1, 1, 'AVAILABLE', 0, 'Cannot do block internship due to family', NOW()),
 (4, 4, 1, 1, 'AVAILABLE', 1, 'Live in Zone 3, prefers Block', NOW());
 
--- 10. INTERNSHIP_DEMAND
+-- 10. INTERNSHIP_DEMANDS
 -- The "Requirements" received from the internship office.
-INSERT INTO internship_demand (id, year_id, internship_type_id, school_type, subject_id, required_teachers, student_count, is_forecasted, created_at, updated_at)
+INSERT INTO internship_demands (id, academic_year_id, internship_type_id, school_type, subject_id, required_teachers, student_count, is_forecasted, created_at, updated_at)
 VALUES
     -- High priority: SFP German in Primary schools
     (1, 1, 4, 'Primary', 1, 10, 40, TRUE, NOW(), NOW()),

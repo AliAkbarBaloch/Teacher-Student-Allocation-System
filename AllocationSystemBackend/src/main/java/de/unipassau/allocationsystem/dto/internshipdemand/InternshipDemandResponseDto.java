@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class InternshipDemandResponseDto {
     private Long id;
-    private Long yearId;
+    private Long academicYearId;
     private Long internshipTypeId;
     private String internshipTypeCode;
     private String schoolType;

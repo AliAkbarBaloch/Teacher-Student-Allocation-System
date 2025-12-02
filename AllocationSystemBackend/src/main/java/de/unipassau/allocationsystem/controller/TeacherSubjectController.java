@@ -8,7 +8,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherSubjectMapper;
 import de.unipassau.allocationsystem.service.TeacherSubjectService;
-import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
