@@ -31,6 +31,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +51,26 @@ public class AllocationPlanService {
     private final PlanChangeLogService planChangeLogService;
 
     /**
+     * Get available sort fields for allocation plans.
+     */
+    public List<Map<String, String>> getSortFields() {
+        List<Map<String, String>> fields = new ArrayList<>();
+        fields.add(Map.of("key", "id", "label", "ID"));
+        fields.add(Map.of("key", "planName", "label", "Plan Name"));
+        fields.add(Map.of("key", "planVersion", "label", "Version"));
+        fields.add(Map.of("key", "status", "label", "Status"));
+        fields.add(Map.of("key", "isCurrent", "label", "Is Current"));
+        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
+        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
+        return fields;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AllocationPlan> getAll() {
+        return allocationPlanRepository.findAll();
+    }
+
+    /**
      * Get all allocation plans with filtering and pagination.
      */
     @Transactional(readOnly = true)
@@ -57,19 +79,19 @@ public class AllocationPlanService {
             PlanStatus status,
             Boolean isCurrent,
             Map<String, String> queryParams) {
-        log.info("Fetching allocation plans - yearId: {}, status: {}, isCurrent: {}", 
+        log.info("Fetching allocation plans - yearId: {}, status: {}, isCurrent: {}",
                 yearId, status, isCurrent);
-
-        if (yearId == null) {
-            throw new IllegalArgumentException("yearId parameter is required");
-        }
 
         // Validate pagination parameters
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
 
-        // Build specification for filtering
-        Specification<AllocationPlan> spec = (root, query, cb) -> 
-            cb.equal(root.get("academicYear").get("id"), yearId);
+        // Start with a nullable specification and add filters conditionally
+        Specification<AllocationPlan> spec = Specification.where(null);
+
+        if (yearId != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("academicYear").get("id"), yearId));
+        }
 
         if (status != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
@@ -83,9 +105,9 @@ public class AllocationPlanService {
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        // Fetch paginated results
+        // Fetch paginated results (spec may be null internally)
         Page<AllocationPlan> page = allocationPlanRepository.findAll(spec, pageable);
-        log.info("Found {} allocation plans (page {} of {})", 
+        log.info("Found {} allocation plans (page {} of {})",
                 page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
 
         // Convert to DTOs
@@ -128,16 +150,6 @@ public class AllocationPlanService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Academic year not found with ID: " + createDto.getYearId()));
 
-        // Validate creator user exists and is active
-        User createdByUser = userRepository.findById(createDto.getCreatedByUserId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found with ID: " + createDto.getCreatedByUserId()));
-
-        if (!createdByUser.isEnabled()) {
-            throw new IllegalArgumentException(
-                    "Cannot create allocation plan with inactive user: " + createdByUser.getEmail());
-        }
-
         // Check uniqueness of (yearId, planVersion)
         if (allocationPlanRepository.existsByAcademicYearIdAndPlanVersion(
                 createDto.getYearId(), createDto.getPlanVersion())) {
@@ -158,7 +170,6 @@ public class AllocationPlanService {
         plan.setPlanName(createDto.getPlanName());
         plan.setPlanVersion(createDto.getPlanVersion());
         plan.setStatus(createDto.getStatus());
-        plan.setCreatedByUser(createdByUser);
         plan.setIsCurrent(createDto.getIsCurrent() != null ? createDto.getIsCurrent() : false);
         plan.setNotes(createDto.getNotes());
 
@@ -167,16 +178,17 @@ public class AllocationPlanService {
 
         // Log plan creation in plan change log
         try {
-                planChangeLogService.logPlanChange(
-                    saved.getId(),
-                    createdByUser.getId(),
-                    PlanChangeTypes.CREATE,
-                    AuditEntityNames.ALLOCATION_PLAN,
-                    saved.getId(),
-                    null,
-                    allocationPlanMapper.toResponseDto(saved),
-                    "Created allocation plan"
-                );
+            Long currentUserId = resolveCurrentUserId();
+            planChangeLogService.logPlanChange(
+                saved.getId(),
+                currentUserId,
+                PlanChangeTypes.CREATE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                saved.getId(),
+                null,
+                allocationPlanMapper.toResponseDto(saved),
+                "Created allocation plan"
+            );
         } catch (Exception e) {
             log.warn("Failed to create plan change log for created plan id {}", saved.getId(), e);
         }
@@ -227,7 +239,7 @@ public class AllocationPlanService {
         var oldDto = allocationPlanMapper.toResponseDto(plan);
 
         // Update the plan
-        allocationPlanMapper.updateEntityFromDto(plan, updateDto);
+        allocationPlanMapper.updateEntityFromDto(updateDto, plan);
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
         log.info("Allocation plan updated successfully with ID: {}", updated.getId());
@@ -237,7 +249,7 @@ public class AllocationPlanService {
             Long currentUserId = resolveCurrentUserId();
                 planChangeLogService.logPlanChange(
                     updated.getId(),
-                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    currentUserId,
                     PlanChangeTypes.UPDATE,
                     AuditEntityNames.ALLOCATION_PLAN,
                     updated.getId(),
@@ -292,7 +304,7 @@ public class AllocationPlanService {
             Long currentUserId = resolveCurrentUserId();
                 planChangeLogService.logPlanChange(
                     updated.getId(),
-                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    currentUserId,
                     PlanChangeTypes.STATUS_CHANGE,
                     AuditEntityNames.ALLOCATION_PLAN,
                     updated.getId(),
@@ -345,7 +357,7 @@ public class AllocationPlanService {
             Long currentUserId = resolveCurrentUserId();
                 planChangeLogService.logPlanChange(
                     updated.getId(),
-                    currentUserId != null ? currentUserId : plan.getCreatedByUser().getId(),
+                    currentUserId,
                     PlanChangeTypes.STATUS_CHANGE,
                     AuditEntityNames.ALLOCATION_PLAN,
                     updated.getId(),
