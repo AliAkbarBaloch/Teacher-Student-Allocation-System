@@ -177,18 +177,20 @@ export function TeacherAvailabilityDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedTeacherAvailability && (
-            <TeacherAvailabilityForm
-              key={`edit-${selectedTeacherAvailability.id}`}
-              teacherAvailability={selectedTeacherAvailability}
-              onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedTeacherAvailability && (
+              <TeacherAvailabilityForm
+                key={`edit-${selectedTeacherAvailability.id}`}
+                teacherAvailability={selectedTeacherAvailability}
+                onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

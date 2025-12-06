@@ -73,13 +73,15 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <TeacherSubjectForm
-            onSubmit={(data) =>
-              onCreateSubmit(data as CreateTeacherSubjectRequest)
-            }
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <TeacherSubjectForm
+              onSubmit={(data) =>
+                onCreateSubmit(data as CreateTeacherSubjectRequest)
+              }
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -205,20 +207,22 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedTeacherSubject && (
-            <TeacherSubjectForm
-              key={`edit-${selectedTeacherSubject.id}`}
-              teacherSubject={selectedTeacherSubject}
-              onSubmit={(data) =>
-                onUpdateSubmit(data as UpdateTeacherSubjectRequest)
-              }
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedTeacherSubject && (
+              <TeacherSubjectForm
+                key={`edit-${selectedTeacherSubject.id}`}
+                teacherSubject={selectedTeacherSubject}
+                onSubmit={(data) =>
+                  onUpdateSubmit(data as UpdateTeacherSubjectRequest)
+                }
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
