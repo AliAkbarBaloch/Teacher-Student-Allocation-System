@@ -1,26 +1,27 @@
+import AuthLayout from "@/components/layout/AuthLayout";
 import { Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import App from "./App";
-import AuthLayout from "@/components/layout/AuthLayout";
 import { ROUTES } from "../config/routes";
+import App from "./App";
 
 // Pages
-import HomePage from "@/pages/home/HomePage";
-import LoginPage from "@/pages/auth/LoginPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
+import LoginPage from "@/pages/auth/LoginPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import SettingsPage from "@/pages/settings/SettingsPage";
-import RolesPage from "@/pages/roles/RolesPage";
-import SchoolsPage from "@/pages/base-data/SchoolsPage";
-import TeachersPage from "@/pages/base-data/TeachersPage";
-import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
-import SubjectsPage from "@/pages/base-data/SubjectsPage";
-import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
-import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
-import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
-import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
+import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
+import SchoolsPage from "@/pages/base-data/SchoolsPage";
+import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
+import SubjectsPage from "@/pages/base-data/SubjectsPage";
 import TeacherAvailabilityPage from "@/pages/base-data/TeacherAvailabilityPage";
+import TeachersPage from "@/pages/base-data/TeachersPage";
+import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
+import ZoneConstraintPage from "@/pages/base-data/ZoneConstraintPage";
+import HomePage from "@/pages/home/HomePage";
+import TeacherFormPage from "@/pages/public/TeacherFormPage";
+import RolesPage from "@/pages/roles/RolesPage";
+import SettingsPage from "@/pages/settings/SettingsPage";
+import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -147,7 +148,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.allocationPlanning.zoneConstraints,
-        element: withSuspense(<div>Zone Constraints</div>),
+        element: withSuspense(<ZoneConstraintPage />),
       },
       {
         path: ROUTES.allocationPlanning.planChangeLogs,

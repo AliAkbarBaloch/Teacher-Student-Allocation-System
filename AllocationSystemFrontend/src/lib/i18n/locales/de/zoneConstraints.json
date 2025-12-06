@@ -1,0 +1,76 @@
+{
+  "title": "Zonenbeschränkungen",
+  "subtitle": "Verwalten Sie Datensätze und Konfigurationen zu Zonenbeschränkungen",
+  "table": {
+    "zoneNumber": "Zonennummer",
+    "internshipTypeCode": "Praktikumstyp-Code",
+    "internshipTypeName": "Name des Praktikumstyps",
+    "isAllowed": "Erlaubt",
+    "allowed": "Erlaubt",
+    "notAllowed": "Nicht erlaubt",
+    "description": "Beschreibung",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Zonenbeschränkungen gefunden.",
+    "searchPlaceholder": "Zonenbeschränkungen suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Zonenbeschränkung erstellen",
+      "edit": "Zonenbeschränkung bearbeiten",
+      "view": "Details zur Zonenbeschränkung"
+    },
+    "fields": {
+      "zoneNumber": "Zonennummer",
+      "internshipTypeId": "Praktikumstyp",
+      "internshipTypeCode": "Praktikumstyp-Code",
+      "internshipTypeName": "Name des Praktikumstyps",
+      "isAllowed": "Erlaubt",
+      "description": "Beschreibung",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "zoneNumber": "Zonennummer eingeben",
+      "internshipTypeId": "ID des Praktikumstyps eingeben",
+      "internshipTypeCode": "Praktikumstyp-Code eingeben",
+      "internshipTypeName": "Name des Praktikumstyps eingeben",
+      "description": "Beschreibung eingeben (optional)"
+    },
+    "errors": {
+      "zoneNumberRequired": "Zonennummer ist erforderlich",
+      "internshipTypeIdRequired": "Praktikumstyp ist erforderlich",
+      "descriptionMaxLength": "Die Beschreibung darf höchstens 1000 Zeichen lang sein"
+    },
+    "actions": {
+      "create": "Zonenbeschränkung erstellen",
+      "update": "Zonenbeschränkung aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Zonenbeschränkung erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Zonenbeschränkung löschen",
+    "message": "Möchten Sie diese Zonenbeschränkung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Zonenbeschränkung erfolgreich gelöscht",
+    "error": "Löschen der Zonenbeschränkung fehlgeschlagen"
+  },
+  "create": {
+    "success": "Zonenbeschränkung erfolgreich erstellt",
+    "error": "Erstellen der Zonenbeschränkung fehlgeschlagen"
+  },
+  "update": {
+    "success": "Zonenbeschränkung erfolgreich aktualisiert",
+    "error": "Aktualisierung der Zonenbeschränkung fehlgeschlagen"
+  }
+}
