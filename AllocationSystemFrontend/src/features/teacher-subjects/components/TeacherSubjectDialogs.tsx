@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -72,11 +73,13 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <TeacherSubjectForm
-            onSubmit={(data) => onCreateSubmit(data as CreateTeacherSubjectRequest)}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <TeacherSubjectForm
+              onSubmit={(data) => onCreateSubmit(data as CreateTeacherSubjectRequest)}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,74 +105,76 @@ export function TeacherSubjectDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(teacherSubject) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.academicYearName}
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.academicYearName}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.teacherName}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.teacherName}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.subjectCode")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.subjectCode}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.subjectCode")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.subjectCode}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.subjectTitle")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.subjectTitle}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.subjectTitle")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.subjectTitle}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.availabilityStatus")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {t(`table.${teacherSubject.availabilityStatus?.toLowerCase()}`) || teacherSubject.availabilityStatus}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.availabilityStatus")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {t(`table.${teacherSubject.availabilityStatus?.toLowerCase()}`) || teacherSubject.availabilityStatus}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.gradeLevelFrom")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.gradeLevelFrom ?? "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.gradeLevelFrom")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.gradeLevelFrom ?? "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.gradeLevelTo")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.gradeLevelTo ?? "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.gradeLevelTo")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.gradeLevelTo ?? "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">{t("form.fields.notes")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.notes || "-"}
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-medium">{t("form.fields.notes")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.notes || "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.createdAt
-                    ? new Date(teacherSubject.createdAt).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.createdAt
+                      ? new Date(teacherSubject.createdAt).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.updatedAt
-                    ? new Date(teacherSubject.updatedAt).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {teacherSubject.updatedAt
+                      ? new Date(teacherSubject.updatedAt).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -180,18 +185,20 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedTeacherSubject && (
-            <TeacherSubjectForm
-              key={`edit-${selectedTeacherSubject.id}`}
-              teacherSubject={selectedTeacherSubject}
-              onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherSubjectRequest)}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedTeacherSubject && (
+              <TeacherSubjectForm
+                key={`edit-${selectedTeacherSubject.id}`}
+                teacherSubject={selectedTeacherSubject}
+                onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherSubjectRequest)}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

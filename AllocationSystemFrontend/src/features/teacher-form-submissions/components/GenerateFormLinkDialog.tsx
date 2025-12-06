@@ -9,6 +9,7 @@ import { Copy, Check, Loader2, Link2, AlertCircle } from "lucide-react";
 // dialog
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -202,116 +203,116 @@ export function GenerateFormLinkDialog({
           <DialogTitle>{t("formLink.title")}</DialogTitle>
           <DialogDescription>{t("formLink.description")}</DialogDescription>
         </DialogHeader>
+        <DialogBody>
+          {!formLink ? (
+            <div className="space-y-4">
+              {error && (
+                <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-destructive">{t("formLink.errors.title")}</p>
+                      <p className="text-sm text-destructive/90 mt-1">{error}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="teacher">{t("formLink.teacher")}</Label>
+                <Select
+                  value={teacherId?.toString() || ""}
+                  onValueChange={(value) => {
+                    setTeacherId(value ? Number(value) : undefined);
+                    setError(null);
+                  }}
+                  disabled={loading || !!initialTeacherId}
+                >
+                  <SelectTrigger id="teacher">
+                    <SelectValue placeholder={t("formLink.selectTeacher")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id.toString()}>
+                        {teacher.firstName} {teacher.lastName} ({teacher.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {!formLink ? (
-          <div className="space-y-4">
-            {error && (
-              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-destructive">{t("formLink.errors.title")}</p>
-                    <p className="text-sm text-destructive/90 mt-1">{error}</p>
+              <div className="space-y-2">
+                <Label htmlFor="year">{t("formLink.academicYear")}</Label>
+                <Select
+                  value={yearId?.toString() || ""}
+                  onValueChange={(value) => {
+                    setYearId(value ? Number(value) : undefined);
+                    setError(null);
+                  }}
+                  disabled={loading || !!initialYearId}
+                >
+                  <SelectTrigger id="year">
+                    <SelectValue placeholder={t("formLink.selectYear")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicYears.map((year) => (
+                      <SelectItem key={year.id} value={year.id.toString()}>
+                        {year.yearName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                <div>
+                  <Label className="text-sm font-medium">{t("formLink.teacher")}</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {formLink.teacherName} ({formLink.teacherEmail})
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">{t("formLink.academicYear")}</Label>
+                  <p className="text-sm text-muted-foreground">{formLink.yearName}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">{t("formLink.formUrl")}</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Input
+                      value={formLink.formUrl}
+                      readOnly
+                      className="font-mono text-xs"
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleCopy}
+                      className="shrink-0"
+                    >
+                      {copied ? (
+                        <Check className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="teacher">{t("formLink.teacher")}</Label>
-              <Select
-                value={teacherId?.toString() || ""}
-                onValueChange={(value) => {
-                  setTeacherId(value ? Number(value) : undefined);
-                  setError(null);
-                }}
-                disabled={loading || !!initialTeacherId}
-              >
-                <SelectTrigger id="teacher">
-                  <SelectValue placeholder={t("formLink.selectTeacher")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {teachers.map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                      {teacher.firstName} {teacher.lastName} ({teacher.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="year">{t("formLink.academicYear")}</Label>
-              <Select
-                value={yearId?.toString() || ""}
-                onValueChange={(value) => {
-                  setYearId(value ? Number(value) : undefined);
-                  setError(null);
-                }}
-                disabled={loading || !!initialYearId}
-              >
-                <SelectTrigger id="year">
-                  <SelectValue placeholder={t("formLink.selectYear")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {academicYears.map((year) => (
-                    <SelectItem key={year.id} value={year.id.toString()}>
-                      {year.yearName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-              <div>
-                <Label className="text-sm font-medium">{t("formLink.teacher")}</Label>
-                <p className="text-sm text-muted-foreground">
-                  {formLink.teacherName} ({formLink.teacherEmail})
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">{t("formLink.academicYear")}</Label>
-                <p className="text-sm text-muted-foreground">{formLink.yearName}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">{t("formLink.formUrl")}</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Input
-                    value={formLink.formUrl}
-                    readOnly
-                    className="font-mono text-xs"
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleCopy}
-                    className="shrink-0"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100">
+                <div className="flex items-start gap-2">
+                  <Link2 className="h-4 w-4 mt-0.5" />
+                  <div>
+                    <p className="font-medium">{t("formLink.info.title")}</p>
+                    <p className="mt-1">{t("formLink.info.description")}</p>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100">
-              <div className="flex items-start gap-2">
-                <Link2 className="h-4 w-4 mt-0.5" />
-                <div>
-                  <p className="font-medium">{t("formLink.info.title")}</p>
-                  <p className="mt-1">{t("formLink.info.description")}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <DialogFooter>
+          )}
+        </DialogBody>
+        <DialogFooter className="p-4">
           {!formLink ? (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
