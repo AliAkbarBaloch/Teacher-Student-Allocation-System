@@ -18,6 +18,7 @@ import enTeacherFormSubmissions from "./locales/en/teacherFormSubmissions.json";
 import enAcademicYears from "./locales/en/academicYears.json";
 import enTeacherSubjects from "./locales/en/teacherSubjects.json";
 import enTeacherAvailability from "./locales/en/teacherAvailability.json";
+import enZoneConstraints from "./locales/en/zoneConstraints.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -34,6 +35,7 @@ import deTeacherFormSubmissions from "./locales/de/teacherFormSubmissions.json";
 import deAcademicYears from "./locales/de/academicYears.json";
 import deTeacherSubjects from "./locales/de/teacherSubjects.json";
 import deTeacherAvailability from "./locales/de/teacherAvailability.json";
+import deZoneConstraints from "./locales/de/zoneConstraints.json";
 
 // Language metadata configuration
 export const languages = [
@@ -66,6 +68,7 @@ export const resources = {
         academicYears: enAcademicYears,
         teacherSubjects: enTeacherSubjects,
         teacherAvailability: enTeacherAvailability,
+        zoneConstraints: enZoneConstraints,
     },
     de: {
         common: deCommon,
@@ -83,6 +86,7 @@ export const resources = {
         academicYears: deAcademicYears,
         teacherSubjects: deTeacherSubjects,
         teacherAvailability: deTeacherAvailability,
+        zoneConstraints: deZoneConstraints,
     }
 } as const;
 
@@ -102,7 +106,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions", "zoneConstraints"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",

@@ -1,0 +1,76 @@
+{
+  "title": "Zone Constraints",
+  "subtitle": "Manage zone constraint records and configurations",
+  "table": {
+    "zoneNumber": "Zone Number",
+    "internshipTypeCode": "Internship Type Code",
+    "internshipTypeName": "Internship Type Name",
+    "isAllowed": "Allowed",
+    "allowed": "Allowed",
+    "notAllowed": "Not Allowed",
+    "description": "Description",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No zone constraints found.",
+    "searchPlaceholder": "Search zone constraints..."
+  },
+  "form": {
+    "title": {
+      "create": "Create Zone Constraint",
+      "edit": "Edit Zone Constraint",
+      "view": "Zone Constraint Details"
+    },
+    "fields": {
+      "zoneNumber": "Zone Number",
+      "internshipTypeId": "Internship Type",
+      "internshipTypeCode": "Internship Type Code",
+      "internshipTypeName": "Internship Type Name",
+      "isAllowed": "Allowed",
+      "description": "Description",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "zoneNumber": "Enter zone number",
+      "internshipTypeId": "Enter internship type ID",
+      "internshipTypeCode": "Enter internship type code",
+      "internshipTypeName": "Enter internship type name",
+      "description": "Enter description (optional)"
+    },
+    "errors": {
+      "zoneNumberRequired": "Zone number is required",
+      "internshipTypeIdRequired": "Internship type is required",
+      "descriptionMaxLength": "Description must be at most 1000 characters"
+    },
+    "actions": {
+      "create": "Create Zone Constraint",
+      "update": "Update Zone Constraint",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Zone Constraint",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Zone Constraint",
+    "message": "Are you sure you want to delete this zone constraint? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Zone constraint deleted successfully",
+    "error": "Failed to delete zone constraint"
+  },
+  "create": {
+    "success": "Zone constraint created successfully",
+    "error": "Failed to create zone constraint"
+  },
+  "update": {
+    "success": "Zone constraint updated successfully",
+    "error": "Failed to update zone constraint"
+  }
+}
