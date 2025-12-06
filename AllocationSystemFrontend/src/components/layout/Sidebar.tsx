@@ -133,11 +133,7 @@ export default function Sidebar() {
       {showSidebarSkeleton ? <SidebarSkeleton /> : <AppSidebar />}
       <SidebarInset>
         <header
-          className="flex h-16 shrink-0 items-center gap-2 border-b border-(--brand-border) backdrop-blur"
-          style={{
-            backgroundColor:
-              "color-mix(in oklab, var(--brand-soft) 35%, transparent)",
-          }}
+          className="flex h-16 shrink-0 items-center gap-2 border-b border-(--brand-border) backdrop-blur dark:bg-neutral-900"
         >
           <div className="flex items-center gap-2 px-4 flex-1">
             <SidebarTrigger className="-ml-1" />
@@ -161,7 +157,7 @@ export default function Sidebar() {
                           </Link>
                         </BreadcrumbLink>
                       ) : (
-                        <BreadcrumbPage className="text-(--brand-strong) font-medium">
+                        <BreadcrumbPage className="text-foreground font-medium">
                           {crumb.label}
                         </BreadcrumbPage>
                       )}

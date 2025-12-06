@@ -37,6 +37,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.99 0.01 85);
+  
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -145,4 +146,34 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+}
+
+@keyframes collapsible-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.animate-collapsible-down {
+  animation: collapsible-down 0.3s ease-in-out;
+}
+
+.animate-collapsible-up {
+  animation: collapsible-up 0.3s ease-in-out;
 }
