@@ -23,11 +23,7 @@ import java.time.LocalDateTime;
     },
     indexes = {
         @Index(name = "idx_allocation_plan_year", columnList = "year_id"),
-        @Index(name = "idx_allocation_plan_status", columnList = "status"),
-        @Index(name = "idx_allocation_plan_is_current", columnList = "is_current"),
-        @Index(name = "idx_allocation_plan_created_by", columnList = "created_by_user_id"),
-        @Index(name = "idx_allocation_plan_year_status", columnList = "year_id, status"),
-        @Index(name = "idx_allocation_plan_year_current", columnList = "year_id, is_current")
+        @Index(name = "idx_allocation_plan_status", columnList = "status")
     }
 )
 @Getter
@@ -72,14 +68,6 @@ public class AllocationPlan {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private PlanStatus status;
-
-    /**
-     * User who created this allocation plan.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_allocation_plan_user"))
-    @NotNull(message = "Creator user is required")
-    private User createdByUser;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;

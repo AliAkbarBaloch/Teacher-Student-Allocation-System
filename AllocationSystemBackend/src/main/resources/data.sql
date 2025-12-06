@@ -125,9 +125,9 @@ VALUES
 
 -- 11. ALLOCATION_PLAN
 -- A draft plan created by the Admin.
-INSERT INTO ALLOCATION_PLANS (id, year_id, plan_name, plan_version, status, created_by_user_id, is_current, created_at, updated_at)
+INSERT INTO ALLOCATION_PLANS (id, year_id, plan_name, plan_version, status, is_current, created_at, updated_at)
 VALUES
-(1, 1, 'Allocation Draft V1', '1.0', 'Draft', 1,TRUE, NOW(), NOW());
+(1, 1, 'Allocation Draft V1', '1.0', 'Draft', TRUE, NOW(), NOW());
 
 -- 12. TEACHER_ASSIGNMENT
 -- The result of the allocation logic. Hans matches strict subject constraint for ZSP.

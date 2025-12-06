@@ -83,10 +83,6 @@ public interface AllocationPlanRepository extends JpaRepository<AllocationPlan, 
            "WHERE ap.academicYear.id = :yearId AND ap.id <> :excludeId")
     void unsetCurrentForYearExcept(@Param("yearId") Long yearId, @Param("excludeId") Long excludeId);
 
-    /**
-     * Find all allocation plans created by a specific user.
-     */
-    List<AllocationPlan> findByCreatedByUserId(Long userId);
 
     /**
      * Find allocation plans by academic year ID with optional filters.

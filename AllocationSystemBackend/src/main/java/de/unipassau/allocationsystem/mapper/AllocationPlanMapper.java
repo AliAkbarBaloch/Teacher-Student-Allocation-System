@@ -1,64 +1,98 @@
 package de.unipassau.allocationsystem.mapper;
 
+import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import org.springframework.stereotype.Component;
 
-/**
- * Mapper for converting between AllocationPlan entities and DTOs.
- */
-@Component
-public class AllocationPlanMapper {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    /**
-     * Convert AllocationPlan entity to response DTO.
-     *
-     * @param allocationPlan AllocationPlan entity
-     * @return AllocationPlanResponseDto
-     */
-    public AllocationPlanResponseDto toResponseDto(AllocationPlan allocationPlan) {
-        if (allocationPlan == null) {
+@Component
+public class AllocationPlanMapper implements BaseMapper<AllocationPlan, AllocationPlanCreateDto, AllocationPlanUpdateDto, AllocationPlanResponseDto> {
+
+    @Override
+    public AllocationPlan toEntityCreate(AllocationPlanCreateDto dto) {
+        if (dto == null) {
             return null;
         }
-
-        return AllocationPlanResponseDto.builder()
-                .id(allocationPlan.getId())
-                .yearId(allocationPlan.getAcademicYear().getId())
-                .yearName(allocationPlan.getAcademicYear().getYearName())
-                .planName(allocationPlan.getPlanName())
-                .planVersion(allocationPlan.getPlanVersion())
-                .status(allocationPlan.getStatus())
-                .statusDisplayName(allocationPlan.getStatus().getDisplayName())
-                .createdByUserId(allocationPlan.getCreatedByUser().getId())
-                .createdByUserName(allocationPlan.getCreatedByUser().getFullName())
-                .createdByUserEmail(allocationPlan.getCreatedByUser().getEmail())
-                .isCurrent(allocationPlan.getIsCurrent())
-                .notes(allocationPlan.getNotes())
-                .createdAt(allocationPlan.getCreatedAt())
-                .updatedAt(allocationPlan.getUpdatedAt())
-                .build();
+        AllocationPlan entity = new AllocationPlan();
+        entity.setPlanName(dto.getPlanName());
+        entity.setPlanVersion(dto.getPlanVersion());
+        entity.setStatus(dto.getStatus());
+        entity.setIsCurrent(dto.getIsCurrent());
+        entity.setNotes(dto.getNotes());
+        return entity;
     }
 
-    /**
-     * Update AllocationPlan entity from update DTO.
-     * Only updates non-null fields from the DTO.
-     *
-     * @param allocationPlan Existing AllocationPlan entity
-     * @param dto            Update DTO
-     */
-    public void updateEntityFromDto(AllocationPlan allocationPlan, AllocationPlanUpdateDto dto) {
+    @Override
+    public AllocationPlan toEntityUpdate(AllocationPlanUpdateDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        AllocationPlan entity = new AllocationPlan();
+        entity.setPlanName(dto.getPlanName());
+        entity.setStatus(dto.getStatus());
+        entity.setIsCurrent(dto.getIsCurrent());
+        entity.setNotes(dto.getNotes());
+        return entity;
+    }
+
+    @Override
+    public AllocationPlanResponseDto toResponseDto(AllocationPlan entity) {
+        if (entity == null) {
+            return null;
+        }
+        Long yearId = null;
+        String yearName = null;
+        if (entity.getAcademicYear() != null) {
+            yearId = entity.getAcademicYear().getId();
+            yearName = entity.getAcademicYear().getYearName();
+        }
+        String statusDisplayName = entity.getStatus() != null ? entity.getStatus().getDisplayName() : null;
+
+        return new AllocationPlanResponseDto(
+                entity.getId(),
+                yearId,
+                yearName,
+                entity.getPlanName(),
+                entity.getPlanVersion(),
+                entity.getStatus(),
+                statusDisplayName,
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
+                entity.getIsCurrent(),
+                entity.getNotes()
+        );
+    }
+
+    @Override
+    public List<AllocationPlanResponseDto> toResponseDtoList(List<AllocationPlan> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(AllocationPlanUpdateDto dto, AllocationPlan entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
         if (dto.getPlanName() != null) {
-            allocationPlan.setPlanName(dto.getPlanName());
+            entity.setPlanName(dto.getPlanName());
         }
         if (dto.getStatus() != null) {
-            allocationPlan.setStatus(dto.getStatus());
+            entity.setStatus(dto.getStatus());
         }
         if (dto.getIsCurrent() != null) {
-            allocationPlan.setIsCurrent(dto.getIsCurrent());
+            entity.setIsCurrent(dto.getIsCurrent());
         }
         if (dto.getNotes() != null) {
-            allocationPlan.setNotes(dto.getNotes());
+            entity.setNotes(dto.getNotes());
         }
     }
 }

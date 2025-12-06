@@ -24,9 +24,6 @@ public class AllocationPlanResponseDto {
     private String planVersion;
     private PlanStatus status;
     private String statusDisplayName;
-    private Long createdByUserId;
-    private String createdByUserName;
-    private String createdByUserEmail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isCurrent;
