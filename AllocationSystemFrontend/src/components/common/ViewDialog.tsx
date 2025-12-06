@@ -120,7 +120,7 @@ export function ViewDialog<TData>({
           </div>
         )}
 
-        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
+        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2 pb-4 px-4">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             {closeLabel}
           </Button>

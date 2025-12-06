@@ -101,8 +101,10 @@ export function InternshipTypeForm({
   }, [formData.periodType]);
 
   const semesterValue = useMemo((): string => {
-    const trimmed = formData.semester?.trim();
-    return trimmed && trimmed.length > 0 ? trimmed : "__none__";
+    if (formData.semester === null || formData.semester === undefined || formData.semester === "") {
+      return "__none__";
+    }
+    return String(formData.semester);
   }, [formData.semester]);
 
   const validate = (): boolean => {

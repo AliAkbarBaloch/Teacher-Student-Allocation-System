@@ -24,8 +24,6 @@ export function useSubjectsColumnConfig(): ColumnConfig[] {
       fieldType: "text",
       fieldRequired: true,
       fieldPlaceholder: t("form.placeholders.title"),
-      width: "300px",
-      maxWidth: "400px",
     },
     {
       field: "subjectCategoryTitle",

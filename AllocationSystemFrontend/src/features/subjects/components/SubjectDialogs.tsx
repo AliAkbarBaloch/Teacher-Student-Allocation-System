@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -72,11 +73,13 @@ export function SubjectDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <SubjectForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <SubjectForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,40 +105,42 @@ export function SubjectDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(subject) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.code")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectCode}
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.code")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {subject.subjectCode}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.title")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectTitle}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.title")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {subject.subjectTitle}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.category")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectCategoryTitle || "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.category")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {subject.subjectCategoryTitle || "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.schoolType")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.schoolType || "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.schoolType")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {subject.schoolType || "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.isActive")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.isActive ? t("table.active") : t("table.inactive")}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.isActive")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {subject.isActive ? t("table.active") : t("table.inactive")}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -146,18 +151,20 @@ export function SubjectDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedSubject && (
-            <SubjectForm
-              key={`edit-${selectedSubject.id}`}
-              subject={selectedSubject}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedSubject && (
+              <SubjectForm
+                key={`edit-${selectedSubject.id}`}
+                subject={selectedSubject}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

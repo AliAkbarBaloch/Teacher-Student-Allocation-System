@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -63,7 +64,7 @@ export function TeacherFormSubmissionDialogs({
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(submission) => {
           if (!submission) return null;
-          return <SubmissionDataView submission={submission} />;
+          return <DialogBody><SubmissionDataView submission={submission} /></DialogBody>;
         }}
         onEdit={
           selectedSubmission
@@ -96,19 +97,21 @@ export function TeacherFormSubmissionDialogs({
                 : t("statusDialog.messageUnprocessed")}
             </DialogDescription>
           </DialogHeader>
-          {statusTarget.submission && (
-            <div className="py-4">
-              <p className="text-sm text-muted-foreground">
-                <strong>{t("statusDialog.teacher")}:</strong>{" "}
-                {statusTarget.submission.teacherFirstName}{" "}
-                {statusTarget.submission.teacherLastName}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                <strong>{t("statusDialog.academicYear")}:</strong>{" "}
-                {statusTarget.submission.yearName}
-              </p>
-            </div>
-          )}
+          <DialogBody>
+            {statusTarget.submission && (
+              <div className="py-4">
+                <p className="text-sm text-muted-foreground">
+                  <strong>{t("statusDialog.teacher")}:</strong>{" "}
+                  {statusTarget.submission.teacherFirstName}{" "}
+                  {statusTarget.submission.teacherLastName}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  <strong>{t("statusDialog.academicYear")}:</strong>{" "}
+                  {statusTarget.submission.yearName}
+                </p>
+              </div>
+            )}
+          </DialogBody>
           <DialogFooter>
             <Button
               variant="outline"

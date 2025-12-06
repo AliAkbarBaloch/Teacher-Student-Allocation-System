@@ -293,7 +293,7 @@ export function AcademicYearForm({
         </div>
       </Label>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-end gap-2 pt-2">
         <Button
           type="button"
           variant="outline"

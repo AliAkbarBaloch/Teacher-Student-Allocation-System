@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -72,11 +73,13 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <InternshipTypeForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <InternshipTypeForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,52 +105,54 @@ export function InternshipTypeDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(internshipType) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.code")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.internshipCode}
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.code")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.internshipCode}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.fullName")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.fullName}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.timing")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.timing || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.periodType")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.periodType || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.semester")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.semester || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.priorityOrder")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {internshipType.priorityOrder ?? "-"}
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.fullName")}</label>
+                <label className="text-sm font-medium">{t("form.fields.isSubjectSpecific")}</label>
                 <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.fullName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.timing")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.timing || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.periodType")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.periodType || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.semester")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.semester || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.priorityOrder")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.priorityOrder ?? "-"}
+                  {internshipType.isSubjectSpecific ? t("table.yes") : t("table.no")}
                 </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("form.fields.isSubjectSpecific")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {internshipType.isSubjectSpecific ? t("table.yes") : t("table.no")}
-              </div>
-            </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -158,18 +163,20 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedInternshipType && (
-            <InternshipTypeForm
-              key={`edit-${selectedInternshipType.id}`}
-              internshipType={selectedInternshipType}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedInternshipType && (
+              <InternshipTypeForm
+                key={`edit-${selectedInternshipType.id}`}
+                internshipType={selectedInternshipType}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

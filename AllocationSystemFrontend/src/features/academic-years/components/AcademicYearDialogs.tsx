@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -32,7 +33,7 @@ interface AcademicYearDialogsProps {
 
   // Handlers
   onCreateSubmit: (data: CreateAcademicYearRequest | UpdateAcademicYearRequest) => Promise<void>;
-    onUpdateSubmit: (data: CreateAcademicYearRequest | UpdateAcademicYearRequest) => Promise<void>;
+  onUpdateSubmit: (data: CreateAcademicYearRequest | UpdateAcademicYearRequest) => Promise<void>;
   onDelete: () => void;
   onEditClick: (academicYear: AcademicYear) => void;
   onSelectedChange: (academicYear: AcademicYear | null) => void;
@@ -72,11 +73,13 @@ export function AcademicYearDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <AcademicYearForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <AcademicYearForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,72 +105,74 @@ export function AcademicYearDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(academicYear) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.yearName")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.yearName}
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.yearName")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.yearName}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.totalCreditHours")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.totalCreditHours}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.totalCreditHours")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.totalCreditHours}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.elementarySchoolHours")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.elementarySchoolHours}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.elementarySchoolHours")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.elementarySchoolHours}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.middleSchoolHours")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.middleSchoolHours}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.middleSchoolHours")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.middleSchoolHours}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.budgetAnnouncementDate")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.budgetAnnouncementDate
-                    ? new Date(academicYear.budgetAnnouncementDate).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.budgetAnnouncementDate")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.budgetAnnouncementDate
+                      ? new Date(academicYear.budgetAnnouncementDate).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.allocationDeadline")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.allocationDeadline
-                    ? new Date(academicYear.allocationDeadline).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.allocationDeadline")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.allocationDeadline
+                      ? new Date(academicYear.allocationDeadline).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.isLocked")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.isLocked ? t("table.locked") : t("table.unlocked")}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.isLocked")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.isLocked ? t("table.locked") : t("table.unlocked")}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.createdAt
-                    ? new Date(academicYear.createdAt).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.createdAt
+                      ? new Date(academicYear.createdAt).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {academicYear.updatedAt
-                    ? new Date(academicYear.updatedAt).toLocaleString()
-                    : "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
+                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                    {academicYear.updatedAt
+                      ? new Date(academicYear.updatedAt).toLocaleString()
+                      : "-"}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -178,18 +183,20 @@ export function AcademicYearDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedAcademicYear && (
-            <AcademicYearForm
-              key={`edit-${selectedAcademicYear.id}`}
-              academicYear={selectedAcademicYear}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedAcademicYear && (
+              <AcademicYearForm
+                key={`edit-${selectedAcademicYear.id}`}
+                academicYear={selectedAcademicYear}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -97,15 +98,17 @@ export function TeacherDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("form.description")}</DialogDescription>
           </DialogHeader>
-          {isCreateDialogOpen && (
-            <TeacherForm
-              key={`create-teacher-form-${createFormKey}`}
-              mode="create"
-              onSubmit={onCreateSubmit}
-              onCancel={() => setIsCreateDialogOpen(false)}
-              isSubmitting={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {isCreateDialogOpen && (
+              <TeacherForm
+                key={`create-teacher-form-${createFormKey}`}
+                mode="create"
+                onSubmit={onCreateSubmit}
+                onCancel={() => setIsCreateDialogOpen(false)}
+                isSubmitting={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -116,22 +119,24 @@ export function TeacherDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("form.description")}</DialogDescription>
           </DialogHeader>
-          {formLoading ? (
-            <div className="flex min-h-[200px] items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            selectedTeacher && (
-              <TeacherForm
-                mode="edit"
-                teacher={selectedTeacher}
-                onSubmit={onUpdateSubmit}
-                onCancel={() => setIsEditDialogOpen(false)}
-                isSubmitting={isSubmitting}
-                readOnly={!isAdmin}
-              />
-            )
-          )}
+          <DialogBody>
+            {formLoading ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              selectedTeacher && (
+                <TeacherForm
+                  mode="edit"
+                  teacher={selectedTeacher}
+                  onSubmit={onUpdateSubmit}
+                  onCancel={() => setIsEditDialogOpen(false)}
+                  isSubmitting={isSubmitting}
+                  readOnly={!isAdmin}
+                />
+              )
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -147,68 +152,79 @@ export function TeacherDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(teacher) => (
-          <div className="grid gap-4">
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
-              <p className="text-base">{teacher.firstName}</p>
-            </div>
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
-              <p className="text-base">{teacher.lastName}</p>
-            </div>
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
-              <a
-                href={`mailto:${teacher.email}`}
-                className="text-primary underline-offset-2 hover:underline"
-              >
-                {teacher.email}
-              </a>
-            </div>
-            {teacher.phone && (
+          <DialogBody>
+            <div className="grid gap-4">
               <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.phone")}</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
+                <p className="text-base">{teacher.firstName}</p>
+              </div>
+              <div className="grid gap-1">
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
+                <p className="text-base">{teacher.lastName}</p>
+              </div>
+              <div className="grid gap-1">
+                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
                 <a
-                  href={`tel:${teacher.phone}`}
+                  href={`mailto:${teacher.email}`}
                   className="text-primary underline-offset-2 hover:underline"
                 >
-                  {teacher.phone}
+                  {teacher.email}
                 </a>
               </div>
-            )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
-                <p>{teacher.schoolName}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                <p>{t(`${teacher.employmentStatus}`)}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
-                <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
-              </div>
-              {teacher.usageCycle && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                  <p>{t(`${teacher.usageCycle}`)}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
+                  <p>{teacher.schoolName}</p>
                 </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                {teacher.isActive ? (
-                  <Badge variant="success">
-                    {t("status.active")}
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary">
-                    {t("status.inactive")}
-                  </Badge>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
+                  <p>{t(`${teacher.employmentStatus}`)}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
+                  <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
+                </div>
+                {teacher.usageCycle && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
+                    <p>{t(`${teacher.usageCycle}`)}</p>
+                  </div>
                 )}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
+                    <p>{teacher.schoolName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
+                    <p>{t(`form.employmentStatus.${teacher.employmentStatus}`)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
+                    <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
+                  </div>
+                  {teacher.usageCycle && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
+                      <p>{t(`form.usageCycle.${teacher.usageCycle}`)}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
+                    {teacher.isActive ? (
+                      <Badge variant="success">
+                        {t("status.active")}
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">
+                        {t("status.inactive")}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 

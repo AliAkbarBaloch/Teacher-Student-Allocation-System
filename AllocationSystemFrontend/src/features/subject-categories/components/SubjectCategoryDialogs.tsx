@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -74,12 +75,14 @@ export function SubjectCategoryDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <SubjectCategoryForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-            error={formError}
-          />
+          <DialogBody>
+            <SubjectCategoryForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+              error={formError}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -105,14 +108,16 @@ export function SubjectCategoryDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(subjectCategory) => (
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("form.fields.title")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {subjectCategory.categoryTitle}
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t("form.fields.title")}</label>
+                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                  {subjectCategory.categoryTitle}
+                </div>
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -123,19 +128,21 @@ export function SubjectCategoryDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedSubjectCategory && (
-            <SubjectCategoryForm
-              key={`edit-${selectedSubjectCategory.id}`}
-              subjectCategory={selectedSubjectCategory}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-              error={formError}
-            />
-          )}
+          <DialogBody>
+            {selectedSubjectCategory && (
+              <SubjectCategoryForm
+                key={`edit-${selectedSubjectCategory.id}`}
+                subjectCategory={selectedSubjectCategory}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+                error={formError}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
