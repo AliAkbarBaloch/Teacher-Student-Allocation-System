@@ -53,7 +53,7 @@ export default function TeacherAvailabilityPage() {
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
       if (!selectedTeacherAvailability) return;
       try {
-        await handleUpdateInternal(data, selectedTeacherAvailability.availabilityId);
+        await handleUpdateInternal(data, selectedTeacherAvailability.id);
         dialogs.edit.setIsOpen(false);
         setSelectedTeacherAvailability(null);
       } catch {
@@ -66,7 +66,7 @@ export default function TeacherAvailabilityPage() {
   const handleDelete = useCallback(async () => {
     if (!availabilityToDelete) return;
     try {
-      await handleDeleteInternal(availabilityToDelete.availabilityId);
+      await handleDeleteInternal(availabilityToDelete.id);
       dialogs.delete.setIsOpen(false);
       setAvailabilityToDelete(null);
     } catch {
@@ -105,7 +105,7 @@ export default function TeacherAvailabilityPage() {
       <DataTable
         columnConfig={columnConfig}
         data={teacherAvailabilities}
-        searchKey="teacherName"
+        searchKey="teacherFirstName"
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}

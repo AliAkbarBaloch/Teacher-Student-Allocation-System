@@ -64,6 +64,7 @@ export function TeacherAvailabilityDialogs({
   t,
 }: TeacherAvailabilityDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+
   return (
     <>
       {/* Create Dialog */}
@@ -111,53 +112,56 @@ export function TeacherAvailabilityDialogs({
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.teacherName}
+                    {availability.teacherFirstName} {availability.teacherLastName}
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.academicYearName}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.academicYearName}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.internshipType")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.internshipTypeName}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t("form.fields.internshipType")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.internshipTypeName}
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.isAvailable")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.isAvailable ? t("table.available") : t("table.notAvailable")}
+                    {availability.status === "AVAILABLE" && t("table.available")}
+                    {availability.status === "PREFERRED" && t("table.preferred")}
+                    {availability.status === "NOT_AVAILABLE" && t("table.notAvailable")}
+                    {availability.status === "BACKUP_ONLY" && t("table.backupOnly")}
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.preferenceRank")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.preferenceRank ?? "-"}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t("form.fields.preferenceRank")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.preferenceRank ?? "-"}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">{t("form.fields.notes")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.notes || "-"}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-medium">{t("form.fields.notes")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.notes || "-"}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.createdAt
-                      ? new Date(availability.createdAt).toLocaleString()
-                      : "-"}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.createdAt
+                        ? new Date(availability.createdAt).toLocaleString()
+                        : "-"}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {availability.updatedAt
-                      ? new Date(availability.updatedAt).toLocaleString()
-                      : "-"}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
+                    <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                      {availability.updatedAt
+                        ? new Date(availability.updatedAt).toLocaleString()
+                        : "-"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -173,20 +177,18 @@ export function TeacherAvailabilityDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <DialogBody>
-            {selectedTeacherAvailability && (
-              <TeacherAvailabilityForm
-                key={`edit-${selectedTeacherAvailability.availabilityId}`}
-                teacherAvailability={selectedTeacherAvailability}
-                onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)}
-                onCancel={() => {
-                  setIsEditDialogOpen(false);
-                  onSelectedChange(null);
-                }}
-                isLoading={isSubmitting}
-              />
-            )}
-          </DialogBody>
+          {selectedTeacherAvailability && (
+            <TeacherAvailabilityForm
+              key={`edit-${selectedTeacherAvailability.id}`}
+              teacherAvailability={selectedTeacherAvailability}
+              onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                onSelectedChange(null);
+              }}
+              isLoading={isSubmitting}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

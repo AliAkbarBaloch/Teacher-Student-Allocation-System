@@ -35,7 +35,7 @@ export function TeachersTableSection({
       columnConfig={columnConfig}
       data={teachers}
       enableSearch={false}
-      enableColumnVisibility={true}
+      enableColumnVisibility={false}
       enablePagination={false}
       loading={loading}
       error={null}
