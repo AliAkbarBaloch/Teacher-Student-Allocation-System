@@ -1,5 +1,6 @@
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { useState } from "react"
 
 import {
   Collapsible,
@@ -10,7 +11,6 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -40,6 +40,25 @@ export function NavMain({
   groups: NavGroup[]
 }) {
   const location = useLocation()
+  const [openItems, setOpenItems] = useState<Set<string>>(() => {
+    // Initialize with items that have active children
+    const initialOpen = new Set<string>()
+    groups.forEach((group) => {
+      group.items.forEach((item) => {
+        if (item.items?.length) {
+          const hasActiveChild = item.items.some(
+            (subItem) => location.pathname === subItem.url
+          )
+          // Always expand Base Data Management by default
+          const isBaseData = item.url.startsWith("/base-data")
+          if (hasActiveChild || isBaseData) {
+            initialOpen.add(item.title)
+          }
+        }
+      })
+    })
+    return initialOpen
+  })
 
   const isItemActive = (item: NavItem) => {
     if (item.isActive !== undefined) {
@@ -55,22 +74,9 @@ export function NavMain({
     return location.pathname === subItemUrl
   }
 
-  // Find the first item with subitems to expand by default
-  const getFirstDropdownIndex = (groups: NavGroup[]): number | null => {
-    let itemIndex = 0
-    for (const group of groups) {
-      for (const item of group.items) {
-        if (item.items && item.items.length > 0) {
-          return itemIndex
-        }
-        itemIndex++
-      }
-    }
-    return null
+  const isItemOpen = (itemTitle: string) => {
+    return openItems.has(itemTitle)
   }
-
-  const firstDropdownIndex = getFirstDropdownIndex(groups)
-  let currentItemIndex = 0
 
   return (
     <>
@@ -81,49 +87,69 @@ export function NavMain({
             {group.items.map((item) => {
               const hasSubItems = item.items && item.items.length > 0
               const itemActive = isItemActive(item)
-              const isFirstDropdown = currentItemIndex === firstDropdownIndex
-              const shouldDefaultOpen = itemActive || (isFirstDropdown && hasSubItems)
-              
-              currentItemIndex++
+              const isOpen = hasSubItems ? isItemOpen(item.title) : false
               
               return (
-                <Collapsible key={item.title} asChild defaultOpen={shouldDefaultOpen}>
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  open={isOpen}
+                  onOpenChange={(open) => {
+                    if (hasSubItems) {
+                      setOpenItems((prev) => {
+                        const next = new Set(prev)
+                        if (open) {
+                          next.add(item.title)
+                        } else {
+                          next.delete(item.title)
+                        }
+                        return next
+                      })
+                    }
+                  }}
+                >
                   <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      isActive={!hasSubItems && itemActive}
-                    >
-                      <Link to={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
                     {hasSubItems ? (
-                      <>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuAction className="data-[state=open]:rotate-90">
-                            <ChevronRight />
-                            <span className="sr-only">Toggle</span>
-                          </SidebarMenuAction>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.items?.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  isActive={isSubItemActive(subItem.url)}
-                                >
-                                  <Link to={subItem.url}>
-                                    <span>{subItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={false}
+                          className="group"
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                    ) : (
+                      <SidebarMenuButton
+                        asChild
+                        tooltip={item.title}
+                        isActive={itemActive}
+                      >
+                        <Link to={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    )}
+                    {hasSubItems ? (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items?.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isSubItemActive(subItem.url)}
+                              >
+                                <Link to={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
                     ) : null}
                   </SidebarMenuItem>
                 </Collapsible>

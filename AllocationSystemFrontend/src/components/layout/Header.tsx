@@ -10,11 +10,11 @@ export default function Header() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-(--brand-border) bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_1px_0_0_var(--brand-border)]">
+    <header className="sticky top-0 z-50 w-full border-b border-(--brand-border) bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-[0_1px_0_0_var(--brand-border)]">
       <Container className="flex h-16 items-center justify-between">
         {/* Left Side - Logo and Navigation */}
         <div className="flex items-center gap-4 lg:gap-8">
-          <Logo size="sm" showText={false} className="flex-shrink-0" />
+          <Logo size="sm" showText={false} className="shrink-0" />
           <Navigation />
         </div>
 
