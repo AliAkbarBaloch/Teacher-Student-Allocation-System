@@ -19,6 +19,7 @@ import enAcademicYears from "./locales/en/academicYears.json";
 import enTeacherSubjects from "./locales/en/teacherSubjects.json";
 import enTeacherAvailability from "./locales/en/teacherAvailability.json";
 import enZoneConstraints from "./locales/en/zoneConstraints.json";
+import enAllocationPlans from "./locales/en/allocationPlans.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -36,6 +37,7 @@ import deAcademicYears from "./locales/de/academicYears.json";
 import deTeacherSubjects from "./locales/de/teacherSubjects.json";
 import deTeacherAvailability from "./locales/de/teacherAvailability.json";
 import deZoneConstraints from "./locales/de/zoneConstraints.json";
+import deAllocationPlans from "./locales/de/allocationPlans.json";
 
 // Language metadata configuration
 export const languages = [
@@ -69,6 +71,7 @@ export const resources = {
         teacherSubjects: enTeacherSubjects,
         teacherAvailability: enTeacherAvailability,
         zoneConstraints: enZoneConstraints,
+        allocationPlans: enAllocationPlans,
     },
     de: {
         common: deCommon,
@@ -87,6 +90,7 @@ export const resources = {
         teacherSubjects: deTeacherSubjects,
         teacherAvailability: deTeacherAvailability,
         zoneConstraints: deZoneConstraints,
+        allocationPlans: deAllocationPlans,
     }
 } as const;
 

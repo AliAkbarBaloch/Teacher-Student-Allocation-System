@@ -62,16 +62,6 @@ export function useZoneConstraintsColumnConfig(): ColumnConfig[] {
         typeof value === "string" ? new Date(value).toLocaleString() : "-",
       width: "160px",
       maxWidth: "200px",
-    },
-    {
-      field: "updatedAt",
-      title: t("table.updatedAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) =>
-        typeof value === "string" ? new Date(value).toLocaleString() : "-",
-      width: "160px",
-      maxWidth: "200px",
-    },
+    }
   ];
 }

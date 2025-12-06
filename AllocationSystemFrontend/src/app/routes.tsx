@@ -22,6 +22,7 @@ import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
+import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -136,7 +137,7 @@ export const router = createBrowserRouter([
       // Allocation Planning
       {
         path: ROUTES.allocationPlanning.allocationPlans,
-        element: withSuspense(<div>Allocation Plans</div>),
+        element: withSuspense(<AllocationPlanPage />),
       },
       {
         path: ROUTES.allocationPlanning.teacherAssignments,
