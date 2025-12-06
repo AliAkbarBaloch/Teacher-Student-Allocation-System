@@ -12,7 +12,7 @@ import type {
   ImportStep,
 } from "../types/teacher.types";
 
-export function useBulkImport() {
+export function useBulkImport(onImportComplete?: () => void) {
   const [step, setStep] = useState<ImportStep>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedTeacherRow[]>([]);
@@ -131,6 +131,8 @@ export function useBulkImport() {
 
       if (results.successfulRows > 0) {
         toast.success(`Successfully imported ${results.successfulRows} teachers`);
+        // Call the callback immediately after successful import to refresh the table
+        onImportComplete?.();
       }
       if (results.failedRows > 0) {
         toast.error(`${results.failedRows} teachers failed to import`);
@@ -158,7 +160,7 @@ export function useBulkImport() {
     } finally {
       setIsLoading(false);
     }
-  }, [file, validationResult]);
+  }, [file, validationResult, onImportComplete]);
 
   // Reset to start over
   const reset = useCallback(() => {

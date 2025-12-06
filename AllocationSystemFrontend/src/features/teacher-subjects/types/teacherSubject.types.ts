@@ -5,9 +5,9 @@
 export interface TeacherSubject {
   id: number;
   academicYearId: number;
-  academicYearName: string;
+  academicYearTitle: string;
   teacherId: number;
-  teacherName: string;
+  teacherTitle: string;
   subjectId: number;
   subjectCode: string;
   subjectTitle: string;

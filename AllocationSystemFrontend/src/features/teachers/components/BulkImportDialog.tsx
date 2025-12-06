@@ -35,25 +35,19 @@ export function BulkImportDialog({
     handleImport,
     reset,
     startNewImport,
-  } = useBulkImport();
+  } = useBulkImport(onImportComplete);
 
   const handleClose = (open: boolean) => {
     // When open is false, it means the dialog should be closed
     if (!open) {
       reset();
       onOpenChange(false);
-      if (onImportComplete && step === "results") {
-        onImportComplete();
-      }
     }
   };
 
   const handleCloseDialog = () => {
     reset();
     onOpenChange(false);
-    if (onImportComplete && step === "results") {
-      onImportComplete();
-    }
   };
 
   const handleImportMore = () => {

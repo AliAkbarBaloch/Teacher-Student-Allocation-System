@@ -71,22 +71,6 @@ export function useAcademicYearsColumnConfig(): ColumnConfig[] {
           <Badge variant="success">{t("table.unlocked")}</Badge>
         );
       },
-    },
-    {
-      field: "createdAt",
-      title: t("table.createdAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) =>
-        typeof value === "string" ? new Date(value).toLocaleString() : "-",
-    },
-    {
-      field: "updatedAt",
-      title: t("table.updatedAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) =>
-        typeof value === "string" ? new Date(value).toLocaleString() : "-",
-    },
+    }
   ];
 }
