@@ -31,7 +31,6 @@ import { TeacherInfoSection } from "./components/TeacherInfoSection";
 import { SchoolSelectionSection } from "./components/SchoolSelectionSection";
 import { SubjectSelectionSection } from "./components/SubjectSelectionSection";
 import { AvailabilitySection } from "./components/AvailabilitySection";
-import { InternshipPreferencesSection } from "./components/InternshipPreferencesSection";
 import { SemesterAvailabilitySection } from "./components/SemesterAvailabilitySection";
 import { NotesSection } from "./components/NotesSection";
 
@@ -40,8 +39,6 @@ interface FormData {
   employmentStatus: EmploymentStatus | "";
   notes: string;
   subjectIds: number[];
-  internshipTypePreference: string;
-  internshipCombinations: string[];
   semesterAvailability: string[];
   availabilityOptions: string[];
 }
@@ -67,8 +64,6 @@ export default function TeacherFormPage() {
     employmentStatus: "",
     notes: "",
     subjectIds: [],
-    internshipTypePreference: "",
-    internshipCombinations: [],
     semesterAvailability: [],
     availabilityOptions: [],
   });
@@ -134,16 +129,6 @@ export default function TeacherFormPage() {
       return;
     }
     
-    if (!formData.internshipTypePreference) {
-      toast.error(t("publicForm.validation.internshipTypeRequired"));
-      return;
-    }
-    
-    if (formData.internshipTypePreference === "specific" && formData.internshipCombinations.length === 0) {
-      toast.error(t("publicForm.validation.internshipCombinationsRequired"));
-      return;
-    }
-    
     if (formData.semesterAvailability.length === 0) {
       toast.error(t("publicForm.validation.semesterAvailabilityRequired"));
       return;
@@ -156,8 +141,8 @@ export default function TeacherFormPage() {
         employmentStatus: formData.employmentStatus,
         notes: formData.notes,
         subjectIds: formData.subjectIds,
-        internshipTypePreference: formData.internshipTypePreference,
-        internshipCombinations: formData.internshipCombinations,
+        internshipTypePreference: "",
+        internshipCombinations: [],
         semesterAvailability: formData.semesterAvailability,
         availabilityOptions: formData.availabilityOptions,
       });
@@ -236,8 +221,6 @@ export default function TeacherFormPage() {
     formData.employmentStatus !== "" &&
     formData.subjectIds.length > 0 &&
     formData.availabilityOptions.length >= 2 &&
-    formData.internshipTypePreference !== "" &&
-    (formData.internshipTypePreference !== "specific" || formData.internshipCombinations.length > 0) &&
     formData.semesterAvailability.length > 0;
 
   return (
@@ -296,22 +279,6 @@ export default function TeacherFormPage() {
               <AvailabilitySection
                 availabilityOptions={formData.availabilityOptions}
                 onChange={(options) => setFormData({ ...formData, availabilityOptions: options })}
-                t={t}
-              />
-
-              <InternshipPreferencesSection
-                internshipTypePreference={formData.internshipTypePreference}
-                internshipCombinations={formData.internshipCombinations}
-                onTypeChange={(type) =>
-                  setFormData({
-                    ...formData,
-                    internshipTypePreference: type,
-                    internshipCombinations: type !== "specific" ? [] : formData.internshipCombinations,
-                  })
-                }
-                onCombinationsChange={(combinations) =>
-                  setFormData({ ...formData, internshipCombinations: combinations })
-                }
                 t={t}
               />
 

@@ -183,7 +183,7 @@ export function TeacherDialogs({
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                <p>{t(`form.employmentStatus.${teacher.employmentStatus}`)}</p>
+                <p>{t(`${teacher.employmentStatus}`)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
@@ -192,7 +192,7 @@ export function TeacherDialogs({
               {teacher.usageCycle && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                  <p>{t(`form.usageCycle.${teacher.usageCycle}`)}</p>
+                  <p>{t(`${teacher.usageCycle}`)}</p>
                 </div>
               )}
               <div>

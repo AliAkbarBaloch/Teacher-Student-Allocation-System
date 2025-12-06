@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import type {
   TeacherAvailability,
   CreateTeacherAvailabilityRequest,
   UpdateTeacherAvailabilityRequest,
+  AvailabilityStatus,
 } from "../types/teacherAvailability.types";
 import type { Teacher } from "@/features/teachers/types/teacher.types";
 import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
@@ -24,7 +25,9 @@ import { InternshipTypeService } from "@/features/internship-types/services/inte
 
 interface TeacherAvailabilityFormProps {
   teacherAvailability?: TeacherAvailability | null;
-  onSubmit: (data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -40,13 +43,15 @@ export function TeacherAvailabilityForm({
   const { t } = useTranslation("teacherAvailability");
   const { t: tCommon } = useTranslation("common");
 
-  const [formData, setFormData] = useState<CreateTeacherAvailabilityRequest>(() => {
+  const [formData, setFormData] = useState<
+    CreateTeacherAvailabilityRequest & { status: AvailabilityStatus }
+  >(() => {
     if (teacherAvailability) {
       return {
         teacherId: teacherAvailability.teacherId,
         academicYearId: teacherAvailability.academicYearId,
         internshipTypeId: teacherAvailability.internshipTypeId,
-        isAvailable: teacherAvailability.isAvailable,
+        status: teacherAvailability.status || "AVAILABLE",
         preferenceRank: teacherAvailability.preferenceRank ?? null,
         notes: teacherAvailability.notes ?? "",
       };
@@ -55,7 +60,7 @@ export function TeacherAvailabilityForm({
       teacherId: 0,
       academicYearId: 0,
       internshipTypeId: 0,
-      isAvailable: true,
+      status: "AVAILABLE",
       preferenceRank: null,
       notes: "",
     };
@@ -67,7 +72,9 @@ export function TeacherAvailabilityForm({
   const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [loadingAcademicYears, setLoadingAcademicYears] = useState(true);
   const [loadingInternshipTypes, setLoadingInternshipTypes] = useState(true);
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateTeacherAvailabilityRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateTeacherAvailabilityRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -118,7 +125,7 @@ export function TeacherAvailabilityForm({
         teacherId: teacherAvailability.teacherId,
         academicYearId: teacherAvailability.academicYearId,
         internshipTypeId: teacherAvailability.internshipTypeId,
-        isAvailable: teacherAvailability.isAvailable,
+        status: teacherAvailability.status || "AVAILABLE",
         preferenceRank: teacherAvailability.preferenceRank ?? null,
         notes: teacherAvailability.notes ?? "",
       });
@@ -127,7 +134,7 @@ export function TeacherAvailabilityForm({
         teacherId: 0,
         academicYearId: 0,
         internshipTypeId: 0,
-        isAvailable: true,
+        status: "AVAILABLE",
         preferenceRank: null,
         notes: "",
       });
@@ -136,7 +143,9 @@ export function TeacherAvailabilityForm({
   }, [teacherAvailability]);
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateTeacherAvailabilityRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateTeacherAvailabilityRequest, string>
+    > = {};
 
     if (!formData.teacherId || formData.teacherId <= 0) {
       newErrors.teacherId = t("form.errors.teacherRequired");
@@ -147,7 +156,14 @@ export function TeacherAvailabilityForm({
     if (!formData.internshipTypeId || formData.internshipTypeId <= 0) {
       newErrors.internshipTypeId = t("form.errors.internshipTypeRequired");
     }
-    if (formData.preferenceRank !== null && formData.preferenceRank !== undefined && formData.preferenceRank <= 0) {
+    if (!formData.status) {
+      newErrors.status = t("form.errors.isAvailableRequired");
+    }
+    if (
+      formData.preferenceRank !== null &&
+      formData.preferenceRank !== undefined &&
+      formData.preferenceRank <= 0
+    ) {
       newErrors.preferenceRank = t("form.errors.preferenceRankPositive");
     }
     setErrors(newErrors);
@@ -161,7 +177,7 @@ export function TeacherAvailabilityForm({
     try {
       if (teacherAvailability) {
         const updateData: UpdateTeacherAvailabilityRequest = {
-          isAvailable: formData.isAvailable,
+          status: formData.status,
           preferenceRank: formData.preferenceRank,
           notes: formData.notes,
         };
@@ -171,7 +187,7 @@ export function TeacherAvailabilityForm({
           teacherId: formData.teacherId,
           academicYearId: formData.academicYearId,
           internshipTypeId: formData.internshipTypeId,
-          isAvailable: formData.isAvailable,
+          status: formData.status,
           preferenceRank: formData.preferenceRank,
           notes: formData.notes,
         };
@@ -182,7 +198,10 @@ export function TeacherAvailabilityForm({
     }
   };
 
-  const handleChange = (field: keyof CreateTeacherAvailabilityRequest, value: string | number | boolean | null) => {
+  const handleChange = (
+    field: keyof CreateTeacherAvailabilityRequest,
+    value: string | number | boolean | null | AvailabilityStatus
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -199,7 +218,7 @@ export function TeacherAvailabilityForm({
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 col-span-1">
+        <div className="space-y-2 min-w-0">
           <label htmlFor="teacherId" className="text-sm font-medium">
             {t("form.fields.teacher")}
             <span className="text-destructive ml-1">*</span>
@@ -209,7 +228,11 @@ export function TeacherAvailabilityForm({
             onValueChange={(value) => handleChange("teacherId", Number(value))}
             disabled={isLoading || isSubmitting || loadingTeachers}
           >
-            <SelectTrigger className={errors.teacherId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={`w-full ${
+                errors.teacherId ? "border-destructive" : ""
+              }`}
+            >
               <SelectValue placeholder={t("form.placeholders.teacher")} />
             </SelectTrigger>
             <SelectContent>
@@ -231,17 +254,25 @@ export function TeacherAvailabilityForm({
           )}
         </div>
 
-        <div className="space-y-2 col-span-1">
+        <div className="space-y-2 min-w-0">
           <label htmlFor="academicYearId" className="text-sm font-medium">
             {t("form.fields.academicYear")}
             <span className="text-destructive ml-1">*</span>
           </label>
           <Select
-            value={formData.academicYearId > 0 ? String(formData.academicYearId) : ""}
-            onValueChange={(value) => handleChange("academicYearId", Number(value))}
+            value={
+              formData.academicYearId > 0 ? String(formData.academicYearId) : ""
+            }
+            onValueChange={(value) =>
+              handleChange("academicYearId", Number(value))
+            }
             disabled={isLoading || isSubmitting || loadingAcademicYears}
           >
-            <SelectTrigger className={errors.academicYearId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={`w-full ${
+                errors.academicYearId ? "border-destructive" : ""
+              }`}
+            >
               <SelectValue placeholder={t("form.placeholders.academicYear")} />
             </SelectTrigger>
             <SelectContent>
@@ -263,18 +294,30 @@ export function TeacherAvailabilityForm({
           )}
         </div>
 
-        <div className="space-y-2 col-span-1">
+        <div className="space-y-2 min-w-0">
           <label htmlFor="internshipTypeId" className="text-sm font-medium">
             {t("form.fields.internshipType")}
             <span className="text-destructive ml-1">*</span>
           </label>
           <Select
-            value={formData.internshipTypeId > 0 ? String(formData.internshipTypeId) : ""}
-            onValueChange={(value) => handleChange("internshipTypeId", Number(value))}
+            value={
+              formData.internshipTypeId > 0
+                ? String(formData.internshipTypeId)
+                : ""
+            }
+            onValueChange={(value) =>
+              handleChange("internshipTypeId", Number(value))
+            }
             disabled={isLoading || isSubmitting || loadingInternshipTypes}
           >
-            <SelectTrigger className={errors.internshipTypeId ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.internshipType")} />
+            <SelectTrigger
+              className={`w-full ${
+                errors.internshipTypeId ? "border-destructive" : ""
+              }`}
+            >
+              <SelectValue
+                placeholder={t("form.placeholders.internshipType")}
+              />
             </SelectTrigger>
             <SelectContent>
               {internshipTypes.length === 0 && !loadingInternshipTypes ? (
@@ -291,31 +334,46 @@ export function TeacherAvailabilityForm({
             </SelectContent>
           </Select>
           {errors.internshipTypeId && (
-            <p className="text-sm text-destructive">{errors.internshipTypeId}</p>
+            <p className="text-sm text-destructive">
+              {errors.internshipTypeId}
+            </p>
           )}
         </div>
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="isAvailable" className="text-sm font-medium">
+        <div className="space-y-2 min-w-0">
+          <label htmlFor="status" className="text-sm font-medium">
             {t("form.fields.isAvailable")}
             <span className="text-destructive ml-1">*</span>
           </label>
           <Select
-            value={formData.isAvailable ? "true" : "false"}
-            onValueChange={(value) => handleChange("isAvailable", value === "true")}
+            value={formData.status}
+            onValueChange={(value) =>
+              handleChange("status", value as AvailabilityStatus)
+            }
             disabled={isLoading || isSubmitting}
           >
-            <SelectTrigger className={errors.isAvailable ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={`w-full ${errors.status ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder={t("form.placeholders.isAvailable")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="true">{t("table.available")}</SelectItem>
-              <SelectItem value="false">{t("table.notAvailable")}</SelectItem>
+              <SelectItem value="AVAILABLE">{t("table.available")}</SelectItem>
+              <SelectItem value="PREFERRED">{t("table.preferred")}</SelectItem>
+              <SelectItem value="NOT_AVAILABLE">
+                {t("table.notAvailable")}
+              </SelectItem>
+              <SelectItem value="BACKUP_ONLY">
+                {t("table.backupOnly")}
+              </SelectItem>
             </SelectContent>
           </Select>
+          {errors.status && (
+            <p className="text-sm text-destructive">{errors.status}</p>
+          )}
         </div>
 
-        <div className="space-y-2 col-span-1">
+        <div className="space-y-2 min-w-0">
           <label htmlFor="preferenceRank" className="text-sm font-medium">
             {t("form.fields.preferenceRank")}
           </label>
@@ -324,18 +382,22 @@ export function TeacherAvailabilityForm({
             type="number"
             value={formData.preferenceRank ?? ""}
             onChange={(e) =>
-              handleChange("preferenceRank", e.target.value === "" ? null : Number(e.target.value))
+              handleChange(
+                "preferenceRank",
+                e.target.value === "" ? null : Number(e.target.value)
+              )
             }
             placeholder={t("form.placeholders.preferenceRank")}
             disabled={isLoading || isSubmitting}
             min={1}
+            className="w-full"
           />
           {errors.preferenceRank && (
             <p className="text-sm text-destructive">{errors.preferenceRank}</p>
           )}
         </div>
 
-        <div className="space-y-2 md:col-span-2">
+        <div className="space-y-2 md:col-span-2 min-w-0">
           <label htmlFor="notes" className="text-sm font-medium">
             {t("form.fields.notes")}
           </label>
@@ -346,6 +408,7 @@ export function TeacherAvailabilityForm({
             placeholder={t("form.placeholders.notes")}
             disabled={isLoading || isSubmitting}
             maxLength={1000}
+            className="w-full"
           />
         </div>
       </div>

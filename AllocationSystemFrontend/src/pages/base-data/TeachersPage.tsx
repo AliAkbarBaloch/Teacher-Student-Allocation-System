@@ -65,12 +65,9 @@ export default function TeachersPage() {
   };
 
   const handleOpenEdit = async (teacher: Teacher) => {
-    try {
       await fetchTeacherDetails(teacher.id);
       dialogs.edit.setIsOpen(true);
-    } catch {
-      // Error already handled
-    }
+
   };
 
   const handleEdit = async () => {
@@ -80,21 +77,15 @@ export default function TeachersPage() {
   };
 
   const handleCreateSubmit = async (payload: CreateTeacherRequest) => {
-    try {
       await handleCreateSubmitInternal(payload);
       dialogs.create.setIsOpen(false);
-    } catch {
-      // Error already handled
-    }
   };
 
   const handleUpdateSubmit = async (payload: UpdateTeacherRequest) => {
-    try {
       await handleUpdateSubmitInternal(payload);
+      // Success toast is shown in the hook
       dialogs.edit.setIsOpen(false);
-    } catch {
-      // Error already handled
-    }
+    
   };
 
   const openStatusDialog = (teacher: Teacher) => {
@@ -110,25 +101,18 @@ export default function TeachersPage() {
 
   const confirmStatusChange = async () => {
     if (!statusTarget.teacher) return;
-    try {
       await handleStatusChange(statusTarget.teacher, statusTarget.nextState);
       setIsStatusDialogOpen(false);
       setStatusTarget({ teacher: null, nextState: false });
       setWarningMessage(null);
-    } catch {
-      // Error already handled (warning message set if needed)
-    }
   };
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    try {
       await handleDelete(deleteTarget);
+      // Success toast is shown in the hook
       dialogs.delete.setIsOpen(false);
       setDeleteTarget(null);
-    } catch {
-      // Error already handled
-    }
   };
 
   const handleOpenCreateWithDialog = () => {
