@@ -40,14 +40,14 @@ export function NavMain({
   groups: NavGroup[]
 }) {
   const location = useLocation()
-  const [openItems, setOpenItems] = useState<Set<string>>(() => {
-    // Initialize with items that have active children
+  
+  const initializeOpenItems = (groups: NavGroup[], pathname: string) => {
     const initialOpen = new Set<string>()
     groups.forEach((group) => {
       group.items.forEach((item) => {
         if (item.items?.length) {
           const hasActiveChild = item.items.some(
-            (subItem) => location.pathname === subItem.url
+            (subItem) => pathname === subItem.url
           )
           // Always expand Base Data Management by default
           const isBaseData = item.url.startsWith("/base-data")
@@ -58,7 +58,11 @@ export function NavMain({
       })
     })
     return initialOpen
-  })
+  }
+  
+  const [openItems, setOpenItems] = useState<Set<string>>(() =>
+    initializeOpenItems(groups, location.pathname)
+  )
 
   const isItemActive = (item: NavItem) => {
     if (item.isActive !== undefined) {
