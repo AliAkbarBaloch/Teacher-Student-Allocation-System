@@ -1,0 +1,78 @@
+{
+  "title": "Protokolle der Planänderungen",
+  "subtitle": "Verwalten Sie Datensätze zu Planänderungsprotokollen und verfolgen Sie Änderungen an Zuteilungsplänen.",
+  "table": {
+    "id": "ID",
+    "planId": "Plan-ID",
+    "changeType": "Änderungstyp",
+    "entityType": "Entitätstyp",
+    "entityId": "Entitäts-ID",
+    "oldValue": "Alter Wert",
+    "newValue": "Neuer Wert",
+    "reason": "Grund",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Plan-Änderungsprotokolle gefunden.",
+    "searchPlaceholder": "Plan-Änderungsprotokolle suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Plan-Änderungsprotokoll erstellen",
+      "edit": "Plan-Änderungsprotokoll bearbeiten",
+      "view": "Details zum Plan-Änderungsprotokoll"
+    },
+    "fields": {
+      "id": "ID",
+      "planId": "Plan-ID",
+      "changeType": "Änderungstyp",
+      "entityType": "Entitätstyp",
+      "entityId": "Entitäts-ID",
+      "oldValue": "Alter Wert",
+      "newValue": "Neuer Wert",
+      "reason": "Grund",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "planId": "Plan-ID eingeben",
+      "changeType": "Änderungstyp eingeben",
+      "entityType": "Entitätstyp eingeben",
+      "entityId": "Entitäts-ID eingeben",
+      "oldValue": "Alten Wert eingeben (optional)",
+      "newValue": "Neuen Wert eingeben (optional)",
+      "reason": "Grund eingeben (optional)"
+    },
+    "errors": {
+      "planIdRequired": "Plan-ID ist erforderlich",
+      "changeTypeRequired": "Änderungstyp ist erforderlich",
+      "changeTypeMaxLength": "Der Änderungstyp darf nicht länger als 50 Zeichen sein",
+      "entityTypeRequired": "Entitätstyp ist erforderlich",
+      "entityTypeMaxLength": "Der Entitätstyp darf nicht länger als 100 Zeichen sein",
+      "entityIdRequired": "Entitäts-ID ist erforderlich",
+      "reasonMaxLength": "Der Grund darf 500 Zeichen nicht überschreiten"
+    }
+  },
+  "actions": {
+    "create": "Plan-Änderungsprotokoll erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Plan-Änderungsprotokoll löschen",
+    "message": "Möchten Sie dieses Plan-Änderungsprotokoll wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Plan-Änderungsprotokoll erfolgreich gelöscht",
+    "error": "Löschen des Plan-Änderungsprotokolls fehlgeschlagen"
+  },
+  "create": {
+    "success": "Plan-Änderungsprotokoll erfolgreich erstellt",
+    "error": "Erstellen des Plan-Änderungsprotokolls fehlgeschlagen"
+  },
+  "update": {
+    "success": "Plan-Änderungsprotokoll erfolgreich aktualisiert",
+    "error": "Aktualisierung des Plan-Änderungsprotokolls fehlgeschlagen"
+  }
+}

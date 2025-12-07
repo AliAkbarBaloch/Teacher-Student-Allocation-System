@@ -24,6 +24,7 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
+import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -154,7 +155,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.allocationPlanning.planChangeLogs,
-        element: withSuspense(<div>Plan Change Logs</div>),
+        element: withSuspense(<PlanChangeLogsPage />),
       },
       // Reports
       {

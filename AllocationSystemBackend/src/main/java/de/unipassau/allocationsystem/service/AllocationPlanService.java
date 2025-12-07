@@ -1,15 +1,30 @@
 package de.unipassau.allocationsystem.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.constant.PlanChangeTypes;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.constant.PlanChangeTypes;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -20,20 +35,6 @@ import de.unipassau.allocationsystem.repository.UserRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service for managing allocation plans with versioning and status workflow.
@@ -178,10 +179,8 @@ public class AllocationPlanService {
 
         // Log plan creation in plan change log
         try {
-            Long currentUserId = resolveCurrentUserId();
             planChangeLogService.logPlanChange(
                 saved.getId(),
-                currentUserId,
                 PlanChangeTypes.CREATE,
                 AuditEntityNames.ALLOCATION_PLAN,
                 saved.getId(),
@@ -246,17 +245,15 @@ public class AllocationPlanService {
 
         // Log update
         try {
-            Long currentUserId = resolveCurrentUserId();
-                planChangeLogService.logPlanChange(
-                    updated.getId(),
-                    currentUserId,
-                    PlanChangeTypes.UPDATE,
-                    AuditEntityNames.ALLOCATION_PLAN,
-                    updated.getId(),
-                    oldDto,
-                    allocationPlanMapper.toResponseDto(updated),
-                    "Updated allocation plan"
-                );
+            planChangeLogService.logPlanChange(
+                updated.getId(),
+                PlanChangeTypes.UPDATE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                updated.getId(),
+                oldDto,
+                allocationPlanMapper.toResponseDto(updated),
+                "Updated allocation plan"
+            );
         } catch (Exception e) {
             log.warn("Failed to create plan change log for updated plan id {}", updated.getId(), e);
         }
@@ -301,17 +298,15 @@ public class AllocationPlanService {
 
         // Log status change
         try {
-            Long currentUserId = resolveCurrentUserId();
-                planChangeLogService.logPlanChange(
-                    updated.getId(),
-                    currentUserId,
-                    PlanChangeTypes.STATUS_CHANGE,
-                    AuditEntityNames.ALLOCATION_PLAN,
-                    updated.getId(),
-                    "isCurrent=false",
-                    "isCurrent=true",
-                    "Set as current plan"
-                );
+            planChangeLogService.logPlanChange(
+                updated.getId(),
+                PlanChangeTypes.STATUS_CHANGE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                updated.getId(),
+                "isCurrent=false",
+                "isCurrent=true",
+                "Set as current plan"
+            );
         } catch (Exception e) {
             log.warn("Failed to create plan change log for setCurrent plan id {}", updated.getId(), e);
         }
@@ -354,17 +349,15 @@ public class AllocationPlanService {
 
         // Log status change to ARCHIVED
         try {
-            Long currentUserId = resolveCurrentUserId();
-                planChangeLogService.logPlanChange(
-                    updated.getId(),
-                    currentUserId,
-                    PlanChangeTypes.STATUS_CHANGE,
-                    AuditEntityNames.ALLOCATION_PLAN,
-                    updated.getId(),
-                    "status=" + plan.getStatus(),
-                    "status=" + AllocationPlan.PlanStatus.ARCHIVED,
-                    "Archived allocation plan"
-                );
+            planChangeLogService.logPlanChange(
+                updated.getId(),
+                PlanChangeTypes.STATUS_CHANGE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                updated.getId(),
+                "status=" + plan.getStatus(),
+                "status=" + AllocationPlan.PlanStatus.ARCHIVED,
+                "Archived allocation plan"
+            );
         } catch (Exception e) {
             log.warn("Failed to create plan change log for archived plan id {}", updated.getId(), e);
         }
