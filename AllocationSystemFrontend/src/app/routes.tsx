@@ -23,6 +23,7 @@ import RolesPage from "@/pages/roles/RolesPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
+import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -141,7 +142,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.allocationPlanning.teacherAssignments,
-        element: withSuspense(<div>Teacher Assignments</div>),
+        element: withSuspense(<TeacherAssignmentPage />),
       },
       {
         path: ROUTES.allocationPlanning.creditHourTracking,
