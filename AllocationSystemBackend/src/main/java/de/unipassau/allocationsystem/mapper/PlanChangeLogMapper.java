@@ -1,12 +1,12 @@
 package de.unipassau.allocationsystem.mapper;
 
-import de.unipassau.allocationsystem.dto.planchangelog.PlanChangeLogDto;
+import de.unipassau.allocationsystem.dto.planchangelog.PlanChangeLogCreateDto;
+import de.unipassau.allocationsystem.dto.planchangelog.PlanChangeLogUpdateDto;
+import de.unipassau.allocationsystem.dto.planchangelog.PlanChangeLogResponseDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.PlanChangeLog;
-import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
-import de.unipassau.allocationsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,63 +15,96 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class PlanChangeLogMapper {
+public class PlanChangeLogMapper implements BaseMapper<PlanChangeLog, PlanChangeLogCreateDto, PlanChangeLogUpdateDto, PlanChangeLogResponseDto> {
 
-    private final UserRepository userRepository;
     private final AllocationPlanRepository allocationPlanRepository;
 
-        public PlanChangeLog toEntity(PlanChangeLogDto dto) {
+    @Override
+    public PlanChangeLog toEntityCreate(PlanChangeLogCreateDto dto) {
         if (dto == null) {
             return null;
         }
-
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
-
-        AllocationPlan plan = allocationPlanRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + dto.getPlanId()));
-
-        PlanChangeLog.PlanChangeLogBuilder builder = PlanChangeLog.builder()
-                .allocationPlan(plan)
-                .user(user)
-            .changeType(dto.getChangeType())
-                .entityType(dto.getEntityType())
-                .entityId(dto.getEntityId())
-                .oldValue(dto.getOldValue())
-                .newValue(dto.getNewValue())
-                .eventTimestamp(dto.getEventTimestamp())
-                .reason(dto.getReason());
-
-        if (dto.getId() != null && dto.getId() > 0) {
-            builder.id(dto.getId());
+        PlanChangeLog entity = new PlanChangeLog();
+        if (dto.getPlanId() != null) {
+            AllocationPlan plan = allocationPlanRepository.findById(dto.getPlanId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + dto.getPlanId()));
+            entity.setAllocationPlan(plan);
         }
-
-        return builder.build();
+        entity.setChangeType(dto.getChangeType());
+        entity.setEntityType(dto.getEntityType());
+        entity.setEntityId(dto.getEntityId());
+        entity.setOldValue(dto.getOldValue());
+        entity.setNewValue(dto.getNewValue());
+        entity.setReason(dto.getReason());
+        return entity;
     }
 
-    public PlanChangeLogDto toDto(PlanChangeLog entity) {
+    @Override
+    public PlanChangeLog toEntityUpdate(PlanChangeLogUpdateDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        PlanChangeLog entity = new PlanChangeLog();
+        entity.setChangeType(dto.getChangeType());
+        entity.setEntityType(dto.getEntityType());
+        entity.setEntityId(dto.getEntityId());
+        entity.setOldValue(dto.getOldValue());
+        entity.setNewValue(dto.getNewValue());
+        entity.setReason(dto.getReason());
+        return entity;
+    }
+
+    @Override
+    public PlanChangeLogResponseDto toResponseDto(PlanChangeLog entity) {
         if (entity == null) {
             return null;
         }
-
-        return PlanChangeLogDto.builder()
-                .id(entity.getId())
-                .planId(entity.getAllocationPlan() != null ? entity.getAllocationPlan().getId() : null)
-                .userId(entity.getUser() != null ? entity.getUser().getId() : null)
-                .changeType(entity.getChangeType())
-                .entityType(entity.getEntityType())
-                .entityId(entity.getEntityId())
-                .oldValue(entity.getOldValue())
-                .newValue(entity.getNewValue())
-                .eventTimestamp(entity.getEventTimestamp())
-                .reason(entity.getReason())
-                .build();
+        return new PlanChangeLogResponseDto(
+                entity.getId(),
+                entity.getAllocationPlan() != null ? entity.getAllocationPlan().getId() : null,
+                entity.getChangeType(),
+                entity.getEntityType(),
+                entity.getEntityId(),
+                entity.getOldValue(),
+                entity.getNewValue(),
+                entity.getReason(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
     }
 
-    public List<PlanChangeLogDto> toDtoList(List<PlanChangeLog> entities) {
+    @Override
+    public List<PlanChangeLogResponseDto> toResponseDtoList(List<PlanChangeLog> entities) {
         if (entities == null) {
             return null;
         }
-        return entities.stream().map(this::toDto).collect(Collectors.toList());
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateEntityFromDto(PlanChangeLogUpdateDto dto, PlanChangeLog entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
+        if (dto.getChangeType() != null) {
+            entity.setChangeType(dto.getChangeType());
+        }
+        if (dto.getEntityType() != null) {
+            entity.setEntityType(dto.getEntityType());
+        }
+        if (dto.getEntityId() != null) {
+            entity.setEntityId(dto.getEntityId());
+        }
+        if (dto.getOldValue() != null) {
+            entity.setOldValue(dto.getOldValue());
+        }
+        if (dto.getNewValue() != null) {
+            entity.setNewValue(dto.getNewValue());
+        }
+        if (dto.getReason() != null) {
+            entity.setReason(dto.getReason());
+        }
     }
 }
