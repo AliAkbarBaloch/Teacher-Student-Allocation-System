@@ -22,6 +22,7 @@ import enZoneConstraints from "./locales/en/zoneConstraints.json";
 import enAllocationPlans from "./locales/en/allocationPlans.json";
 import enTeacherAssignments from "./locales/en/teacherAssignments.json";
 import enPlanChangeLogs from "./locales/en/planChangeLogs.json";
+import enCreditHourTracking from "./locales/en/creditHourTracking.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -42,6 +43,7 @@ import deZoneConstraints from "./locales/de/zoneConstraints.json";
 import deAllocationPlans from "./locales/de/allocationPlans.json";
 import deTeacherAssignments from "./locales/de/teacherAssignments.json";
 import dePlanChangeLogs from "./locales/de/planChangeLogs.json";
+import deCreditHourTracking from "./locales/de/creditHourTracking.json";
 
 // Language metadata configuration
 export const languages = [
@@ -78,6 +80,7 @@ export const resources = {
         allocationPlans: enAllocationPlans,
         teacherAssignments: enTeacherAssignments,
         planChangeLogs: enPlanChangeLogs,
+        creditHourTracking: enCreditHourTracking,
     },
     de: {
         common: deCommon,
@@ -99,6 +102,7 @@ export const resources = {
         allocationPlans: deAllocationPlans,
         teacherAssignments: deTeacherAssignments,
         planChangeLogs: dePlanChangeLogs,
+        creditHourTracking: deCreditHourTracking,
     }
 } as const;
 
@@ -118,7 +122,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions", "zoneConstraints", "teacherAssignments", "planChangeLogs"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions", "zoneConstraints", "teacherAssignments", "planChangeLogs", "creditHourTracking"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",

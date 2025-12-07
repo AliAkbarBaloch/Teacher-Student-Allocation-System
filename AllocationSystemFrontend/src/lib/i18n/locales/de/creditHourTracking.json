@@ -1,0 +1,78 @@
+{
+  "title": "Leistungspunkte-Verfolgung",
+  "subtitle": "Überwachen und verwalten Sie die Lehrern pro akademisches Jahr zugewiesenen Leistungspunkte.",
+  "table": {
+    "teacher": "Lehrer",
+    "academicYear": "Akademisches Jahr",
+    "assignmentsCount": "Zuweisungen",
+    "creditHoursAllocated": "Zugewiesene Stunden",
+    "creditBalance": "Saldo",
+    "notes": "Notizen",
+    "createdAt": "Erstellt",
+    "empty": "Keine Leistungspunkte-Verfolgungseinträge gefunden.",
+    "emptyDescription": "Leistungspunkte-Verfolgungseinträge werden hier angezeigt, sobald Lehrerzuweisungen erstellt wurden.",
+    "noFilteredResults": "Keine Ergebnisse entsprechen Ihren Filtern",
+    "noFilteredResultsDescription": "Versuchen Sie, Ihre Filter anzupassen, um mehr Ergebnisse zu sehen.",
+    "filteredResults": "gefiltert",
+    "searchPlaceholder": "Nach Lehrername suchen...",
+    "perPage": "pro Seite",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pagination": {
+      "display": "Zeige {{from}} bis {{to}} von {{total}} Einträgen"
+    }
+  },
+  "filters": {
+    "title": "Filter",
+    "subtitle": "Filtern Sie die Leistungspunkte-Verfolgung nach akademischem Jahr, Lehrer oder Saldo.",
+    "yearLabel": "Akademisches Jahr",
+    "yearPlaceholder": "Alle Jahre",
+    "loadingYears": "Jahre werden geladen...",
+    "teacherLabel": "Lehrer",
+    "teacherPlaceholder": "Nach Lehrername oder E-Mail suchen",
+    "minBalanceLabel": "Min. Saldo",
+    "minBalancePlaceholder": "Mindestsaldo",
+    "reset": "Filter zurücksetzen"
+  },
+  "form": {
+    "title": {
+      "view": "Leistungspunkte-Verfolgungsdetails",
+      "edit": "Leistungspunkte-Verfolgung bearbeiten"
+    },
+    "fields": {
+      "teacher": "Lehrer",
+      "academicYear": "Akademisches Jahr",
+      "assignmentsCount": "Anzahl der Zuweisungen",
+      "creditHoursAllocated": "Zugewiesene Leistungspunkte",
+      "creditBalance": "Leistungspunkte-Saldo",
+      "notes": "Notizen",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "notes": "Notizen zu diesem Leistungspunkte-Verfolgungseintrag eingeben..."
+    },
+    "editNotes": "Notizen bearbeiten",
+    "noNotes": "Keine Notizen verfügbar"
+  },
+  "actions": {
+    "view": "Details anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen"
+  },
+  "delete": {
+    "title": "Leistungspunkte-Verfolgungseintrag löschen",
+    "message": "Sind Sie sicher, dass Sie diesen Leistungspunkte-Verfolgungseintrag löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "confirm": "Löschen"
+  },
+  "notifications": {
+    "updateSuccess": "Leistungspunkte-Verfolgungseintrag erfolgreich aktualisiert",
+    "deleteSuccess": "Leistungspunkte-Verfolgungseintrag erfolgreich gelöscht"
+  },
+  "errors": {
+    "loadFailed": "Leistungspunkte-Verfolgungseinträge konnten nicht geladen werden",
+    "updateFailed": "Leistungspunkte-Verfolgungseintrag konnte nicht aktualisiert werden",
+    "deleteFailed": "Leistungspunkte-Verfolgungseintrag konnte nicht gelöscht werden"
+  }
+}
