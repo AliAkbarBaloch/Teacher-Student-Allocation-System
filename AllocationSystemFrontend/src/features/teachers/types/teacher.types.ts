@@ -1,6 +1,14 @@
-export type EmploymentStatus = "FULL_TIME" | "PART_TIME" | "ON_LEAVE" | "CONTRACT" | "PROBATION" | "RETIRED";
+  export type EmploymentStatus =
+    | "ACTIVE"
+    | "INACTIVE_THIS_YEAR"
+    | "ON_LEAVE"
+    | "ARCHIVED";
 
-export type UsageCycle = "SEMESTER_1" | "SEMESTER_2" | "FULL_YEAR" | "QUARTERLY";
+export type UsageCycle =
+  | "GRADES_1_2"
+  | "GRADES_3_4"
+  | "GRADES_5_TO_9"
+  | "FLEXIBLE";
 
 export interface Teacher {
   id: number;

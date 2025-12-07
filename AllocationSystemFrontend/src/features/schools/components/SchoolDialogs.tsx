@@ -176,7 +176,7 @@ export function SchoolDialogs({
                   <p className="whitespace-pre-line">{school.transportAccessibility}</p>
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-4">
                 {school.latitude && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{t("form.fields.latitude")}</p>

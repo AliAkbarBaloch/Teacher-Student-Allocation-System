@@ -112,7 +112,7 @@ export function TeacherFormSubmissionDialogs({
               </div>
             )}
           </DialogBody>
-          <DialogFooter>
+          <DialogFooter className="p-2">
             <Button
               variant="outline"
               onClick={() => {

@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import type { ParsedTeacherRow, EmploymentStatus, UsageCycle } from "../types/teacher.types";
+import { EMPLOYMENT_STATUS_OPTIONS, USAGE_CYCLE_OPTIONS } from "@/lib/constants/teachers";
 
 /**
  * Column mapping for Excel file
@@ -58,14 +59,7 @@ function parseBoolean(value: unknown): boolean {
 function parseEmploymentStatus(value: unknown): EmploymentStatus | null {
   if (typeof value !== "string") return null;
   const normalized = value.trim().toUpperCase().replace(/[_\s-]/g, "_");
-  const validStatuses: EmploymentStatus[] = [
-    "FULL_TIME",
-    "PART_TIME",
-    "ON_LEAVE",
-    "CONTRACT",
-    "PROBATION",
-    "RETIRED",
-  ];
+  const validStatuses: EmploymentStatus[] = EMPLOYMENT_STATUS_OPTIONS;
   return validStatuses.includes(normalized as EmploymentStatus) ? (normalized as EmploymentStatus) : null;
 }
 
@@ -76,7 +70,7 @@ function parseUsageCycle(value: unknown): UsageCycle | null {
   if (typeof value === "undefined" || value === null || value === "") return null;
   if (typeof value !== "string") return null;
   const normalized = value.trim().toUpperCase().replace(/[_\s-]/g, "_");
-  const validCycles: UsageCycle[] = ["SEMESTER_1", "SEMESTER_2", "FULL_YEAR", "QUARTERLY"];
+  const validCycles: UsageCycle[] = USAGE_CYCLE_OPTIONS;
   return validCycles.includes(normalized as UsageCycle) ? (normalized as UsageCycle) : null;
 }
 
@@ -166,7 +160,7 @@ export async function parseExcelFile(file: File): Promise<ParsedTeacherRow[]> {
             columnIndices.employmentStatus !== -1
               ? getCellValue(row, columnIndices.employmentStatus)
               : "";
-          const employmentStatus = parseEmploymentStatus(employmentStatusValue) || "FULL_TIME"; // Default
+          const employmentStatus = parseEmploymentStatus(employmentStatusValue) || "ACTIVE"; // Default
 
           const isPartTimeValue =
             columnIndices.isPartTime !== -1 ? getCellValue(row, columnIndices.isPartTime) : "false";

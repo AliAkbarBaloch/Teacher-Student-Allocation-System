@@ -124,12 +124,10 @@
     "employmentStatus": "Beschäftigungsstatus",
     "selectEmploymentStatus": "Wählen Sie den Beschäftigungsstatus",
     "employmentStatusOptions": {
-      "FULL_TIME": "Vollzeit",
-      "PART_TIME": "Teilzeit",
+      "ACTIVE": "Aktiv",
+      "INACTIVE_THIS_YEAR": "Nicht aktiv für dieses Jahr",
       "ON_LEAVE": "Beurlaubt",
-      "CONTRACT": "Vertrag",
-      "PROBATION": "Probezeit",
-      "RETIRED": "Pensioniert"
+      "ARCHIVED": "Archiviert"
     },
     "subjects": "Fächer, die Sie unterrichten",
     "selectSubjects": "Fächer auswählen",
