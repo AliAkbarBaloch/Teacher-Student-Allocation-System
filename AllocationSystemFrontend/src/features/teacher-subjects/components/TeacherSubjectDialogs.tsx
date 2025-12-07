@@ -64,6 +64,24 @@ export function TeacherSubjectDialogs({
   t,
 }: TeacherSubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+  
+  const getAvailabilityStatusLabel = (status: string | null | undefined): string => {
+    if (!status) return t("table.available");
+    
+    switch (status) {
+      case "AVAILABLE":
+        return t("table.available");
+      case "NOT_AVAILABLE":
+        return t("table.notAvailable");
+      case "LIMITED":
+        return t("table.limited");
+      case "PREFERRED":
+        return t("table.preferred");
+      default:
+        return t("table.available");
+    }
+  };
+  
   return (
     <>
       {/* Create Dialog */}
@@ -147,15 +165,7 @@ export function TeacherSubjectDialogs({
                     {t("form.fields.availabilityStatus")}
                   </label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.availabilityStatus ? 
-                    teacherSubject.availabilityStatus === "AVAILABLE" ? t("table.available") : 
-                    teacherSubject.availabilityStatus === "NOT_AVAILABLE" ? t("table.notAvailable") : 
-                    teacherSubject.availabilityStatus === "LIMITED" ? t("table.limited") : 
-                    teacherSubject.availabilityStatus === "PREFERRED" ? t("table.preferred") : t("table.available") 
-                    .split("_")
-                    .join(" ")
-                    : t("table.available")
-                    }
+                    {getAvailabilityStatusLabel(teacherSubject.availabilityStatus)}
                   </div>
                 </div>
                 <div className="space-y-2">
