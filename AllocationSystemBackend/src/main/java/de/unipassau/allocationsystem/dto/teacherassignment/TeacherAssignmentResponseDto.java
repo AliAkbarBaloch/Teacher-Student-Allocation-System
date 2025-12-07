@@ -1,12 +1,13 @@
 package de.unipassau.allocationsystem.dto.teacherassignment;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TeacherAssignmentResponseDto {
     private Long id;
     private Long planId;

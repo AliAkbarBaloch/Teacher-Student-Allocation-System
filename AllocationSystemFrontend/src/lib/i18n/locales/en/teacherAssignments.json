@@ -1,0 +1,94 @@
+{
+  "title": "Teacher Assignments",
+  "subtitle": "Manage teacher assignment records and configurations",
+  "table": {
+    "planId": "Plan ID",
+    "teacherId": "Teacher ID",
+    "internshipTypeId": "Internship Type ID",
+    "subjectId": "Subject ID",
+    "studentGroupSize": "Student Group Size",
+    "assignmentStatus": "Assignment Status",
+    "isManualOverride": "Manual Override",
+    "notes": "Notes",
+    "assignedAt": "Assigned At",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "emptyMessage": "No teacher assignments found.",
+    "searchPlaceholder": "Search teacher assignments...",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "form": {
+    "title": {
+      "create": "Create Teacher Assignment",
+      "edit": "Edit Teacher Assignment",
+      "view": "Teacher Assignment Details"
+    },
+    "fields": {
+      "planId": "Plan ID",
+      "teacherId": "Teacher ID",
+      "internshipTypeId": "Internship Type ID",
+      "subjectId": "Subject ID",
+      "studentGroupSize": "Student Group Size",
+      "assignmentStatus": "Assignment Status",
+      "isManualOverride": "Manual Override",
+      "notes": "Notes",
+      "assignedAt": "Assigned At",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "planId": "Enter plan ID",
+      "teacherId": "Enter teacher ID",
+      "internshipTypeId": "Enter internship type ID",
+      "subjectId": "Enter subject ID",
+      "studentGroupSize": "Enter group size",
+      "notes": "Enter notes (optional)"
+    },
+    "errors": {
+      "planRequired": "Plan ID is required",
+      "teacherRequired": "Teacher ID is required",
+      "internshipTypeRequired": "Internship Type ID is required",
+      "subjectRequired": "Subject ID is required",
+      "groupSizeMin": "Student group size must be at least 1",
+      "statusRequired": "Assignment status is required",
+      "notesMaxLength": "Notes must not exceed 5000 characters"
+    },
+    "status": {
+      "planned": "Planned",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "on_hold": "On Hold"
+    },
+    "actions": {
+      "create": "Create Teacher Assignment",
+      "update": "Update Teacher Assignment",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Teacher Assignment",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Teacher Assignment",
+    "message": "Are you sure you want to delete this teacher assignment? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Teacher assignment deleted successfully",
+    "error": "Failed to delete teacher assignment"
+  },
+  "create": {
+    "success": "Teacher assignment created successfully",
+    "error": "Failed to create teacher assignment"
+  },
+  "update": {
+    "success": "Teacher assignment updated successfully",
+    "error": "Failed to update teacher assignment"
+  }
+}

@@ -96,7 +96,6 @@ class AllocationPlanControllerTest {
         testPlan.setStatus(PlanStatus.DRAFT);
         testPlan.setNotes("Test Description");
         testPlan.setIsCurrent(true);
-        testPlan.setCreatedByUser(user);
         testPlan = allocationPlanRepository.save(testPlan);
     }
 
@@ -108,8 +107,8 @@ class AllocationPlanControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.message", is("Allocation plans retrieved successfully")))
-                .andExpect(jsonPath("$.data.items", hasSize(1)))
-                .andExpect(jsonPath("$.data.items[0].planName", is("Test Plan")));
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].planName", is("Test Plan")));
     }
 
     @Test
@@ -119,7 +118,7 @@ class AllocationPlanControllerTest {
                         .param("yearId", academicYear.getId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.data.items", hasSize(1)));
+                .andExpect(jsonPath("$.data", hasSize(1)));
     }
 
     @Test
@@ -165,7 +164,6 @@ class AllocationPlanControllerTest {
         createDto.setStatus(PlanStatus.DRAFT);
         createDto.setNotes("New Description");
         createDto.setIsCurrent(false);
-        createDto.setCreatedByUserId(user.getId());
 
         mockMvc.perform(post("/api/allocation-plans")
                         .with(csrf())
@@ -229,7 +227,6 @@ class AllocationPlanControllerTest {
         anotherPlan.setStatus(PlanStatus.APPROVED);
         anotherPlan.setNotes("Another Description");
         anotherPlan.setIsCurrent(false);
-        anotherPlan.setCreatedByUser(user);
         anotherPlan = allocationPlanRepository.save(anotherPlan);
 
         mockMvc.perform(post("/api/allocation-plans/" + anotherPlan.getId() + "/current")

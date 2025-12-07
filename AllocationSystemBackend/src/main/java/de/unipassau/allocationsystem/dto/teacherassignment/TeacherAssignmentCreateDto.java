@@ -3,12 +3,17 @@ package de.unipassau.allocationsystem.dto.teacherassignment;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TeacherAssignmentCreateDto {
+
+    @NotNull(message = "planId is required")
+    private Long planId;
 
     @NotNull(message = "teacherId is required")
     private Long teacherId;
@@ -19,6 +24,7 @@ public class TeacherAssignmentCreateDto {
     @NotNull(message = "subjectId is required")
     private Long subjectId;
 
+    @NotNull(message = "studentGroupSize is required")
     @Min(value = 1, message = "studentGroupSize must be at least 1")
     private Integer studentGroupSize = 1;
 
@@ -28,5 +34,6 @@ public class TeacherAssignmentCreateDto {
 
     private Boolean isManualOverride = false;
 
+    @Size(max = 5000, message = "Notes must not exceed 5000 characters")
     private String notes;
 }

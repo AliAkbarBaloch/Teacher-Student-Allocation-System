@@ -72,7 +72,6 @@ class PlanChangeLogControllerTest {
         testPlan.setPlanVersion("v1");
         testPlan.setStatus(AllocationPlan.PlanStatus.DRAFT);
         testPlan.setAcademicYear(year);
-        testPlan.setCreatedByUser(testUser);
         testPlan = allocationPlanRepository.save(testPlan);
 
         PlanChangeLog log = PlanChangeLog.builder()
