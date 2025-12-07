@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for AllocationPlanService.
+ * Unit tests for AllocationPlanService (updated to the latest service version).
  */
 @ExtendWith(MockitoExtension.class)
 class AllocationPlanServiceTest {
@@ -48,6 +48,9 @@ class AllocationPlanServiceTest {
 
     @Mock
     private AllocationPlanMapper allocationPlanMapper;
+
+    @Mock
+    private PlanChangeLogService planChangeLogService;
 
     @InjectMocks
     private AllocationPlanService allocationPlanService;
@@ -66,7 +69,7 @@ class AllocationPlanServiceTest {
         testYear.setId(1L);
         testYear.setYearName("2024/2025");
 
-        // Setup test user
+        // Setup test user (not directly used by createPlan in current service but kept)
         testUser = new User();
         testUser.setId(1L);
         testUser.setEmail("admin@example.com");
@@ -80,7 +83,6 @@ class AllocationPlanServiceTest {
         testPlan.setPlanName("Initial Draft");
         testPlan.setPlanVersion("v1.0");
         testPlan.setStatus(PlanStatus.DRAFT);
-        testPlan.setCreatedByUser(testUser);
         testPlan.setIsCurrent(false);
         testPlan.setNotes("Test plan");
         testPlan.setCreatedAt(LocalDateTime.now());
@@ -92,7 +94,6 @@ class AllocationPlanServiceTest {
         createDto.setPlanName("New Plan");
         createDto.setPlanVersion("v2.0");
         createDto.setStatus(PlanStatus.DRAFT);
-        createDto.setCreatedByUserId(1L);
         createDto.setIsCurrent(false);
         createDto.setNotes("New plan notes");
 
@@ -111,9 +112,6 @@ class AllocationPlanServiceTest {
                 .planVersion("v1.0")
                 .status(PlanStatus.DRAFT)
                 .statusDisplayName("Draft")
-                .createdByUserId(1L)
-                .createdByUserName("Admin User")
-                .createdByUserEmail("admin@example.com")
                 .isCurrent(false)
                 .notes("Test plan")
                 .createdAt(LocalDateTime.now())
@@ -121,7 +119,30 @@ class AllocationPlanServiceTest {
                 .build();
     }
 
-    // ========== GET ALL PLANS TESTS ==========
+    // ========== NEW: GET SORT FIELDS & GET ALL ==========
+
+    @Test
+    void getSortFields_ShouldReturnConfiguredFields() {
+        var fields = allocationPlanService.getSortFields();
+        assertNotNull(fields);
+        assertEquals(7, fields.size());
+        assertEquals("id", fields.get(0).get("key"));
+    }
+
+    @Test
+    void getAll_ShouldReturnAllPlans() {
+        List<AllocationPlan> plans = List.of(testPlan);
+        when(allocationPlanRepository.findAll()).thenReturn(plans);
+
+        List<AllocationPlan> result = allocationPlanService.getAll();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(testPlan.getId(), result.get(0).getId());
+        verify(allocationPlanRepository).findAll();
+    }
+
+    // ========== GET ALL PLANS (paginated) ==========
 
     @Test
     void getAllPlans_Success() {
@@ -149,29 +170,15 @@ class AllocationPlanServiceTest {
         verify(allocationPlanRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
-    @Test
-    void getAllPlans_MissingYearId_ThrowsException() {
-        // Arrange
-        Map<String, String> queryParams = new HashMap<>();
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () ->
-            allocationPlanService.getAllPlans(null, null, null, queryParams)
-        );
-    }
-
     // ========== GET PLAN BY ID TESTS ==========
 
     @Test
     void getPlanById_Success() {
-        // Arrange
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.getPlanById(1L);
 
-        // Assert
         assertNotNull(result);
         assertEquals(responseDto.getId(), result.getId());
         verify(allocationPlanRepository).findById(1L);
@@ -179,12 +186,9 @@ class AllocationPlanServiceTest {
 
     @Test
     void getPlanById_NotFound_ThrowsException() {
-        // Arrange
         when(allocationPlanRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.getPlanById(999L)
+                allocationPlanService.getPlanById(999L)
         );
     }
 
@@ -192,90 +196,50 @@ class AllocationPlanServiceTest {
 
     @Test
     void createPlan_Success() {
-        // Arrange
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(testYear));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(allocationPlanRepository.existsByAcademicYearIdAndPlanVersion(1L, "v2.0"))
                 .thenReturn(false);
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.createPlan(createDto);
 
-        // Assert
         assertNotNull(result);
         verify(academicYearRepository).findById(1L);
-        verify(userRepository).findById(1L);
         verify(allocationPlanRepository).save(any(AllocationPlan.class));
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
     void createPlan_AcademicYearNotFound_ThrowsException() {
-        // Arrange
         when(academicYearRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.createPlan(createDto)
-        );
-    }
-
-    @Test
-    void createPlan_UserNotFound_ThrowsException() {
-        // Arrange
-        when(academicYearRepository.findById(1L)).thenReturn(Optional.of(testYear));
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.createPlan(createDto)
-        );
-    }
-
-    @Test
-    void createPlan_InactiveUser_ThrowsException() {
-        // Arrange
-        testUser.setEnabled(false);
-        when(academicYearRepository.findById(1L)).thenReturn(Optional.of(testYear));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () ->
-            allocationPlanService.createPlan(createDto)
+                allocationPlanService.createPlan(createDto)
         );
     }
 
     @Test
     void createPlan_DuplicateVersion_ThrowsException() {
-        // Arrange
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(testYear));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(allocationPlanRepository.existsByAcademicYearIdAndPlanVersion(1L, "v2.0"))
                 .thenReturn(true);
 
-        // Act & Assert
         assertThrows(DuplicateResourceException.class, () ->
-            allocationPlanService.createPlan(createDto)
+                allocationPlanService.createPlan(createDto)
         );
     }
 
     @Test
     void createPlan_WithIsCurrent_UnsetsOtherPlans() {
-        // Arrange
         createDto.setIsCurrent(true);
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(testYear));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(allocationPlanRepository.existsByAcademicYearIdAndPlanVersion(1L, "v2.0"))
                 .thenReturn(false);
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.createPlan(createDto);
 
-        // Assert
         assertNotNull(result);
         verify(allocationPlanRepository).unsetCurrentForYear(1L);
         verify(allocationPlanRepository).save(any(AllocationPlan.class));
@@ -285,58 +249,46 @@ class AllocationPlanServiceTest {
 
     @Test
     void updatePlan_Success() {
-        // Arrange
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.updatePlan(1L, updateDto);
 
-        // Assert
         assertNotNull(result);
         verify(allocationPlanRepository).findById(1L);
-        verify(allocationPlanMapper).updateEntityFromDto(testPlan, updateDto);
+        verify(allocationPlanMapper).updateEntityFromDto(updateDto, testPlan);
         verify(allocationPlanRepository).save(testPlan);
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
     void updatePlan_NotFound_ThrowsException() {
-        // Arrange
         when(allocationPlanRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.updatePlan(999L, updateDto)
+                allocationPlanService.updatePlan(999L, updateDto)
         );
     }
 
     @Test
     void updatePlan_ArchivedPlan_ThrowsException() {
-        // Arrange
         testPlan.setStatus(PlanStatus.ARCHIVED);
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
-
-        // Act & Assert
         assertThrows(IllegalArgumentException.class, () ->
-            allocationPlanService.updatePlan(1L, updateDto)
+                allocationPlanService.updatePlan(1L, updateDto)
         );
     }
 
     @Test
     void updatePlan_SetIsCurrent_UnsetsOtherPlans() {
-        // Arrange
         updateDto.setIsCurrent(true);
         testPlan.setIsCurrent(false);
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.updatePlan(1L, updateDto);
 
-        // Assert
         assertNotNull(result);
         verify(allocationPlanRepository).unsetCurrentForYearExcept(1L, 1L);
         verify(allocationPlanRepository).save(testPlan);
@@ -346,41 +298,32 @@ class AllocationPlanServiceTest {
 
     @Test
     void setCurrentPlan_Success() {
-        // Arrange
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.setCurrentPlan(1L);
 
-        // Assert
         assertNotNull(result);
         verify(allocationPlanRepository).unsetCurrentForYearExcept(1L, 1L);
         verify(allocationPlanRepository).save(testPlan);
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
     void setCurrentPlan_NotFound_ThrowsException() {
-        // Arrange
         when(allocationPlanRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.setCurrentPlan(999L)
+                allocationPlanService.setCurrentPlan(999L)
         );
     }
 
     @Test
     void setCurrentPlan_ArchivedPlan_ThrowsException() {
-        // Arrange
         testPlan.setStatus(PlanStatus.ARCHIVED);
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
-
-        // Act & Assert
         assertThrows(IllegalArgumentException.class, () ->
-            allocationPlanService.setCurrentPlan(1L)
+                allocationPlanService.setCurrentPlan(1L)
         );
     }
 
@@ -388,41 +331,32 @@ class AllocationPlanServiceTest {
 
     @Test
     void archivePlan_Success() {
-        // Arrange
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
         when(allocationPlanRepository.save(any(AllocationPlan.class))).thenReturn(testPlan);
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.archivePlan(1L);
 
-        // Assert
         assertNotNull(result);
         verify(allocationPlanRepository).findById(1L);
         verify(allocationPlanRepository).save(testPlan);
-        // Audit logging is now handled by @Audited annotation via AOP
+        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
     void archivePlan_NotFound_ThrowsException() {
-        // Arrange
         when(allocationPlanRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.archivePlan(999L)
+                allocationPlanService.archivePlan(999L)
         );
     }
 
     @Test
     void archivePlan_AlreadyArchived_ThrowsException() {
-        // Arrange
         testPlan.setStatus(PlanStatus.ARCHIVED);
         when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(testPlan));
-
-        // Act & Assert
         assertThrows(IllegalArgumentException.class, () ->
-            allocationPlanService.archivePlan(1L)
+                allocationPlanService.archivePlan(1L)
         );
     }
 
@@ -430,15 +364,12 @@ class AllocationPlanServiceTest {
 
     @Test
     void getCurrentPlanForYear_Success() {
-        // Arrange
         when(allocationPlanRepository.findByAcademicYearIdAndIsCurrentTrue(1L))
                 .thenReturn(Optional.of(testPlan));
         when(allocationPlanMapper.toResponseDto(testPlan)).thenReturn(responseDto);
 
-        // Act
         AllocationPlanResponseDto result = allocationPlanService.getCurrentPlanForYear(1L);
 
-        // Assert
         assertNotNull(result);
         assertEquals(responseDto.getId(), result.getId());
         verify(allocationPlanRepository).findByAcademicYearIdAndIsCurrentTrue(1L);
@@ -446,13 +377,11 @@ class AllocationPlanServiceTest {
 
     @Test
     void getCurrentPlanForYear_NotFound_ThrowsException() {
-        // Arrange
         when(allocationPlanRepository.findByAcademicYearIdAndIsCurrentTrue(999L))
                 .thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(ResourceNotFoundException.class, () ->
-            allocationPlanService.getCurrentPlanForYear(999L)
+                allocationPlanService.getCurrentPlanForYear(999L)
         );
     }
 }
