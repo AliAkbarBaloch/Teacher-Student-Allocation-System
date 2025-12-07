@@ -178,7 +178,7 @@ export function TeacherDialogs({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                  <p>{t(`${teacher.employmentStatus}`)}</p>
+                  <p className="normal-case">{t(`${teacher.employmentStatus}`)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
@@ -191,24 +191,7 @@ export function TeacherDialogs({
                   </div>
                 )}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
-                    <p>{teacher.schoolName}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                    <p>{t(`form.employmentStatus.${teacher.employmentStatus}`)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
-                    <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
-                  </div>
-                  {teacher.usageCycle && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                      <p>{t(`form.usageCycle.${teacher.usageCycle}`)}</p>
-                    </div>
-                  )}
+
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
                     {teacher.isActive ? (

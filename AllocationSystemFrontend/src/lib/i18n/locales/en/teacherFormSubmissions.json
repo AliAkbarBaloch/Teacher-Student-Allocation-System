@@ -124,12 +124,10 @@
     "employmentStatus": "Employment Status",
     "selectEmploymentStatus": "Select employment status",
     "employmentStatusOptions": {
-      "FULL_TIME": "Full Time",
-      "PART_TIME": "Part Time",
-      "ON_LEAVE": "On Leave",
-      "CONTRACT": "Contract",
-      "PROBATION": "Probation",
-      "RETIRED": "Retired"
+      "ACTIVE": "Active",
+      "INACTIVE_THIS_YEAR": "Inactive this year",
+      "ON_LEAVE": "On leave",
+      "ARCHIVED": "Archived"
     },
     "subjects": "Subjects You Teach",
     "selectSubjects": "Select subjects",

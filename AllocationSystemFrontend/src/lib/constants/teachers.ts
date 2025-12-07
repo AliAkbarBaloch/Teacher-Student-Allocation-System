@@ -5,12 +5,10 @@ import type { EmploymentStatus, UsageCycle } from "@/features/teachers/types/tea
  * Single source of truth for employment status values
  */
 export const EMPLOYMENT_STATUS_OPTIONS: EmploymentStatus[] = [
-  "FULL_TIME",
-  "PART_TIME",
-  "ON_LEAVE",
-  "CONTRACT",
-  "PROBATION",
-  "RETIRED",
+  "ACTIVE", // Available for assignment
+  "INACTIVE_THIS_YEAR", // Marked "nicht" for this specific year
+  "ON_LEAVE", // Sabbatical/Parental leave
+  "ARCHIVED", // No longer in the system (Retired/Left)
 ];
 
 /**
@@ -18,9 +16,9 @@ export const EMPLOYMENT_STATUS_OPTIONS: EmploymentStatus[] = [
  * Single source of truth for usage cycle values
  */
 export const USAGE_CYCLE_OPTIONS: UsageCycle[] = [
-  "SEMESTER_1",
-  "SEMESTER_2",
-  "FULL_YEAR",
-  "QUARTERLY",
+  "GRADES_1_2",
+  "GRADES_3_4",
+  "GRADES_5_TO_9",
+  "FLEXIBLE",
 ];
 

@@ -81,10 +81,10 @@ export const INTERNSHIP_TYPE_CODES = {
  * Timing options
  */
 export const TIMING_OPTIONS = [
-  { value: "Autumn (lecture-free period)", label: "Autumn (lecture-free period)" },
-  { value: "Spring (lecture-free period)", label: "Spring (lecture-free period)" },
-  { value: "Winter semester (Wednesdays)", label: "Winter semester (Wednesdays)" },
-  { value: "Summer semester (Wednesdays)", label: "Summer semester (Wednesdays)" },
+  { value: "Autumn", label: "Autumn" },
+  { value: "Spring", label: "Spring" },
+  { value: "Winter", label: "Winter" },
+  { value: "Summer", label: "Summer" },
 ] as const;
 
 /**
@@ -99,8 +99,8 @@ export const PERIOD_TYPE_OPTIONS = [
  * Semester options
  */
 export const SEMESTER_OPTIONS = [
-  { value: "1st", label: "1st Semester" },
-  { value: "2nd", label: "2nd Semester" },
+  { value: "1", label: "1st Semester" },
+  { value: "2", label: "2nd Semester" },
 ] as const;
 
 

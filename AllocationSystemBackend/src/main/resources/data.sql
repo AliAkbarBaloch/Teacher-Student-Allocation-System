@@ -97,11 +97,11 @@ VALUES
 -- Linking teachers to what they are allowed to supervise.
 INSERT INTO TEACHER_SUBJECTS (id, year_id, teacher_id, subject_id, availability_status, created_at, updated_at)
 VALUES
-    (1, 1, 1, 1, 'Available', NOW(), NOW()), -- Hans teaches German
-    (2, 1, 1, 2, 'Available', NOW(), NOW()), -- Hans teaches Math
-    (3, 1, 2, 4, 'Available', NOW(), NOW()), -- Anna teaches HSU
-    (4, 1, 3, 3, 'Available', NOW(), NOW()), -- Peter teaches English (Critical subject)
-    (5, 1, 4, 1, 'Available', NOW(), NOW()); -- Julia teaches German
+    (1, 1, 1, 1, 'AVAILABLE', NOW(), NOW()), -- Hans teaches German
+    (2, 1, 1, 2, 'AVAILABLE', NOW(), NOW()), -- Hans teaches Math
+    (3, 1, 2, 4, 'AVAILABLE', NOW(), NOW()), -- Anna teaches HSU
+    (4, 1, 3, 3, 'AVAILABLE', NOW(), NOW()), -- Peter teaches English (Critical subject)
+    (5, 1, 4, 1, 'AVAILABLE', NOW(), NOW()); -- Julia teaches German
 
 -- 9. TEACHER_AVAILABILITY
 -- Preferences submitted by teachers or imported via Excel.
