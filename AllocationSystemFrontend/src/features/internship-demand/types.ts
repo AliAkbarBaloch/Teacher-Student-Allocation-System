@@ -44,6 +44,6 @@ export interface DemandFormState
 export type CreateDemandPayload = Omit<
 
 InternshipDemand,
-"id" | "updateAt"
+"id" | "updatedAt"
 
 >;

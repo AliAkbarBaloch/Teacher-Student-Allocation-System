@@ -22,6 +22,8 @@ import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
 import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
 import TeacherAvailabilityPage from "@/pages/base-data/TeacherAvailabilityPage";
 
+import InternshipDemandPerYearPage from "@/pages/internship-demand/InternshipDemandPerYearPage";
+
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
     <div className="flex items-center justify-center min-h-screen">
@@ -130,7 +132,7 @@ export const router = createBrowserRouter([
       // Internship Demand
       {
         path: ROUTES.internshipDemand.demandPerYear,
-        element: withSuspense(<div>Internship Demand per Year</div>),
+        element: withSuspense(<InternshipDemandPerYearPage />),
       },
       // Allocation Planning
       {

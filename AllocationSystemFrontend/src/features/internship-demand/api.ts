@@ -1,4 +1,4 @@
-import {
+import type {
     InternshipDemand, 
     DemandFilter, 
     CreateDemandPayload,
@@ -81,7 +81,7 @@ async function handleResponse(res: Response)
 // async function fetchInternshipDemand - defines an asynchronous function 
 // input - filter : DemandFilter - an object describing filter options 
 // output - eventually gives you a list (array) of InternshipDemand objects.
-async function fetchInternshipDemand(filter: DemandFilter): Promise<InternshipDemand[]>
+export async function fetchInternshipDemand(filter: DemandFilter): Promise<InternshipDemand[]>
 {
 
     // fetch - is a build in browser function to make HTTP requests 
@@ -139,7 +139,7 @@ export async function updateInternshipDemand(
 {
     // calls eg /internship-demand/123 
     // PUT - HTTP verb for "update/replace"
-    const res = await fetch(`${BASE_URL}/{id}`, 
+    const res = await fetch(`${BASE_URL}/${id}`, 
         {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
@@ -154,7 +154,7 @@ export async function updateInternshipDemand(
 // delete an internship demand entry 
 // id - record id 
 // no data retutned - just success or error 
-export async function deleteIntershipDemand(id: string) : Promise<void> {
+export async function deleteInternshipDemand(id: string) : Promise<void> {
 
     // no body, just the method and cookies 
     const res = await fetch(`${BASE_URL}/${id}`,
