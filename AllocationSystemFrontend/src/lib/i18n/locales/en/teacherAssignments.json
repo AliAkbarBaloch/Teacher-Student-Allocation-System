@@ -44,6 +44,7 @@
       "internshipTypeId": "Enter internship type ID",
       "subjectId": "Enter subject ID",
       "studentGroupSize": "Enter group size",
+      "assignmentStatus": "Select assignment status",
       "notes": "Enter notes (optional)"
     },
     "errors": {
