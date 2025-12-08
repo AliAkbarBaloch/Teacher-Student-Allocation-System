@@ -1,5 +1,5 @@
 // react
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 // translation
 import { useTranslation } from "react-i18next";
 // hooks
@@ -7,7 +7,6 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCreditHourTrackingPage } from "@/features/credit-hour-tracking/hooks/useCreditHourTrackingPage";
 import { useCreditHourTrackingFiltersExtended } from "@/features/credit-hour-tracking/hooks/useCreditHourTrackingFiltersExtended";
 import { useCreditHourTrackingDialogs } from "@/features/credit-hour-tracking/hooks/useCreditHourTrackingDialogs";
-import { useCreditHourTrackingPagination } from "@/features/credit-hour-tracking/hooks/useCreditHourTrackingPagination";
 // components
 import { DataTable } from "@/components/common/DataTable";
 import { CreditHourTrackingFiltersContainer } from "@/features/credit-hour-tracking/components/CreditHourTrackingFiltersContainer";
@@ -48,16 +47,29 @@ export default function CreditHourTrackingPage() {
     }
   );
 
-  // Pagination logic
-  const { paginationSummary, handlePageChange, handlePageSizeChange } = useCreditHourTrackingPagination({
-    pagination,
-    filteredEntries: filters.filteredEntries,
-    hasClientFilters: filters.hasClientFilters,
-    filterParams: filters.filterParams,
-    loadEntries,
-  });
-
   const columnConfig = useCreditHourTrackingColumnConfig();
+
+  // Handle page change for server-side pagination
+  const handlePageChange = useCallback((newPage: number) => {
+    loadEntries({
+      ...filters.filterParams,
+      page: newPage,
+      pageSize: pagination.pageSize,
+      sortBy: "creditBalance",
+      sortOrder: "desc",
+    });
+  }, [filters.filterParams, pagination.pageSize, loadEntries]);
+
+  // Handle page size change for server-side pagination
+  const handlePageSizeChange = useCallback((size: number) => {
+    loadEntries({
+      ...filters.filterParams,
+      page: 1,
+      pageSize: size,
+      sortBy: "creditBalance",
+      sortOrder: "desc",
+    });
+  }, [filters.filterParams, loadEntries]);
 
   // Load entries when server-side filters or pagination change
   useEffect(() => {
@@ -98,6 +110,19 @@ export default function CreditHourTrackingPage() {
             : t("table.noFilteredResults")
         }
         disableInternalDialog={true}
+        pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
+        serverSidePagination={
+          !filters.hasClientFilters
+            ? {
+                page: pagination.page,
+                pageSize: pagination.pageSize,
+                totalItems: pagination.totalItems,
+                totalPages: pagination.totalPages,
+                onPageChange: handlePageChange,
+                onPageSizeChange: handlePageSizeChange,
+              }
+            : undefined
+        }
         actions={{
           onView: dialogs.handleOpenView,
           customActions: isAdmin
@@ -115,78 +140,6 @@ export default function CreditHourTrackingPage() {
           },
         }}
       />
-
-      {/* Pagination Controls */}
-      {!loading && filters.filteredEntries.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
-            {filters.hasClientFilters ? (
-              // Show filtered count when client-side filtering is active
-              t("table.pagination.display", {
-                from: 1,
-                to: filters.filteredEntries.length,
-                total: filters.filteredEntries.length,
-              })
-            ) : (
-              // Show server-side pagination info
-              t("table.pagination.display", {
-                from: paginationSummary.from,
-                to: paginationSummary.to,
-                total: pagination.totalItems,
-              })
-            )}
-            {filters.hasClientFilters && (
-              <span className="ml-2 text-xs text-muted-foreground">
-                ({t("table.filteredResults")})
-              </span>
-            )}
-          </div>
-          {!filters.hasClientFilters && (
-            <div className="flex items-center gap-2">
-              <select
-                value={pagination.pageSize}
-                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-                aria-label="Items per page"
-              >
-                {TABLE_PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {size} {t("table.perPage")}
-                  </option>
-                ))}
-              </select>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page <= 1}
-                  className="h-9 px-3 rounded-md border border-input bg-background text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent transition-colors"
-                  aria-label="Previous page"
-                >
-                  {t("table.previous")}
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page >= pagination.totalPages}
-                  className="h-9 px-3 rounded-md border border-input bg-background text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent transition-colors"
-                  aria-label="Next page"
-                >
-                  {t("table.next")}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Empty State with Filters */}
-      {!loading && filters.filteredEntries.length === 0 && entries.length === 0 && !error && (
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <div className="text-muted-foreground mb-2">
-            <p className="text-lg font-medium">{t("table.empty")}</p>
-            <p className="text-sm mt-1">{t("table.emptyDescription")}</p>
-          </div>
-        </div>
-      )}
 
       <CreditHourTrackingDialogsContainer dialogs={dialogs} isSubmitting={isSubmitting} />
     </div>

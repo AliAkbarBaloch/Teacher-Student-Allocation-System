@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -9,14 +9,12 @@ import type {
 import { SchoolDialogs } from "@/features/schools/components/SchoolDialogs";
 import { SchoolFilters } from "@/features/schools/components/SchoolFilters";
 import { SchoolsPageHeader } from "@/features/schools/components/SchoolsPageHeader";
-import { SchoolsPaginationControls } from "@/features/schools/components/SchoolsPaginationControls";
 import { useSchoolsPage } from "@/features/schools/hooks/useSchoolsPage";
 import { useSchoolsColumnConfig } from "@/features/schools/utils/columnConfig";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDialogState } from "@/hooks/useDialogState";
 import { DataTable } from "@/components/common/DataTable";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
-import { getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
 import { Power } from "lucide-react";
 
 export default function SchoolsPage() {
@@ -130,16 +128,6 @@ export default function SchoolsPage() {
     }
   };
 
-  const paginationSummary = useMemo(
-    () => getPaginationSummary(pagination.page, pagination.pageSize, pagination.totalItems),
-    [pagination.page, pagination.pageSize, pagination.totalItems]
-  );
-
-  const visiblePages = useMemo(
-    () => getVisiblePages(pagination.page, pagination.totalPages),
-    [pagination.page, pagination.totalPages]
-  );
-
   return (
     <div className="space-y-6 w-full min-w-0 max-w-full">
       <SchoolsPageHeader
@@ -177,6 +165,15 @@ export default function SchoolsPage() {
         error={error}
         emptyMessage={t("table.empty")}
         disableInternalDialog={true}
+        pageSizeOptions={TABLE_PAGE_SIZE_OPTIONS}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
         actions={{
           onView: handleOpenView,
           onEdit: isAdmin ? handleOpenEdit : undefined,
@@ -199,18 +196,6 @@ export default function SchoolsPage() {
           },
         }}
       />
-
-      {!loading && (
-        <SchoolsPaginationControls
-          paginationSummary={paginationSummary}
-          pagination={pagination}
-          pageSizeOptions={TABLE_PAGE_SIZE_OPTIONS}
-          visiblePages={visiblePages}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          t={t}
-        />
-      )}
 
       <SchoolDialogs
         isCreateDialogOpen={dialogs.create.isOpen}

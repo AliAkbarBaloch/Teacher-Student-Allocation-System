@@ -17,6 +17,8 @@ import {
 } from "@/features/plan-change-logs";
 // types
 import type { PlanChangeLog } from "@/features/plan-change-logs/types/planChangeLog.types";
+// utils
+import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
 export default function PlanChangeLogsPage() {
   const { t } = useTranslation("planChangeLogs");
@@ -30,6 +32,9 @@ export default function PlanChangeLogsPage() {
     selectedPlanChangeLog,
     setSelectedPlanChangeLog,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     handleCreate: handleCreateInternal,
     handleUpdate: handleUpdateInternal,
     handleDelete: handleDeleteInternal,
@@ -109,11 +114,20 @@ export default function PlanChangeLogsPage() {
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}
-        enablePagination={true}
+        enablePagination={false}
         loading={loading}
         error={error}
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
+        pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
         actions={{
           onView: handleViewClick,
           onEdit: handleEditClick,

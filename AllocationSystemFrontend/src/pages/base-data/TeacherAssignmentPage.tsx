@@ -96,7 +96,12 @@ export default function TeacherAssignmentPage() {
           <h2 className="text-2xl font-semibold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground text-sm mt-1">{t("subtitle")}</p>
         </div>
-        <Button onClick={() => dialogs.create.setIsOpen(true)}>
+        <Button
+          onClick={() => {
+            setSelectedAssignment(null);
+            dialogs.create.setIsOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           {t("actions.create")}
         </Button>
