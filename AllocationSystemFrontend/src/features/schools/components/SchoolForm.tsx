@@ -252,20 +252,24 @@ export function SchoolForm(props: SchoolFormProps) {
       )}
 
       {mode === "create" && (
-        <div className="flex items-center gap-2 rounded-md border border-muted px-4 py-3">
+        <Label
+          htmlFor="isActive"
+          className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10"
+        >
           <Checkbox
             id="isActive"
             checked={formState.isActive}
             onCheckedChange={(checked) => handleInputChange("isActive", Boolean(checked))}
             disabled={isSubmitting || internalSubmitting}
+            className="h-5 w-5"
           />
           <div>
-            <Label htmlFor="isActive" className="font-medium">
+            <span className="font-medium">
               {t("form.fields.isActive")}
-            </Label>
+            </span>
             <p className="text-xs text-muted-foreground">{t("form.helpers.isActive")}</p>
           </div>
-        </div>
+        </Label>
       )}
 
       <div className="flex justify-end gap-2">

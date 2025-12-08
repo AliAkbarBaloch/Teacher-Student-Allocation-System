@@ -281,16 +281,21 @@ export function AllocationPlanForm({
         </div>
 
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="isCurrent" className="text-sm font-medium">
-            {t("form.fields.isCurrent")}
-          </Label>
-          <Checkbox
-            id="isCurrent"
-            checked={!!formData.isCurrent}
-            onCheckedChange={(checked) => handleChange("isCurrent", checked === true)}
-            disabled={isLoading || isSubmitting}
-            className="h-5 w-5 mt-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-          />
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isCurrent"
+              checked={!!formData.isCurrent}
+              onCheckedChange={(checked) => handleChange("isCurrent", checked === true)}
+              disabled={isLoading || isSubmitting}
+              className="h-5 w-5"
+            />
+            <Label
+              htmlFor="isCurrent"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              {t("form.fields.isCurrent")}
+            </Label>
+          </div>
         </div>
 
         <div className="space-y-2 col-span-1">
