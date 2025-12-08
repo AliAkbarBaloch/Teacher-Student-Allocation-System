@@ -7,23 +7,38 @@ import type {
   CreateSubjectCategoryRequest,
   UpdateSubjectCategoryRequest,
 } from "../types/subjectCategory.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useSubjectCategoriesPage() {
   const { t } = useTranslation("subjectCategories");
 
   const [subjectCategories, setSubjectCategories] = useState<SubjectCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSubjectCategory, setSelectedSubjectCategory] = useState<SubjectCategory | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadSubjectCategories = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await SubjectCategoryService.getAll();
-      setSubjectCategories(data);
+      const response = await SubjectCategoryService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "categoryTitle",
+        sortOrder: "asc",
+      });
+
+      setSubjectCategories(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -31,7 +46,9 @@ export function useSubjectCategoriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadSubjectCategories();
@@ -109,6 +126,9 @@ export function useSubjectCategoriesPage() {
     isSubmitting,
     formError,
     setFormError,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadSubjectCategories,
     handleCreate,
     handleUpdate,

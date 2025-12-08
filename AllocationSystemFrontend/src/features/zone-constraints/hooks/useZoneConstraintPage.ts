@@ -7,22 +7,37 @@ import type {
   CreateZoneConstraintRequest,
   UpdateZoneConstraintRequest,
 } from "../types/zoneConstraint.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useZoneConstraintPage() {
   const { t } = useTranslation("zoneConstraints");
 
   const [zoneConstraints, setZoneConstraints] = useState<ZoneConstraint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedZoneConstraint, setSelectedZoneConstraint] = useState<ZoneConstraint | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadZoneConstraints = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await ZoneConstraintService.getAll();
-      setZoneConstraints(data);
+      const response = await ZoneConstraintService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "zoneNumber",
+        sortOrder: "asc",
+      });
+
+      setZoneConstraints(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -30,7 +45,9 @@ export function useZoneConstraintPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadZoneConstraints();
@@ -86,6 +103,9 @@ export function useZoneConstraintPage() {
     selectedZoneConstraint,
     setSelectedZoneConstraint,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadZoneConstraints,
     handleCreate,
     handleUpdate,

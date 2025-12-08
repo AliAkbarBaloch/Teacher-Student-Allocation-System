@@ -7,22 +7,37 @@ import type {
   CreateTeacherSubjectRequest,
   UpdateTeacherSubjectRequest,
 } from "../types/teacherSubject.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useTeacherSubjectsPage() {
   const { t } = useTranslation("teacherSubjects");
 
   const [teacherSubjects, setTeacherSubjects] = useState<TeacherSubject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTeacherSubject, setSelectedTeacherSubject] = useState<TeacherSubject | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadTeacherSubjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await TeacherSubjectService.getAll();
-      setTeacherSubjects(data);
+      const response = await TeacherSubjectService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "id",
+        sortOrder: "asc",
+      });
+
+      setTeacherSubjects(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -30,7 +45,9 @@ export function useTeacherSubjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadTeacherSubjects();
@@ -86,6 +103,9 @@ export function useTeacherSubjectsPage() {
     selectedTeacherSubject,
     setSelectedTeacherSubject,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadTeacherSubjects,
     handleCreate,
     handleUpdate,
