@@ -25,6 +25,7 @@ import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSu
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
+import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -147,7 +148,11 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.allocationPlanning.creditHourTracking,
-        element: withSuspense(<div>Credit Hour Tracking</div>),
+        element: withSuspense(<CreditHourTrackingPage />),
+      },
+      {
+        path: `${ROUTES.allocationPlanning.creditHourTracking}/:yearId`,
+        element: withSuspense(<CreditHourTrackingPage />),
       },
       {
         path: ROUTES.allocationPlanning.zoneConstraints,
