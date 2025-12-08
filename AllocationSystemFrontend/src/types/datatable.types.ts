@@ -63,6 +63,18 @@ export interface ColumnConfig {
 }
 
 /**
+ * Server-side pagination props
+ */
+export interface ServerSidePaginationProps {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+}
+
+/**
  * Props for the DataTable component
  */
 export interface DataTableProps<TData = Record<string, unknown>, TValue = unknown> {
@@ -83,8 +95,10 @@ export interface DataTableProps<TData = Record<string, unknown>, TValue = unknow
   error?: string | null;
   emptyMessage?: string;
   // Pagination customization
-  pageSizeOptions?: number[];
+  pageSizeOptions?: readonly number[] | number[];
   defaultPageSize?: number;
+  // Server-side pagination (when enablePagination is false but you want pagination controls)
+  serverSidePagination?: ServerSidePaginationProps;
   // Validation
   validateOnUpdate?: (row: TData) => string | null | Promise<string | null>;
   // Disable internal dialog management - parent component will handle dialogs

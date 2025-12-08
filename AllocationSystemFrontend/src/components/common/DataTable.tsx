@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   type ColumnDef,
+  type Updater,
+  type PaginationState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -48,6 +50,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
   emptyMessage = "No results found.",
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 10,
+  serverSidePagination,
   validateOnUpdate,
   disableInternalDialog = false,
   tableLayout = "auto",
@@ -88,23 +91,15 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
     ];
   }, [baseColumns, actions, actionsHeader, dialogs]);
 
-  // Initialize TanStack Table
-  const table = useReactTable({
-    data,
-    columns: tableColumns,
-    onSortingChange: tableState.setSorting,
-    onColumnFiltersChange: tableState.setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: tableState.setColumnVisibility,
-    onPaginationChange: (updater) => {
+  // Memoize pagination change handler to ensure stable reference
+  const handlePaginationChange = useCallback(
+    (updater: Updater<PaginationState>) => {
       if (typeof updater === "function") {
-        const newPagination = updater({
+        const currentState = {
           pageIndex: tableState.pageIndex,
           pageSize: tableState.pageSize,
-        });
+        };
+        const newPagination = updater(currentState);
         tableState.setPageIndex(newPagination.pageIndex);
         tableState.setPageSize(newPagination.pageSize);
       } else {
@@ -112,12 +107,31 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         tableState.setPageSize(updater.pageSize);
       }
     },
-    initialState: {
-      pagination: {
-        pageSize: tableState.pageSize,
-        pageIndex: 0,
-      },
-    },
+    [tableState]
+  );
+
+  // Initialize TanStack Table
+  const table = useReactTable({
+    data,
+    columns: tableColumns,
+    onSortingChange: tableState.setSorting,
+    onColumnFiltersChange: tableState.setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    ...(enablePagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: tableState.setColumnVisibility,
+    ...(enablePagination
+      ? {
+          onPaginationChange: handlePaginationChange,
+          initialState: {
+            pagination: {
+              pageSize: defaultPageSize,
+              pageIndex: 0,
+            },
+          },
+        }
+      : {}),
     ...(enableRowSelection && {
       onRowSelectionChange: tableState.setRowSelection,
       enableRowSelection: true,
@@ -126,10 +140,12 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
       sorting: tableState.sorting,
       columnFilters: tableState.columnFilters,
       columnVisibility: tableState.columnVisibility,
-      pagination: {
-        pageIndex: tableState.pageIndex,
-        pageSize: tableState.pageSize,
-      },
+      ...(enablePagination && {
+        pagination: {
+          pageIndex: tableState.pageIndex,
+          pageSize: tableState.pageSize,
+        },
+      }),
       ...(enableRowSelection && { rowSelection: tableState.rowSelection }),
     },
   });
@@ -214,11 +230,12 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         </div>
       </div>
 
-      {enablePagination && (
+      {(enablePagination || serverSidePagination) && (
         <DataTablePagination
-          table={table}
+          table={enablePagination ? table : undefined}
           enableRowSelection={enableRowSelection}
           pageSizeOptions={pageSizeOptions}
+          serverSidePagination={serverSidePagination}
         />
       )}
 
