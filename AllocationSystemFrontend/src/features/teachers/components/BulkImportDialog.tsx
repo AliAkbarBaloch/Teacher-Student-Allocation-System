@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -18,7 +19,7 @@ interface BulkImportDialogProps {
   onImportComplete?: () => void;
 }
 
-export function BulkImportDialog({
+export const BulkImportDialog = memo(function BulkImportDialog({
   open,
   onOpenChange,
   onImportComplete,
@@ -37,24 +38,24 @@ export function BulkImportDialog({
     startNewImport,
   } = useBulkImport(onImportComplete);
 
-  const handleClose = (open: boolean) => {
+  const handleClose = useCallback((open: boolean) => {
     // When open is false, it means the dialog should be closed
     if (!open) {
       reset();
       onOpenChange(false);
     }
-  };
+  }, [reset, onOpenChange]);
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     reset();
     onOpenChange(false);
-  };
+  }, [reset, onOpenChange]);
 
-  const handleImportMore = () => {
+  const handleImportMore = useCallback(() => {
     startNewImport();
-  };
+  }, [startNewImport]);
 
-  const renderContent = () => {
+  const renderContent = useMemo(() => {
     switch (step) {
       case "upload":
       case "parsing":
@@ -100,9 +101,9 @@ export function BulkImportDialog({
       default:
         return null;
     }
-  };
+  }, [step, parsedData, validationResult, importProgress, importResults, isLoading, error, handleFileSelect, handleImport, handleCloseDialog, handleImportMore]);
 
-  const getDialogTitle = () => {
+  const dialogTitle = useMemo(() => {
     switch (step) {
       case "upload":
         return "Bulk Import Teachers";
@@ -119,9 +120,9 @@ export function BulkImportDialog({
       default:
         return "Bulk Import Teachers";
     }
-  };
+  }, [step]);
 
-  const getDialogDescription = () => {
+  const dialogDescription = useMemo(() => {
     switch (step) {
       case "upload":
         return "Upload an Excel file containing teacher data to import multiple teachers at once.";
@@ -134,24 +135,24 @@ export function BulkImportDialog({
       default:
         return "";
     }
-  };
+  }, [step]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isLoading && step !== "results" && <Loader2 className="h-5 w-5 animate-spin" />}
-            {getDialogTitle()}
+            {dialogTitle}
           </DialogTitle>
-          {getDialogDescription() && (
-            <DialogDescription>{getDialogDescription()}</DialogDescription>
+          {dialogDescription && (
+            <DialogDescription>{dialogDescription}</DialogDescription>
           )}
         </DialogHeader>
 
-        <div className="py-4">{renderContent()}</div>
+        <div className="py-4 overflow-x-hidden">{renderContent}</div>
       </DialogContent>
     </Dialog>
   );
-}
+});
 

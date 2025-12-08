@@ -2,9 +2,9 @@ import type {
   ParsedTeacherRow,
   RowValidationError,
   ValidationResult,
-  EmploymentStatus,
 } from "../types/teacher.types";
 import type { School } from "@/features/schools/types/school.types";
+import { EMPLOYMENT_STATUS_OPTIONS } from "@/lib/constants/teachers";
 
 /**
  * Email validation regex
@@ -151,20 +151,12 @@ export function validateRow(
     }
   }
 
-  // Validate employment status
-  const validEmploymentStatuses: EmploymentStatus[] = [
-    "FULL_TIME",
-    "PART_TIME",
-    "ON_LEAVE",
-    "CONTRACT",
-    "PROBATION",
-    "RETIRED",
-  ];
-  if (!validEmploymentStatuses.includes(row.employmentStatus)) {
+  // Validate employment status - use the actual valid statuses from constants
+  if (!EMPLOYMENT_STATUS_OPTIONS.includes(row.employmentStatus)) {
     errors.push({
       rowNumber: row.rowNumber,
       field: "employmentStatus",
-      message: `Invalid employment status: ${row.employmentStatus}`,
+      message: `Invalid employment status: ${row.employmentStatus}. Valid values are: ${EMPLOYMENT_STATUS_OPTIONS.join(", ")}`,
       severity: "error",
     });
   }
@@ -183,30 +175,48 @@ export function validateRow(
 }
 
 /**
- * Validate all rows and return validation result
+ * Validate all rows and return validation result with chunked processing for better performance
  */
-export function validateAllRows(
+export async function validateAllRows(
   rows: ParsedTeacherRow[],
   schools: School[],
-  existingEmails: Set<string> = new Set()
-): ValidationResult {
+  existingEmails: Set<string> = new Set(),
+  onProgress?: (progress: number) => void
+): Promise<ValidationResult> {
   const schoolLookup = createSchoolLookupMap(schools);
   const emailSet = new Set<string>();
   const errors: RowValidationError[] = [];
   const validRows: ParsedTeacherRow[] = [];
   const invalidRows: ParsedTeacherRow[] = [];
 
-  rows.forEach((row, index) => {
-    const rowErrors = validateRow(row, index, schoolLookup, emailSet, existingEmails);
+  const CHUNK_SIZE = 50; // Validate 50 rows at a time
+  const totalRows = rows.length;
 
-    if (rowErrors.length > 0) {
-      row.errors = rowErrors.map((e) => e.message);
-      invalidRows.push(row);
-      errors.push(...rowErrors);
-    } else {
-      validRows.push(row);
+  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+    const chunk = rows.slice(i, Math.min(i + CHUNK_SIZE, rows.length));
+    
+    chunk.forEach((row, chunkIndex) => {
+      const index = i + chunkIndex;
+      const rowErrors = validateRow(row, index, schoolLookup, emailSet, existingEmails);
+
+      if (rowErrors.length > 0) {
+        row.errors = rowErrors.map((e) => e.message);
+        invalidRows.push(row);
+        errors.push(...rowErrors);
+      } else {
+        validRows.push(row);
+      }
+    });
+
+    // Update progress
+    const progress = Math.floor(((i + chunk.length) / totalRows) * 100);
+    onProgress?.(progress);
+
+    // Yield to browser to prevent UI blocking
+    if (i + CHUNK_SIZE < rows.length) {
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
-  });
+  }
 
   return {
     validRows,
