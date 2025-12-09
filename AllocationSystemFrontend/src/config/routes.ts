@@ -7,6 +7,7 @@ export const ROUTES = {
   main: {
     home: "/home",
     dashboard: "/dashboard",
+    allocationReport: "/allocation-report",
     settings: "/settings",
   },
   baseData: {

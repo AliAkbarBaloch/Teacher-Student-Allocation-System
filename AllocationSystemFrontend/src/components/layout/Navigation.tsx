@@ -35,6 +35,7 @@ export function Navigation() {
   const navItems = useMemo<NavItem[]>(
     () => [
       { path: ROUTES.main.dashboard, translationKey: "navigation.dashboard" },
+      { path: ROUTES.main.allocationReport, translationKey: "navigation.allocationReport" },
       {
         translationKey: "navigation.baseData",
         submenu: [

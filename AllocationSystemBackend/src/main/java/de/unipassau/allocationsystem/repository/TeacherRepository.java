@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -69,4 +70,6 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>, JpaSpec
      */
     @Query("SELECT t.email FROM Teacher t WHERE t.email IN :emails")
     Set<String> findExistingEmails(@Param("emails") Set<String> emails);
+
+    List<Teacher> findAllByIsActiveTrue();
 }
