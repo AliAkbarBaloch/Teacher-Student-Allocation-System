@@ -7,6 +7,7 @@ import {
   TrendingUp,
   BarChart3,
   Database,
+  LucideLayoutDashboard,
 } from "lucide-react"
 // translations
 import { useTranslation } from "react-i18next"
@@ -46,6 +47,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: ROUTES.main.dashboard,
           icon: LayoutDashboard,
           isActive: location.pathname === ROUTES.main.dashboard,
+        },
+        {
+          title: t("navigation.allocationReport"),
+          url: ROUTES.main.allocationReport,
+          icon: LucideLayoutDashboard,
+          isActive: location.pathname === ROUTES.main.allocationReport,
         },
       ],
     },

@@ -15,9 +15,11 @@
             "dataManagement": "Data Management",
             "planning": "Planning & Allocation",
             "reports": "Reports",
-            "settings": "Settings"
+            "settings": "Settings",
+            "allocationReport": "AllocationReport"
         },
         "dashboard": "Dashboard",
+        "allocationReport": "AllocationReport",
         "baseData": "Base Data Management",
         "baseDataAcademicYears": "Academic Years",
         "baseDataSubjectCategories": "Subject Categories",

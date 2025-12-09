@@ -15,9 +15,11 @@
             "dataManagement": "Datenverwaltung",
             "planning": "Planung & Zuweisung",
             "reports": "Berichte",
-            "settings": "Einstellungen"
+            "settings": "Einstellungen",
+            "allocationReport": "AllocationReport"
         },
         "dashboard": "Dashboard",
+        "allocationReport": "AllocationReport",
         "baseData": "Stammdatenverwaltung",
         "baseDataAcademicYears": "Studienjahre",
         "baseDataSubjectCategories": "Fachkategorien",
