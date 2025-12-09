@@ -15,6 +15,8 @@ import { useInternshipTypesPage } from "@/features/internship-types/hooks/useInt
 import { useInternshipTypesColumnConfig } from "@/features/internship-types/utils/columnConfig";
 // types
 import type { InternshipType } from "@/features/internship-types/types/internshipType.types";
+// utils
+import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
 export default function InternshipTypesPage() {
   const { t } = useTranslation("internshipTypes");
@@ -28,6 +30,9 @@ export default function InternshipTypesPage() {
     selectedInternshipType,
     setSelectedInternshipType,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     handleCreate: handleCreateInternal,
     handleUpdate: handleUpdateInternal,
     handleDelete: handleDeleteInternal,
@@ -107,11 +112,20 @@ export default function InternshipTypesPage() {
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}
-        enablePagination={true}
+        enablePagination={false}
         loading={loading}
         error={error}
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
+        pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
         actions={{
           onView: handleViewClick,
           onEdit: handleEditClick,

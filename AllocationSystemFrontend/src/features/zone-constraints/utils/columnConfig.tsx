@@ -27,7 +27,7 @@ export function useZoneConstraintsColumnConfig(): ColumnConfig[] {
       fieldRequired: true,
       fieldPlaceholder: t("form.placeholders.internshipTypeCode"),
       width: "120px",
-      maxWidth: "160px",
+      maxWidth: "200px",
     },
     {
       field: "isAllowed",

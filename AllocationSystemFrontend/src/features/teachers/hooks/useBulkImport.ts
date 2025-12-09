@@ -64,8 +64,13 @@ export function useBulkImport(onImportComplete?: () => void) {
     setIsLoading(true);
 
     try {
-      // Parse Excel file
-      const parsed = await parseExcelFile(selectedFile);
+      // Parse Excel file with progress updates
+      // 
+        const parsed = await parseExcelFile(selectedFile, (progress) => {
+          // Progress updates can be used for UI feedback if needed
+          // For now, we just ensure the UI doesn't freeze
+          console.log("Progress:", progress);
+        });
       setParsedData(parsed);
 
       // Load schools for validation
@@ -76,8 +81,16 @@ export function useBulkImport(onImportComplete?: () => void) {
       const emailsToCheck = parsed.map(row => row.email.toLowerCase().trim());
       const existingEmails = await TeacherService.checkExistingEmails(emailsToCheck);
 
-      // Validate data (including database email check)
-      const validation = validateAllRows(parsed, loadedSchools, existingEmails);
+      // Validate data (including database email check) with progress updates
+      const validation = await validateAllRows(
+        parsed, 
+        loadedSchools, 
+        existingEmails,
+        (progress) => {
+          // Progress updates can be used for UI feedback if needed
+          console.log("Validation progress:", progress);
+        }
+      );
       setValidationResult(validation);
 
       setStep("preview");

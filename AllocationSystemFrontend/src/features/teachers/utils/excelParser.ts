@@ -85,16 +85,31 @@ function getCellValue(row: unknown[], index: number): string {
 }
 
 /**
- * Parse Excel file and extract teacher data
+ * Parse Excel file and extract teacher data with chunked processing for better performance
  */
-export async function parseExcelFile(file: File): Promise<ParsedTeacherRow[]> {
+export async function parseExcelFile(
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<ParsedTeacherRow[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
+        
+        // Use setTimeout to yield to the browser and prevent UI blocking
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        onProgress?.(10);
+        
+        const workbook = XLSX.read(data, { 
+          type: "array",
+          // Optimize for large files
+          cellDates: false,
+          cellNF: false,
+          cellStyles: false,
+        });
 
         // Get first sheet
         const firstSheetName = workbook.SheetNames[0];
@@ -103,13 +118,22 @@ export async function parseExcelFile(file: File): Promise<ParsedTeacherRow[]> {
           return;
         }
 
+        onProgress?.(30);
+
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+        // Use raw option for better performance on large files
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+          header: 1, 
+          defval: "",
+          raw: false, // Convert to strings for consistency
+        });
 
         if (jsonData.length < 2) {
           reject(new Error("Excel file must contain at least a header row and one data row"));
           return;
         }
+
+        onProgress?.(50);
 
         // Parse headers
         const headers = (jsonData[0] as unknown[]).map((h) => String(h));
@@ -135,54 +159,75 @@ export async function parseExcelFile(file: File): Promise<ParsedTeacherRow[]> {
           return;
         }
 
-        // Parse data rows
+        onProgress?.(60);
+
+        // Parse data rows in chunks to avoid blocking the UI
         const rows: ParsedTeacherRow[] = [];
-        for (let i = 1; i < jsonData.length; i++) {
-          const row = jsonData[i] as unknown[];
+        const totalRows = jsonData.length - 1;
+        const CHUNK_SIZE = 100; // Process 100 rows at a time
+        
+        for (let startIdx = 1; startIdx < jsonData.length; startIdx += CHUNK_SIZE) {
+          const endIdx = Math.min(startIdx + CHUNK_SIZE, jsonData.length);
+          
+          // Process chunk
+          for (let i = startIdx; i < endIdx; i++) {
+            const row = jsonData[i] as unknown[];
 
-          // Skip completely empty rows
-          if (row.every((cell) => !cell || String(cell).trim() === "")) continue;
+            // Skip completely empty rows
+            if (row.every((cell) => !cell || String(cell).trim() === "")) continue;
 
-          const firstName = getCellValue(row, columnIndices.firstName);
-          const lastName = getCellValue(row, columnIndices.lastName);
-          const email = getCellValue(row, columnIndices.email);
+            const firstName = getCellValue(row, columnIndices.firstName);
+            const lastName = getCellValue(row, columnIndices.lastName);
+            const email = getCellValue(row, columnIndices.email);
 
-          // Skip rows with missing required fields
-          if (!firstName || !lastName || !email) continue;
+            // Skip rows with missing required fields
+            if (!firstName || !lastName || !email) continue;
 
-          const schoolName = columnIndices.schoolName !== -1 ? getCellValue(row, columnIndices.schoolName) : undefined;
-          const schoolIdStr =
-            columnIndices.schoolId !== -1 ? getCellValue(row, columnIndices.schoolId) : undefined;
-          const schoolId = schoolIdStr ? Number.parseInt(schoolIdStr, 10) : undefined;
-          const phone = columnIndices.phone !== -1 ? getCellValue(row, columnIndices.phone) : undefined;
+            const schoolName = columnIndices.schoolName !== -1 ? getCellValue(row, columnIndices.schoolName) : undefined;
+            const schoolIdStr =
+              columnIndices.schoolId !== -1 ? getCellValue(row, columnIndices.schoolId) : undefined;
+            const schoolId = schoolIdStr ? Number.parseInt(schoolIdStr, 10) : undefined;
+            const phone = columnIndices.phone !== -1 ? getCellValue(row, columnIndices.phone) : undefined;
 
-          const employmentStatusValue =
-            columnIndices.employmentStatus !== -1
-              ? getCellValue(row, columnIndices.employmentStatus)
-              : "";
-          const employmentStatus = parseEmploymentStatus(employmentStatusValue) || "ACTIVE"; // Default
+            const employmentStatusValue =
+              columnIndices.employmentStatus !== -1
+                ? getCellValue(row, columnIndices.employmentStatus)
+                : "";
+            const employmentStatus = parseEmploymentStatus(employmentStatusValue) || "ACTIVE"; // Default
 
-          const isPartTimeValue =
-            columnIndices.isPartTime !== -1 ? getCellValue(row, columnIndices.isPartTime) : "false";
-          const isPartTime = parseBoolean(isPartTimeValue);
+            const isPartTimeValue =
+              columnIndices.isPartTime !== -1 ? getCellValue(row, columnIndices.isPartTime) : "false";
+            const isPartTime = parseBoolean(isPartTimeValue);
 
-          const usageCycleValue =
-            columnIndices.usageCycle !== -1 ? getCellValue(row, columnIndices.usageCycle) : "";
-          const usageCycle = parseUsageCycle(usageCycleValue) || undefined;
+            const usageCycleValue =
+              columnIndices.usageCycle !== -1 ? getCellValue(row, columnIndices.usageCycle) : "";
+            const usageCycle = parseUsageCycle(usageCycleValue) || undefined;
 
-          rows.push({
-            rowNumber: i + 1, // Excel row number (1-indexed, +1 for header)
-            schoolName,
-            schoolId: schoolId && !Number.isNaN(schoolId) ? schoolId : undefined,
-            firstName,
-            lastName,
-            email,
-            phone: phone || undefined,
-            isPartTime,
-            employmentStatus,
-            usageCycle,
-          });
+            rows.push({
+              rowNumber: i + 1, // Excel row number (1-indexed, +1 for header)
+              schoolName,
+              schoolId: schoolId && !Number.isNaN(schoolId) ? schoolId : undefined,
+              firstName,
+              lastName,
+              email,
+              phone: phone || undefined,
+              isPartTime,
+              employmentStatus,
+              usageCycle,
+            });
+          }
+          
+          // Update progress and yield to browser
+          const progress = 60 + Math.floor(((endIdx - 1) / totalRows) * 30);
+          onProgress?.(progress);
+          
+          // Yield to browser every chunk to prevent UI blocking
+          if (endIdx < jsonData.length) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
         }
+
+        onProgress?.(100);
 
         if (rows.length === 0) {
           reject(new Error("No valid data rows found in Excel file"));

@@ -7,22 +7,37 @@ import type {
   CreateSubjectRequest,
   UpdateSubjectRequest,
 } from "../types/subject.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useSubjectsPage() {
   const { t } = useTranslation("subjects");
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadSubjects = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await SubjectService.getAll();
-      setSubjects(data);
+      const response = await SubjectService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "subjectTitle",
+        sortOrder: "asc",
+      });
+
+      setSubjects(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -30,7 +45,9 @@ export function useSubjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadSubjects();
@@ -86,6 +103,9 @@ export function useSubjectsPage() {
     selectedSubject,
     setSelectedSubject,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadSubjects,
     handleCreate,
     handleUpdate,

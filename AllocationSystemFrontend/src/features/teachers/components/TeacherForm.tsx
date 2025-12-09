@@ -284,7 +284,10 @@ export function TeacherForm(props: TeacherFormProps) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-2 rounded-md border border-muted px-4 py-3">
+          <Label
+            htmlFor="isPartTime"
+            className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10"
+          >
             <Checkbox
               id="isPartTime"
               checked={formState.isPartTime}
@@ -294,17 +297,14 @@ export function TeacherForm(props: TeacherFormProps) {
               disabled={isDisabled}
             />
             <div>
-              <Label
-                htmlFor="isPartTime"
-                className="font-medium cursor-pointer"
-              >
+              <span className="font-medium">
                 {t("form.fields.isPartTime")}
-              </Label>
+              </span>
               <p className="text-xs text-muted-foreground">
                 {t("form.helpers.isPartTime")}
               </p>
             </div>
-          </div>
+          </Label>
           {errors.isPartTime && (
             <p className="text-sm text-destructive">{errors.isPartTime}</p>
           )}

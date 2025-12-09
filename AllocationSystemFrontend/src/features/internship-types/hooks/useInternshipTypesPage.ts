@@ -7,22 +7,37 @@ import type {
   CreateInternshipTypeRequest,
   UpdateInternshipTypeRequest,
 } from "../types/internshipType.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useInternshipTypesPage() {
   const { t } = useTranslation("internshipTypes");
 
   const [internshipTypes, setInternshipTypes] = useState<InternshipType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedInternshipType, setSelectedInternshipType] = useState<InternshipType | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadInternshipTypes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await InternshipTypeService.getAll();
-      setInternshipTypes(data);
+      const response = await InternshipTypeService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "fullName",
+        sortOrder: "asc",
+      });
+
+      setInternshipTypes(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -30,7 +45,9 @@ export function useInternshipTypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadInternshipTypes();
@@ -86,6 +103,9 @@ export function useInternshipTypesPage() {
     selectedInternshipType,
     setSelectedInternshipType,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadInternshipTypes,
     handleCreate,
     handleUpdate,

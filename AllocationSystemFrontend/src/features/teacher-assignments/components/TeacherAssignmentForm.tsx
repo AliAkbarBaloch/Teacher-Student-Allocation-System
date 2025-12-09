@@ -2,7 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -173,7 +179,7 @@ export function TeacherAssignmentForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="planId">{t("form.labels.planId")}</Label>
+          <Label htmlFor="planId">{t("form.fields.planId")}</Label>
           <Input
             id="planId"
             type="number"
@@ -186,7 +192,7 @@ export function TeacherAssignmentForm({
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="teacherId">{t("form.labels.teacherId")}</Label>
+          <Label htmlFor="teacherId">{t("form.fields.teacherId")}</Label>
           <Input
             id="teacherId"
             type="number"
@@ -199,7 +205,7 @@ export function TeacherAssignmentForm({
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="internshipTypeId">{t("form.labels.internshipTypeId")}</Label>
+          <Label htmlFor="internshipTypeId">{t("form.fields.internshipTypeId")}</Label>
           <Input
             id="internshipTypeId"
             type="number"
@@ -212,7 +218,7 @@ export function TeacherAssignmentForm({
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="subjectId">{t("form.labels.subjectId")}</Label>
+          <Label htmlFor="subjectId">{t("form.fields.subjectId")}</Label>
           <Input
             id="subjectId"
             type="number"
@@ -225,7 +231,7 @@ export function TeacherAssignmentForm({
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="studentGroupSize">{t("form.labels.studentGroupSize")}</Label>
+          <Label htmlFor="studentGroupSize">{t("form.fields.studentGroupSize")}</Label>
           <Input
             id="studentGroupSize"
             type="number"
@@ -238,31 +244,46 @@ export function TeacherAssignmentForm({
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="assignmentStatus">{t("form.labels.assignmentStatus")}</Label>
+          <Label htmlFor="assignmentStatus">{t("form.fields.assignmentStatus")}</Label>
           <Select
             value={formData.assignmentStatus}
             onValueChange={(value) => handleChange("assignmentStatus", value as AssignmentStatus)}
             disabled={isLoading || isSubmitting}
           >
-            {ASSIGNMENT_STATUS_OPTIONS.map((status) => (
-              <SelectItem key={status} value={status}>
-                {t(`form.status.${status.toLowerCase()}`)}
-              </SelectItem>
-            ))}
+            <SelectTrigger className={errors.assignmentStatus ? "border-destructive" : ""}>
+              <SelectValue placeholder={t("form.placeholders.assignmentStatus")} />
+            </SelectTrigger>
+            <SelectContent>
+              {ASSIGNMENT_STATUS_OPTIONS.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {t(`form.status.${status.toLowerCase()}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
+          {errors.assignmentStatus && (
+            <p className="text-sm text-destructive">{errors.assignmentStatus}</p>
+          )}
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="isManualOverride">{t("form.labels.isManualOverride")}</Label>
-          <Checkbox
-            id="isManualOverride"
-            checked={formData.isManualOverride}
-            onCheckedChange={(checked) => handleChange("isManualOverride", checked === true)}
-            disabled={isLoading || isSubmitting}
-            className="h-5 w-5 mt-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-          />
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isManualOverride"
+              checked={formData.isManualOverride}
+              onCheckedChange={(checked) => handleChange("isManualOverride", checked === true)}
+              disabled={isLoading || isSubmitting}
+              className="h-5 w-5"
+            />
+            <Label
+              htmlFor="isManualOverride"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              {t("form.fields.isManualOverride")}
+            </Label>
+          </div>
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="notes">{t("form.labels.notes")}</Label>
+          <Label htmlFor="notes">{t("form.fields.notes")}</Label>
           <Input
             id="notes"
             value={formData.notes}

@@ -7,22 +7,37 @@ import type {
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useAllocationPlansPage() {
   const { t } = useTranslation("allocationPlans");
 
   const [allocationPlans, setAllocationPlans] = useState<AllocationPlan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedAllocationPlan, setSelectedAllocationPlan] = useState<AllocationPlan | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadAllocationPlans = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await AllocationPlanService.getAll();
-      setAllocationPlans(data);
+      const response = await AllocationPlanService.getPaginated({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        sortBy: "planName",
+        sortOrder: "asc",
+      });
+
+      setAllocationPlans(response.items || []);
+      updatePagination({
+        page: response.page || pagination.page,
+        pageSize: response.pageSize || pagination.pageSize,
+        totalItems: response.totalItems || 0,
+        totalPages: response.totalPages || 0,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
@@ -30,7 +45,9 @@ export function useAllocationPlansPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadAllocationPlans();
@@ -86,6 +103,9 @@ export function useAllocationPlansPage() {
     selectedAllocationPlan,
     setSelectedAllocationPlan,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     loadAllocationPlans,
     handleCreate,
     handleUpdate,

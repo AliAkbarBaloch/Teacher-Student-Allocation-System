@@ -17,6 +17,8 @@ import {
 } from "@/features/teacher-availability";
 // types
 import type { TeacherAvailability } from "@/features/teacher-availability/types/teacherAvailability.types";
+// utils
+import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
 export default function TeacherAvailabilityPage() {
   const { t } = useTranslation("teacherAvailability");
@@ -30,6 +32,9 @@ export default function TeacherAvailabilityPage() {
     selectedTeacherAvailability,
     setSelectedTeacherAvailability,
     isSubmitting,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     handleCreate: handleCreateInternal,
     handleUpdate: handleUpdateInternal,
     handleDelete: handleDeleteInternal,
@@ -109,11 +114,20 @@ export default function TeacherAvailabilityPage() {
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}
-        enablePagination={true}
+        enablePagination={false}
         loading={loading}
         error={error}
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
+        pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
         actions={{
           onView: handleViewClick,
           onEdit: handleEditClick,

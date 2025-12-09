@@ -1,16 +1,16 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTeachersPage } from "@/features/teachers/hooks/useTeachersPage";
 import { TeacherDialogs } from "@/features/teachers/components/TeacherDialogs";
 import { TeacherFilters } from "@/features/teachers/components/TeacherFilters";
 import { TeachersPageHeader } from "@/features/teachers/components/TeachersPageHeader";
-import { TeachersTableSection } from "@/features/teachers/components/TeachersTableSection";
-import { TeachersPaginationControls } from "@/features/teachers/components/TeachersPaginationControls";
 import { BulkImportDialog } from "@/features/teachers/components/BulkImportDialog";
+import { DataTable } from "@/components/common/DataTable";
+import { useTeachersColumnConfig } from "@/features/teachers/utils/columnConfig";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDialogState } from "@/hooks/useDialogState";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
-import { getPaginationSummary, getVisiblePages } from "@/lib/utils/pagination";
+import { Power } from "lucide-react";
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "@/features/teachers/types/teacher.types";
 
 export default function TeachersPage() {
@@ -125,15 +125,7 @@ export default function TeachersPage() {
     setWarningMessage(null);
   };
 
-  const paginationSummary = useMemo(
-    () => getPaginationSummary(pagination.page, pagination.pageSize, pagination.totalItems),
-    [pagination.page, pagination.pageSize, pagination.totalItems]
-  );
-
-  const visiblePages = useMemo(
-    () => getVisiblePages(pagination.page, pagination.totalPages),
-    [pagination.page, pagination.totalPages]
-  );
+  const columnConfig = useTeachersColumnConfig();
 
   return (
     <div className="space-y-6">
@@ -161,34 +153,49 @@ export default function TeachersPage() {
         onReset={handleResetFilters}
       />
 
-      {error && (
-        <div className="p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <TeachersTableSection
-        teachers={teachers}
+      <DataTable
+        columnConfig={columnConfig}
+        data={teachers}
+        searchKey="email"
+        searchPlaceholder={t("filters.searchPlaceholder")}
+        enableSearch={false}
+        enableColumnVisibility={false}
+        enablePagination={false}
         loading={loading}
-        isAdmin={isAdmin}
-        t={t}
-        onViewTeacher={handleOpenView}
-        onEditTeacher={handleOpenEdit}
-        onToggleStatus={openStatusDialog}
-        onDeleteTeacher={openDeleteDialog}
+        error={error}
+        emptyMessage={t("table.empty")}
+        disableInternalDialog={true}
+        pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
+        actions={{
+          onView: handleOpenView,
+          onEdit: isAdmin ? handleOpenEdit : undefined,
+          onDelete: isAdmin ? openDeleteDialog : undefined,
+          customActions: isAdmin
+            ? [
+                {
+                  label: (teacher: Teacher) =>
+                    teacher.isActive ? t("actions.deactivate") : t("actions.activate"),
+                  icon: <Power className="h-4 w-4" />,
+                  onClick: openStatusDialog,
+                  separator: false,
+                },
+              ]
+            : undefined,
+          labels: {
+            view: t("actions.view"),
+            edit: t("actions.edit"),
+            delete: t("actions.delete"),
+          },
+        }}
       />
-
-      {!loading && (
-        <TeachersPaginationControls
-          paginationSummary={paginationSummary}
-          pagination={pagination}
-          pageSizeOptions={TABLE_PAGE_SIZE_OPTIONS}
-          visiblePages={visiblePages}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          t={t}
-        />
-      )}
 
       <TeacherDialogs
         isCreateDialogOpen={dialogs.create.isOpen}
