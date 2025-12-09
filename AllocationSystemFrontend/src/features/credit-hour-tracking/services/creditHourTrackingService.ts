@@ -55,7 +55,7 @@ export class CreditHourTrackingService {
     const response = await apiClient.get<CreditHourTrackingListResponse>(
       "/credit-hour-tracking"
     );
-    return response.data.data;
+    return response.data;
   }
 
   /**
@@ -65,7 +65,7 @@ export class CreditHourTrackingService {
     const response = await apiClient.get<CreditHourTrackingResponse>(
       `/credit-hour-tracking/${id}`
     );
-    return response.data.data;
+    return response.data;
   }
 
   /**
@@ -76,7 +76,7 @@ export class CreditHourTrackingService {
       "/credit-hour-tracking",
       data
     );
-    return response.data.data;
+    return response.data;
   }
 
   /**
@@ -90,7 +90,7 @@ export class CreditHourTrackingService {
       `/credit-hour-tracking/${id}`,
       data
     );
-    return response.data.data;
+    return response.data;
   }
 
   /**
@@ -107,6 +107,6 @@ export class CreditHourTrackingService {
     const response = await apiClient.get<{ success: boolean; data: SortField[] }>(
       "/credit-hour-tracking/sort-fields"
     );
-    return response.data.data;
+    return response.data;
   }
 }
