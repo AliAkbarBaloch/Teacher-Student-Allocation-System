@@ -4,7 +4,7 @@ VALUES
 
 INSERT INTO ACADEMIC_YEARS (id, year_name, total_credit_hours, elementary_school_hours, middle_school_hours, budget_announcement_date, allocation_deadline, is_locked, created_at, updated_at)
 VALUES (1, '2025/2026', 210, 169, 41, '2025-05-15', '2025-06-30', FALSE, NOW(), NOW()),
-VALUES (2, '2026/2027', 210, 169, 41, '2025-05-15', '2025-06-30', FALSE, NOW(), NOW());
+       (2, '2026/2027', 210, 169, 41, '2026-05-15', '2026-06-30', FALSE, NOW(), NOW());
 
 -- 2. INTERNSHIP_TYPE
 -- Defining the 4 specific types with their timing and subject strictness.
