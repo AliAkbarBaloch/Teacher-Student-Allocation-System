@@ -207,7 +207,7 @@ class AllocationPlanServiceTest {
         assertNotNull(result);
         verify(academicYearRepository).findById(1L);
         verify(allocationPlanRepository).save(any(AllocationPlan.class));
-        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
+        verify(planChangeLogService).logPlanChange(anyLong(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
@@ -259,7 +259,7 @@ class AllocationPlanServiceTest {
         verify(allocationPlanRepository).findById(1L);
         verify(allocationPlanMapper).updateEntityFromDto(updateDto, testPlan);
         verify(allocationPlanRepository).save(testPlan);
-        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
+        verify(planChangeLogService).logPlanChange(anyLong(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
@@ -307,7 +307,7 @@ class AllocationPlanServiceTest {
         assertNotNull(result);
         verify(allocationPlanRepository).unsetCurrentForYearExcept(1L, 1L);
         verify(allocationPlanRepository).save(testPlan);
-        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
+        verify(planChangeLogService).logPlanChange(anyLong(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test
@@ -340,7 +340,7 @@ class AllocationPlanServiceTest {
         assertNotNull(result);
         verify(allocationPlanRepository).findById(1L);
         verify(allocationPlanRepository).save(testPlan);
-        verify(planChangeLogService).logPlanChange(anyLong(), any(), anyString(), anyString(), anyLong(), any(), any(), anyString());
+        verify(planChangeLogService).logPlanChange(anyLong(), anyString(), anyString(), anyLong(), any(), any(), anyString());
     }
 
     @Test

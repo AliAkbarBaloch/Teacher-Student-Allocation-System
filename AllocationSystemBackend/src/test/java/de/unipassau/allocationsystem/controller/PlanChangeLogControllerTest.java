@@ -76,7 +76,6 @@ class PlanChangeLogControllerTest {
 
         PlanChangeLog log = PlanChangeLog.builder()
                 .allocationPlan(testPlan)
-                .user(testUser)
             .changeType(de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE)
                 .entityType("PLAN_CHANGE_LOG")
                 .entityId(testPlan.getId())
