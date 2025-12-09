@@ -65,10 +65,12 @@ export function useBulkImport(onImportComplete?: () => void) {
 
     try {
       // Parse Excel file with progress updates
-      const parsed = await parseExcelFile(selectedFile, (progress) => {
-        // Progress updates can be used for UI feedback if needed
-        // For now, we just ensure the UI doesn't freeze
-      });
+      // 
+        const parsed = await parseExcelFile(selectedFile, (progress) => {
+          // Progress updates can be used for UI feedback if needed
+          // For now, we just ensure the UI doesn't freeze
+          console.log("Progress:", progress);
+        });
       setParsedData(parsed);
 
       // Load schools for validation
@@ -86,6 +88,7 @@ export function useBulkImport(onImportComplete?: () => void) {
         existingEmails,
         (progress) => {
           // Progress updates can be used for UI feedback if needed
+          console.log("Validation progress:", progress);
         }
       );
       setValidationResult(validation);

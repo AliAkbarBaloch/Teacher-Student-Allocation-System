@@ -234,7 +234,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         <DataTablePagination
           table={enablePagination ? table : undefined}
           enableRowSelection={enableRowSelection}
-          pageSizeOptions={pageSizeOptions}
+            pageSizeOptions={pageSizeOptions}
           serverSidePagination={serverSidePagination}
         />
       )}

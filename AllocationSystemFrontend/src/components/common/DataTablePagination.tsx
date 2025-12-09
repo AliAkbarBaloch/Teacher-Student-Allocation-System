@@ -30,7 +30,7 @@ interface ServerSidePaginationProps {
 interface DataTablePaginationProps<TData> {
   table?: Table<TData>;
   enableRowSelection?: boolean;
-  pageSizeOptions?: number[];
+  pageSizeOptions?: readonly number[] | number[];
   // Server-side pagination props (when table is not provided)
   serverSidePagination?: ServerSidePaginationProps;
 }
