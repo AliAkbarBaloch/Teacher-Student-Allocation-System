@@ -69,6 +69,60 @@
         "saving": "Saving...",
         "close": "Close",
         "confirm": "Confirm"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Overview of your allocation system",
+        "refresh": "Refresh",
+        "stats": {
+            "teachers": {
+                "title": "Teachers",
+                "description": "Registered teachers"
+            },
+            "schools": {
+                "title": "Schools",
+                "description": "Partner schools"
+            },
+            "allocationPlans": {
+                "title": "Allocation Plans",
+                "description": "Active plans"
+            },
+            "pendingSubmissions": {
+                "title": "Pending Submissions",
+                "description": "Awaiting review"
+            }
+        },
+        "allocationUtilization": {
+            "title": "Allocation Utilization",
+            "description": "Teacher credit hour balance status",
+            "viewDetails": "View Details",
+            "overUtilized": "Over-Utilized",
+            "underUtilized": "Under-Utilized",
+            "balanced": "Balanced",
+            "teachers": "teachers"
+        },
+        "allocationPlansStatus": {
+            "title": "Allocation Plans by Status",
+            "description": "Current plan status breakdown",
+            "viewAll": "View All",
+            "draft": "Draft",
+            "inReview": "In Review",
+            "approved": "Approved",
+            "archived": "Archived",
+            "ofTotal": "of total"
+        },
+        "quickActions": {
+            "title": "Quick Actions",
+            "description": "Common tasks",
+            "createAllocationPlan": "Create Allocation Plan",
+            "manageTeachers": "Manage Teachers",
+            "reviewSubmissions": "Review Submissions",
+            "viewCreditHours": "View Credit Hours"
+        },
+        "error": {
+            "title": "Error Loading Dashboard",
+            "retry": "Retry"
+        }
     }
 }
 

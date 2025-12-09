@@ -69,5 +69,59 @@
         "saving": "Wird gespeichert...",
         "close": "Schließen",
         "confirm": "Bestätigen"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "subtitle": "Übersicht über Ihr Zuweisungssystem",
+        "refresh": "Aktualisieren",
+        "stats": {
+            "teachers": {
+                "title": "Lehrer",
+                "description": "Registrierte Lehrer"
+            },
+            "schools": {
+                "title": "Schulen",
+                "description": "Partnerschulen"
+            },
+            "allocationPlans": {
+                "title": "Zuweisungspläne",
+                "description": "Aktive Pläne"
+            },
+            "pendingSubmissions": {
+                "title": "Ausstehende Einreichungen",
+                "description": "Warten auf Überprüfung"
+            }
+        },
+        "allocationUtilization": {
+            "title": "Zuweisungsauslastung",
+            "description": "Leistungspunkte-Bilanzstatus der Lehrer",
+            "viewDetails": "Details anzeigen",
+            "overUtilized": "Überlastet",
+            "underUtilized": "Unterausgelastet",
+            "balanced": "Ausgewogen",
+            "teachers": "Lehrer"
+        },
+        "allocationPlansStatus": {
+            "title": "Zuweisungspläne nach Status",
+            "description": "Aktuelle Planstatus-Übersicht",
+            "viewAll": "Alle anzeigen",
+            "draft": "Entwurf",
+            "inReview": "In Überprüfung",
+            "approved": "Genehmigt",
+            "archived": "Archiviert",
+            "ofTotal": "von insgesamt"
+        },
+        "quickActions": {
+            "title": "Schnellaktionen",
+            "description": "Häufige Aufgaben",
+            "createAllocationPlan": "Zuweisungsplan erstellen",
+            "manageTeachers": "Lehrer verwalten",
+            "reviewSubmissions": "Einreichungen überprüfen",
+            "viewCreditHours": "Leistungspunkte anzeigen"
+        },
+        "error": {
+            "title": "Fehler beim Laden des Dashboards",
+            "retry": "Wiederholen"
+        }
     }
 }
