@@ -26,6 +26,9 @@ public class PlanChangeLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "event_timestamp", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime eventTimestamp;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false, foreignKey = @ForeignKey(name = "fk_plan_change_plan"))
     private AllocationPlan allocationPlan;
@@ -56,6 +59,9 @@ public class PlanChangeLog {
 
     @PrePersist
     protected void onCreate() {
+        if (eventTimestamp == null) {
+            eventTimestamp = LocalDateTime.now();
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
