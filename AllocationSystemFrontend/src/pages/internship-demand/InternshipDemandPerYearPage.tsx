@@ -466,7 +466,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between gap-4">
             <h1 className="text-2xl font-semibold tracking-tight">
-                Internship Demand
+                Internship Demand 
             </h1>
             {isAdmin && (
                 <Button size="sm" onClick={openCreate}>
