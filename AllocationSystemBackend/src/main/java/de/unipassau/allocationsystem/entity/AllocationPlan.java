@@ -69,17 +69,17 @@ public class AllocationPlan {
     @Column(name = "status", nullable = false, length = 50)
     private PlanStatus status;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime updatedAt;
-
     @Column(name = "is_current", nullable = false)
     private Boolean isCurrent = false;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
