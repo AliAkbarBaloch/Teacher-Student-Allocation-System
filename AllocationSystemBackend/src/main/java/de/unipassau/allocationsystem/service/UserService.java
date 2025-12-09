@@ -346,7 +346,7 @@ public class UserService {
             sortDirection.equalsIgnoreCase("DESC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
         );
 
-        Specification<User> spec = Specification.where(null);
+        Specification<User> spec = Specification.allOf();
 
         if (role != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), role));

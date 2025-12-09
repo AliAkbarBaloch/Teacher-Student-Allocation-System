@@ -359,8 +359,12 @@ public class TeacherAllocationService {
                     .sorted((t1, t2) -> {
                         boolean t1HasMainSubject = hasMainSubjectQualification(t1, primarySubject, teacherQualifications);
                         boolean t2HasMainSubject = hasMainSubjectQualification(t2, primarySubject, teacherQualifications);
-                        if (t1HasMainSubject && !t2HasMainSubject) return -1;
-                        if (!t1HasMainSubject && t2HasMainSubject) return 1;
+                        if (t1HasMainSubject && !t2HasMainSubject) {
+                            return -1;
+                        }
+                        if (!t1HasMainSubject && t2HasMainSubject) {
+                            return 1;
+                        }
                         return 0;
                     })
                     .collect(Collectors.toList());
