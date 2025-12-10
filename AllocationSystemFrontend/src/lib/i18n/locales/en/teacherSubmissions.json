@@ -1,6 +1,6 @@
 {
-  "title": "Teacher Form Submissions",
-  "subtitle": "View and manage teacher form submissions per academic year.",
+  "title": "Teacher Submissions",
+  "subtitle": "View and manage teacher submissions per academic year.",
   "table": {
     "teacher": "Teacher",
     "academicYear": "Academic Year",
@@ -169,4 +169,3 @@
     }
   }
 }
-

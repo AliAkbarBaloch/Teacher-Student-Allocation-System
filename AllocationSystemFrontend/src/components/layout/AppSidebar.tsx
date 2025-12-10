@@ -106,8 +106,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: ROUTES.teacherManagement.teacherAvailability,
             },
             {
-              title: t("navigation.teacherManagementTeacherFormSubmissions"),
-              url: ROUTES.teacherManagement.teacherFormSubmissions,
+              title: t("navigation.teacherManagementTeacherSubmissions"),
+              url: ROUTES.teacherManagement.teacherSubmissions,
             },
           ],
         },

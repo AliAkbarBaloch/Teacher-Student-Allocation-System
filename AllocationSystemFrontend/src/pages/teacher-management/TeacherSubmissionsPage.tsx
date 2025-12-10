@@ -5,16 +5,16 @@ import { useTranslation } from "react-i18next";
 // hooks
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDialogState } from "@/hooks/useDialogState";
-import { useTeacherFormSubmissionsPage } from "@/features/teacher-form-submissions/hooks/useTeacherFormSubmissionsPage";
-import { useTeacherFormSubmissionFilters } from "@/features/teacher-form-submissions/hooks/useTeacherFormSubmissionFilters";
+import { useTeacherFormSubmissionsPage } from "@/features/teacher-submissions/hooks/useTeacherFormSubmissionsPage";
+import { useTeacherFormSubmissionFilters } from "@/features/teacher-submissions/hooks/useTeacherFormSubmissionFilters";
 // components
 import { DataTable } from "@/components/common/DataTable";
-import { TeacherFormSubmissionFilters } from "@/features/teacher-form-submissions/components/TeacherFormSubmissionFilters";
-import { TeacherFormSubmissionDialogs } from "@/features/teacher-form-submissions/components/TeacherFormSubmissionDialogs";
-import { GenerateFormLinkDialog } from "@/features/teacher-form-submissions/components/GenerateFormLinkDialog";
-import { useTeacherFormSubmissionColumnConfig } from "@/features/teacher-form-submissions/utils/columnConfig";
+import { TeacherFormSubmissionFilters } from "@/features/teacher-submissions/components/TeacherFormSubmissionFilters";
+import { TeacherFormSubmissionDialogs } from "@/features/teacher-submissions/components/TeacherFormSubmissionDialogs";
+import { GenerateFormLinkDialog } from "@/features/teacher-submissions/components/GenerateFormLinkDialog";
+import { useTeacherFormSubmissionColumnConfig } from "@/features/teacher-submissions/utils/columnConfig";
 // types
-import type { TeacherFormSubmission } from "@/features/teacher-form-submissions/types/teacherFormSubmission.types";
+import type { TeacherFormSubmission } from "@/features/teacher-submissions/types/teacherFormSubmission.types";
 // icons
 import { CheckCircle2, XCircle, Link2 } from "lucide-react";
 // components
@@ -24,8 +24,8 @@ import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 // utils
 import { getPaginationSummary } from "@/lib/utils/pagination";
 
-export default function TeacherFormSubmissionsPage() {
-  const { t } = useTranslation("teacherFormSubmissions");
+export default function TeacherSubmissionsPage() {
+  const { t } = useTranslation("teacherSubmissions");
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 

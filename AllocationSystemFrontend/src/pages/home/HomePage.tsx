@@ -113,7 +113,7 @@ export default function HomePage() {
               description={t("dashboard.stats.pendingSubmissions.description")}
               icon={ClipboardList}
               iconColor="text-red-600"
-              onClick={() => navigate(ROUTES.teacherManagement.teacherFormSubmissions)}
+              onClick={() => navigate(ROUTES.teacherManagement.teacherSubmissions)}
             />
           </>
         ) : null}
@@ -156,7 +156,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={() => navigate(ROUTES.teacherManagement.teacherFormSubmissions)}
+              onClick={() => navigate(ROUTES.teacherManagement.teacherSubmissions)}
             >
               <ClipboardList className="h-4 w-4 mr-2" />
               {t("dashboard.quickActions.reviewSubmissions")}

@@ -21,7 +21,7 @@ import HomePage from "@/pages/home/HomePage";
 import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
-import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
+import TeacherSubmissionsPage from "@/pages/teacher-management/TeacherSubmissionsPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
@@ -134,8 +134,8 @@ export const router = createBrowserRouter([
         element: withSuspense(<TeacherAvailabilityPage />),
       },
       {
-        path: ROUTES.teacherManagement.teacherFormSubmissions,
-        element: withSuspense(<TeacherFormSubmissionsPage />),
+        path: ROUTES.teacherManagement.teacherSubmissions,
+        element: withSuspense(<TeacherSubmissionsPage />),
       },
       // Internship Demand
       {

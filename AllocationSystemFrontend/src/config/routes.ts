@@ -21,7 +21,7 @@ export const ROUTES = {
   teacherManagement: {
     teacherSubjects: "/teacher-management/teacher-subjects",
     teacherAvailability: "/teacher-management/teacher-availability",
-    teacherFormSubmissions: "/teacher-management/teacher-form-submissions",
+    teacherSubmissions: "/teacher-management/teacher-submissions",
   },
   internshipDemand: {
     demandPerYear: "/internship-demand",

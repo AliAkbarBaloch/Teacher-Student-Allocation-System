@@ -19,11 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TeacherFormSubmissionService } from "@/features/teacher-form-submissions/services/teacherFormSubmissionService";
+import { TeacherFormSubmissionService } from "@/features/teacher-submissions/services/teacherFormSubmissionService";
 import { SchoolService } from "@/features/schools/services/schoolService";
 import { SubjectService } from "@/features/subjects/services/subjectService";
 import { EMPLOYMENT_STATUS_OPTIONS } from "@/lib/constants/teachers";
-import type { FormLinkResponse } from "@/features/teacher-form-submissions/types/teacherFormSubmission.types";
+import type { FormLinkResponse } from "@/features/teacher-submissions/types/teacherFormSubmission.types";
 import type { School } from "@/features/schools/types/school.types";
 import type { Subject } from "@/features/subjects/types/subject.types";
 import type { EmploymentStatus } from "@/features/teachers/types/teacher.types";
@@ -46,7 +46,7 @@ interface FormData {
 export default function TeacherFormPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

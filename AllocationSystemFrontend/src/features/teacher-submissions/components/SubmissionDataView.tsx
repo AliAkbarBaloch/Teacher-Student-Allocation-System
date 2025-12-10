@@ -23,7 +23,7 @@ interface SubmissionDataViewProps {
 }
 
 export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   const [schools, setSchools] = useState<School[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);

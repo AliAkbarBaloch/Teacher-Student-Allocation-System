@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { TeacherService } from "../../teachers/services/teacherService";
 import { SchoolService } from "../../schools/services/schoolService";
 import { AllocationPlanService } from "../../allocation-plans/services/allocationPlanService";
-import { TeacherFormSubmissionService } from "../../teacher-form-submissions/services/teacherFormSubmissionService";
+import { TeacherFormSubmissionService } from "../../teacher-submissions/services/teacherFormSubmissionService";
 import { CreditHourTrackingService } from "../../credit-hour-tracking/services/creditHourTrackingService";
 import { calculateUtilization, calculatePlansByStatus } from "../utils/calculations";
 

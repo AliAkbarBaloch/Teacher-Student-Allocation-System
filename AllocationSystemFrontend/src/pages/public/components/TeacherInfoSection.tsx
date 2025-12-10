@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import type { FormLinkResponse } from "@/features/teacher-form-submissions/types/teacherFormSubmission.types";
+import type { FormLinkResponse } from "@/features/teacher-submissions/types/teacherFormSubmission.types";
 
 interface TeacherInfoSectionProps {
   formDetails: FormLinkResponse;
