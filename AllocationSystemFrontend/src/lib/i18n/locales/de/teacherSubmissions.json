@@ -119,25 +119,21 @@
     "description": "Bitte füllen Sie Ihr Formular für {{yearName}} aus. Dieses Formular ist für {{teacherName}}.",
     "teacher": "Lehrer",
     "academicYear": "Studienjahr",
-    "school": "Schule",
-    "selectSchool": "Wählen Sie eine Schule",
-    "employmentStatus": "Beschäftigungsstatus",
-    "selectEmploymentStatus": "Wählen Sie den Beschäftigungsstatus",
-    "employmentStatusOptions": {
-      "ACTIVE": "Aktiv",
-      "INACTIVE_THIS_YEAR": "Nicht aktiv für dieses Jahr",
-      "ON_LEAVE": "Beurlaubt",
-      "ARCHIVED": "Archiviert"
+    "schoolType": "Schultyp",
+    "selectSchoolType": "Wählen Sie einen Schultyp",
+    "selectSchoolTypeFirst": "Bitte wählen Sie zuerst einen Schultyp",
+    "schoolTypeOptions": {
+      "PRIMARY": "Grundschule",
+      "MIDDLE": "Mittelschule"
     },
-    "subjects": "Fächer, die Sie unterrichten",
+    "school": "Schulname",
+    "selectSchool": "Wählen Sie eine Schule",
+    "subjects": "Fächer",
     "selectSubjects": "Fächer auswählen",
     "subjectsHint": "Wählen Sie alle Fächer aus, die Sie unterrichten können",
-    "availabilityOptions": "Verfügbarkeitsoptionen",
-    "availabilityOptionsHint": "Bitte wählen Sie mindestens zwei Verfügbarkeitsoptionen aus",
-    "availabilityOptionsMin": "Bitte wählen Sie noch {{count}} Option(en) aus",
-    "internshipTypes": "Praktikumstypen, die Sie betreuen möchten",
-    "selectCombinations": "Spezifische Kombinationen auswählen",
-    "semesterAvailability": "Semesterverfügbarkeit",
+    "internshipTypes": "Praktikumstypen",
+    "selectInternshipTypes": "Praktikumstypen auswählen",
+    "internshipTypesHint": "Wählen Sie alle Praktikumstypen aus, die Sie betreuen möchten",
     "notes": "Hinweise oder besondere Bemerkungen",
     "notesPlaceholder": "Geben Sie zusätzliche Hinweise, besondere Bemerkungen oder Präferenzen ein...",
     "notesHint": "Optional: Fügen Sie zusätzliche relevante Informationen hinzu",
@@ -149,13 +145,10 @@
     "loading": "Formular wird geladen...",
     "backToHome": "Zurück zur Startseite",
     "validation": {
+      "schoolTypeRequired": "Bitte wählen Sie einen Schultyp aus",
       "schoolRequired": "Bitte wählen Sie eine Schule aus",
-      "employmentStatusRequired": "Bitte wählen Sie Ihren Beschäftigungsstatus aus",
       "subjectsRequired": "Bitte wählen Sie mindestens ein Fach aus",
-      "availabilityOptionsRequired": "Bitte wählen Sie mindestens zwei Verfügbarkeitsoptionen aus",
-      "internshipTypeRequired": "Bitte wählen Sie eine Praktikumstyp-Präferenz aus",
-      "internshipCombinationsRequired": "Bitte wählen Sie mindestens eine Praktikumskombination aus",
-      "semesterAvailabilityRequired": "Bitte wählen Sie mindestens eine Semesterverfügbarkeit aus"
+      "internshipTypesRequired": "Bitte wählen Sie mindestens einen Praktikumstyp aus"
     },
     "success": {
       "title": "Formular erfolgreich eingereicht",

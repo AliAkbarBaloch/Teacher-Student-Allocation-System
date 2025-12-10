@@ -72,14 +72,10 @@ export interface FormLinkResponse {
 }
 
 export interface PublicFormSubmissionRequest {
-  schoolId: number | null;
-  employmentStatus: string;
+  schoolId: number;
   notes: string;
   subjectIds: number[];
-  internshipTypePreference: string;
-  internshipCombinations: string[];
-  semesterAvailability: string[];
-  availabilityOptions: string[];
+  internshipTypeIds: number[];
 }
 
 export type FormLinkApiResponse = ApiResponse<FormLinkResponse>;
