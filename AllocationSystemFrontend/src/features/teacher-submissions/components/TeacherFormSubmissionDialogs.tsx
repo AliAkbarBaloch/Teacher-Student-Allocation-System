@@ -42,7 +42,7 @@ export function TeacherFormSubmissionDialogs({
   onStatusChange,
   isSubmitting,
 }: TeacherFormSubmissionDialogsProps) {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   const tCommon = useTranslation("common").t;
 
   const handleConfirmStatusChange = async () => {

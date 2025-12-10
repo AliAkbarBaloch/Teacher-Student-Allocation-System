@@ -14,7 +14,7 @@ import enTeachers from "./locales/en/teachers.json";
 import enInternshipTypes from "./locales/en/internshipTypes.json";
 import enSubjects from "./locales/en/subjects.json";
 import enSubjectCategories from "./locales/en/subjectCategories.json";
-import enTeacherFormSubmissions from "./locales/en/teacherFormSubmissions.json";
+import enTeacherSubmissions from "./locales/en/teacherSubmissions.json";
 import enAcademicYears from "./locales/en/academicYears.json";
 import enTeacherSubjects from "./locales/en/teacherSubjects.json";
 import enTeacherAvailability from "./locales/en/teacherAvailability.json";
@@ -35,7 +35,7 @@ import deTeachers from "./locales/de/teachers.json";
 import deInternshipTypes from "./locales/de/internshipTypes.json";
 import deSubjects from "./locales/de/subjects.json";
 import deSubjectCategories from "./locales/de/subjectCategories.json";
-import deTeacherFormSubmissions from "./locales/de/teacherFormSubmissions.json";
+import deTeacherSubmissions from "./locales/de/teacherSubmissions.json";
 import deAcademicYears from "./locales/de/academicYears.json";
 import deTeacherSubjects from "./locales/de/teacherSubjects.json";
 import deTeacherAvailability from "./locales/de/teacherAvailability.json";
@@ -72,7 +72,7 @@ export const resources = {
         internshipTypes: enInternshipTypes,
         subjects: enSubjects,
         subjectCategories: enSubjectCategories,
-        teacherFormSubmissions: enTeacherFormSubmissions,
+        teacherSubmissions: enTeacherSubmissions,
         academicYears: enAcademicYears,
         teacherSubjects: enTeacherSubjects,
         teacherAvailability: enTeacherAvailability,
@@ -94,7 +94,7 @@ export const resources = {
         internshipTypes: deInternshipTypes,
         subjects: deSubjects,
         subjectCategories: deSubjectCategories,
-        teacherFormSubmissions: deTeacherFormSubmissions,
+        teacherSubmissions: deTeacherSubmissions,
         academicYears: deAcademicYears,
         teacherSubjects: deTeacherSubjects,
         teacherAvailability: deTeacherAvailability,
@@ -122,7 +122,7 @@ i18n
         fallbackLng: "en", // if language detection fails, use english
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
-        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherFormSubmissions", "zoneConstraints", "teacherAssignments", "planChangeLogs", "creditHourTracking"], // list of namespaces we use 
+        ns: ["common", "auth", "home", "settings", "roles", "auditLogs", "schools", "teachers", "internshipTypes", "subjects", "subjectCategories", "teacherSubmissions", "zoneConstraints", "teacherAssignments", "planChangeLogs", "creditHourTracking"], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],
             lookupQuerystring: "lang",

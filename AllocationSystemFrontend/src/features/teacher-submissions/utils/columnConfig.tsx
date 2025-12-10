@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import type { TeacherFormSubmission } from "../types/teacherFormSubmission.types";
 
 export function useTeacherFormSubmissionColumnConfig(): ColumnConfig[] {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
 
   return [
     {

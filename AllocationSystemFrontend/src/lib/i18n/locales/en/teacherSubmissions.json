@@ -1,6 +1,6 @@
 {
-  "title": "Teacher Form Submissions",
-  "subtitle": "View and manage teacher form submissions per academic year.",
+  "title": "Teacher Submissions",
+  "subtitle": "View and manage teacher submissions per academic year.",
   "table": {
     "teacher": "Teacher",
     "academicYear": "Academic Year",
@@ -119,25 +119,21 @@
     "description": "Please fill out your form for {{yearName}}. This form is for {{teacherName}}.",
     "teacher": "Teacher",
     "academicYear": "Academic Year",
-    "school": "School",
-    "selectSchool": "Select a school",
-    "employmentStatus": "Employment Status",
-    "selectEmploymentStatus": "Select employment status",
-    "employmentStatusOptions": {
-      "ACTIVE": "Active",
-      "INACTIVE_THIS_YEAR": "Inactive this year",
-      "ON_LEAVE": "On leave",
-      "ARCHIVED": "Archived"
+    "schoolType": "School Type",
+    "selectSchoolType": "Select a school type",
+    "selectSchoolTypeFirst": "Please select a school type first",
+    "schoolTypeOptions": {
+      "PRIMARY": "Primary School",
+      "MIDDLE": "Middle School"
     },
-    "subjects": "Subjects You Teach",
+    "school": "School Name",
+    "selectSchool": "Select a school",
+    "subjects": "Subjects",
     "selectSubjects": "Select subjects",
     "subjectsHint": "Select all subjects you are qualified to teach",
-    "availabilityOptions": "Availability Options",
-    "availabilityOptionsHint": "Please select at least two availability options",
-    "availabilityOptionsMin": "Please select {{count}} more option(s)",
-    "internshipTypes": "Internship Types You Are Willing to Supervise",
-    "selectCombinations": "Select specific combinations",
-    "semesterAvailability": "Semester Availability",
+    "internshipTypes": "Internship Types",
+    "selectInternshipTypes": "Select internship types",
+    "internshipTypesHint": "Select all internship types you are willing to supervise",
     "notes": "Notes or Special Remarks",
     "notesPlaceholder": "Enter any additional notes, special remarks, or preferences...",
     "notesHint": "Optional: Add any additional information that might be relevant",
@@ -146,13 +142,10 @@
     "loading": "Loading form...",
     "backToHome": "Back to Home",
     "validation": {
+      "schoolTypeRequired": "Please select a school type",
       "schoolRequired": "Please select a school",
-      "employmentStatusRequired": "Please select your employment status",
       "subjectsRequired": "Please select at least one subject",
-      "availabilityOptionsRequired": "Please select at least two availability options",
-      "internshipTypeRequired": "Please select an internship type preference",
-      "internshipCombinationsRequired": "Please select at least one internship combination",
-      "semesterAvailabilityRequired": "Please select at least one semester availability"
+      "internshipTypesRequired": "Please select at least one internship type"
     },
     "success": {
       "title": "Form Submitted Successfully",
@@ -169,4 +162,3 @@
     }
   }
 }
-

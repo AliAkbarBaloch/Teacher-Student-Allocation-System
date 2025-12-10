@@ -435,13 +435,10 @@ public class TeacherFormSubmissionService {
      */
     private void populateSubmissionFields(TeacherFormSubmission submission, PublicFormSubmissionDto dto) {
         submission.setSchoolId(dto.getSchoolId());
-        submission.setEmploymentStatus(dto.getEmploymentStatus());
         submission.setNotes(dto.getNotes());
         submission.setSubjectIds(convertLongListToString(dto.getSubjectIds()));
-        submission.setInternshipTypePreference(dto.getInternshipTypePreference());
-        submission.setInternshipCombinations(convertStringListToString(dto.getInternshipCombinations()));
-        submission.setSemesterAvailability(convertStringListToString(dto.getSemesterAvailability()));
-        submission.setAvailabilityOptions(convertStringListToString(dto.getAvailabilityOptions()));
+        // Store internship type IDs in internshipCombinations field as comma-separated string
+        submission.setInternshipCombinations(convertLongListToString(dto.getInternshipTypeIds()));
     }
 
     /**
@@ -456,15 +453,6 @@ public class TeacherFormSubmissionService {
                 .collect(Collectors.joining(","));
     }
 
-    /**
-     * Convert list of Strings to comma-separated string.
-     */
-    private String convertStringListToString(List<String> list) {
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-        return String.join(",", list);
-    }
 
     /**
      * Build form URL from token.

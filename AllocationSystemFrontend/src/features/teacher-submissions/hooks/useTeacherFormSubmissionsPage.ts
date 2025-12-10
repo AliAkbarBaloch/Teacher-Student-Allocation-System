@@ -9,7 +9,7 @@ import type {
 } from "../types/teacherFormSubmission.types";
 
 export function useTeacherFormSubmissionsPage() {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
 
   const [submissions, setSubmissions] = useState<TeacherFormSubmission[]>([]);
   const [loading, setLoading] = useState(true);

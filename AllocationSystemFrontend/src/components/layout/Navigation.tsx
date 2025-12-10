@@ -52,7 +52,7 @@ export function Navigation() {
         submenu: [
           { path: ROUTES.teacherManagement.teacherSubjects, translationKey: "navigation.teacherManagementTeacherSubjects" },
           { path: ROUTES.teacherManagement.teacherAvailability, translationKey: "navigation.teacherManagementTeacherAvailability" },
-          { path: ROUTES.teacherManagement.teacherFormSubmissions, translationKey: "navigation.teacherManagementTeacherFormSubmissions" },
+          { path: ROUTES.teacherManagement.teacherSubmissions, translationKey: "navigation.teacherManagementTeacherSubmissions" },
         ],
       },
       {

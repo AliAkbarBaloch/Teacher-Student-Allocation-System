@@ -1,5 +1,5 @@
 // react
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 // translations
 import { useTranslation } from "react-i18next";
 // router
@@ -13,31 +13,36 @@ import { ROUTES } from "@/config/routes";
 // hooks
 import { SchoolService } from "@/features/schools/services/schoolService";
 import { SubjectService } from "@/features/subjects/services/subjectService";
+import { InternshipTypeService } from "@/features/internship-types/services/internshipTypeService";
 // types
 import type { TeacherFormSubmission } from "../types/teacherFormSubmission.types";
 import type { School } from "@/features/schools/types/school.types";
 import type { Subject } from "@/features/subjects/types/subject.types";
+import type { InternshipType } from "@/features/internship-types/types/internshipType.types";
 
 interface SubmissionDataViewProps {
   submission: TeacherFormSubmission;
 }
 
 export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   const [schools, setSchools] = useState<School[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [internshipTypes, setInternshipTypes] = useState<InternshipType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Always load schools and subjects for lookup (needed for both submitted and invited states)
+    // Load schools, subjects, and internship types for lookup
     const loadLookups = async () => {
       try {
-        const [schoolsRes, subjectsRes] = await Promise.all([
+        const [schoolsRes, subjectsRes, internshipTypesRes] = await Promise.all([
           SchoolService.list({ page: 1, pageSize: 1000 }),
           SubjectService.getAll(),
+          InternshipTypeService.getAll(),
         ]);
         setSchools(schoolsRes.items || []);
         setSubjects(subjectsRes || []);
+        setInternshipTypes(internshipTypesRes || []);
       } catch (error) {
         console.error("Failed to load lookup data:", error);
       } finally {
@@ -54,45 +59,45 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
     return school?.schoolName || `School ID: ${schoolId}`;
   };
 
-  const getSubjectNames = (subjectIds: number[]): string[] => {
-    return subjectIds
+  const getSchoolType = (schoolId: number | null | undefined): string => {
+    if (!schoolId) return "-";
+    const school = schools.find((s) => s.id === schoolId);
+    if (!school) return "-";
+    return t(`publicForm.schoolTypeOptions.${school.schoolType}`);
+  };
+
+  // Memoize helper functions to avoid recalculating on every render
+  const subjectNames = useMemo(() => {
+    if (!submission.subjectIds || submission.subjectIds.length === 0) return [];
+    return submission.subjectIds
       .map((id) => {
         const subject = subjects.find((s) => s.id === id);
         return subject ? `${subject.subjectCode} - ${subject.subjectTitle}` : `Subject ID: ${id}`;
       })
       .filter(Boolean);
-  };
+  }, [submission.subjectIds, subjects]);
 
-  const internshipTypeLabels: Record<string, string> = {
-    only_pdp: "Only PDP internships (PDP I + PDP II)",
-    only_wednesday: "Only ZSP/SFP (Wednesday internships)",
-    mixed: "Mixed (PDP + Wednesday)",
-    specific: "Specific internship combinations",
-  };
+  // Parse internship type IDs from internshipCombinations field
+  // Backend stores IDs as comma-separated string "1,2,3" which gets parsed to ["1", "2", "3"]
+  const internshipTypeIds = useMemo(() => {
+    if (!submission.internshipCombinations || submission.internshipCombinations.length === 0) {
+      return [];
+    }
+    // internshipCombinations is an array of strings (parsed from comma-separated string)
+    // Each element is an ID as a string
+    return submission.internshipCombinations
+      .map((id) => parseInt(id.trim(), 10))
+      .filter((id) => !isNaN(id));
+  }, [submission.internshipCombinations]);
 
-  const combinationLabels: Record<string, string> = {
-    pdp1_pdp2: "PDP I + PDP II",
-    pdp1_sfp: "PDP I + SFP",
-    pdp1_zsp: "PDP I + ZSP",
-    pdp2_sfp: "PDP II + SFP",
-    pdp2_zsp: "PDP II + ZSP",
-    sfp_zsp: "SFP + ZSP",
-  };
-
-  const semesterLabels: Record<string, string> = {
-    autumn: "Autumn (for PDP I)",
-    spring: "Spring (for PDP II)",
-    winter_wednesday: "Winter semester Wednesdays (ZSP)",
-    summer_wednesday: "Summer semester Wednesdays (SFP)",
-  };
-
-  const availabilityLabels: Record<string, string> = {
-    morning: "Morning availability",
-    afternoon: "Afternoon availability",
-    full_day: "Full day availability",
-    flexible: "Flexible schedule",
-    specific_days: "Specific days only",
-  };
+  const internshipTypeNames = useMemo(() => {
+    return internshipTypeIds
+      .map((id) => {
+        const type = internshipTypes.find((t) => t.id === id);
+        return type ? `${type.internshipCode} - ${type.fullName}` : `Internship Type ID: ${id}`;
+      })
+      .filter(Boolean);
+  }, [internshipTypeIds, internshipTypes]);
 
   return (
     <div className="space-y-4 py-4">
@@ -158,7 +163,15 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
           <h3 className="text-lg font-semibold">{t("form.submissionDetails")}</h3>
           
           <div className="grid gap-4 md:grid-cols-2">
-            {/* School */}
+            {/* School Type */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("publicForm.schoolType")}</label>
+              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                {submission.schoolId ? getSchoolType(submission.schoolId) : "-"}
+              </div>
+            </div>
+
+            {/* School Name */}
             <div className="space-y-2">
               <label className="text-sm font-medium">{t("publicForm.school")}</label>
               <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
@@ -166,23 +179,13 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
               </div>
             </div>
 
-            {/* Employment Status */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("publicForm.employmentStatus")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.employmentStatus 
-                  ? t(`publicForm.employmentStatusOptions.${submission.employmentStatus}`)
-                  : "-"}
-              </div>
-            </div>
-
             {/* Subjects */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t("publicForm.subjects")}</label>
               <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.subjectIds && submission.subjectIds.length > 0 ? (
+                {subjectNames.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {getSubjectNames(submission.subjectIds).map((name, idx) => (
+                    {subjectNames.map((name, idx) => (
                       <Badge key={idx} variant="secondary">
                         {name}
                       </Badge>
@@ -194,63 +197,15 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
               </div>
             </div>
 
-            {/* Availability Options */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t("publicForm.availabilityOptions")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.availabilityOptions && submission.availabilityOptions.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {submission.availabilityOptions.map((opt) => (
-                      <Badge key={opt} variant="outline">
-                        {availabilityLabels[opt] || opt}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </div>
-            </div>
-
-            {/* Internship Type Preference */}
+            {/* Internship Types */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">{t("publicForm.internshipTypes")}</label>
               <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.internshipTypePreference 
-                  ? (internshipTypeLabels[submission.internshipTypePreference] || submission.internshipTypePreference)
-                  : "-"}
-              </div>
-            </div>
-
-            {/* Specific Combinations */}
-            {submission.internshipTypePreference === "specific" && (
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">{t("publicForm.selectCombinations")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {submission.internshipCombinations && submission.internshipCombinations.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {submission.internshipCombinations.map((combo) => (
-                        <Badge key={combo} variant="outline">
-                          {combinationLabels[combo] || combo}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Semester Availability */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t("publicForm.semesterAvailability")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.semesterAvailability && submission.semesterAvailability.length > 0 ? (
+                {internshipTypeNames.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {submission.semesterAvailability.map((sem) => (
-                      <Badge key={sem} variant="outline">
-                        {semesterLabels[sem] || sem}
+                    {internshipTypeNames.map((name, idx) => (
+                      <Badge key={idx} variant="secondary">
+                        {name}
                       </Badge>
                     ))}
                   </div>
