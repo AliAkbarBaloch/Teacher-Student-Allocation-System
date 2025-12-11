@@ -24,7 +24,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -38,35 +42,18 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     private final SubjectRepository subjectRepository;
 
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "academicYearId", "label", "Academic Year"));
-        fields.add(Map.of("key", "teacherId", "label", "Teacher"));
-        fields.add(Map.of("key", "subjectId", "label", "Subject"));
-        fields.add(Map.of("key", "availabilityStatus", "label", "Availability Status"));
-        fields.add(Map.of("key", "gradeLevelFrom", "label", "Grade Level From"));
-        fields.add(Map.of("key", "gradeLevelTo", "label", "Grade Level To"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", 
+            "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     private Specification<TeacherSubject> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("availabilityStatus")), likePattern),
-                cb.like(cb.lower(root.get("notes")), likePattern)
+        // Search across availabilityStatus and notes
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"availabilityStatus", "notes"}, searchValue
         );
     }
 

@@ -1,6 +1,5 @@
 package de.unipassau.allocationsystem.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +32,8 @@ import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,15 +56,20 @@ public class AllocationPlanService {
      * Get available sort fields for allocation plans.
      */
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "planName", "label", "Plan Name"));
-        fields.add(Map.of("key", "planVersion", "label", "Version"));
-        fields.add(Map.of("key", "status", "label", "Status"));
-        fields.add(Map.of("key", "isCurrent", "label", "Is Current"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields(
+            "id", "planName", "planVersion", "status", "isCurrent", "createdAt", "updatedAt"
+        );
+    }
+
+    public List<String> getSortFieldKeys() {
+        return getSortFields().stream().map(f -> f.get("key")).toList();
+    }
+
+    private Specification<AllocationPlan> buildSearchSpecification(String searchValue) {
+        // Search across planName, planVersion, status
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"planName", "planVersion", "status"}, searchValue
+        );
     }
 
     @Transactional(readOnly = true)

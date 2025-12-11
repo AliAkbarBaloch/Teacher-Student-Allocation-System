@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +36,7 @@ public class SchoolService implements CrudService<School, Long> {
 
     @Override
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "schoolName", "label", "School Name"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "schoolName", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
@@ -51,11 +48,10 @@ public class SchoolService implements CrudService<School, Long> {
     }
 
     private Specification<School> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.like(cb.lower(root.get("schoolName")), likePattern);
+        // Search across schoolName (extend fields if needed)
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"schoolName"}, searchValue
+        );
     }
 
     public boolean schoolNameExists(String schoolName) {

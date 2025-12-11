@@ -2,12 +2,11 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.RolePermission;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.RolePermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,8 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,34 +30,19 @@ public class RolePermissionService implements CrudService<RolePermission, Long> 
     private final RolePermissionRepository rolePermissionRepository;
 
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "role.title", "label", "Role"));
-        fields.add(Map.of("key", "permission.title", "label", "Permission"));
-        fields.add(Map.of("key", "accessLevel", "label", "Access Level"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields(
+            "id", "role.title", "permission.title", "accessLevel", "createdAt", "updatedAt"
+        );
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
-    
-    private Specification<RolePermission> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
 
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("role").get("title")), likePattern),
-                cb.like(cb.lower(root.get("permission").get("title")), likePattern),
-                cb.like(cb.lower(root.get("accessLevel")), likePattern)
+    private Specification<RolePermission> buildSearchSpecification(String searchValue) {
+        // Search across role.title, permission.title, accessLevel
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"role.title", "permission.title", "accessLevel"}, searchValue
         );
     }
 
