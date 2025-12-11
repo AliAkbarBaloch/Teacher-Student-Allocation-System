@@ -131,6 +131,7 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
         PlanChangeLog log = PlanChangeLog.builder()
                 .allocationPlan(plan)
+                .eventTimestamp(LocalDateTime.now())
             .changeType(changeType)
                 .entityType(entityType)
                 .entityId(entityId)

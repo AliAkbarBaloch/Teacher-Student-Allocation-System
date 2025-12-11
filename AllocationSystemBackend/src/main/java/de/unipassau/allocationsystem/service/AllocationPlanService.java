@@ -92,8 +92,8 @@ public class AllocationPlanService {
         // Validate pagination parameters
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
 
-        // Start with a nullable specification and add filters conditionally
-        Specification<AllocationPlan> spec = Specification.where(null);
+        // Start with a neutral specification and add filters conditionally
+        Specification<AllocationPlan> spec = Specification.allOf();
 
         if (yearId != null) {
             spec = spec.and((root, query, cb) ->
