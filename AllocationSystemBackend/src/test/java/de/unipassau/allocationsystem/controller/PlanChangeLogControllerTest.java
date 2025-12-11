@@ -76,12 +76,11 @@ class PlanChangeLogControllerTest {
 
         PlanChangeLog log = PlanChangeLog.builder()
                 .allocationPlan(testPlan)
-                .user(testUser)
-            .changeType(de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE)
+                .changeType(de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE)
                 .entityType("PLAN_CHANGE_LOG")
                 .entityId(testPlan.getId())
                 .newValue("{\"planName\":\"Controller Plan\"}")
-                .eventTimestamp(java.time.LocalDateTime.now())
+                .createdAt(java.time.LocalDateTime.now())
                 .reason("setup")
                 .build();
         planChangeLogRepository.save(log);

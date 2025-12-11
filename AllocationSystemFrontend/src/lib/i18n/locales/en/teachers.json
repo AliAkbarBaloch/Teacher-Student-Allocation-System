@@ -90,9 +90,12 @@
       "isActive": "Only active teachers can be assigned to allocation plans."
     },
     "employmentStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE_THIS_YEAR": "Inactive This Year",
+      "ON_LEAVE": "On Leave",
+      "ARCHIVED": "Archived",
       "FULL_TIME": "Full-time",
       "PART_TIME": "Part-time",
-      "ON_LEAVE": "On Leave",
       "CONTRACT": "Contract",
       "PROBATION": "Probation",
       "RETIRED": "Retired"

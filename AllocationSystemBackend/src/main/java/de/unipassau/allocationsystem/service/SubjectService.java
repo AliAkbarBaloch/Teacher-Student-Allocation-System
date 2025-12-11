@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 
 /**
  * Service layer for CRUD operations and pagination logic around {@link Subject}.
@@ -40,15 +42,9 @@ public class SubjectService implements CrudService<Subject, Long> {
 
     @Override
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "subjectCode", "label", "Subject Code"));
-        fields.add(Map.of("key", "subjectTitle", "label", "Subject Title"));
-        fields.add(Map.of("key", "schoolType", "label", "School Type"));
-        fields.add(Map.of("key", "isActive", "label", "Active Status"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields(
+            "id", "subjectCode", "subjectTitle", "schoolType", "isActive", "createdAt", "updatedAt"
+        );
     }
 
     public List<String> getSortFieldKeys() {
@@ -68,14 +64,9 @@ public class SubjectService implements CrudService<Subject, Long> {
      * @return specification applied to the repository query
      */
     private Specification<Subject> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("subjectCode")), likePattern),
-                cb.like(cb.lower(root.get("subjectTitle")), likePattern),
-                cb.like(cb.lower(root.get("schoolType")), likePattern)
+        // Search across subjectCode, subjectTitle, and schoolType
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"subjectCode", "subjectTitle", "schoolType"}, searchValue
         );
     }
 

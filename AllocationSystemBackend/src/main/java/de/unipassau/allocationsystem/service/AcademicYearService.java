@@ -18,10 +18,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -33,29 +34,18 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
     @Override
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "yearName", "label", "Year Name"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "yearName", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     private Specification<AcademicYear> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.like(cb.lower(root.get("yearName")), likePattern);
+        // Search across yearName (extend fields if needed)
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"yearName"}, searchValue
+        );
     }
 
     public boolean yearNameExists(String yearName) {
