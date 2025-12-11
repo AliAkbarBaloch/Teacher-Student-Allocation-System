@@ -3,6 +3,8 @@ package de.unipassau.allocationsystem.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,17 +35,9 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     private final CreditHourTrackingService creditHourTrackingService;
 
     public List<Map<String, String>> getSortFields() {
-        return List.of(
-            Map.of("key", "id", "label", "ID"),
-            Map.of("key", "planId", "label", "Plan"),
-            Map.of("key", "teacherId", "label", "Teacher"),
-            Map.of("key", "internshipTypeId", "label", "Internship Type"),
-            Map.of("key", "subjectId", "label", "Subject"),
-            Map.of("key", "assignmentStatus", "label", "Status"),
-            Map.of("key", "studentGroupSize", "label", "Group Size"),
-            Map.of("key", "isManualOverride", "label", "Manual Override"),
-            Map.of("key", "createdAt", "label", "Created At"),
-            Map.of("key", "updatedAt", "label", "Updated At")
+        return SortFieldUtils.getSortFields(
+            "id", "planId", "teacherId", "internshipTypeId", "subjectId",
+            "assignmentStatus", "studentGroupSize", "isManualOverride", "createdAt", "updatedAt"
         );
     }
 
@@ -52,13 +46,9 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     }
 
     private Specification<TeacherAssignment> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-            cb.like(cb.lower(root.get("assignmentStatus")), likePattern),
-            cb.like(cb.lower(root.get("notes")), likePattern)
+        // Search across assignmentStatus and notes
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"assignmentStatus", "notes"}, searchValue
         );
     }
 

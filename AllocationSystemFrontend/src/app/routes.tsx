@@ -21,11 +21,12 @@ import HomePage from "@/pages/home/HomePage";
 import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
-import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
+import TeacherSubmissionsPage from "@/pages/teacher-management/TeacherSubmissionsPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
 import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
+import AllocationReportPage from "@/pages/reports/AllocationReportPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense fallback={
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
         element: withSuspense(<HomePage />),
       },
       {
+        path: ROUTES.main.allocationReport,
+        element: withSuspense(<AllocationReportPage />),
+      },
+      {
         path: ROUTES.main.settings,
         element: withSuspense(<SettingsPage />),
       },
@@ -129,13 +134,13 @@ export const router = createBrowserRouter([
         element: withSuspense(<TeacherAvailabilityPage />),
       },
       {
-        path: ROUTES.teacherManagement.teacherFormSubmissions,
-        element: withSuspense(<TeacherFormSubmissionsPage />),
+        path: ROUTES.teacherManagement.teacherSubmissions,
+        element: withSuspense(<TeacherSubmissionsPage />),
       },
       // Internship Demand
       {
         path: ROUTES.internshipDemand.demandPerYear,
-        element: withSuspense(<div>Internship Demand per Year</div>),
+        element: withSuspense(<AllocationReportPage />),
       },
       // Allocation Planning
       {

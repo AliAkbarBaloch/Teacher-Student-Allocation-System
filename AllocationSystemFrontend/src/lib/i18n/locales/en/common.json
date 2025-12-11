@@ -15,9 +15,11 @@
             "dataManagement": "Data Management",
             "planning": "Planning & Allocation",
             "reports": "Reports",
-            "settings": "Settings"
+            "settings": "Settings",
+            "allocationReport": "AllocationReport"
         },
         "dashboard": "Dashboard",
+        "allocationReport": "AllocationReport",
         "baseData": "Base Data Management",
         "baseDataAcademicYears": "Academic Years",
         "baseDataSubjectCategories": "Subject Categories",
@@ -28,7 +30,7 @@
         "teacherManagement": "Teacher Management",
         "teacherManagementTeacherSubjects": "Teacher Subjects",
         "teacherManagementTeacherAvailability": "Teacher Availability",
-        "teacherManagementTeacherFormSubmissions": "Teacher Form Submissions",
+        "teacherManagementTeacherSubmissions": "Teacher Submissions",
         "internshipDemand": "Internship Demand",
         "internshipDemandDemandPerYear": "Internship Demand per Year",
         "allocationPlanning": "Allocation Planning",

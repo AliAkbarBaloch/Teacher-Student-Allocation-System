@@ -1,7 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +20,7 @@ import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
 import de.unipassau.allocationsystem.repository.PlanChangeLogRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,23 +36,11 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
     private final ObjectMapper objectMapper;
 
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "planId", "label", "Plan ID"));
-        fields.add(Map.of("key", "changeType", "label", "Change Type"));
-        fields.add(Map.of("key", "entityType", "label", "Entity Type"));
-        fields.add(Map.of("key", "entityId", "label", "Entity ID"));
-        fields.add(Map.of("key", "createdAt", "label", "Created At"));
-        fields.add(Map.of("key", "updatedAt", "label", "Updated At"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "planId", "changeType", "entityType", "entityId", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     @Override

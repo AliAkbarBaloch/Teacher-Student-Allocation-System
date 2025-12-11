@@ -35,6 +35,7 @@ export function Navigation() {
   const navItems = useMemo<NavItem[]>(
     () => [
       { path: ROUTES.main.dashboard, translationKey: "navigation.dashboard" },
+      { path: ROUTES.main.allocationReport, translationKey: "navigation.allocationReport" },
       {
         translationKey: "navigation.baseData",
         submenu: [
@@ -51,7 +52,7 @@ export function Navigation() {
         submenu: [
           { path: ROUTES.teacherManagement.teacherSubjects, translationKey: "navigation.teacherManagementTeacherSubjects" },
           { path: ROUTES.teacherManagement.teacherAvailability, translationKey: "navigation.teacherManagementTeacherAvailability" },
-          { path: ROUTES.teacherManagement.teacherFormSubmissions, translationKey: "navigation.teacherManagementTeacherFormSubmissions" },
+          { path: ROUTES.teacherManagement.teacherSubmissions, translationKey: "navigation.teacherManagementTeacherSubmissions" },
         ],
       },
       {

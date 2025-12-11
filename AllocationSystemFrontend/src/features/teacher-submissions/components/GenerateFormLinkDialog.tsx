@@ -59,7 +59,7 @@ export function GenerateFormLinkDialog({
   yearId: initialYearId,
   onLinkGenerated,
 }: GenerateFormLinkDialogProps) {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   const [teacherId, setTeacherId] = useState<number | undefined>(initialTeacherId);
   const [yearId, setYearId] = useState<number | undefined>(initialYearId);
   const [teachers, setTeachers] = useState<Teacher[]>([]);

@@ -60,7 +60,7 @@ export function TeacherFormSubmissionFilters({
   disabled = false,
   searchLoading = false,
 }: TeacherFormSubmissionFiltersProps) {
-  const { t } = useTranslation("teacherFormSubmissions");
+  const { t } = useTranslation("teacherSubmissions");
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [loadingYears, setLoadingYears] = useState(false);
   const [teachers, setTeachers] = useState<Teacher[]>([]);

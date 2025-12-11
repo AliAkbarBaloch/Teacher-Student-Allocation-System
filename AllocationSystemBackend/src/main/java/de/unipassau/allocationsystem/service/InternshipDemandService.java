@@ -2,7 +2,12 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.entity.*;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
@@ -11,6 +16,8 @@ import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +28,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,35 +44,19 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     private final AcademicYearRepository academicYearRepository;
 
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "yearId", "label", "Academic Year"));
-        fields.add(Map.of("key", "internshipTypeId", "label", "Internship Type"));
-        fields.add(Map.of("key", "schoolType", "label", "School Type"));
-        fields.add(Map.of("key", "subjectId", "label", "Subject"));
-        fields.add(Map.of("key", "isForecasted", "label", "Forecasted"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields(
+            "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
+        );
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     private Specification<InternshipDemand> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("schoolType").as(String.class)), likePattern),
-                cb.like(cb.lower(root.get("internshipType").get("title")), likePattern),
-                cb.like(cb.lower(root.get("subject").get("subjectTitle")), likePattern)
+        // Search across schoolType, internshipType.title, subject.subjectTitle
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"schoolType", "internshipType.title", "subject.subjectTitle"}, searchValue
         );
     }
 

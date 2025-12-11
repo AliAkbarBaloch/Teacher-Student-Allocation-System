@@ -7,6 +7,7 @@ export const ROUTES = {
   main: {
     home: "/home",
     dashboard: "/dashboard",
+    allocationReport: "/allocation-report",
     settings: "/settings",
   },
   baseData: {
@@ -20,7 +21,7 @@ export const ROUTES = {
   teacherManagement: {
     teacherSubjects: "/teacher-management/teacher-subjects",
     teacherAvailability: "/teacher-management/teacher-availability",
-    teacherFormSubmissions: "/teacher-management/teacher-form-submissions",
+    teacherSubmissions: "/teacher-management/teacher-submissions",
   },
   internshipDemand: {
     demandPerYear: "/internship-demand",

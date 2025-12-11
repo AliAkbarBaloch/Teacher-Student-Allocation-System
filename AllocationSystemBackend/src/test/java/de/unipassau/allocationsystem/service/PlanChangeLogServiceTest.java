@@ -71,13 +71,13 @@ class PlanChangeLogServiceTest {
     @Test
     void testLogPlanChangeAndQuery() {
         PlanChangeLog result = service.logPlanChange(
-                testPlan.getId(),
-                de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE,
-                "PLAN_CHANGE_LOG",
-                testPlan.getId(),
-                null,
-                Map.of("planName", "Test Plan"),
-                "initial create"
+            testPlan.getId(),
+            de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE,
+            "PLAN_CHANGE_LOG",
+            testPlan.getId(),
+            null,
+            Map.of("planName", "Test Plan"),
+            "initial create"
         );
 
         assertNotNull(result);
