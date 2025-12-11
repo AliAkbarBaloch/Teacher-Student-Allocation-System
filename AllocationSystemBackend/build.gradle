@@ -74,6 +74,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    
+    // Generate JUnit XML reports for GitLab CI/CD
+    reports {
+        junitXml {
+            required = true
+            outputLocation = layout.buildDirectory.dir('test-results/test')
+        }
+        html {
+            required = true
+            outputLocation = layout.buildDirectory.dir('reports/tests/test')
+        }
+    }
 }
 
 // --- Checkstyle Configuration ---
