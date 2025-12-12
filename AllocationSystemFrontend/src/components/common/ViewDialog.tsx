@@ -53,8 +53,6 @@ export function ViewDialog<TData>({
   maxWidth = "2xl",
   renderCustomContent,
 }: ViewDialogProps<TData>) {
-  if (!data) return null;
-
   const renderFieldValue = useCallback((_field: string, value: unknown, config?: ColumnConfig) => {
     // If there's a format function, use it
     if (config?.format && typeof config.format === "function") {
@@ -154,6 +152,8 @@ export function ViewDialog<TData>({
       </div>
     );
   }, [data]);
+
+  if (!data) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
