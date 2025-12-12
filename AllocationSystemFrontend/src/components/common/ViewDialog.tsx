@@ -89,6 +89,10 @@ export function ViewDialog<TData>({
 
   // Render field from fieldConfig - memoized
   const renderFieldFromConfig = useCallback((field: FieldConfig<TData>) => {
+    // Type assertion: data is guaranteed to be non-null when this function is called
+    // because we return early if data is null
+    if (!data) return null;
+    
     const value = (data as Record<string, unknown>)[String(field.name)];
     
     // Skip fields that shouldn't be shown in view mode
@@ -98,7 +102,7 @@ export function ViewDialog<TData>({
 
     // Use custom viewFormat if provided
     if (field.viewFormat) {
-      const formatted = field.viewFormat(value, data);
+      const formatted = field.viewFormat(value, data as TData);
       return (
         <div
           key={String(field.name)}
