@@ -21,14 +21,18 @@ export class AllocationPlanService {
    * Get all allocation plans
    */
   static async getAll(): Promise<AllocationPlan[]> {
-    const response = await apiClient.get<ApiResponse<AllocationPlan[]>>("/allocation-plans");
+    const response = await apiClient.get<ApiResponse<AllocationPlan[]>>(
+      "/allocation-plans"
+    );
     return response.data;
   }
 
   /**
    * Get paginated allocation plans
    */
-  static async getPaginated(params: AllocationPlansListParams = {}): Promise<PaginatedAllocationPlansResponse["data"]> {
+  static async getPaginated(
+    params: AllocationPlansListParams = {}
+  ): Promise<PaginatedAllocationPlansResponse["data"]> {
     const queryParams = new URLSearchParams();
 
     if (params.page !== undefined) {
@@ -56,9 +60,9 @@ export class AllocationPlanService {
       queryParams.append("isCurrent", String(params.isCurrent));
     }
 
-    const response = await apiClient.get<ApiResponse<PaginatedAllocationPlansResponse["data"]>>(
-      `/allocation-plans/paginate?${queryParams.toString()}`
-    );
+    const response = await apiClient.get<
+      ApiResponse<PaginatedAllocationPlansResponse["data"]>
+    >(`/allocation-plans/paginate?${queryParams.toString()}`);
     return response.data;
   }
 
@@ -66,23 +70,36 @@ export class AllocationPlanService {
    * Get allocation plan by ID
    */
   static async getById(id: number): Promise<AllocationPlan> {
-    const response = await apiClient.get<ApiResponse<AllocationPlan>>(`/allocation-plans/${id}`);
+    const response = await apiClient.get<ApiResponse<AllocationPlan>>(
+      `/allocation-plans/${id}`
+    );
     return response.data;
   }
 
   /**
    * Create a new allocation plan
    */
-  static async create(allocationPlan: CreateAllocationPlanRequest): Promise<AllocationPlan> {
-    const response = await apiClient.post<ApiResponse<AllocationPlan>>("/allocation-plans", allocationPlan);
+  static async create(
+    allocationPlan: CreateAllocationPlanRequest
+  ): Promise<AllocationPlan> {
+    const response = await apiClient.post<ApiResponse<AllocationPlan>>(
+      "/allocation-plans",
+      allocationPlan
+    );
     return response.data;
   }
 
   /**
    * Update an existing allocation plan
    */
-  static async update(id: number, allocationPlan: UpdateAllocationPlanRequest): Promise<AllocationPlan> {
-    const response = await apiClient.put<ApiResponse<AllocationPlan>>(`/allocation-plans/${id}`, allocationPlan);
+  static async update(
+    id: number,
+    allocationPlan: UpdateAllocationPlanRequest
+  ): Promise<AllocationPlan> {
+    const response = await apiClient.put<ApiResponse<AllocationPlan>>(
+      `/allocation-plans/${id}`,
+      allocationPlan
+    );
     return response.data;
   }
 
@@ -91,5 +108,15 @@ export class AllocationPlanService {
    */
   static async delete(id: number): Promise<void> {
     await apiClient.delete(`/allocation-plans/${id}`);
+  }
+
+  /**
+   * Run allocation algorithm for a specific allocation plan
+   */
+  static async runAllocation(id: number): Promise<{ newPlanId: number }> {
+    const response = await apiClient.post<ApiResponse<{ newPlanId: number }>>(
+      `/allocation-plans/${id}/run-allocation`
+    );
+    return response.data;
   }
 }

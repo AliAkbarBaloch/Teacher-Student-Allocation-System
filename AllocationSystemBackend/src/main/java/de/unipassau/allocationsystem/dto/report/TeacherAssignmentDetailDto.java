@@ -8,6 +8,7 @@ import lombok.Data;
 public class TeacherAssignmentDetailDto {
     private Long assignmentId;
     private String teacherName;
+    private String teacherEmail;
     private String schoolName;
     private String schoolZone; // Zone 1, 2, 3
     private String internshipCode; // PDP1, ZSP, etc.
