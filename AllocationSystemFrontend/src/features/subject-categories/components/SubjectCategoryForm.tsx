@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { TextField } from "@/components/form/fields/TextField";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { AlertCircle, Loader2 } from "lucide-react";
 import type {
-  SubjectCategory,
   CreateSubjectCategoryRequest,
+  SubjectCategory,
   UpdateSubjectCategoryRequest,
 } from "../types/subjectCategory.types";
 
@@ -116,48 +117,37 @@ export function SubjectCategoryForm({
       )}
 
       <div className="space-y-2">
-        <label htmlFor="categoryTitle" className="text-sm font-medium">
-          {t("form.fields.title")}
-          <span className="text-destructive ml-1">*</span>
-        </label>
-        <Input
+        <TextField
           id="categoryTitle"
+          label={t("form.fields.title")}
           value={formData.categoryTitle}
-          onChange={(e) => handleChange("categoryTitle", e.target.value)}
+          onChange={val => handleChange("categoryTitle", val)}
           placeholder={t("form.placeholders.title")}
+          required
+          error={errors.categoryTitle}
           disabled={isLoading || isSubmitting}
-          className={errors.categoryTitle ? "border-destructive" : ""}
           maxLength={255}
         />
-        {errors.categoryTitle && (
-          <p className="text-sm text-destructive">{errors.categoryTitle}</p>
-        )}
         <p className="text-xs text-muted-foreground">
           {t("form.fields.titleDescription")}
         </p>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isLoading || isSubmitting}>
-          {isSubmitting || isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tCommon("actions.saving")}
-            </>
-          ) : subjectCategory ? (
-            tCommon("actions.update")
-          ) : (
-            tCommon("actions.create")
-          )}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!subjectCategory}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isLoading || isSubmitting}
+        />
       </div>
     </form>
   );

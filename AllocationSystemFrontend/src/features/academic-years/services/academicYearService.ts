@@ -8,13 +8,13 @@ import type {
   UpdateAcademicYearRequest,
 } from "../types/academicYear.types";
 
-export class AcademicYearService extends BaseApiService<AcademicYear,CreateAcademicYearRequest,UpdateAcademicYearRequest> {
+export class AcademicYearServiceClass extends BaseApiService<AcademicYear,CreateAcademicYearRequest,UpdateAcademicYearRequest> {
   constructor() {
     super("academic-years");
   }
 
   // Add any custom methods here, e.g., getPaginated
-  static async getPaginated(params: AcademicYearsListParams = {}): Promise<PaginatedAcademicYearsResponse["data"]> {
+  async getPaginated(params: AcademicYearsListParams = {}): Promise<PaginatedAcademicYearsResponse["data"]> {
     const queryParams = new URLSearchParams();
 
     if (params.page !== undefined) queryParams.append("page", String(params.page));
@@ -29,3 +29,5 @@ export class AcademicYearService extends BaseApiService<AcademicYear,CreateAcade
     return response.data;
   }
 }
+
+export const AcademicYearService = new AcademicYearServiceClass();

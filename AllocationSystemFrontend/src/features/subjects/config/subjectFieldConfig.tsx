@@ -76,10 +76,14 @@ export function getSubjectFieldConfig(
     },
     {
       name: "schoolType",
-      type: "text",
+      type: "select",
       label: t("form.fields.schoolType"),
       placeholder: t("form.placeholders.schoolType"),
-      required: false,
+      required: true,
+      options: [
+        { value: "Primary", label: t("table.primary") },
+        { value: "Middle", label: t("table.middle") },
+      ],
       validation: {
         maxLength: 50,
       },
