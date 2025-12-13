@@ -48,7 +48,7 @@ export function useSchoolsPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await SchoolService.list({
+      const response = await SchoolService.getPaginated({
         ...filters,
         page: pagination.page,
         pageSize: pagination.pageSize,

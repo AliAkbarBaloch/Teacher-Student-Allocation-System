@@ -1,24 +1,20 @@
-import { Input } from "@/components/ui/input";
 import React from "react";
 
-interface NumberFieldProps {
+interface TextAreaFieldProps {
   id: string;
   label: string;
-  value: number | string;
-  onChange: (value: number) => void;
+  value: string;
+  onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
   error?: string;
   disabled?: boolean;
-  min?: number;
-  max?: number; // NEW
-  step?: number | string; // NEW
-  type?: string; // NEW, defaults to "number"
+  rows?: number;
   className?: string;
   labelClassName?: string;
 }
 
-export const NumberField: React.FC<NumberFieldProps> = ({
+export const TextAreaField: React.FC<TextAreaFieldProps> = ({
   id,
   label,
   value,
@@ -27,10 +23,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({
   required = false,
   error,
   disabled,
-  min = 0,
-  max,
-  step,
-  type = "number",
+  rows = 3,
   className = "",
   labelClassName = "text-sm font-medium",
 }) => (
@@ -39,17 +32,14 @@ export const NumberField: React.FC<NumberFieldProps> = ({
       {label}
       {required && <span className="text-destructive ml-1">*</span>}
     </label>
-    <Input
+    <textarea
       id={id}
-      type={type}
+      rows={rows}
       value={value}
-      onChange={e => onChange(Number(e.target.value))}
       placeholder={placeholder}
+      onChange={e => onChange(e.target.value)}
       disabled={disabled}
-      className={error ? `border-destructive ${className}` : className}
-      min={min}
-      max={max}
-      step={step}
+      className={`flex min-h-[90px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : "border-input"} ${className}`}
     />
     {error && <p className="text-sm text-destructive">{error}</p>}
   </div>
