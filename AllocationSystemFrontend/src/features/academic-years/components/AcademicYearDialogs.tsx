@@ -1,16 +1,16 @@
-import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { GenericFormDialog } from "@/components/common/GenericFormDialog";
 import { GenericForm } from "@/components/common/GenericForm";
+import { GenericFormDialog } from "@/components/common/GenericFormDialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
+import type { TFunction } from "i18next";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { getAcademicYearFieldConfig } from "../config/academicYearFieldConfig";
 import type {
   AcademicYear,
   CreateAcademicYearRequest,
   UpdateAcademicYearRequest,
 } from "../types/academicYear.types";
-import { getAcademicYearFieldConfig } from "../config/academicYearFieldConfig";
-import type { TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
 
 interface AcademicYearDialogsProps {
   // Dialog states
