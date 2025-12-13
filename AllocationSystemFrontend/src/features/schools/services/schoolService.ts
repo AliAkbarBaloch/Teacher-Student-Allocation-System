@@ -32,6 +32,11 @@ export class SchoolService {
     return response.data;
   }
 
+  static async getAll(): Promise<School[]> {
+    const response = await apiClient.get<ApiResponse<School[]>>("/schools");
+    return response.data;
+  }
+
   static async getById(id: number): Promise<School> {
     const response = await apiClient.get<ApiResponse<School>>(`/schools/${id}`);
     return response.data;
