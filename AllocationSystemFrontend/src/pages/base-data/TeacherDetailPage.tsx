@@ -187,7 +187,7 @@ export default function TeacherDetailPage() {
       {/* Subjects DataTable */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold">{t("table.subjectsTitle") || "Subjects"}</h3>
+          <h3 className="text-lg font-semibold">{t("table.teacherSubjects") || "Teacher Subjects"}</h3>
           <Button onClick={handleCreateClick}>
             <Plus className="mr-2 h-4 w-4" />
             {t("actions.create")}
