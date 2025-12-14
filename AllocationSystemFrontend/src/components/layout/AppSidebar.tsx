@@ -89,6 +89,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: t("navigation.baseDataInternshipTypes"),
               url: ROUTES.baseData.internshipTypes,
             },
+            {
+              title: t("navigation.baseDataZoneConstraints"),
+              url: ROUTES.baseData.zoneConstraints,
+            },
           ],
         },
         {
@@ -139,10 +143,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: t("navigation.allocationPlanningCreditHourTracking"),
               url: ROUTES.allocationPlanning.creditHourTracking,
-            },
-            {
-              title: t("navigation.allocationPlanningZoneConstraints"),
-              url: ROUTES.allocationPlanning.zoneConstraints,
             },
             {
               title: t("navigation.allocationPlanningPlanChangeLogs"),

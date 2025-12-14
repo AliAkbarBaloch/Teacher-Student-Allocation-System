@@ -135,6 +135,10 @@ export const router = createBrowserRouter([
         path: ROUTES.baseData.internshipTypes,
         element: withSuspense(<InternshipTypesPage />),
       },
+      {
+        path: ROUTES.baseData.zoneConstraints,
+        element: withSuspense(<ZoneConstraintPage />),
+      },
       // Teacher Management
       {
         path: ROUTES.teacherManagement.teacherSubjects,
@@ -169,10 +173,6 @@ export const router = createBrowserRouter([
       {
         path: `${ROUTES.allocationPlanning.creditHourTracking}/:yearId`,
         element: withSuspense(<CreditHourTrackingPage />),
-      },
-      {
-        path: ROUTES.allocationPlanning.zoneConstraints,
-        element: withSuspense(<ZoneConstraintPage />),
       },
       {
         path: ROUTES.allocationPlanning.planChangeLogs,
