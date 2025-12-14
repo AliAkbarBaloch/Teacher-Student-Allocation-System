@@ -111,25 +111,25 @@ export function TeacherAssignmentDialogs({
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.planId")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.planId}
+                    {assignment.planTitle}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.teacherId")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.teacherId}
+                    {assignment.teacherTitle}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.internshipTypeId")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.internshipTypeId}
+                    {assignment.internshipTypeTitle}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t("form.fields.subjectId")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.subjectId}
+                    {assignment.subjectTitle}
                   </div>
                 </div>
                 <div className="space-y-2">

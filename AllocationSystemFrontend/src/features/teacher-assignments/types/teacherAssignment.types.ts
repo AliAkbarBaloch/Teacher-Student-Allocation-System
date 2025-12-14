@@ -15,7 +15,7 @@ export interface TeacherAssignment {
   subjectId: number;
   subjectTitle: string;
   studentGroupSize: number;
-  assignmentStatus: string;
+  assignmentStatus: AssignmentStatus;
   isManualOverride: boolean;
   notes: string | null;
   assignedAt: string | null; // ISO string, from LocalDateTime
