@@ -93,7 +93,7 @@ export const SelectSearchField: React.FC<SelectSearchFieldProps> = ({
               filteredOptions.map((opt) => (
                 <div
                   key={opt.value}
-                  className={`p-2 cursor-pointer hover:bg-muted ${opt.disabled ? "opacity-50 pointer-events-none" : ""} ${opt.value === value ? "bg-muted" : ""}`}
+                  className={`p-2 text-sm cursor-pointer hover:bg-muted ${opt.disabled ? "opacity-50 pointer-events-none" : ""} ${opt.value === value ? "bg-muted" : ""}`}
                   onMouseDown={() => {
                     if (!opt.disabled) {
                       onChange(opt.value);
