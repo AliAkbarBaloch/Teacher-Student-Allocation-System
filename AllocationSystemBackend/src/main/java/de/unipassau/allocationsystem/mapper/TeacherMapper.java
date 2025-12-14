@@ -28,7 +28,7 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         teacher.setEmail(createDto.getEmail());
         teacher.setPhone(createDto.getPhone());
         teacher.setIsPartTime(createDto.getIsPartTime());
-        if(createDto.getIsPartTime()) {
+        if (createDto.getIsPartTime()) {
             teacher.setWorkingHoursPerWeek(createDto.getWorkingHoursPerWeek());
         } else {
             teacher.setWorkingHoursPerWeek(0);
@@ -50,7 +50,7 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         teacher.setEmail(updateDto.getEmail());
         teacher.setPhone(updateDto.getPhone());
         teacher.setIsPartTime(updateDto.getIsPartTime());
-        if(updateDto.getIsPartTime()) {
+        if (updateDto.getIsPartTime()) {
             teacher.setWorkingHoursPerWeek(updateDto.getWorkingHoursPerWeek());
         } else {
             teacher.setWorkingHoursPerWeek(0);
@@ -115,7 +115,7 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         if (updateDto.getIsPartTime() != null) {
             teacher.setIsPartTime(updateDto.getIsPartTime());
         }
-        if(updateDto.getWorkingHoursPerWeek() != null) {
+        if (updateDto.getWorkingHoursPerWeek() != null) {
             teacher.setWorkingHoursPerWeek(updateDto.getWorkingHoursPerWeek());
         }
         if (updateDto.getEmploymentStatus() != null) {

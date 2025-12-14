@@ -80,7 +80,7 @@ export function useTeachersPage() {
   );
 
   const handleStatusChange = useCallback(
-    async (teacher: Teacher, nextState: boolean) => {
+    async (teacher: Teacher, nextState: EmploymentStatus) => {
       dialogs.setOperationInProgress("status");
       dialogs.setWarningMessage(null);
       try {
