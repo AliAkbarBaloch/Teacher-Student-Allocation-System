@@ -37,7 +37,7 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
     const loadLookups = async () => {
       try {
         const [schoolsRes, subjectsRes, internshipTypesRes] = await Promise.all([
-          SchoolService.list({ page: 1, pageSize: 1000 }),
+          SchoolService.getPaginated({ page: 1, pageSize: 1000 }),
           SubjectService.getAll(),
           InternshipTypeService.getAll(),
         ]);

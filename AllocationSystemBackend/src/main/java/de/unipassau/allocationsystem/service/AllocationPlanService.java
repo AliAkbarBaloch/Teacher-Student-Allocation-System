@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import de.unipassau.allocationsystem.allocation.TeacherAllocationService;
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.constant.PlanChangeTypes;
@@ -51,6 +52,7 @@ public class AllocationPlanService {
     private final UserRepository userRepository;
     private final AllocationPlanMapper allocationPlanMapper;
     private final PlanChangeLogService planChangeLogService;
+    private final TeacherAllocationService teacherAllocationService;
 
     /**
      * Get available sort fields for allocation plans.
@@ -151,6 +153,7 @@ public class AllocationPlanService {
     public AllocationPlanResponseDto createPlan(AllocationPlanCreateDto createDto) {
         log.info("Creating allocation plan: {} v{} for year ID: {}", 
                 createDto.getPlanName(), createDto.getPlanVersion(), createDto.getYearId());
+        log.info("[DEBUG] Received isCurrent value in service: {}", createDto.getIsCurrent());
 
         // Validate academic year exists
         AcademicYear academicYear = academicYearRepository.findById(createDto.getYearId())
@@ -179,9 +182,11 @@ public class AllocationPlanService {
         plan.setStatus(createDto.getStatus());
         plan.setIsCurrent(createDto.getIsCurrent() != null ? createDto.getIsCurrent() : false);
         plan.setNotes(createDto.getNotes());
+        log.info("[DEBUG] Plan isCurrent before save: {}", plan.getIsCurrent());
 
         AllocationPlan saved = allocationPlanRepository.save(plan);
         log.info("Allocation plan created successfully with ID: {}", saved.getId());
+        log.info("[DEBUG] Saved plan isCurrent after save: {}", saved.getIsCurrent());
 
         // Log plan creation in plan change log
         try {
@@ -198,7 +203,61 @@ public class AllocationPlanService {
             log.warn("Failed to create plan change log for created plan id {}", saved.getId(), e);
         }
 
-        return allocationPlanMapper.toResponseDto(saved);
+        AllocationPlanResponseDto responseDto = allocationPlanMapper.toResponseDto(saved);
+        log.info("[DEBUG] Response DTO isCurrent: {}", responseDto.getIsCurrent());
+        return responseDto;
+    }
+
+    /**
+     * Run the allocation algorithm for a specific allocation plan.
+     * This triggers the teacher allocation process for the academic year associated with the plan.
+     *
+     * @param planId ID of the allocation plan
+     * @return ID of the newly created allocation plan
+     */
+    @Audited(
+        action = AuditAction.UPDATE,
+        entityName = AuditEntityNames.ALLOCATION_PLAN,
+        description = "Run allocation algorithm for plan"
+    )
+    public Long runAllocationForPlan(Long planId) {
+        log.info("Running allocation algorithm for plan ID: {}", planId);
+
+        // Get the allocation plan to retrieve its academic year
+        AllocationPlan plan = allocationPlanRepository.findById(planId)
+                .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + planId));
+
+        log.debug("Retrieved plan: {}, academicYear: {}", plan, plan.getAcademicYear());
+
+        // Get the academic year
+        AcademicYear academicYear = plan.getAcademicYear();
+        if (academicYear == null) {
+            log.error("Allocation plan {} has null academic year", planId);
+            throw new IllegalStateException("Allocation plan has no associated academic year");
+        }
+
+        log.info("Academic year retrieved: ID={}, Name={}", academicYear.getId(), academicYear.getYearName());
+
+        // Trigger the allocation algorithm
+        // NOTE: This will create a NEW allocation plan with a new version number
+        // The performAllocation method always creates a new plan
+        try {
+            log.info("Triggering allocation algorithm for academic year: {} (ID: {}). This will create a new plan version.",
+                    academicYear.getYearName(), academicYear.getId());
+            
+            if (teacherAllocationService == null) {
+                log.error("TeacherAllocationService is NULL!");
+                throw new IllegalStateException("TeacherAllocationService is not injected");
+            }
+            
+            AllocationPlan newPlan = teacherAllocationService.performAllocation(academicYear.getId());
+            log.info("Allocation algorithm completed successfully - new plan created with ID: {}", newPlan.getId());
+            return newPlan.getId();
+        } catch (Exception e) {
+            log.error("Failed to run allocation algorithm for academic year ID: {}. Error: {}", 
+                    academicYear.getId(), e.getMessage(), e);
+            throw new RuntimeException("Failed to execute allocation algorithm: " + e.getMessage(), e);
+        }
     }
 
     /**

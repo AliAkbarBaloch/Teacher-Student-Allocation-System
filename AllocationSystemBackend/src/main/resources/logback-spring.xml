@@ -4,8 +4,8 @@
 
     <!-- Customize log level for your root package -->
     <logger name="de.unipassau.allocationsystem" level="DEBUG"/>
-    <!-- Optional: Customize pattern or output, e.g., add file logging -->
-    <!--
+    
+    <!-- Enable file logging -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/backend.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -13,17 +13,13 @@
             <maxHistory>14</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    
+    <!-- Root logger (console + file) -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
-    </root>
-    -->
-
-    <!-- Default root logger (console only, INFO level) -->
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

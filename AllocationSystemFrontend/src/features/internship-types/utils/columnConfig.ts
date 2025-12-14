@@ -42,7 +42,6 @@ export function useInternshipTypesColumnConfig(): ColumnConfig[] {
       title: t("table.semester"),
       enableSorting: false,
       fieldType: "text",
-      format: (value: unknown) => (typeof value === "string" && value) || "-",
     },
     {
       field: "isSubjectSpecific",

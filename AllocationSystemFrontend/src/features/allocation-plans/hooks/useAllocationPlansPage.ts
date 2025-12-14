@@ -1,3 +1,5 @@
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -7,8 +9,6 @@ import type {
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
-import { usePagination } from "@/hooks/usePagination";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useAllocationPlansPage() {
   const { t } = useTranslation("allocationPlans");
@@ -16,9 +16,15 @@ export function useAllocationPlansPage() {
   const [allocationPlans, setAllocationPlans] = useState<AllocationPlan[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAllocationPlan, setSelectedAllocationPlan] = useState<AllocationPlan | null>(null);
+  const [selectedAllocationPlan, setSelectedAllocationPlan] =
+    useState<AllocationPlan | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { pagination, handlePageChange, handlePageSizeChange, updatePagination } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
+  const {
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
+    updatePagination,
+  } = usePagination(DEFAULT_TABLE_PAGE_SIZE);
 
   const loadAllocationPlans = useCallback(async () => {
     setLoading(true);
@@ -39,7 +45,8 @@ export function useAllocationPlansPage() {
         totalPages: response.totalPages || 0,
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("table.emptyMessage");
+      const errorMessage =
+        err instanceof Error ? err.message : t("table.emptyMessage");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -53,48 +60,79 @@ export function useAllocationPlansPage() {
     loadAllocationPlans();
   }, [loadAllocationPlans]);
 
-  const handleCreate = useCallback(async (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => {
-    setIsSubmitting(true);
-    try {
-      await AllocationPlanService.create(data as CreateAllocationPlanRequest);
-      toast.success(t("create.success"));
-      await loadAllocationPlans();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("create.error");
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [loadAllocationPlans, t]);
+  const handleCreate = useCallback(
+    async (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => {
+      setIsSubmitting(true);
+      try {
+        // Import AllocationService dynamically
+        const { AllocationService } = await import(
+          "@/services/allocationService"
+        );
 
-  const handleUpdate = useCallback(async (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest, id: number) => {
-    setIsSubmitting(true);
-    try {
-      await AllocationPlanService.update(id, data as UpdateAllocationPlanRequest);
-      toast.success(t("update.success"));
-      await loadAllocationPlans();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("update.error");
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [loadAllocationPlans, t]);
+        // Trigger allocation algorithm first
+        const createData = data as CreateAllocationPlanRequest;
+        const allocationResult = await AllocationService.runAllocation(
+          createData.yearId,
+          createData.isCurrent
+        );
 
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-      await AllocationPlanService.delete(id);
-      toast.success(t("delete.success"));
-      await loadAllocationPlans();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("delete.error");
-      setError(errorMessage);
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-  }, [loadAllocationPlans, t]);
+        toast.success(
+          t("create.success") + ` - Plan ID: ${allocationResult.planId}`
+        );
+        await loadAllocationPlans();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : t("create.error");
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [loadAllocationPlans, t]
+  );
+
+  const handleUpdate = useCallback(
+    async (
+      data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest,
+      id: number
+    ) => {
+      setIsSubmitting(true);
+      try {
+        await AllocationPlanService.update(
+          id,
+          data as UpdateAllocationPlanRequest
+        );
+        toast.success(t("update.success"));
+        await loadAllocationPlans();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : t("update.error");
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [loadAllocationPlans, t]
+  );
+
+  const handleDelete = useCallback(
+    async (id: number) => {
+      try {
+        await AllocationPlanService.delete(id);
+        toast.success(t("delete.success"));
+        await loadAllocationPlans();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : t("delete.error");
+        setError(errorMessage);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+    },
+    [loadAllocationPlans, t]
+  );
 
   return {
     allocationPlans,

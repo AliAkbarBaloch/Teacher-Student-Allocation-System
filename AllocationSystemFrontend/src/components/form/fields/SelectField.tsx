@@ -25,6 +25,7 @@ interface SelectFieldProps {
   disabled?: boolean;
   className?: string;
   labelClassName?: string;
+  searchable?: boolean; // NEW
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({

@@ -11,9 +11,13 @@ import lombok.AllArgsConstructor;
 public class TeacherAssignmentResponseDto {
     private Long id;
     private Long planId;
+    private String planTitle;
     private Long teacherId;
+    private String teacherTitle;
     private Long internshipTypeId;
+    private String internshipTypeTitle;
     private Long subjectId;
+    private String subjectTitle;
     private Integer studentGroupSize;
     private String assignmentStatus;
     private Boolean isManualOverride;

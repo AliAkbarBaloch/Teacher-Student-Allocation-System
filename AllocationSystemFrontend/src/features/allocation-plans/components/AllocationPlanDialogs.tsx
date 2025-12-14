@@ -1,3 +1,6 @@
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 import {
   Dialog,
   DialogBody,
@@ -6,17 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ViewDialog } from "@/components/common/ViewDialog";
-import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
 import { AllocationPlanForm } from "./AllocationPlanForm";
-import type { TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface AllocationPlanDialogsProps {
   // Dialog states
@@ -33,8 +33,12 @@ interface AllocationPlanDialogsProps {
   selectedAllocationPlan: AllocationPlan | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => Promise<void>;
+  onCreateSubmit: (
+    data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest
+  ) => Promise<void>;
+  onUpdateSubmit: (
+    data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (allocationPlan: AllocationPlan) => void;
   onSelectedChange: (allocationPlan: AllocationPlan | null) => void;
@@ -65,6 +69,7 @@ export function AllocationPlanDialogs({
   t,
 }: AllocationPlanDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+
   return (
     <>
       {/* Create Dialog */}

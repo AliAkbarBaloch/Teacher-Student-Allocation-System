@@ -8,8 +8,8 @@ import { AlertCircle } from "lucide-react";
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
-  UpdateAllocationPlanRequest,
   PlanStatus,
+  UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
 
 // components
@@ -31,11 +31,12 @@ const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
 
 interface AllocationPlanFormProps {
   allocationPlan?: AllocationPlan | null;
-  onSubmit: (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
-  currentUserId?: number; // Needed for create
 }
 
 export function AllocationPlanForm({
@@ -44,7 +45,6 @@ export function AllocationPlanForm({
   onCancel,
   isLoading = false,
   error: externalError = null,
-  currentUserId,
 }: AllocationPlanFormProps) {
   const { t } = useTranslation("allocationPlans");
   const { t: tCommon } = useTranslation("common");
@@ -70,13 +70,14 @@ export function AllocationPlanForm({
       planName: "",
       planVersion: "",
       status: "DRAFT",
-      createdByUserId: currentUserId ?? 0,
       isCurrent: false,
       notes: "",
     };
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateAllocationPlanRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateAllocationPlanRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load academic years for dropdown
@@ -116,11 +117,17 @@ export function AllocationPlanForm({
       });
     }
     setErrors({});
-  }, [allocationPlan, currentUserId]);
+  }, [allocationPlan]);
 
   // Normalize select values
-  const yearValue = useMemo(() => (formData.yearId > 0 ? String(formData.yearId) : "__none__"), [formData.yearId]);
-  const statusValue = useMemo(() => formData.status ?? "DRAFT", [formData.status]);
+  const yearValue = useMemo(
+    () => (formData.yearId > 0 ? String(formData.yearId) : "__none__"),
+    [formData.yearId]
+  );
+  const statusValue = useMemo(
+    () => formData.status ?? "DRAFT",
+    [formData.status]
+  );
 
   // Year options with placeholder
   const yearOptions = useMemo(() => [
@@ -129,7 +136,9 @@ export function AllocationPlanForm({
   ], [years, t]);
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateAllocationPlanRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateAllocationPlanRequest, string>
+    > = {};
     if (!formData.yearId || formData.yearId < 1) {
       newErrors.yearId = t("form.errors.yearIdRequired");
     }
@@ -142,7 +151,6 @@ export function AllocationPlanForm({
     if (!formData.status) {
       newErrors.status = t("form.errors.statusRequired");
     }
-    // Removed createdByUserId validation here
     if (formData.notes && formData.notes.length > 5000) {
       newErrors.notes = t("form.errors.notesMaxLength");
     }
@@ -155,6 +163,9 @@ export function AllocationPlanForm({
     if (loadingYears) return;
     if (!validate()) return;
     setIsSubmitting(true);
+    // Debug log: print formData and isCurrent value
+    console.log("[DEBUG] Submitting Allocation Plan formData:", formData);
+    console.log("[DEBUG] isCurrent value:", formData.isCurrent);
     try {
       if (allocationPlan) {
         const updateData: UpdateAllocationPlanRequest = {
@@ -163,6 +174,7 @@ export function AllocationPlanForm({
           isCurrent: formData.isCurrent,
           notes: formData.notes,
         };
+        console.log("[DEBUG] updateData payload:", updateData);
         await onSubmit(updateData);
       } else {
         const createData: CreateAllocationPlanRequest = {
@@ -173,6 +185,7 @@ export function AllocationPlanForm({
           isCurrent: formData.isCurrent,
           notes: formData.notes,
         };
+        console.log("[DEBUG] createData payload:", createData);
         await onSubmit(createData);
       }
     } finally {
@@ -180,7 +193,10 @@ export function AllocationPlanForm({
     }
   };
 
-  const handleChange = (field: keyof CreateAllocationPlanRequest, value: string | number | boolean | null) => {
+  const handleChange = (
+    field: keyof CreateAllocationPlanRequest,
+    value: string | number | boolean | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));

@@ -25,7 +25,8 @@ VALUES
     (3, 1, 3, TRUE, NOW()), -- PDP 1 + ZSP
     (4, 2, 4, TRUE, NOW()), -- PDP 2 + SFP
     (5, 2, 3, TRUE, NOW()), -- PDP 2 + ZSP
-    (6, 4, 3, TRUE, NOW()); -- SFP + ZSP
+    (6, 4, 3, TRUE, NOW()), -- SFP + ZSP
+    (7, 3, 4, TRUE, NOW()); -- ZSP + SFP
 
 
 -- 4. ZONE_CONSTRAINT

@@ -18,7 +18,8 @@
     "updatedAt": "Aktualisiert am",
     "actions": "Aktionen",
     "emptyMessage": "Keine Lehrfachzuweisungen gefunden.",
-    "searchPlaceholder": "Lehrfachzuweisungen suchen..."
+    "searchPlaceholder": "Lehrfachzuweisungen suchen...",
+    "teacherSubjects": "Lehrfachzuweisungen"
   },
   "form": {
     "title": {

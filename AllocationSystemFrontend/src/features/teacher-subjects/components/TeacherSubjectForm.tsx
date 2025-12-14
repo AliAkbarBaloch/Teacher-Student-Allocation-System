@@ -15,6 +15,16 @@ import type { AcademicYear } from "@/features/academic-years/types/academicYear.
 import { TeacherService } from "@/features/teachers/services/teacherService";
 import { SubjectService } from "@/features/subjects/services/subjectService";
 import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
+import { SubjectService } from "@/features/subjects/services/subjectService";
+import type { Subject } from "@/features/subjects/types/subject.types";
+import { TeacherService } from "@/features/teachers/services/teacherService";
+import type { Teacher } from "@/features/teachers/types/teacher.types";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { CreateTeacherSubjectRequest, TeacherSubject, UpdateTeacherSubjectRequest } from "../types/teacherSubject.types";
+import { SelectSearchField } from "@/components/form/fields/SelectSearchField";
 
 // components
 import { SelectField } from "@/components/form/fields/SelectField";

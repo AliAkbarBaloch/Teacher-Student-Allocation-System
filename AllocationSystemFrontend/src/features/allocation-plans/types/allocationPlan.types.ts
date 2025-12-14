@@ -1,6 +1,6 @@
 /**
  * AllocationPlan management types
- */
+*/
 
 export type PlanStatus = "DRAFT" | "IN_REVIEW" | "APPROVED" | "ARCHIVED";
 
@@ -12,8 +12,6 @@ export interface AllocationPlan {
   planVersion: string;
   status: PlanStatus;
   statusDisplayName: string;
-  createdByUserName: string;
-  createdByUserEmail: string;
   createdAt: string; // ISO string
   updatedAt?: string | null;
   isCurrent: boolean;
