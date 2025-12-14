@@ -51,37 +51,24 @@ public class AllocationController {
             : false;
         log.info("Allocation process triggered from API for academic year ID: {}, isCurrent: {}", academicYearId, isCurrent);
         
-        try {
-            AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId, isCurrent);
-            
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("planId", allocationPlan.getId());
-            responseData.put("planName", allocationPlan.getPlanName());
-            responseData.put("planVersion", allocationPlan.getPlanVersion());
-            responseData.put("status", allocationPlan.getStatus().name());
-            responseData.put("academicYearId", allocationPlan.getAcademicYear().getId());
-            responseData.put("academicYearName", allocationPlan.getAcademicYear().getYearName());
-            responseData.put("createdAt", allocationPlan.getCreatedAt());
-            
-            log.info("Allocation completed successfully. Plan ID: {}, Status: {}", 
-                    allocationPlan.getId(), allocationPlan.getStatus());
-            
-            return ResponseHandler.success(
-                "Allocation process completed successfully. Plan created with ID: " + allocationPlan.getId(),
-                responseData
-            );
-            
-        } catch (IllegalArgumentException e) {
-            log.error("Allocation failed due to invalid input: {}", e.getMessage());
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-            
-        } catch (Exception e) {
-            log.error("Unexpected error during allocation process", e);
-            return ResponseHandler.serverError(
-                "Allocation process failed: " + e.getMessage(),
-                Map.of()
-            );
-        }
+        AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId, isCurrent);
+        
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("planId", allocationPlan.getId());
+        responseData.put("planName", allocationPlan.getPlanName());
+        responseData.put("planVersion", allocationPlan.getPlanVersion());
+        responseData.put("status", allocationPlan.getStatus().name());
+        responseData.put("academicYearId", allocationPlan.getAcademicYear().getId());
+        responseData.put("academicYearName", allocationPlan.getAcademicYear().getYearName());
+        responseData.put("createdAt", allocationPlan.getCreatedAt());
+        
+        log.info("Allocation completed successfully. Plan ID: {}, Status: {}", 
+                allocationPlan.getId(), allocationPlan.getStatus());
+        
+        return ResponseHandler.success(
+            "Allocation process completed successfully. Plan created with ID: " + allocationPlan.getId(),
+            responseData
+        );
     }
 
     /**

@@ -236,7 +236,6 @@ public class AuditLogController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(defaultValue = "1000") int maxRecords
     ) {
-        try {
             Pageable pageable = PageRequest.of(0, maxRecords,
                     Sort.by(Sort.Direction.DESC, "eventTimestamp"));
             Page<AuditLog> auditLogs = queryService.getAuditLogs(
@@ -251,9 +250,6 @@ public class AuditLogController {
             headers.setContentLength(csvBytes.length);
 
             return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
     private Pageable createPageable(int page, int size, String sortBy, String sortDirection) {

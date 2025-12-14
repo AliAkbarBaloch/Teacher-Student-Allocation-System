@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.dto.permission.PermissionCreateDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionResponseDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionUpdateDto;
 import de.unipassau.allocationsystem.entity.Permission;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.PermissionMapper;
 import de.unipassau.allocationsystem.service.PermissionService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -15,13 +16,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/permissions")
@@ -63,7 +62,7 @@ public class PermissionController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         PermissionResponseDto result = permissionService.getById(id)
                 .map(permissionMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("Permission not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
         return ResponseHandler.success("Permission retrieved successfully", result);
     }
 
@@ -120,13 +119,9 @@ public class PermissionController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PermissionCreateDto dto) {
-        try {
-            Permission permission = permissionMapper.toEntityCreate(dto);
-            Permission created = permissionService.create(permission);
-            return ResponseHandler.created("Permission created successfully", permissionMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Permission permission = permissionMapper.toEntityCreate(dto);
+        Permission created = permissionService.create(permission);
+        return ResponseHandler.created("Permission created successfully", permissionMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -145,15 +140,9 @@ public class PermissionController {
     })
      @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PermissionUpdateDto dto) {
-        try {
-            Permission permission = permissionMapper.toEntityUpdate(dto);
-            Permission updated = permissionService.update(id, permission);
-            return ResponseHandler.updated("Permission updated successfully", permissionMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Permission not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Permission permission = permissionMapper.toEntityUpdate(dto);
+        Permission updated = permissionService.update(id, permission);
+        return ResponseHandler.updated("Permission updated successfully", permissionMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -167,11 +156,7 @@ public class PermissionController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            permissionService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Permission not found");
-        }
+        permissionService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

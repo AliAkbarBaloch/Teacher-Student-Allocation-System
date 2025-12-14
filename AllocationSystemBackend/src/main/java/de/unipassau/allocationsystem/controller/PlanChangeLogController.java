@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -151,13 +150,9 @@ public class PlanChangeLogController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PlanChangeLogCreateDto dto) {
         log.info("Creating plan change log with payload {}", dto);
-        try {
-            PlanChangeLog entity = planChangeLogMapper.toEntityCreate(dto);
-            PlanChangeLog created = planChangeLogService.create(entity);
-            return ResponseHandler.created("Plan change log created successfully", planChangeLogMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        PlanChangeLog entity = planChangeLogMapper.toEntityCreate(dto);
+        PlanChangeLog created = planChangeLogService.create(entity);
+        return ResponseHandler.created("Plan change log created successfully", planChangeLogMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -177,15 +172,9 @@ public class PlanChangeLogController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody PlanChangeLogUpdateDto dto) {
         log.info("Updating plan change log {} with payload {}", id, dto);
-        try {
-            PlanChangeLog entity = planChangeLogMapper.toEntityUpdate(dto);
-            PlanChangeLog updated = planChangeLogService.update(id, entity);
-            return ResponseHandler.updated("Plan change log updated successfully", planChangeLogMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Plan change log not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        PlanChangeLog entity = planChangeLogMapper.toEntityUpdate(dto);
+        PlanChangeLog updated = planChangeLogService.update(id, entity);
+        return ResponseHandler.updated("Plan change log updated successfully", planChangeLogMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -200,12 +189,8 @@ public class PlanChangeLogController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         log.info("Deleting plan change log {}", id);
-        try {
-            planChangeLogService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Plan change log not found");
-        }
+        planChangeLogService.delete(id);
+        return ResponseHandler.noContent();
     }
 
     @GetMapping("/plans/{planId}/change-logs")
@@ -223,27 +208,23 @@ public class PlanChangeLogController {
             @PathVariable Long planId,
             @ModelAttribute PlanChangeLogFilterDto filter
     ) {
-        try {
-            filter.setPlanId(planId);
+        filter.setPlanId(planId);
 
-            int page = filter.getPage() != null ? filter.getPage() : 1;
-            int size = filter.getSize() != null ? filter.getSize() : 20;
-            String sortBy = filter.getSortBy() != null ? filter.getSortBy() : "createdAt";
-            String sortDirection = filter.getSortDirection() != null ? filter.getSortDirection() : "DESC";
+        int page = filter.getPage() != null ? filter.getPage() : 1;
+        int size = filter.getSize() != null ? filter.getSize() : 20;
+        String sortBy = filter.getSortBy() != null ? filter.getSortBy() : "createdAt";
+        String sortDirection = filter.getSortDirection() != null ? filter.getSortDirection() : "DESC";
 
-            Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
-            Page<PlanChangeLog> logs = planChangeLogService.getLogsByPlan(
-                    filter.getPlanId(),
-                    filter.getEntityType(),
-                    filter.getChangeType(),
-                    filter.getStartDate(),
-                    filter.getEndDate(),
-                    pageable
-            );
-            return ResponseHandler.success("Plan change logs retrieved successfully", logs.map(planChangeLogMapper::toResponseDto));
-        } catch (de.unipassau.allocationsystem.exception.ResourceNotFoundException e) {
-            return ResponseHandler.notFound(e.getMessage());
-        }
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
+        Page<PlanChangeLog> logs = planChangeLogService.getLogsByPlan(
+                filter.getPlanId(),
+                filter.getEntityType(),
+                filter.getChangeType(),
+                filter.getStartDate(),
+                filter.getEndDate(),
+                pageable
+        );
+        return ResponseHandler.success("Plan change logs retrieved successfully", logs.map(planChangeLogMapper::toResponseDto));
     }
 
     @GetMapping("/filter")
