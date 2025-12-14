@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequestMapping("/reports")
@@ -35,19 +37,14 @@ public class AllocationReportController {
     }
 
     @GetMapping("/allocation-export/{planId}")
-    public ResponseEntity<byte[]> exportExcel(@PathVariable Long planId) {
-        try {
-            log.info("Generating Excel report for plan ID: {}", planId);
-            byte[] excelContent = reportService.generateExcelReport(planId);
-            log.info("Successfully generated Excel report for plan ID: {}, size: {} bytes", planId, excelContent.length);
+    public ResponseEntity<byte[]> exportExcel(@PathVariable Long planId) throws IOException {
+        log.info("Generating Excel report for plan ID: {}", planId);
+        byte[] excelContent = reportService.generateExcelReport(planId);
+        log.info("Successfully generated Excel report for plan ID: {}, size: {} bytes", planId, excelContent.length);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=allocation_report_" + planId + ".xlsx")
-                    .body(excelContent);
-        } catch (Exception e) {
-            log.error("Error generating Excel report for plan ID: {}", planId, e);
-            throw new RuntimeException("Failed to generate Excel report: " + e.getMessage(), e);
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=allocation_report_" + planId + ".xlsx")
+                .body(excelContent);
     }
 }

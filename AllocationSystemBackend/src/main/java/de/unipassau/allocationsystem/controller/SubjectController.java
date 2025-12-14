@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -159,13 +158,9 @@ public class SubjectController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SubjectCreateDto dto) {
         log.info("Creating subject with payload {}", dto);
-        try {
-            Subject subject = subjectMapper.toEntityCreate(dto);
-            Subject created = subjectService.create(subject);
-            return ResponseHandler.created("Subject created successfully", subjectMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Subject subject = subjectMapper.toEntityCreate(dto);
+        Subject created = subjectService.create(subject);
+        return ResponseHandler.created("Subject created successfully", subjectMapper.toResponseDto(created));
     }
 
     /**
@@ -190,15 +185,9 @@ public class SubjectController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody SubjectUpdateDto dto) {
         log.info("Updating subject {} with payload {}", id, dto);
-        try {
-            Subject subject = subjectMapper.toEntityUpdate(dto);
-            Subject updated = subjectService.update(id, subject);
-            return ResponseHandler.updated("Subject updated successfully", subjectMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Subject not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Subject subject = subjectMapper.toEntityUpdate(dto);
+        Subject updated = subjectService.update(id, subject);
+        return ResponseHandler.updated("Subject updated successfully", subjectMapper.toResponseDto(updated));
     }
 
     /**
@@ -217,12 +206,8 @@ public class SubjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         log.info("Deleting subject {}", id);
-        try {
-            subjectService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Subject not found");
-        }
+        subjectService.delete(id);
+        return ResponseHandler.noContent();
     }
 }
 

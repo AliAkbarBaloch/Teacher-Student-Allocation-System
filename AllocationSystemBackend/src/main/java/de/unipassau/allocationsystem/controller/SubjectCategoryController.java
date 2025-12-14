@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryCreateDt
 import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryResponseDto;
 import de.unipassau.allocationsystem.dto.subjectcategory.SubjectCategoryUpdateDto;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.SubjectCategoryMapper;
 import de.unipassau.allocationsystem.service.SubjectCategoryService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -15,13 +16,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/subject-categories")
@@ -63,7 +62,7 @@ public class SubjectCategoryController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         SubjectCategoryResponseDto result = subjectCategoryService.getById(id)
                 .map(subjectCategoryMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("Subject category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + id));
         return ResponseHandler.success("Subject category retrieved successfully", result);
     }
 
@@ -119,13 +118,9 @@ public class SubjectCategoryController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SubjectCategoryCreateDto dto) {
-        try {
-            SubjectCategory subjectCategory = subjectCategoryMapper.toEntityCreate(dto);
-            SubjectCategory created = subjectCategoryService.create(subjectCategory);
-            return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        SubjectCategory subjectCategory = subjectCategoryMapper.toEntityCreate(dto);
+        SubjectCategory created = subjectCategoryService.create(subjectCategory);
+        return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class SubjectCategoryController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody SubjectCategoryUpdateDto dto) {
-        try {
-            SubjectCategory subjectCategory = subjectCategoryMapper.toEntityUpdate(dto);
-            SubjectCategory updated = subjectCategoryService.update(id, subjectCategory);
-            return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Subject category not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        SubjectCategory subjectCategory = subjectCategoryMapper.toEntityUpdate(dto);
+        SubjectCategory updated = subjectCategoryService.update(id, subjectCategory);
+        return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -166,11 +155,7 @@ public class SubjectCategoryController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            subjectCategoryService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Subject category not found");
-        }
+        subjectCategoryService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

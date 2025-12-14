@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,13 +118,9 @@ public class RoleController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody RoleCreateDto dto) {
-        try {
-            Role role = roleMapper.toEntityCreate(dto);
-            Role created = roleService.create(role);
-            return ResponseHandler.created("Role created successfully", roleMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Role role = roleMapper.toEntityCreate(dto);
+        Role created = roleService.create(role);
+        return ResponseHandler.created("Role created successfully", roleMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class RoleController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RoleUpdateDto dto) {
-        try {
-            Role role = roleMapper.toEntityUpdate(dto);
-            Role updated = roleService.update(id, role);
-            return ResponseHandler.updated("Role updated successfully", roleMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Role not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        Role role = roleMapper.toEntityUpdate(dto);
+        Role updated = roleService.update(id, role);
+        return ResponseHandler.updated("Role updated successfully", roleMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -166,11 +155,7 @@ public class RoleController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            roleService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Role not found");
-        }
+        roleService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

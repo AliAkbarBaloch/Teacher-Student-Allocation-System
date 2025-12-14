@@ -95,7 +95,7 @@ public class AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            // Increment failed login attempts
+            // Increment failed login attempts - this is business logic, not just error handling
             int attempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(attempts);
 
@@ -117,7 +117,8 @@ public class AuthService {
                     String.format("Failed login attempt %d/%d for: %s (ID: %d)", attempts, MAX_FAILED_ATTEMPTS, user.getEmail(), user.getId())
             );
 
-            throw new BadCredentialsException("Invalid email or password");
+            // Re-throw to let GlobalExceptionHandler handle the response
+            throw e;
         }
     }
 

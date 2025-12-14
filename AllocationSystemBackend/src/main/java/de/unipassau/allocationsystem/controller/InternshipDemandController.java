@@ -176,13 +176,9 @@ public class InternshipDemandController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody InternshipDemandCreateDto dto) {
-        try {
-            InternshipDemand entity = internshipDemandMapper.toEntityCreate(dto);
-            InternshipDemand created = service.create(entity);
-            return ResponseHandler.created("Internship demand created successfully", internshipDemandMapper.toResponseDto(created));
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        InternshipDemand entity = internshipDemandMapper.toEntityCreate(dto);
+        InternshipDemand created = service.create(entity);
+        return ResponseHandler.created("Internship demand created successfully", internshipDemandMapper.toResponseDto(created));
     }
 
     @Operation(summary = "Update internship demand")
@@ -194,15 +190,9 @@ public class InternshipDemandController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipDemandUpdateDto dto) {
-        try {
-            InternshipDemand update = internshipDemandMapper.toEntityUpdate(dto);
-            InternshipDemand updated = service.update(id, update);
-            return ResponseHandler.updated("Internship demand updated successfully", internshipDemandMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Internship demand not found");
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        InternshipDemand update = internshipDemandMapper.toEntityUpdate(dto);
+        InternshipDemand updated = service.update(id, update);
+        return ResponseHandler.updated("Internship demand updated successfully", internshipDemandMapper.toResponseDto(updated));
     }
 
     @Operation(summary = "Delete internship demand")
@@ -213,11 +203,7 @@ public class InternshipDemandController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            service.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Internship demand not found");
-        }
+        service.delete(id);
+        return ResponseHandler.noContent();
     }
 }
