@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.InternshipTypeMapper;
 import de.unipassau.allocationsystem.service.InternshipTypeService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -15,13 +16,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/internship-types")
@@ -63,7 +62,7 @@ public class InternshipTypeController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         InternshipTypeResponseDto result = internshipTypeService.getById(id)
                 .map(internshipTypeMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("InternshipType not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found with id: " + id));
         return ResponseHandler.success("Internship type retrieved successfully", result);
     }
 
@@ -119,13 +118,9 @@ public class InternshipTypeController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody InternshipTypeCreateDto dto) {
-        try {
-            InternshipType internshipType = internshipTypeMapper.toEntityCreate(dto);
-            InternshipType created = internshipTypeService.create(internshipType);
-            return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        InternshipType internshipType = internshipTypeMapper.toEntityCreate(dto);
+        InternshipType created = internshipTypeService.create(internshipType);
+        return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class InternshipTypeController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipTypeUpdateDto dto) {
-        try {
-            InternshipType internshipType = internshipTypeMapper.toEntityUpdate(dto);
-            InternshipType updated = internshipTypeService.update(id, internshipType);
-            return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("InternshipType not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        InternshipType internshipType = internshipTypeMapper.toEntityUpdate(dto);
+        InternshipType updated = internshipTypeService.update(id, internshipType);
+        return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -166,11 +155,7 @@ public class InternshipTypeController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            internshipTypeService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("InternshipType not found");
-        }
+        internshipTypeService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

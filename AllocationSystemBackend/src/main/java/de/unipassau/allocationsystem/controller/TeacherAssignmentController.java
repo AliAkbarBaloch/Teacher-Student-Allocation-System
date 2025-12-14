@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,13 +121,9 @@ public class TeacherAssignmentController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody TeacherAssignmentCreateDto dto) {
         log.info("Creating teacher assignment with payload {}", dto);
-        try {
-            TeacherAssignment entity = assignmentMapper.toEntityCreate(dto);
-            TeacherAssignment created = assignmentService.create(entity);
-            return ResponseHandler.created("Assignment created successfully", assignmentMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherAssignment entity = assignmentMapper.toEntityCreate(dto);
+        TeacherAssignment created = assignmentService.create(entity);
+        return ResponseHandler.created("Assignment created successfully", assignmentMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class TeacherAssignmentController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody TeacherAssignmentUpdateDto dto) {
         log.info("Updating teacher assignment {} with payload {}", id, dto);
-        try {
-            TeacherAssignment entity = assignmentMapper.toEntityUpdate(dto);
-            TeacherAssignment updated = assignmentService.update(id, entity);
-            return ResponseHandler.updated("Assignment updated successfully", assignmentMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Assignment not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherAssignment entity = assignmentMapper.toEntityUpdate(dto);
+        TeacherAssignment updated = assignmentService.update(id, entity);
+        return ResponseHandler.updated("Assignment updated successfully", assignmentMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -167,11 +156,7 @@ public class TeacherAssignmentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         log.info("Deleting teacher assignment {}", id);
-        try {
-            assignmentService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Assignment not found");
-        }
+        assignmentService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

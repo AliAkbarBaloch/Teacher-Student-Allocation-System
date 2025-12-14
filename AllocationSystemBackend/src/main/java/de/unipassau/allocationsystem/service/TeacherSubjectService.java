@@ -239,10 +239,6 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
         if (entity.getAvailabilityStatus() == null) {
             throw new IllegalArgumentException("availabilityStatus is required");
         }
-        try {
-            TeacherSubject.AvailabilityStatus.valueOf(entity.getAvailabilityStatus());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid availabilityStatus value: " + entity.getAvailabilityStatus());
-        }
+        TeacherSubject.AvailabilityStatus.valueOf(entity.getAvailabilityStatus());
     }
 }

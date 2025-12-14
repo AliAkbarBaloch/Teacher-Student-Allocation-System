@@ -92,8 +92,7 @@ public class TestController {
     
     @GetMapping("/check-user")
     public ResponseEntity<?> checkUser(@RequestParam String email) {
-        try {
-            if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
                         "message", "Email parameter is required"
@@ -121,14 +120,6 @@ public class TestController {
             response.put("failedLoginAttempts", user.getFailedLoginAttempts());
             
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error checking user {}: {}", email, e.getMessage(), e);
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Error checking user: " + e.getMessage());
-            errorResponse.put("error", e.getClass().getSimpleName());
-            return ResponseEntity.status(500).body(errorResponse);
-        }
     }
 }
 

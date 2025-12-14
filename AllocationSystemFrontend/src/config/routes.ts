@@ -17,6 +17,7 @@ export const ROUTES = {
     schools: "/base-data/schools",
     teachers: "/base-data/teachers",
     internshipTypes: "/base-data/internship-types",
+    zoneConstraints: "/base-data/zone-constraints",
   },
   teacherManagement: {
     teacherSubjects: "/teacher-management/teacher-subjects",
@@ -30,7 +31,6 @@ export const ROUTES = {
     allocationPlans: "/allocation-planning/allocation-plans",
     teacherAssignments: "/allocation-planning/teacher-assignments",
     creditHourTracking: "/allocation-planning/credit-hour-tracking",
-    zoneConstraints: "/allocation-planning/zone-constraints",
     planChangeLogs: "/allocation-planning/plan-change-logs",
   },
   reports: {

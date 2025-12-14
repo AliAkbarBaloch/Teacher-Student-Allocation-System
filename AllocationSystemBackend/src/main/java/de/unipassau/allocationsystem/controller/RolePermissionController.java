@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,13 +118,9 @@ public class RolePermissionController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody RolePermissionCreateDto dto) {
-        try {
-            RolePermission rolePermission = rolePermissionMapper.toEntityCreate(dto);
-            RolePermission created = rolePermissionService.create(rolePermission);
-            return ResponseHandler.created("Role permission created successfully", rolePermissionMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        RolePermission rolePermission = rolePermissionMapper.toEntityCreate(dto);
+        RolePermission created = rolePermissionService.create(rolePermission);
+        return ResponseHandler.created("Role permission created successfully", rolePermissionMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class RolePermissionController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody RolePermissionUpdateDto dto) {
-        try {
-            RolePermission rolePermission = rolePermissionMapper.toEntityUpdate(dto);
-            RolePermission updated = rolePermissionService.update(id, rolePermission);
-            return ResponseHandler.updated("Role permission updated successfully", rolePermissionMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Role permission not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        RolePermission rolePermission = rolePermissionMapper.toEntityUpdate(dto);
+        RolePermission updated = rolePermissionService.update(id, rolePermission);
+        return ResponseHandler.updated("Role permission updated successfully", rolePermissionMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -166,11 +155,7 @@ public class RolePermissionController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            rolePermissionService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Role permission not found");
-        }
+        rolePermissionService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

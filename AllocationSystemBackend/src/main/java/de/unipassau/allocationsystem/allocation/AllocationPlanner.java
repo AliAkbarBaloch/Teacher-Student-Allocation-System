@@ -84,13 +84,7 @@ public class AllocationPlanner implements CommandLineRunner {
             return;
         }
 
-        try {
-            triggerAllocation(academicYearIdToUse);
-        } catch (IllegalArgumentException e) {
-            log.error("Allocation failed: {}", e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error during allocation process", e);
-        }
+        triggerAllocation(academicYearIdToUse);
     }
 
     private void triggerAllocation(Long academicYearId) {

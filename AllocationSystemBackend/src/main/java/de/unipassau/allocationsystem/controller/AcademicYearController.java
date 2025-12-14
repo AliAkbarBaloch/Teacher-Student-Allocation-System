@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.dto.academicyear.AcademicYearCreateDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearResponseDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.AcademicYearMapper;
 import de.unipassau.allocationsystem.service.AcademicYearService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -15,13 +16,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/academic-years")
@@ -63,7 +62,7 @@ public class AcademicYearController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         AcademicYearResponseDto result = academicYearService.getById(id)
                 .map(academicYearMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("Academic year not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + id));
         return ResponseHandler.success("Academic year retrieved successfully", result);
     }
 
@@ -119,13 +118,9 @@ public class AcademicYearController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody AcademicYearCreateDto dto) {
-        try {
-            AcademicYear academicYear = academicYearMapper.toEntityCreate(dto);
-            AcademicYear created = academicYearService.create(academicYear);
-            return ResponseHandler.created("Academic year created successfully", academicYearMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        AcademicYear academicYear = academicYearMapper.toEntityCreate(dto);
+        AcademicYear created = academicYearService.create(academicYear);
+        return ResponseHandler.created("Academic year created successfully", academicYearMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -144,15 +139,9 @@ public class AcademicYearController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AcademicYearUpdateDto dto) {
-        try {
-            AcademicYear academicYear = academicYearMapper.toEntityUpdate(dto);
-            AcademicYear updated = academicYearService.update(id, academicYear);
-            return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Academic year not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        AcademicYear academicYear = academicYearMapper.toEntityUpdate(dto);
+        AcademicYear updated = academicYearService.update(id, academicYear);
+        return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -166,11 +155,7 @@ public class AcademicYearController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            academicYearService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Academic year not found");
-        }
+        academicYearService.delete(id);
+        return ResponseHandler.noContent();
     }
 }
