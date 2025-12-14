@@ -244,7 +244,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
             isPartTime: basePayload.isPartTime,
             employmentStatus: basePayload.employmentStatus,
             usageCycle: basePayload.usageCycle,
-            workingHoursPerWeek: formState.isPartTime && String(formState.workingHoursPerWeek).trim() ? Number(formState.workingHoursPerWeek) : null,
+            workingHoursPerWeek: basePayload.workingHoursPerWeek,
           };
           await onSubmit(updatePayload);
         } else {

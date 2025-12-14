@@ -73,7 +73,7 @@ export class TeacherSubjectService {
     return response.data;
   }
 
-  static async getByTeahcerId(teacherId: number): Promise<TeacherSubject[]> {
+  static async getByTeacherId(teacherId: number): Promise<TeacherSubject[]> {
     const response = await apiClient.get<ApiResponse<TeacherSubject[]>>(`/teacher-subjects/by-teacher/${teacherId}`);
     return response.data;
   }
