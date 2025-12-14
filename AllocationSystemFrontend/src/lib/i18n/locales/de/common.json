@@ -16,10 +16,10 @@
             "planning": "Planung & Zuweisung",
             "reports": "Berichte",
             "settings": "Einstellungen",
-            "allocationReport": "AllocationReport"
+            "allocationReport": "Zuteilungsbericht"
         },
-        "dashboard": "Dashboard",
-        "allocationReport": "AllocationReport",
+        "dashboard": "Übersicht",
+        "allocationReport": "Zuteilungsbericht",
         "baseData": "Stammdatenverwaltung",
         "baseDataAcademicYears": "Studienjahre",
         "baseDataSubjectCategories": "Fachkategorien",
@@ -73,7 +73,7 @@
         "confirm": "Bestätigen"
     },
     "dashboard": {
-        "title": "Dashboard",
+        "title": "Übersicht",
         "subtitle": "Übersicht über Ihr Zuweisungssystem",
         "refresh": "Aktualisieren",
         "stats": {

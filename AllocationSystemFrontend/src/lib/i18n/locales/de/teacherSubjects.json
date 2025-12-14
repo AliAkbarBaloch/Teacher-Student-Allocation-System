@@ -89,5 +89,9 @@
   "update": {
     "success": "Lehrfachzuweisung erfolgreich aktualisiert",
     "error": "Aktualisierung der Lehrfachzuweisung fehlgeschlagen"
+  },
+  "columns": {
+    "email": "E-Mail Adresse",
+    "employmentStatus": "Beschäftigungsstatus"
   }
 }
