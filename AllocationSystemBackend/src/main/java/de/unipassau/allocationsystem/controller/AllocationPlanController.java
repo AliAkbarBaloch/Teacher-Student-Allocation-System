@@ -129,8 +129,9 @@ public class AllocationPlanController {
     @PostMapping
     public ResponseEntity<?> createPlan(
             @Valid @RequestBody AllocationPlanCreateDto createDto) {
-        log.info("POST /api/allocation-plans - Creating plan: {} v{}", 
-                createDto.getPlanName(), createDto.getPlanVersion());
+
+        log.info("POST /api/allocation-plans - Creating plan: {} v{} | isCurrent: {}", 
+            createDto.getPlanName(), createDto.getPlanVersion(), createDto.getIsCurrent());
 
         AllocationPlanResponseDto created = allocationPlanService.createPlan(createDto);
         return ResponseHandler.created("Allocation plan created successfully", created);

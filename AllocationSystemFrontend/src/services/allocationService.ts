@@ -24,10 +24,12 @@ export class AllocationService {
    * Triggers the allocation process for an academic year
    */
   static async runAllocation(
-    academicYearId: number
+    academicYearId: number,
+    isCurrent?: boolean
   ): Promise<RunAllocationResponse> {
     const response = await apiClient.post<ApiResponse<RunAllocationResponse>>(
-      `/api/allocation/run/${academicYearId}`
+      `/api/allocation/run/${academicYearId}`,
+      { isCurrent: isCurrent ?? false }
     );
     return response.data;
   }
