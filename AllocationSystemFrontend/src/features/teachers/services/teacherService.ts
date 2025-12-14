@@ -33,6 +33,11 @@ export class TeacherService {
     return response.data;
   }
 
+  static async getAll(): Promise<Teacher[]> {
+    const response = await apiClient.get<ApiResponse<Teacher[]>>("/teachers");
+    return response.data;
+  }
+
   static async getById(id: number): Promise<Teacher> {
     const response = await apiClient.get<ApiResponse<Teacher>>(`/teachers/${id}`);
     return response.data;

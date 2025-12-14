@@ -16,6 +16,7 @@ import type {
 } from "../types/subjectCategory.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface SubjectCategoryDialogsProps {
   // Dialog states
@@ -110,12 +111,7 @@ export function SubjectCategoryDialogs({
         renderCustomContent={(subjectCategory) => (
           <DialogBody>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.title")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subjectCategory.categoryTitle}
-                </div>
-              </div>
+              <ReadOnlyField label={t("form.fields.title")} value={subjectCategory.categoryTitle} />
             </div>
           </DialogBody>
         )}

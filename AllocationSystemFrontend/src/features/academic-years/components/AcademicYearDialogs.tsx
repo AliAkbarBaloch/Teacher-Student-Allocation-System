@@ -1,21 +1,16 @@
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { GenericForm } from "@/components/common/GenericForm";
+import { GenericFormDialog } from "@/components/common/GenericFormDialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
+import type { TFunction } from "i18next";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { getAcademicYearFieldConfig } from "../config/academicYearFieldConfig";
 import type {
   AcademicYear,
   CreateAcademicYearRequest,
   UpdateAcademicYearRequest,
 } from "../types/academicYear.types";
-import { AcademicYearForm } from "./AcademicYearForm";
-import type { TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 
 interface AcademicYearDialogsProps {
   // Dialog states
@@ -64,24 +59,30 @@ export function AcademicYearDialogs({
   t,
 }: AcademicYearDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+  
+  // Get field configuration (memoized to avoid recreating on every render)
+  const fieldConfig = useMemo(() => getAcademicYearFieldConfig(t), [t]);
+
   return (
     <>
       {/* Create Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.create")}</DialogTitle>
-            <DialogDescription>{t("subtitle")}</DialogDescription>
-          </DialogHeader>
-          <DialogBody>
-            <AcademicYearForm
-              onSubmit={onCreateSubmit}
-              onCancel={() => setIsCreateDialogOpen(false)}
-              isLoading={isSubmitting}
-            />
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
+      <GenericFormDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        title={t("form.title.create")}
+        description={t("subtitle")}
+        maxWidth="2xl"
+      >
+        <GenericForm<AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest>
+          fields={fieldConfig}
+          initialData={null}
+          onSubmit={onCreateSubmit}
+          onCancel={() => setIsCreateDialogOpen(false)}
+          isLoading={isSubmitting}
+          mode="create"
+          translationNamespace="academicYears"
+        />
+      </GenericFormDialog>
 
       {/* View Dialog (Read-only) */}
       <ViewDialog
@@ -96,6 +97,7 @@ export function AcademicYearDialogs({
         title={t("form.title.view")}
         description={t("subtitle")}
         maxWidth="2xl"
+        fieldConfig={fieldConfig}
         onEdit={() => {
           setIsViewDialogOpen(false);
           if (selectedAcademicYear) {
@@ -104,101 +106,32 @@ export function AcademicYearDialogs({
         }}
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
-        renderCustomContent={(academicYear) => (
-          <DialogBody>
-            <div className="space-y-4 py-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.yearName")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.yearName}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.totalCreditHours")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.totalCreditHours}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.elementarySchoolHours")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.elementarySchoolHours}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.middleSchoolHours")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.middleSchoolHours}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.budgetAnnouncementDate")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.budgetAnnouncementDate
-                      ? new Date(academicYear.budgetAnnouncementDate).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.allocationDeadline")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.allocationDeadline
-                      ? new Date(academicYear.allocationDeadline).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.isLocked")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.isLocked ? t("table.locked") : t("table.unlocked")}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.createdAt
-                      ? new Date(academicYear.createdAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {academicYear.updatedAt
-                      ? new Date(academicYear.updatedAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogBody>
-        )}
       />
 
       {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("form.title.edit")}</DialogTitle>
-            <DialogDescription>{t("subtitle")}</DialogDescription>
-          </DialogHeader>
-          <DialogBody>
-            {selectedAcademicYear && (
-              <AcademicYearForm
-                key={`edit-${selectedAcademicYear.id}`}
-                academicYear={selectedAcademicYear}
-                onSubmit={onUpdateSubmit}
-                onCancel={() => {
-                  setIsEditDialogOpen(false);
-                  onSelectedChange(null);
-                }}
-                isLoading={isSubmitting}
-              />
-            )}
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
+      <GenericFormDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        title={t("form.title.edit")}
+        description={t("subtitle")}
+        maxWidth="2xl"
+      >
+        {selectedAcademicYear && (
+          <GenericForm<AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest>
+            key={`edit-${selectedAcademicYear.id}`}
+            fields={fieldConfig}
+            initialData={selectedAcademicYear}
+            onSubmit={onUpdateSubmit}
+            onCancel={() => {
+              setIsEditDialogOpen(false);
+              onSelectedChange(null);
+            }}
+            isLoading={isSubmitting}
+            mode="edit"
+            translationNamespace="academicYears"
+          />
+        )}
+      </GenericFormDialog>
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

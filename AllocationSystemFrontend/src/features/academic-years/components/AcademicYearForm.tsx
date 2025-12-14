@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
+import { DateTimeField } from "@/components/form/fields/DateTimeField";
+import { NumberField } from "@/components/form/fields/NumberField";
+import { TextField } from "@/components/form/fields/TextField";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Loader2 } from "lucide-react";
 import type {
   AcademicYear,
   CreateAcademicYearRequest,
@@ -153,167 +155,111 @@ export function AcademicYearForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 col-span-1">
-          <label htmlFor="yearName" className="text-sm font-medium">
-            {t("form.fields.yearName")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
+          <TextField
             id="yearName"
+            label={t("form.fields.yearName")}
             value={formData.yearName}
-            onChange={(e) => handleChange("yearName", e.target.value)}
+            onChange={val => handleChange("yearName", val)}
             placeholder={t("form.placeholders.yearName")}
+            required
+            error={errors.yearName}
             disabled={isLoading || isSubmitting}
-            className={errors.yearName ? "border-destructive" : ""}
             maxLength={100}
           />
-          {errors.yearName && (
-            <p className="text-sm text-destructive">{errors.yearName}</p>
-          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <label htmlFor="totalCreditHours" className="text-sm font-medium">
-            {t("form.fields.totalCreditHours")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
+          <NumberField
             id="totalCreditHours"
-            type="number"
+            label={t("form.fields.totalCreditHours")}
             value={formData.totalCreditHours}
-            onChange={(e) => handleChange("totalCreditHours", Number(e.target.value))}
+            onChange={val => handleChange("totalCreditHours", val)}
             placeholder={t("form.placeholders.totalCreditHours")}
+            required
+            error={errors.totalCreditHours}
             disabled={isLoading || isSubmitting}
-            className={errors.totalCreditHours ? "border-destructive" : ""}
             min={0}
           />
-          {errors.totalCreditHours && (
-            <p className="text-sm text-destructive">{errors.totalCreditHours}</p>
-          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <label htmlFor="elementarySchoolHours" className="text-sm font-medium">
-            {t("form.fields.elementarySchoolHours")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
+          <NumberField
             id="elementarySchoolHours"
-            type="number"
+            label={t("form.fields.elementarySchoolHours")}
             value={formData.elementarySchoolHours}
-            onChange={(e) => handleChange("elementarySchoolHours", Number(e.target.value))}
+            onChange={val => handleChange("elementarySchoolHours", val)}
             placeholder={t("form.placeholders.elementarySchoolHours")}
+            required
+            error={errors.elementarySchoolHours}
             disabled={isLoading || isSubmitting}
-            className={errors.elementarySchoolHours ? "border-destructive" : ""}
             min={0}
           />
-          {errors.elementarySchoolHours && (
-            <p className="text-sm text-destructive">{errors.elementarySchoolHours}</p>
-          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <label htmlFor="middleSchoolHours" className="text-sm font-medium">
-            {t("form.fields.middleSchoolHours")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
+          <NumberField
             id="middleSchoolHours"
-            type="number"
+            label={t("form.fields.middleSchoolHours")}
             value={formData.middleSchoolHours}
-            onChange={(e) => handleChange("middleSchoolHours", Number(e.target.value))}
+            onChange={val => handleChange("middleSchoolHours", val)}
             placeholder={t("form.placeholders.middleSchoolHours")}
+            required
+            error={errors.middleSchoolHours}
             disabled={isLoading || isSubmitting}
-            className={errors.middleSchoolHours ? "border-destructive" : ""}
             min={0}
           />
-          {errors.middleSchoolHours && (
-            <p className="text-sm text-destructive">{errors.middleSchoolHours}</p>
-          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <label htmlFor="budgetAnnouncementDate" className="text-sm font-medium">
-            {t("form.fields.budgetAnnouncementDate")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
+          <DateTimeField
             id="budgetAnnouncementDate"
-            type="datetime-local"
+            label={t("form.fields.budgetAnnouncementDate")}
             value={formData.budgetAnnouncementDate}
-            onChange={(e) => handleChange("budgetAnnouncementDate", e.target.value)}
+            onChange={val => handleChange("budgetAnnouncementDate", val)}
             placeholder={t("form.placeholders.budgetAnnouncementDate")}
+            required
+            error={errors.budgetAnnouncementDate}
             disabled={isLoading || isSubmitting}
-            className={errors.budgetAnnouncementDate ? "border-destructive" : ""}
           />
-          {errors.budgetAnnouncementDate && (
-            <p className="text-sm text-destructive">{errors.budgetAnnouncementDate}</p>
-          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <label htmlFor="allocationDeadline" className="text-sm font-medium">
-            {t("form.fields.allocationDeadline")}
-          </label>
-          <Input
+          <DateTimeField
             id="allocationDeadline"
-            type="datetime-local"
+            label={t("form.fields.allocationDeadline")}
             value={formData.allocationDeadline ?? ""}
-            onChange={(e) =>
-              handleChange("allocationDeadline", e.target.value || null)
-            }
+            onChange={val => handleChange("allocationDeadline", val || null)}
             placeholder={t("form.placeholders.allocationDeadline")}
             disabled={isLoading || isSubmitting}
           />
         </div>
       </div>
 
-      <Label
-        htmlFor="isLocked"
-        className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-4 cursor-pointer has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10 transition-colors"
-      >
-        <Checkbox
-          id="isLocked"
-          checked={!!formData.isLocked}
-          onCheckedChange={(checked) =>
-            handleChange("isLocked", checked === true)
-          }
-          disabled={isLoading || isSubmitting}
-          className="h-5 w-5 mt-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-        />
-        <div className="grid gap-1.5 flex-1">
-          <p className="text-sm font-medium leading-none">
-            {t("form.fields.isLocked")}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t("form.fields.isLockedDescription")}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {formData.isLocked ? t("table.locked") : t("table.unlocked")}
-          </p>
-        </div>
-      </Label>
+      <CheckboxField
+        id="isLocked"
+        checked={!!formData.isLocked}
+        onCheckedChange={val => handleChange("isLocked", val)}
+        label={t("form.fields.isLocked")}
+        description={t("form.fields.isLockedDescription")}
+        statusText={formData.isLocked ? t("table.locked") : t("table.unlocked")}
+        disabled={isLoading || isSubmitting}
+      />
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isLoading || isSubmitting}>
-          {isSubmitting || isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tCommon("actions.saving")}
-            </>
-          ) : academicYear ? (
-            tCommon("actions.update")
-          ) : (
-            tCommon("actions.create")
-          )}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!academicYear}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isLoading || isSubmitting}
+        />
       </div>
     </form>
   );
