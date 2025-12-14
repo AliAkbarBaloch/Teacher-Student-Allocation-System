@@ -72,7 +72,8 @@ export function useAllocationPlansPage() {
         // Trigger allocation algorithm first
         const createData = data as CreateAllocationPlanRequest;
         const allocationResult = await AllocationService.runAllocation(
-          createData.yearId
+          createData.yearId,
+          createData.isCurrent
         );
 
         toast.success(

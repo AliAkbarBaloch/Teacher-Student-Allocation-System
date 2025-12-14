@@ -43,11 +43,16 @@ public class AllocationController {
     )
     @PostMapping("/run/{academicYearId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> runAllocation(@PathVariable Long academicYearId) {
-        log.info("Allocation process triggered from API for academic year ID: {}", academicYearId);
+    public ResponseEntity<?> runAllocation(
+            @PathVariable Long academicYearId,
+            @RequestBody(required = false) Map<String, Object> requestBody) {
+        Boolean isCurrent = requestBody != null && requestBody.containsKey("isCurrent") 
+            ? (Boolean) requestBody.get("isCurrent") 
+            : false;
+        log.info("Allocation process triggered from API for academic year ID: {}, isCurrent: {}", academicYearId, isCurrent);
         
         try {
-            AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId);
+            AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId, isCurrent);
             
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("planId", allocationPlan.getId());
