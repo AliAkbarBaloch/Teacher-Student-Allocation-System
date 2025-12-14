@@ -69,7 +69,7 @@ export function TeacherFilters({
     const loadSchools = async () => {
       setLoadingSchools(true);
       try {
-        const response = await SchoolService.list({
+        const response = await SchoolService.getPaginated({
           isActive: true,
           page: 1,
           pageSize: 1000,

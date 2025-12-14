@@ -51,7 +51,7 @@ export function useDashboard(): DashboardData {
       // Fetch critical data first (these are required)
       const [teachersData, schoolsData, submissionsData] = await Promise.all([
         TeacherService.list({ page: 1, pageSize: 1 }),
-        SchoolService.list({ page: 1, pageSize: 1 }),
+        SchoolService.getPaginated({ page: 1, pageSize: 1 }),
         TeacherFormSubmissionService.list({ page: 1, pageSize: 1, isProcessed: false }),
       ]);
 

@@ -22,7 +22,7 @@ export const createSchoolsSlice = <T extends SchoolsSlice>(set: SetState<T>): Sc
   loadSchools: async () => {
     set({ schoolsLoading: true, schoolsError: null } as Partial<T>);
     try {
-      const response = await SchoolService.list({
+      const response = await SchoolService.getPaginated({
         isActive: true,
         page: 1,
         pageSize: SCHOOLS_DROPDOWN_PAGE_SIZE,
@@ -38,7 +38,7 @@ export const createSchoolsSlice = <T extends SchoolsSlice>(set: SetState<T>): Sc
   refreshSchools: async () => {
     set({ schoolsLoading: true, schoolsError: null } as Partial<T>);
     try {
-      const response = await SchoolService.list({
+      const response = await SchoolService.getPaginated({
         isActive: true,
         page: 1,
         pageSize: SCHOOLS_DROPDOWN_PAGE_SIZE,
