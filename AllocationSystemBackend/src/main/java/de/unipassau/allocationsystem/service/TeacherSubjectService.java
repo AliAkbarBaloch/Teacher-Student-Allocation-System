@@ -106,6 +106,17 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     }
 
     @Audited(
+        action = AuditLog.AuditAction.VIEW,
+        entityName = AuditEntityNames.TEACHER_SUBJECT,
+        description = "Viewed teacher-subjects by teacherId",
+        captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    public List<TeacherSubject> getByTeacherId(Long teacherId) {
+        return teacherSubjectRepository.findByTeacherId(teacherId);
+    }
+
+    @Audited(
             action = AuditLog.AuditAction.CREATE,
             entityName = AuditEntityNames.TEACHER_SUBJECT,
             description = "Created teacher-subject mapping",

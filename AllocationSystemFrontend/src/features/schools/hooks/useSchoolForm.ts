@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import type { TFunction } from "i18next";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { DISTANCE_DECIMAL_PLACES } from "@/lib/constants/app";
+import { calculateDistanceFromUniversity } from "@/lib/utils/geoUtils";
 import type {
   ApiErrorResponse,
   CreateSchoolRequest,
@@ -11,8 +13,6 @@ import type {
 } from "../types/school.types";
 import { isApiError } from "../types/school.types";
 import { createSchoolTypeOptions } from "../utils/schoolOptions";
-import { calculateDistanceFromUniversity } from "@/lib/utils/geoUtils";
-import { DISTANCE_DECIMAL_PLACES } from "@/lib/constants/app";
 
 type FormState = {
   schoolName: string;
@@ -158,7 +158,7 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
   }, [errors]);
 
   const handleInputChange = useCallback(
-    (field: keyof FormState, value: string | boolean) => {
+    (field: keyof FormState, value: string | boolean | number) => {
       setFormState((prev) => ({ ...prev, [field]: value }));
       resetFieldError(field as keyof SchoolFormErrors);
     },

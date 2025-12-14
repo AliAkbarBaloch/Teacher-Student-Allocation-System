@@ -91,7 +91,7 @@ export default function TeacherFormPage() {
         setLoadingInternshipTypes(true);
         
         const [schoolsRes, subjectsRes, internshipTypesRes] = await Promise.all([
-          SchoolService.list({ isActive: true, page: 1, pageSize: 1000, sortBy: "schoolName", sortOrder: "asc" }),
+          SchoolService.getPaginated({ isActive: true, page: 1, pageSize: 1000, sortBy: "schoolName", sortOrder: "asc" }),
           SubjectService.getAll(),
           InternshipTypeService.getAll(),
         ]);

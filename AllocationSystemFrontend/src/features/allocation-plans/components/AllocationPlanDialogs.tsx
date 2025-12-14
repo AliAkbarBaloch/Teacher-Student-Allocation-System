@@ -1,5 +1,6 @@
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 import {
   Dialog,
   DialogBody,
@@ -113,74 +114,28 @@ export function AllocationPlanDialogs({
           <DialogBody>
             <div className="space-y-4 py-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.planName")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.planName}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.planVersion")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.planVersion}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.yearName")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.yearName}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.status")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.statusDisplayName}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.isCurrent")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.isCurrent
-                      ? t("table.current")
-                      : t("table.notCurrent")}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.createdAt
-                      ? new Date(plan.createdAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.updatedAt")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.updatedAt
-                      ? new Date(plan.updatedAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.notes")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50 min-h-[48px]">
-                    {plan.notes ?? "-"}
-                  </div>
-                </div>
+                <ReadOnlyField label={t("form.fields.planName")} value={plan.planName} />
+                <ReadOnlyField label={t("form.fields.planVersion")} value={plan.planVersion} />
+                <ReadOnlyField label={t("form.fields.yearName")} value={plan.yearName} />
+                <ReadOnlyField label={t("form.fields.status")} value={plan.statusDisplayName} />
+                <ReadOnlyField
+                  label={t("form.fields.isCurrent")}
+                  value={plan.isCurrent ? t("table.current") : t("table.notCurrent")}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={plan.createdAt ? new Date(plan.createdAt).toLocaleString() : "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.updatedAt")}
+                  value={plan.updatedAt ? new Date(plan.updatedAt).toLocaleString() : "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.notes")}
+                  value={plan.notes ?? "-"}
+                  className="space-y-2 md:col-span-2"
+                  valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50 min-h-[48px]"
+                />
               </div>
             </div>
           </DialogBody>

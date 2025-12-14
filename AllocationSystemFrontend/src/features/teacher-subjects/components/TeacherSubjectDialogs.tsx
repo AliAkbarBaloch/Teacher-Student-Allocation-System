@@ -16,6 +16,7 @@ import type {
 } from "../types/teacherSubject.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface TeacherSubjectDialogsProps {
   // Dialog states
@@ -128,90 +129,55 @@ export function TeacherSubjectDialogs({
           <DialogBody>
             <div className="space-y-4 py-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.academicYear")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.academicYearTitle}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.teacher")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.teacherTitle}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.subjectCode")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.subjectId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.subjectTitle")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.subjectTitle}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.availabilityStatus")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {getAvailabilityStatusLabel(teacherSubject.availabilityStatus)}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.gradeLevelFrom")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.gradeLevelFrom ?? "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.gradeLevelTo")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.gradeLevelTo ?? "-"}
-                  </div>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.notes")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.notes || "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.createdAt")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.createdAt
+                <ReadOnlyField
+                  label={t("form.fields.academicYear")}
+                  value={teacherSubject.academicYearTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.teacher")}
+                  value={teacherSubject.teacherTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.subjectCode")}
+                  value={teacherSubject.subjectId}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.subjectTitle")}
+                  value={teacherSubject.subjectTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.availabilityStatus")}
+                  value={getAvailabilityStatusLabel(teacherSubject.availabilityStatus)}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.gradeLevelFrom")}
+                  value={teacherSubject.gradeLevelFrom ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.gradeLevelTo")}
+                  value={teacherSubject.gradeLevelTo ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.notes")}
+                  value={teacherSubject.notes || "-"}
+                  className="md:col-span-2"
+                />
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={
+                    teacherSubject.createdAt
                       ? new Date(teacherSubject.createdAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.updatedAt")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {teacherSubject.updatedAt
+                      : "-"
+                  }
+                />
+                <ReadOnlyField
+                  label={t("form.fields.updatedAt")}
+                  value={
+                    teacherSubject.updatedAt
                       ? new Date(teacherSubject.updatedAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
+                      : "-"
+                  }
+                />
               </div>
             </div>
           </DialogBody>

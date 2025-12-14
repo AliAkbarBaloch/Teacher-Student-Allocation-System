@@ -105,5 +105,6 @@ export interface DataTableProps<TData = Record<string, unknown>, TValue = unknow
   disableInternalDialog?: boolean;
   // Table layout: "auto" (default) or "fixed" for equal column widths
   tableLayout?: "auto" | "fixed";
+  onRowClick?: (row: TData) => void;
 }
 

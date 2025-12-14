@@ -1,19 +1,21 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useTeachersPage } from "@/features/teachers/hooks/useTeachersPage";
+import { DataTable } from "@/components/common/DataTable";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { BulkImportDialog } from "@/features/teachers/components/BulkImportDialog";
 import { TeacherDialogs } from "@/features/teachers/components/TeacherDialogs";
 import { TeacherFilters } from "@/features/teachers/components/TeacherFilters";
 import { TeachersPageHeader } from "@/features/teachers/components/TeachersPageHeader";
-import { BulkImportDialog } from "@/features/teachers/components/BulkImportDialog";
-import { DataTable } from "@/components/common/DataTable";
+import { useTeachersPage } from "@/features/teachers/hooks/useTeachersPage";
+import type { CreateTeacherRequest, Teacher, UpdateTeacherRequest } from "@/features/teachers/types/teacher.types";
 import { useTeachersColumnConfig } from "@/features/teachers/utils/columnConfig";
-import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDialogState } from "@/hooks/useDialogState";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 import { Power } from "lucide-react";
-import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "@/features/teachers/types/teacher.types";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function TeachersPage() {
+  const navigate = useNavigate();
   const { t } = useTranslation("teachers");
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
@@ -125,6 +127,10 @@ export default function TeachersPage() {
     setWarningMessage(null);
   };
 
+  const handleRowClick = (teacher: Teacher) => {
+    navigate(`/base-data/teachers/${teacher.id}`);
+  };
+
   const columnConfig = useTeachersColumnConfig();
 
   return (
@@ -195,6 +201,8 @@ export default function TeachersPage() {
             delete: t("actions.delete"),
           },
         }}
+        enableRowClick
+        onRowClick={handleRowClick}
       />
 
       <TeacherDialogs

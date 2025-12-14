@@ -9,6 +9,8 @@
     "status": "Status",
     "active": "Aktiv",
     "inactive": "Inaktiv",
+    "primary": "Primarstufe",
+    "middle": "Sekundarstufe",
     "actions": "Aktionen",
     "emptyMessage": "Keine Fächer gefunden.",
     "searchPlaceholder": "Fächer suchen..."
@@ -33,7 +35,7 @@
       "category": "Kategorie auswählen",
       "selectCategory": "Kategorie auswählen",
       "noCategories": "Keine Kategorien verfügbar. Bitte erstellen Sie zuerst Kategorien.",
-      "schoolType": "Schulart eingeben (optional)"
+      "schoolType": "Schulart eingeben"
     },
     "errors": {
       "codeRequired": "Fachcode ist erforderlich",
