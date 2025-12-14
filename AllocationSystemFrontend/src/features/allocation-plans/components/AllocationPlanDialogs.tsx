@@ -1,3 +1,5 @@
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
 import {
   Dialog,
   DialogBody,
@@ -6,16 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ViewDialog } from "@/components/common/ViewDialog";
-import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
 import { AllocationPlanForm } from "./AllocationPlanForm";
-import type { TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 
 interface AllocationPlanDialogsProps {
   // Dialog states
@@ -136,12 +136,6 @@ export function AllocationPlanDialogs({
                   <label className="text-sm font-medium">{t("form.fields.isCurrent")}</label>
                   <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
                     {plan.isCurrent ? t("table.current") : t("table.notCurrent")}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.createdBy")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {plan.createdByUserName} ({plan.createdByUserEmail})
                   </div>
                 </div>
                 <div className="space-y-2">

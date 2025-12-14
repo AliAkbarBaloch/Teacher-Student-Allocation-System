@@ -1,3 +1,5 @@
+import { usePagination } from "@/hooks/usePagination";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -7,8 +9,6 @@ import type {
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
-import { usePagination } from "@/hooks/usePagination";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 
 export function useAllocationPlansPage() {
   const { t } = useTranslation("allocationPlans");

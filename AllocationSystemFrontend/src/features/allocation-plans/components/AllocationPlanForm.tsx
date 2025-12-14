@@ -1,9 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -12,14 +10,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
 import { AlertCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
-  UpdateAllocationPlanRequest,
   PlanStatus,
+  UpdateAllocationPlanRequest,
 } from "../types/allocationPlan.types";
-import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
 
 const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
   { value: "DRAFT", label: "Draft" },
@@ -34,7 +34,6 @@ interface AllocationPlanFormProps {
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
-  currentUserId?: number; // Needed for create
 }
 
 export function AllocationPlanForm({
@@ -43,7 +42,6 @@ export function AllocationPlanForm({
   onCancel,
   isLoading = false,
   error: externalError = null,
-  currentUserId,
 }: AllocationPlanFormProps) {
   const { t } = useTranslation("allocationPlans");
   const { t: tCommon } = useTranslation("common");
@@ -69,7 +67,6 @@ export function AllocationPlanForm({
       planName: "",
       planVersion: "",
       status: "DRAFT",
-      createdByUserId: currentUserId ?? 0,
       isCurrent: false,
       notes: "",
     };
@@ -115,7 +112,7 @@ export function AllocationPlanForm({
       });
     }
     setErrors({});
-  }, [allocationPlan, currentUserId]);
+  }, [allocationPlan]);
 
   // Normalize select values
   const yearValue = useMemo(() => (formData.yearId > 0 ? String(formData.yearId) : "__none__"), [formData.yearId]);
@@ -135,7 +132,6 @@ export function AllocationPlanForm({
     if (!formData.status) {
       newErrors.status = t("form.errors.statusRequired");
     }
-    // Removed createdByUserId validation here
     if (formData.notes && formData.notes.length > 5000) {
       newErrors.notes = t("form.errors.notesMaxLength");
     }
