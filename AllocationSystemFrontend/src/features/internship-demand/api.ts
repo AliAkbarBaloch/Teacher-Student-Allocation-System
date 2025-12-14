@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
-    InternshipDemand, 
+    InternshipDemandDto as InternshipDemand, 
     DemandFilter, 
-    CreateDemandPayload,
+    CreateInternshipDemandRequest,
 } from "./types.ts";
 
 //Base path for the backend endpoints 
@@ -22,17 +22,20 @@ function buildQuery(filter: DemandFilter)
     const params = new URLSearchParams();
 
     // year is not an empty string and year is not null or undefined 
-    if (filter.year !== "" && filter.year != null )
+    if (filter.academicYearId !== "" && filter.academicYearId != null )
     {
         // add a parameter year with the value converted to string 
-        params.set("year", String(filter.year));
+        params.set("academicYearId", String(filter.academicYearId));
+    }
+
+    if (filter.subjectId !== "" && filter.subjectId != null )
+    {
+        params.set("subjectId", String(filter.subjectId));
     }
         
     if (filter.internshipType) params.set("internshipType", filter.internshipType);
     
     if (filter.schoolType) params.set("schoolType", filter.schoolType);
-
-    if(filter.subject) params.set("subject",filter.subject);
 
     if(filter.onlyForecasted) params.set("onlyForecasted", "true");
 
@@ -122,7 +125,7 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
 // Create a new internship demand entry 
 // input payload : CreateDemandPayload 
 // return - one intershipDemand object (the created row as the backend sends it back)
-export async function createInternshipDemand(payload: CreateDemandPayload): Promise <InternshipDemand>
+export async function createInternshipDemand(payload: CreateInternshipDemandRequest): Promise <InternshipDemand>
 {
 
     //call fetch with 
@@ -152,7 +155,7 @@ export async function createInternshipDemand(payload: CreateDemandPayload): Prom
 // return - updated Intershipdemand from backend 
 export async function updateInternshipDemand(
     id: string,
-    payload: Partial <CreateDemandPayload>
+    payload: Partial <CreateInternshipDemandRequest>
 ): Promise<InternshipDemand>
 {
     // calls eg /internship-demand/123 

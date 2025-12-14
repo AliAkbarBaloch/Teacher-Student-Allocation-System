@@ -1,49 +1,45 @@
-// shape of data 
-// export - make this visible for other files that imort it. interface - template for an object 
-
-// one row data in the table 
-export interface InternshipDemand {
-
-    id: string; //unique ID from the backend 
-    year: number; 
-    internshipType: string;
-    schoolType: string; 
-    subject: string; 
-    requiredTeachers: number; 
-    studentCount: number; 
-    forecasted: boolean; 
-    updatedAt: string;
-
-}
-
-// for the filter bar on the page 
-
-export interface DemandFilter 
-{
-    year: number | ""; //required but can be "" while typing 
-    internshipType?: string ; // optional 
-    schoolType?: string; //optional 
-    subject?: string; // optional 
-    onlyForecasted?: boolean; //optional 
-}
-
-//create-edit dialog form 
-export interface DemandFormState
-{
-    year: number | "";
+// What backend returns for a row (DTO)
+export interface InternshipDemandDto {
+    id: number;
+    academicYearId: number;
+    subjectId: number;
     internshipType: string;
     schoolType: string;
-    subject: string; 
-    requiredTeachers: number | "";
-    studentCount: number | "";
-    forecasted : boolean;
+    requiredTeachers: number;
+    studentCount: number;
+    isForecasted: boolean;
+    updatedAt: string;
 }
 
-//this is what we send to backend when creating/updating 
+// What we send to backend
+export type CreateInternshipDemandRequest = {
+    academicYearId: number;
+    subjectId: number;
+    internshipType: string;
+    schoolType: string;
+    requiredTeachers: number;
+    studentCount: number;
+    isForecasted: boolean;
+};
 
-export type CreateDemandPayload = Omit<
 
-InternshipDemand,
-"id" | "updatedAt"
+// Your form state (now uses ids)
+export interface DemandFormState {
+    academicYearId: number | "";
+    subjectId: number | "";
+    internshipType: string;
+    schoolType: string;
+    requiredTeachers: number | "";
+    studentCount: number | "";
+    isForecasted: boolean;
+}
 
->;
+// Filters can stay how you want; but if backend filters by year,
+// you may want academicYearId instead of year later.
+export interface DemandFilter {
+    academicYearId: number | "";
+    internshipType?: string;
+    schoolType?: string;
+    subjectId?: string;
+    onlyForecasted?: boolean;
+}
