@@ -54,6 +54,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
   validateOnUpdate,
   disableInternalDialog = false,
   tableLayout = "auto",
+  onRowClick
 }: DataTableProps<TData, TValue>) {
   // Extract state management to hook
   const tableState = useDataTableState({ defaultPageSize });
@@ -224,7 +225,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
               loading={loading}
               emptyMessage={emptyMessage}
               enableRowClick={enableRowClick}
-              onRowClick={dialogs.handleViewRow}
+              onRowClick={onRowClick ?? dialogs.handleViewRow}
             />
           </Table>
         </div>

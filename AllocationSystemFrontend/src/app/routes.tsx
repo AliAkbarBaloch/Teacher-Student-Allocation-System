@@ -27,6 +27,7 @@ import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
 import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
 import AllocationReportPage from "@/pages/reports/AllocationReportPage";
+import TeacherDetailPage from "@/pages/base-data/TeacherDetailPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
@@ -127,6 +128,10 @@ export const router = createBrowserRouter([
         element: withSuspense(<TeachersPage />),
       },
       {
+        path: `${ROUTES.baseData.teachers}/:id`,
+        element: withSuspense(<TeacherDetailPage />), // or <TeacherDetailPage />
+      },
+      {
         path: ROUTES.baseData.internshipTypes,
         element: withSuspense(<InternshipTypesPage />),
       },
@@ -197,8 +202,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "*",
-    element: <Navigate to={ROUTES.auth.login} replace />,
-  },
+  // {
+  //   path: "*",
+  //   element: <Navigate to={ROUTES.auth.login} replace />,
+  // },
 ]);
