@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { CreateTeacherSubjectRequest, TeacherSubject, UpdateTeacherSubjectRequest } from "../types/teacherSubject.types";
+import { SelectSearchField } from "@/components/form/fields/SelectSearchField";
 
 interface TeacherSubjectFormProps {
   teacherSubject?: TeacherSubject | null;
@@ -225,7 +226,7 @@ export function TeacherSubjectForm({
           disabled={isLoading || isSubmitting || loadingAcademicYears}
         />
 
-        <SelectField
+        <SelectSearchField
           id="teacherId"
           label={t("form.fields.teacher")}
           value={formData.teacherId > 0 ? String(formData.teacherId) : ""}
@@ -250,7 +251,7 @@ export function TeacherSubjectForm({
           disabled={isLoading || isSubmitting || loadingTeachers}
         />
 
-        <SelectField
+        <SelectSearchField
           id="subjectId"
           label={t("form.fields.subject")}
           value={formData.subjectId > 0 ? String(formData.subjectId) : ""}
