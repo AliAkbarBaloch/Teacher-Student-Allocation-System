@@ -42,6 +42,7 @@ public class TeacherAllocationService {
 
     /**
      * Main orchestration method that orchestrates the entire allocation process.
+     * Defaults isCurrent to false for backward compatibility.
      * 
      * @param academicYearId The ID of the academic year for allocation
      * @return AllocationPlan containing all teacher assignments
@@ -49,7 +50,20 @@ public class TeacherAllocationService {
      */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId) {
-        log.info("=== Starting Allocation Process for Academic Year ID: {} ===", academicYearId);
+        return performAllocation(academicYearId, false);
+    }
+
+    /**
+     * Main orchestration method that orchestrates the entire allocation process.
+     * 
+     * @param academicYearId The ID of the academic year for allocation
+     * @param isCurrent Whether this plan should be marked as current
+     * @return AllocationPlan containing all teacher assignments
+     * @throws IllegalArgumentException if the academic year is invalid or locked
+     */
+    @Transactional
+    public AllocationPlan performAllocation(Long academicYearId, Boolean isCurrent) {
+        log.info("=== Starting Allocation Process for Academic Year ID: {}, isCurrent: {} ===", academicYearId, isCurrent);
         
         // Step 1: Validate that the AcademicYear exists and is not locked
         AcademicYear academicYear = entityManager.find(AcademicYear.class, academicYearId);
@@ -70,7 +84,7 @@ public class TeacherAllocationService {
         allocationPlan.setPlanName("Allocation Plan for " + academicYear.getYearName() + " v" + newVersion);
         allocationPlan.setPlanVersion(newVersion);
         allocationPlan.setStatus(AllocationPlan.PlanStatus.DRAFT);
-        allocationPlan.setIsCurrent(false);
+        allocationPlan.setIsCurrent(isCurrent != null ? isCurrent : false);
         allocationPlan.setCreatedAt(LocalDateTime.now());
         allocationPlan.setUpdatedAt(LocalDateTime.now());
         entityManager.persist(allocationPlan);

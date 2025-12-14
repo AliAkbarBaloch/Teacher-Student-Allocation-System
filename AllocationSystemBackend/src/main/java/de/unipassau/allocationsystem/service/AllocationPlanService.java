@@ -153,6 +153,7 @@ public class AllocationPlanService {
     public AllocationPlanResponseDto createPlan(AllocationPlanCreateDto createDto) {
         log.info("Creating allocation plan: {} v{} for year ID: {}", 
                 createDto.getPlanName(), createDto.getPlanVersion(), createDto.getYearId());
+        log.info("[DEBUG] Received isCurrent value in service: {}", createDto.getIsCurrent());
 
         // Validate academic year exists
         AcademicYear academicYear = academicYearRepository.findById(createDto.getYearId())
@@ -181,9 +182,11 @@ public class AllocationPlanService {
         plan.setStatus(createDto.getStatus());
         plan.setIsCurrent(createDto.getIsCurrent() != null ? createDto.getIsCurrent() : false);
         plan.setNotes(createDto.getNotes());
+        log.info("[DEBUG] Plan isCurrent before save: {}", plan.getIsCurrent());
 
         AllocationPlan saved = allocationPlanRepository.save(plan);
         log.info("Allocation plan created successfully with ID: {}", saved.getId());
+        log.info("[DEBUG] Saved plan isCurrent after save: {}", saved.getIsCurrent());
 
         // Log plan creation in plan change log
         try {
@@ -200,7 +203,9 @@ public class AllocationPlanService {
             log.warn("Failed to create plan change log for created plan id {}", saved.getId(), e);
         }
 
-        return allocationPlanMapper.toResponseDto(saved);
+        AllocationPlanResponseDto responseDto = allocationPlanMapper.toResponseDto(saved);
+        log.info("[DEBUG] Response DTO isCurrent: {}", responseDto.getIsCurrent());
+        return responseDto;
     }
 
     /**

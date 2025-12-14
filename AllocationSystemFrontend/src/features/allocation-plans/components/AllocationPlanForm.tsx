@@ -156,6 +156,9 @@ export function AllocationPlanForm({
     if (loadingYears) return;
     if (!validate()) return;
     setIsSubmitting(true);
+    // Debug log: print formData and isCurrent value
+    console.log("[DEBUG] Submitting Allocation Plan formData:", formData);
+    console.log("[DEBUG] isCurrent value:", formData.isCurrent);
     try {
       if (allocationPlan) {
         const updateData: UpdateAllocationPlanRequest = {
@@ -164,6 +167,7 @@ export function AllocationPlanForm({
           isCurrent: formData.isCurrent,
           notes: formData.notes,
         };
+        console.log("[DEBUG] updateData payload:", updateData);
         await onSubmit(updateData);
       } else {
         const createData: CreateAllocationPlanRequest = {
@@ -174,6 +178,7 @@ export function AllocationPlanForm({
           isCurrent: formData.isCurrent,
           notes: formData.notes,
         };
+        console.log("[DEBUG] createData payload:", createData);
         await onSubmit(createData);
       }
     } finally {
