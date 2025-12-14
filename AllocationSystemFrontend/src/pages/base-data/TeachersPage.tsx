@@ -98,7 +98,7 @@ export default function TeachersPage() {
   };
 
   const handleRowClick = (teacher: Teacher) => {
-    navigate(`/teachers/${teacher.id}`);
+    navigate(`/base-data/teachers/${teacher.id}`);
   };
 
   const columnConfig = useTeachersColumnConfig();
