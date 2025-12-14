@@ -23,11 +23,18 @@ export class SchoolServiceClass extends BaseApiService<School, CreateSchoolReque
     if (params.sortBy) queryParams.append("sortBy", params.sortBy);
     if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
     if (params.searchValue) queryParams.append("searchValue", params.searchValue);
+    if (params.isActive !== undefined) queryParams.append("isActive", String(params.isActive));
+    if (params.schoolType) queryParams.append("schoolType", params.schoolType);
+    if (params.zoneNumber !== undefined) queryParams.append("zoneNumber", String(params.zoneNumber));
 
     const response = await apiClient.get<ApiResponse<PaginatedSchoolsResponse["data"]>>(
       `/schools/paginate?${queryParams.toString()}`
     );
     return response.data;
+  }
+
+  async list(params: SchoolsListParams = {}): Promise<PaginatedSchoolsResponse["data"]> {
+    return this.getPaginated(params);
   }
 
   async updateStatus(id: number, isActive: boolean): Promise<School> {

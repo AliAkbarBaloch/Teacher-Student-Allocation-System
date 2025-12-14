@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useClientPagination } from "@/hooks/useClientPagination";
 import type { ParsedTeacherRow, RowValidationError } from "../types/teacher.types";
 
 interface ImportPreviewProps {
@@ -31,13 +30,7 @@ export function ImportPreview({
   onCancel,
   isLoading = false,
 }: ImportPreviewProps) {
-  const {
-    paginatedData,
-    currentPage,
-    totalPages,
-    handlePreviousPage,
-    handleNextPage,
-  } = useClientPagination({ data, pageSize: ROWS_PER_PAGE });
+  const [currentPage, setCurrentPage] = useState(1);
 
   const errorMap = useMemo(() => {
     const map = new Map<number, RowValidationError[]>();
@@ -51,6 +44,22 @@ export function ImportPreview({
 
   const validCount = data.filter((row) => !errorMap.has(row.rowNumber)).length;
   const invalidCount = data.length - validCount;
+
+  // Paginate data for better performance
+  const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    return data.slice(start, end);
+  }, [data, currentPage]);
+
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  }, [totalPages]);
 
   const getRowErrors = (rowNumber: number): RowValidationError[] => {
     return errorMap.get(rowNumber) || [];

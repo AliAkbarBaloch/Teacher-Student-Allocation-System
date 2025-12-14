@@ -24,6 +24,7 @@ import { TeacherForm } from "./TeacherForm";
 import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "../types/teacher.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface TeacherDialogsProps {
   // Dialog states
@@ -154,58 +155,15 @@ export function TeacherDialogs({
         renderCustomContent={(teacher) => (
           <DialogBody>
             <div className="grid gap-4">
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.firstName")}</p>
-                <p className="text-base">{teacher.firstName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.lastName")}</p>
-                <p className="text-base">{teacher.lastName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.email")}</p>
-                <a
-                  href={`mailto:${teacher.email}`}
-                  className="text-primary underline-offset-2 hover:underline"
-                >
-                  {teacher.email}
-                </a>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.school")}</p>
-                  <p>{teacher.schoolName}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.employmentStatus")}</p>
-                  <p className="normal-case">{t(`${teacher.employmentStatus}`)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isPartTime")}</p>
-                  <p>{teacher.isPartTime ? t("table.yes") : t("table.no")}</p>
-                </div>
-                {teacher.usageCycle && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.usageCycle")}</p>
-                    <p>{t(`${teacher.usageCycle}`)}</p>
-                  </div>
-                )}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <ReadOnlyField label={t("form.fields.firstName")} value={teacher.firstName} />
+              <ReadOnlyField label={t("form.fields.lastName")} value={teacher.lastName} />
+              <ReadOnlyField label={t("form.fields.email")} value={teacher.email} />
+              <ReadOnlyField label={t("form.fields.school")} value={teacher.schoolName} />
+              <ReadOnlyField label={t("form.fields.employmentStatus")} value={t(`${teacher.employmentStatus}`)} />
+              <ReadOnlyField label={t("form.fields.isPartTime")} value={teacher.isPartTime ? t("table.yes") : t("table.no")} />
+              <ReadOnlyField label={t("form.fields.usageCycle")} value={teacher.usageCycle ? t(`${teacher.usageCycle}`) : "-"} />
+              <ReadOnlyField label={t("form.fields.isActive")} value={<Badge variant={teacher.isActive ? "success" : "secondary"}>{teacher.isActive ? t("table.active") : t("table.inactive")}</Badge>} />
 
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                    {teacher.isActive ? (
-                      <Badge variant="success">
-                        {t("status.active")}
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        {t("status.inactive")}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           </DialogBody>
         )}

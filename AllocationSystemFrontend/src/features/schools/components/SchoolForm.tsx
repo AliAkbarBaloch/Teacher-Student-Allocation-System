@@ -1,11 +1,14 @@
 // components
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SchoolLocationMap } from "./SchoolLocationMap";
 
 // types
-import type { CreateSchoolRequest, School, UpdateSchoolRequest } from "../types/school.types";
+import type {
+  CreateSchoolRequest,
+  School,
+  UpdateSchoolRequest,
+} from "../types/school.types";
 
 // hooks
 import { useSchoolForm } from "../hooks/useSchoolForm";
@@ -18,7 +21,8 @@ import { NumberField } from "@/components/form/fields/NumberField";
 import { SelectField } from "@/components/form/fields/SelectField";
 import { TextAreaField } from "@/components/form/fields/TextAreaField";
 import { TextField } from "@/components/form/fields/TextField";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
 
 type BaseSchoolFormProps = {
   onCancel: () => void;
@@ -48,24 +52,23 @@ export function SchoolForm(props: SchoolFormProps) {
       ? { mode, onSubmit, school: props.school, t }
       : ({ mode, onSubmit, t } as const);
 
-  const { formState, errors, generalError, typeOptions, handleInputChange, handleSubmit, internalSubmitting } =
-    useSchoolForm(hookProps);
+  const {
+    formState,
+    errors,
+    typeOptions,
+    handleInputChange,
+    handleSubmit,
+    internalSubmitting,
+  } = useSchoolForm(hookProps);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {(generalError || Object.values(errors).some(Boolean)) && (
-        <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <span>{generalError || Object.values(errors).find(Boolean)}</span>
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} className="space-y-6 pb-2">
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
           id="schoolName"
           label={t("form.fields.schoolName")}
           value={formState.schoolName}
-          onChange={val => handleInputChange("schoolName", val)}
+          onChange={(val) => handleInputChange("schoolName", val)}
           placeholder={t("form.placeholders.schoolName")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.schoolName}
@@ -75,7 +78,7 @@ export function SchoolForm(props: SchoolFormProps) {
           id="schoolType"
           label={t("form.fields.schoolType")}
           value={formState.schoolType}
-          onChange={val => handleInputChange("schoolType", val)}
+          onChange={(val) => handleInputChange("schoolType", val)}
           options={typeOptions}
           placeholder={t("form.placeholders.schoolType")}
           disabled={isSubmitting || internalSubmitting}
@@ -86,7 +89,7 @@ export function SchoolForm(props: SchoolFormProps) {
           id="zoneNumber"
           label={t("form.fields.zoneNumber")}
           value={formState.zoneNumber}
-          onChange={val => handleInputChange("zoneNumber", val)}
+          onChange={(val) => handleInputChange("zoneNumber", val)}
           placeholder={t("form.placeholders.zoneNumber")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.zoneNumber}
@@ -97,7 +100,7 @@ export function SchoolForm(props: SchoolFormProps) {
           id="latitude"
           label={t("form.fields.latitude")}
           value={formState.latitude}
-          onChange={val => handleInputChange("latitude", val)}
+          onChange={(val) => handleInputChange("latitude", val)}
           placeholder={t("form.placeholders.latitude")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.latitude}
@@ -107,33 +110,36 @@ export function SchoolForm(props: SchoolFormProps) {
           id="longitude"
           label={t("form.fields.longitude")}
           value={formState.longitude}
-          onChange={val => handleInputChange("longitude", val)}
+          onChange={(val) => handleInputChange("longitude", val)}
           placeholder={t("form.placeholders.longitude")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.longitude}
         />
 
-        <NumberField
-          id="distanceFromCenter"
-          label={t("form.fields.distanceFromCenter")}
-          value={formState.distanceFromCenter}
-          onChange={val => handleInputChange("distanceFromCenter", val)}
-          placeholder={t("form.placeholders.distanceFromCenter")}
-          disabled={isSubmitting || internalSubmitting}
-          error={errors.distanceFromCenter}
-          min={0}
-        />
-        {mode === "create" && (
-          <p className="text-xs text-muted-foreground">
-            Distance is automatically calculated from University of Passau. You can edit this value if needed.
-          </p>
-        )}
+        <div>
+          <NumberField
+            id="distanceFromCenter"
+            label={t("form.fields.distanceFromCenter")}
+            value={formState.distanceFromCenter}
+            onChange={(val) => handleInputChange("distanceFromCenter", val)}
+            placeholder={t("form.placeholders.distanceFromCenter")}
+            disabled={isSubmitting || internalSubmitting}
+            error={errors.distanceFromCenter}
+            min={0}
+          />
+          {mode === "create" && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Distance is automatically calculated from University of Passau.
+              You can edit this value if needed.
+            </p>
+          )}
+        </div>
 
         <SelectField
           id="transportAccessibility"
           label={t("form.fields.transportAccessibility")}
           value={formState.transportAccessibility}
-          onChange={val => handleInputChange("transportAccessibility", val)}
+          onChange={(val) => handleInputChange("transportAccessibility", val)}
           options={[
             { value: "4a", label: "4a" },
             { value: "4b", label: "4b" },
@@ -147,7 +153,7 @@ export function SchoolForm(props: SchoolFormProps) {
           id="contactEmail"
           label={t("form.fields.contactEmail")}
           value={formState.contactEmail}
-          onChange={val => handleInputChange("contactEmail", val)}
+          onChange={(val) => handleInputChange("contactEmail", val)}
           placeholder={t("form.placeholders.contactEmail")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.contactEmail}
@@ -157,18 +163,18 @@ export function SchoolForm(props: SchoolFormProps) {
           id="contactPhone"
           label={t("form.fields.contactPhone")}
           value={formState.contactPhone}
-          onChange={val => handleInputChange("contactPhone", val)}
+          onChange={(val) => handleInputChange("contactPhone", val)}
           placeholder={t("form.placeholders.contactPhone")}
           disabled={isSubmitting || internalSubmitting}
           error={errors.contactPhone}
         />
       </div>
-      
+
       <TextAreaField
         id="address"
         label={t("form.fields.address")}
         value={formState.address}
-        onChange={val => handleInputChange("address", val)}
+        onChange={(val) => handleInputChange("address", val)}
         placeholder={t("form.placeholders.addressDetailed")}
         disabled={isSubmitting || internalSubmitting}
         error={errors.address}
@@ -185,7 +191,8 @@ export function SchoolForm(props: SchoolFormProps) {
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
-            The map shows the school location and University of Passau for reference
+            The map shows the school location and University of Passau for
+            reference
           </p>
         </div>
       )}
@@ -193,47 +200,42 @@ export function SchoolForm(props: SchoolFormProps) {
       {mode === "create" && (
         <Label
           htmlFor="isActive"
-          className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10"
+          className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-aria-checked:border-primary has-aria-checked:bg-primary/10"
         >
           <Checkbox
             id="isActive"
             checked={formState.isActive}
-            onCheckedChange={(checked) => handleInputChange("isActive", Boolean(checked))}
+            onCheckedChange={(checked) =>
+              handleInputChange("isActive", Boolean(checked))
+            }
             disabled={isSubmitting || internalSubmitting}
             className="h-5 w-5"
           />
           <div>
-            <span className="font-medium">
-              {t("form.fields.isActive")}
-            </span>
-            <p className="text-xs text-muted-foreground">{t("form.helpers.isActive")}</p>
+            <span className="font-medium">{t("form.fields.isActive")}</span>
+            <p className="text-xs text-muted-foreground">
+              {t("form.helpers.isActive")}
+            </p>
           </div>
         </Label>
       )}
 
       <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isSubmitting || internalSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isSubmitting || internalSubmitting}>
-          {isSubmitting || internalSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tCommon("actions.saving")}
-            </>
-          ) : mode === "edit" ? (
-            tCommon("actions.update")
-          ) : (
-            tCommon("actions.create")
-          )}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || internalSubmitting}
+          isEdit={mode === "edit"}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isSubmitting || internalSubmitting}
+        />
       </div>
     </form>
   );
 }
-

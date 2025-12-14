@@ -4,13 +4,6 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 // icons
 import { Filter, Loader2, X, Search } from "lucide-react";
 // translations
@@ -22,6 +15,8 @@ import { TeacherService } from "@/features/teachers/services/teacherService";
 // types
 import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
 import type { Teacher } from "@/features/teachers/types/teacher.types";
+import { SelectField } from "@/components/form/fields/SelectField";
+
 interface CreditHourTrackingFiltersProps {
   yearId?: number;
   onYearIdChange: (value?: number) => void;
@@ -199,13 +194,19 @@ export function CreditHourTrackingFilters({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="year-filter" className="text-xs">
-            {t("filters.yearLabel")}
-          </Label>
-          <Select
+
+          <SelectField
+            id="year-filter"
+            label={t("filters.yearLabel")}
+            options={[
+              { value: "all", label: t("filters.yearPlaceholder") },
+              ...academicYears.map((year) => ({
+                label: year.yearName,
+                value: String(year.id),
+              })),
+            ]}
             value={yearId ? String(yearId) : "all"}
-            onValueChange={(value) => {
+            onChange={(value) => {
               if (value === "all") {
                 onYearIdChange(undefined);
                 return;
@@ -213,25 +214,12 @@ export function CreditHourTrackingFilters({
               onYearIdChange(Number(value));
             }}
             disabled={disabled || loadingYears}
-          >
-            <SelectTrigger id="year-filter" className="h-9 text-sm w-full">
-              <SelectValue
-                placeholder={loadingYears ? t("filters.loadingYears") : t("filters.yearPlaceholder")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("filters.yearPlaceholder")}</SelectItem>
-              {academicYears.map((year) => (
-                <SelectItem key={year.id} value={String(year.id)}>
-                  {year.yearName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            placeholder={loadingYears ? t("filters.loadingYears") : t("filters.yearPlaceholder")}
+          />
+
 
         <div className="space-y-2">
-          <Label htmlFor="teacher-search" className="text-xs">
+          <Label htmlFor="teacher-search" className="text-sm font-medium">
             {t("filters.teacherLabel")}
           </Label>
           <div className="relative">
@@ -313,7 +301,7 @@ export function CreditHourTrackingFilters({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="min-balance" className="text-xs">
+          <Label htmlFor="min-balance" className="text-sm font-medium">
             {t("filters.minBalanceLabel")}
           </Label>
           <div className="relative">

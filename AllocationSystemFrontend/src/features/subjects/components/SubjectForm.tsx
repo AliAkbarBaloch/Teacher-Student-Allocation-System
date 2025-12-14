@@ -2,22 +2,20 @@
 import { useEffect, useMemo, useState } from "react";
 // translations
 import { useTranslation } from "react-i18next";
-// components
-import { Input } from "@/components/ui/input";
-// icons
-import { AlertCircle } from "lucide-react";
+
 // types
 import type {
   CreateSubjectRequest,
   Subject,
   UpdateSubjectRequest,
 } from "../types/subject.types";
-// services
+// components
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
 import { CheckboxField } from "@/components/form/fields/CheckboxField";
 import { SelectField } from "@/components/form/fields/SelectField";
 import useSubjectCategories from "@/hooks/entities/useSubjectCategories";
+import { TextField } from "@/components/form/fields/TextField";
 
 
 interface SubjectFormProps {
@@ -33,7 +31,6 @@ export function SubjectForm({
   onSubmit,
   onCancel,
   isLoading = false,
-  error: externalError = null,
 }: SubjectFormProps) {
   const { t } = useTranslation("subjects");
   const { t: tCommon } = useTranslation("common");
@@ -84,6 +81,10 @@ export function SubjectForm({
   const categoryValue = useMemo((): string => {
     return formData.subjectCategoryId > 0 ? String(formData.subjectCategoryId) : "__none__";
   }, [formData.subjectCategoryId]);
+
+  const schoolTypeValue = useMemo((): string => {
+    return formData.schoolType || "__none__";
+  }, [formData.schoolType]);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateSubjectRequest, string>> = {};
@@ -190,51 +191,29 @@ export function SubjectForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      {(externalError || Object.keys(errors).length > 0) && (
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          <AlertCircle className="h-4 w-4" />
-          <span>{externalError || Object.values(errors)[0]}</span>
-        </div>
-      )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="subjectCode" className="text-sm font-medium">
-            {t("form.fields.code")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
-            id="subjectCode"
-            value={formData.subjectCode}
-            onChange={(e) => handleChange("subjectCode", e.target.value)}
-            placeholder={t("form.placeholders.code")}
-            disabled={isLoading || isSubmitting}
-            className={errors.subjectCode ? "border-destructive" : ""}
-            maxLength={50}
-          />
-          {errors.subjectCode && (
-            <p className="text-sm text-destructive">{errors.subjectCode}</p>
-          )}
-        </div>
+        <TextField
+          id="subjectCode"
+          label={t("form.fields.code")}
+          value={formData.subjectCode}
+          onChange={(val: string) => handleChange("subjectCode", val)}
+          placeholder={t("form.placeholders.code")}
+          disabled={isLoading || isSubmitting}
+          error={errors.subjectCode}
+          maxLength={50}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="subjectTitle" className="text-sm font-medium">
-            {t("form.fields.title")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
-            id="subjectTitle"
-            value={formData.subjectTitle}
-            onChange={(e) => handleChange("subjectTitle", e.target.value)}
-            placeholder={t("form.placeholders.title")}
-            disabled={isLoading || isSubmitting}
-            className={errors.subjectTitle ? "border-destructive" : ""}
-            maxLength={255}
-          />
-          {errors.subjectTitle && (
-            <p className="text-sm text-destructive">{errors.subjectTitle}</p>
-          )}
-        </div>
+        <TextField
+          id="subjectTitle"
+          label={t("form.fields.title")}
+          value={formData.subjectTitle}
+          onChange={(val: string) => handleChange("subjectTitle", val)}
+          placeholder={t("form.placeholders.title")}
+          disabled={isLoading || isSubmitting}
+          error={errors.subjectTitle}
+          maxLength={255}
+        />
 
         <SelectField
           id="subjectCategoryId"
@@ -274,10 +253,16 @@ export function SubjectForm({
         <SelectField
           id="schoolType"
           label={t("form.fields.schoolType")}
-          value={formData.schoolType}
-          onChange={val => handleChange("schoolType", val)}
+          value={schoolTypeValue}
+          onChange={val => {
+            if (val === "__none__") {
+              handleChange("schoolType", "");
+            } else {
+              handleChange("schoolType", val);
+            }
+          }}
           options={[
-            { value: "", label: t("form.placeholders.schoolType") },
+            { value: "__none__", label: t("form.placeholders.schoolType") },
             { value: "Primary", label: t("table.primary") },
             { value: "Middle", label: t("table.middle") },
           ]}
@@ -293,7 +278,6 @@ export function SubjectForm({
         onCheckedChange={val => handleChange("isActive", val)}
         label={t("form.fields.isActive")}
         description={t("form.fields.isActiveDescription")}
-        statusText={formData.isActive ? t("table.active") : t("table.inactive")}
         disabled={isLoading || isSubmitting}
       />
 

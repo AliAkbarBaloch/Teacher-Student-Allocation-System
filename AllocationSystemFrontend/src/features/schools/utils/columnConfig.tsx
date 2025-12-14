@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
-import { SchoolStatusBadge } from "@/features/schools/components/SchoolStatusBadge";
 import type { ColumnConfig } from "@/types/datatable.types";
 import type { School } from "@/features/schools/types/school.types";
 
@@ -20,7 +19,10 @@ export function useSchoolsColumnConfig(): ColumnConfig[] {
               {String(value || "")}
             </p>
             {school.address && (
-              <p className="text-xs text-muted-foreground truncate" title={school.address}>
+              <p
+                className="text-xs text-muted-foreground truncate"
+                title={school.address}
+              >
                 {school.address}
               </p>
             )}
@@ -92,9 +94,12 @@ export function useSchoolsColumnConfig(): ColumnConfig[] {
       title: t("table.columns.status"),
       enableSorting: true,
       format: (value: unknown) => {
-        return <SchoolStatusBadge isActive={Boolean(value)} />;
+        return (
+          <Badge variant={typeof value === "boolean" && value ? "success" : "secondary"}>
+            {typeof value === "boolean" && value ? t("status.active") : t("status.inactive")}
+          </Badge>
+        );
       },
     },
   ];
 }
-

@@ -1,26 +1,27 @@
 import { useState, useEffect, useMemo } from "react";
+// translations
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+// icons
 import { AlertCircle } from "lucide-react";
+
+// types
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
   UpdateAllocationPlanRequest,
   PlanStatus,
 } from "../types/allocationPlan.types";
-import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
 
+// components
+import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { TextField } from "@/components/form/fields/TextField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
+
+// constants
 const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
   { value: "DRAFT", label: "Draft" },
   { value: "IN_REVIEW", label: "In Review" },
@@ -121,6 +122,12 @@ export function AllocationPlanForm({
   const yearValue = useMemo(() => (formData.yearId > 0 ? String(formData.yearId) : "__none__"), [formData.yearId]);
   const statusValue = useMemo(() => formData.status ?? "DRAFT", [formData.status]);
 
+  // Year options with placeholder
+  const yearOptions = useMemo(() => [
+    { value: "__none__", label: t("form.placeholders.yearId") },
+    ...years.map((year) => ({ value: String(year.id), label: year.yearName })),
+  ], [years, t]);
+
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateAllocationPlanRequest, string>> = {};
     if (!formData.yearId || formData.yearId < 1) {
@@ -190,148 +197,89 @@ export function AllocationPlanForm({
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="yearId" className="text-sm font-medium">
-            {t("form.fields.yearId")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Select
+          <SelectField
+            id="yearId"
+            label={t("form.fields.yearId")}
             value={yearValue}
-            onValueChange={(value) => {
-              if (value === "__none__") {
-                handleChange("yearId", 0);
-              } else {
-                const id = parseInt(value, 10);
-                handleChange("yearId", isNaN(id) ? 0 : id);
-              }
-            }}
+            onChange={(val: string) => handleChange("yearId", val === "__none__" ? 0 : Number(val))}
+            options={yearOptions}
+            placeholder={t("form.placeholders.yearId")}
             disabled={isLoading || isSubmitting || loadingYears}
-          >
-            <SelectTrigger className={`w-full ${errors.yearId ? "border-destructive" : ""}`}>
-              <SelectValue placeholder={t("form.placeholders.yearId")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">{t("form.placeholders.yearId")}</SelectItem>
-              {years.map((year) => (
-                <SelectItem key={year.id} value={String(year.id)}>
-                  {year.yearName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.yearId && <p className="text-sm text-destructive">{errors.yearId}</p>}
-        </div>
+            error={errors.yearId}
+          />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="planName" className="text-sm font-medium">
-            {t("form.fields.planName")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
+          <TextField
             id="planName"
+            label={t("form.fields.planName")}
             value={formData.planName}
-            onChange={(e) => handleChange("planName", e.target.value)}
+            onChange={(val: string) => handleChange("planName", val)}
             placeholder={t("form.placeholders.planName")}
             disabled={isLoading || isSubmitting}
-            className={errors.planName ? "border-destructive" : ""}
+            error={errors.planName}
             maxLength={255}
           />
-          {errors.planName && <p className="text-sm text-destructive">{errors.planName}</p>}
-        </div>
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="planVersion" className="text-sm font-medium">
-            {t("form.fields.planVersion")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
+          <TextField
             id="planVersion"
+            label={t("form.fields.planVersion")}
             value={formData.planVersion}
-            onChange={(e) => handleChange("planVersion", e.target.value)}
+            onChange={(val: string) => handleChange("planVersion", val)}
             placeholder={t("form.placeholders.planVersion")}
             disabled={isLoading || isSubmitting}
-            className={errors.planVersion ? "border-destructive" : ""}
+            error={errors.planVersion}
             maxLength={100}
           />
-          {errors.planVersion && <p className="text-sm text-destructive">{errors.planVersion}</p>}
-        </div>
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="status" className="text-sm font-medium">
-            {t("form.fields.status")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Select
+          <SelectField
+            id="status"
+            label={t("form.fields.status")}
             value={statusValue}
-            onValueChange={(value) => handleChange("status", value as PlanStatus)}
+            onChange={(val: string) => handleChange("status", val as PlanStatus)}
+            options={PLAN_STATUS_OPTIONS}
+            placeholder={t("form.placeholders.status")}
             disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger className={`w-full ${errors.status ? "border-destructive" : ""}`}>
-              <SelectValue placeholder={t("form.placeholders.status")} />
-            </SelectTrigger>
-            <SelectContent>
-              {PLAN_STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.status && <p className="text-sm text-destructive">{errors.status}</p>}
-        </div>
+            error={errors.status}
+          />
 
-        <div className="space-y-2 col-span-1">
-          <div className="flex items-center space-x-2">
-            <Checkbox
+            <CheckboxField
               id="isCurrent"
+              label={t("form.fields.isCurrent")}
               checked={!!formData.isCurrent}
-              onCheckedChange={(checked) => handleChange("isCurrent", checked === true)}
+              onCheckedChange={(checked: boolean) =>
+                handleChange("isCurrent", checked)
+              }
               disabled={isLoading || isSubmitting}
-              className="h-5 w-5"
+              labelClassName="mt-1.5"
+              className="lg:mt-7"
             />
-            <Label
-              htmlFor="isCurrent"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-            >
-              {t("form.fields.isCurrent")}
-            </Label>
-          </div>
-        </div>
-
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="notes" className="text-sm font-medium">
-            {t("form.fields.notes")}
-          </Label>
-          <Textarea
+              
+          <TextAreaField
             id="notes"
+            label={t("form.fields.notes")}
             value={formData.notes ?? ""}
-            onChange={(e) => handleChange("notes", e.target.value)}
+            onChange={(val: string) => handleChange("notes", val)}
             placeholder={t("form.placeholders.notes")}
             disabled={isLoading || isSubmitting}
-            className={errors.notes ? "border-destructive" : ""}
-            maxLength={5000}
-            rows={3}
+            error={errors.notes}
+            maxLength={500}
           />
-          {errors.notes && <p className="text-sm text-destructive">{errors.notes}</p>}
-        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isLoading || isSubmitting}>
-          {isSubmitting || isLoading
-            ? tCommon("actions.saving")
-            : allocationPlan
-            ? tCommon("actions.update")
-            : tCommon("actions.create")}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!allocationPlan}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isLoading || isSubmitting}
+        />
       </div>
     </form>
   );

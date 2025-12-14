@@ -1,16 +1,17 @@
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { GenericFormDialog } from "@/components/common/GenericFormDialog";
-import { GenericForm } from "@/components/common/GenericForm";
+
 import type {
   Subject,
   CreateSubjectRequest,
   UpdateSubjectRequest,
 } from "../types/subject.types";
-import { getSubjectFieldConfig } from "../config/subjectFieldConfig";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SubjectForm } from "./SubjectForm";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
 
 interface SubjectDialogsProps {
   // Dialog states
@@ -59,30 +60,25 @@ export function SubjectDialogs({
   t,
 }: SubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
-  
-  // Get field configuration (memoized to avoid recreating on every render)
-  const fieldConfig = useMemo(() => getSubjectFieldConfig(t), [t]);
 
   return (
     <>
       {/* Create Dialog */}
-      <GenericFormDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        title={t("form.title.create")}
-        description={t("subtitle")}
-        maxWidth="2xl"
-      >
-        <GenericForm<Subject, CreateSubjectRequest, UpdateSubjectRequest>
-          fields={fieldConfig}
-          initialData={null}
-          onSubmit={onCreateSubmit}
-          onCancel={() => setIsCreateDialogOpen(false)}
-          isLoading={isSubmitting}
-          mode="create"
-          translationNamespace="subjects"
-        />
-      </GenericFormDialog>
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("form.title.create")}</DialogTitle>
+            <DialogDescription>{t("subtitle")}</DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            <SubjectForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
 
       {/* View Dialog (Read-only) */}
       <ViewDialog
@@ -97,7 +93,6 @@ export function SubjectDialogs({
         title={t("form.title.view")}
         description={t("subtitle")}
         maxWidth="2xl"
-        fieldConfig={fieldConfig}
         onEdit={() => {
           setIsViewDialogOpen(false);
           if (selectedSubject) {
@@ -106,32 +101,59 @@ export function SubjectDialogs({
         }}
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
+        renderCustomContent={(subject) => (
+          <DialogBody>
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <ReadOnlyField
+                  label={t("form.fields.code")}
+                  value={subject.subjectCode}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.title")}
+                  value={subject.subjectTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.category")}
+                  value={subject.subjectCategoryTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.schoolType")}
+                  value={subject.schoolType}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.isActive")}
+                  value={<Badge variant={subject.isActive ? "success" : "secondary"}>{subject.isActive ? t("table.active") : t("table.inactive")}</Badge>}
+                />
+              </div>
+            </div>
+          </DialogBody>
+        )}
       />
 
       {/* Edit Dialog */}
-      <GenericFormDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        title={t("form.title.edit")}
-        description={t("subtitle")}
-        maxWidth="2xl"
-      >
-        {selectedSubject && (
-          <GenericForm<Subject, CreateSubjectRequest, UpdateSubjectRequest>
-            key={`edit-${selectedSubject.id}`}
-            fields={fieldConfig}
-            initialData={selectedSubject}
-            onSubmit={onUpdateSubmit}
-            onCancel={() => {
-              setIsEditDialogOpen(false);
-              onSelectedChange(null);
-            }}
-            isLoading={isSubmitting}
-            mode="edit"
-            translationNamespace="subjects"
-          />
-        )}
-      </GenericFormDialog>
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("form.title.edit")}</DialogTitle>
+            <DialogDescription>{t("subtitle")}</DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            {selectedSubject && (
+              <SubjectForm
+                key={`edit-${selectedSubject.id}`}
+                subject={selectedSubject}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

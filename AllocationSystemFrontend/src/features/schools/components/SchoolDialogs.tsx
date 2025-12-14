@@ -21,11 +21,11 @@ import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { SchoolForm } from "./SchoolForm";
 import { SchoolLocationMap } from "./SchoolLocationMap";
-import { SchoolStatusBadge } from "./SchoolStatusBadge";
 import type { School, CreateSchoolRequest, UpdateSchoolRequest } from "../types/school.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
 
 interface SchoolDialogsProps {
   // Dialog states
@@ -189,7 +189,7 @@ export function SchoolDialogs({
               />
               <ReadOnlyField
                 label={t("form.fields.isActive")}
-                value={<SchoolStatusBadge isActive={school.isActive} />}
+                value={<Badge variant={school.isActive ? "success" : "secondary"}>{school.isActive ? t("status.active") : t("status.inactive")}</Badge>}
               />
               <ReadOnlyField
                 label={t("form.fields.contactEmail")}

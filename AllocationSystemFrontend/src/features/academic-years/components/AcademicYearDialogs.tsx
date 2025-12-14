@@ -1,16 +1,24 @@
-import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { GenericForm } from "@/components/common/GenericForm";
-import { GenericFormDialog } from "@/components/common/GenericFormDialog";
+
 import { ViewDialog } from "@/components/common/ViewDialog";
 import type { TFunction } from "i18next";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { getAcademicYearFieldConfig } from "../config/academicYearFieldConfig";
 import type {
   AcademicYear,
   CreateAcademicYearRequest,
   UpdateAcademicYearRequest,
 } from "../types/academicYear.types";
+import { Dialog } from "@/components/ui/dialog";
+import { DialogContent } from "@/components/ui/dialog";
+import { DialogHeader } from "@/components/ui/dialog";
+import { DialogTitle } from "@/components/ui/dialog";
+import { DialogDescription } from "@/components/ui/dialog";
+import { DialogBody } from "@/components/ui/dialog";
+import { AcademicYearForm } from "./AcademicYearForm";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Loader2 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
+
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 
 interface AcademicYearDialogsProps {
   // Dialog states
@@ -54,50 +62,65 @@ export function AcademicYearDialogs({
   onUpdateSubmit,
   onDelete,
   onEditClick,
-  onSelectedChange,
   isSubmitting,
   t,
 }: AcademicYearDialogsProps) {
   const { t: tCommon } = useTranslation("common");
   
-  // Get field configuration (memoized to avoid recreating on every render)
-  const fieldConfig = useMemo(() => getAcademicYearFieldConfig(t), [t]);
 
   return (
     <>
-      {/* Create Dialog */}
-      <GenericFormDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        title={t("form.title.create")}
-        description={t("subtitle")}
-        maxWidth="2xl"
-      >
-        <GenericForm<AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest>
-          fields={fieldConfig}
-          initialData={null}
-          onSubmit={onCreateSubmit}
-          onCancel={() => setIsCreateDialogOpen(false)}
-          isLoading={isSubmitting}
-          mode="create"
-          translationNamespace="academicYears"
-        />
-      </GenericFormDialog>
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("form.title.create")}</DialogTitle>
+            <DialogDescription>{t("form.description")}</DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            <AcademicYearForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
 
-      {/* View Dialog (Read-only) */}
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("form.title.edit")}</DialogTitle>
+            <DialogDescription>{t("form.description")}</DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            {isSubmitting ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+                selectedAcademicYear && (
+                <AcademicYearForm
+                  key={`edit-${selectedAcademicYear.id}`}
+                  academicYear={selectedAcademicYear}
+                  onSubmit={onUpdateSubmit}
+                  onCancel={() => setIsEditDialogOpen(false)}
+                  isLoading={isSubmitting}
+                />
+              )
+            )}
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog */}
       <ViewDialog
         open={isViewDialogOpen}
-        onOpenChange={(open) => {
-          setIsViewDialogOpen(open);
-          if (!open) {
-            onSelectedChange(null);
-          }
-        }}
+        onOpenChange={setIsViewDialogOpen}
         data={selectedAcademicYear}
         title={t("form.title.view")}
-        description={t("subtitle")}
+        description={t("form.description")}
         maxWidth="2xl"
-        fieldConfig={fieldConfig}
         onEdit={() => {
           setIsViewDialogOpen(false);
           if (selectedAcademicYear) {
@@ -106,32 +129,45 @@ export function AcademicYearDialogs({
         }}
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
-      />
-
-      {/* Edit Dialog */}
-      <GenericFormDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        title={t("form.title.edit")}
-        description={t("subtitle")}
-        maxWidth="2xl"
-      >
-        {selectedAcademicYear && (
-          <GenericForm<AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest>
-            key={`edit-${selectedAcademicYear.id}`}
-            fields={fieldConfig}
-            initialData={selectedAcademicYear}
-            onSubmit={onUpdateSubmit}
-            onCancel={() => {
-              setIsEditDialogOpen(false);
-              onSelectedChange(null);
-            }}
-            isLoading={isSubmitting}
-            mode="edit"
-            translationNamespace="academicYears"
-          />
+        renderCustomContent={(academicYear) => (
+          <DialogBody>
+            <div className="grid lg:grid-cols-2 gap-4">
+              <ReadOnlyField
+                label={t("form.fields.yearName")}
+                value={academicYear.yearName}
+              />
+              <ReadOnlyField
+                label={t("form.fields.totalCreditHours")}
+                value={academicYear.totalCreditHours}
+              />
+              <ReadOnlyField
+                label={t("form.fields.elementarySchoolHours")}
+                value={academicYear.elementarySchoolHours}
+              />
+              <ReadOnlyField
+                label={t("form.fields.middleSchoolHours")}
+                value={academicYear.middleSchoolHours}
+              />
+              <ReadOnlyField
+                label={t("form.fields.allocationDeadline")}
+                value={academicYear.allocationDeadline ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.isLocked")}
+                value={academicYear.isLocked ? t("table.locked") : t("table.unlocked")}
+              />
+              <ReadOnlyField
+                label={t("form.fields.createdAt")}
+                value={academicYear.createdAt ? formatDate(academicYear.createdAt) : "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.updatedAt")}
+                value={academicYear.updatedAt ? formatDate(academicYear.updatedAt) : "—"}
+              />
+            </div>
+          </DialogBody>
         )}
-      </GenericFormDialog>
+      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

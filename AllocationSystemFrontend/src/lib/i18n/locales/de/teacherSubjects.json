@@ -40,7 +40,8 @@
       "updatedAt": "Aktualisiert am"
     },
     "placeholders": {
-      "academicYear": "ID des akademischen Jahres eingeben",
+      "academicYear": "Akademisches Jahr auswählen",
+      "noAcademicYears": "Keine akademischen Jahre verfügbar",
       "teacher": "Wählen Sie eine Lehrkraft",
       "noTeachers": "Keine Lehrkräfte verfügbar",
       "subject": "Wählen Sie ein Fach",

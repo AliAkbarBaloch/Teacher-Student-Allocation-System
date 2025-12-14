@@ -40,7 +40,8 @@
       "updatedAt": "Updated At"
     },
     "placeholders": {
-      "academicYear": "Enter academic year ID",
+      "academicYear": "Select academic year",
+      "noAcademicYears": "No academic years available",
       "teacher": "Select a teacher",
       "noTeachers": "No teachers available",
       "subject": "Select a subject",
