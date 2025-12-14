@@ -30,7 +30,7 @@ public class DataInitializer {
     public CommandLineRunner initData() {
         return args -> {
             insertUsers();
-//            insertAcademicYears();
+            insertAcademicYears();
             log.info("=== Data Initialization Complete ===");
         };
     }
