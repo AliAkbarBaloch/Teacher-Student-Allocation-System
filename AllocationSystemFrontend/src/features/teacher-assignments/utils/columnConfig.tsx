@@ -10,25 +10,25 @@ export function useTeacherAssignmentsColumnConfig(): ColumnConfig[] {
 
   return [
     {
-      field: "planTitle",
+      field: "planId",
       title: t("table.planId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "teacherTitle",
+      field: "teacherId",
       title: t("table.teacherId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "internshipTypeTitle",
+      field: "internshipTypeId",
       title: t("table.internshipTypeId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "subjectTitle",
+      field: "subjectId",
       title: t("table.subjectId"),
       enableSorting: true,
       fieldType: "number",
