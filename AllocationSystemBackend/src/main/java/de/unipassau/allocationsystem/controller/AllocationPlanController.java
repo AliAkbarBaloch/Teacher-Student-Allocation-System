@@ -223,4 +223,27 @@ public class AllocationPlanController {
         AllocationPlanResponseDto plan = allocationPlanService.getCurrentPlanForYear(yearId);
         return ResponseHandler.success("Current allocation plan retrieved successfully", plan);
     }
+
+    /**
+     * Run the allocation algorithm for a specific allocation plan.
+     * This triggers the teacher allocation process for the academic year associated with the plan.
+     * Used by Create Allocation Plan functionality.
+     */
+    @PostMapping("/{id}/run-allocation")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Run allocation algorithm",
+               description = "Trigger the teacher allocation algorithm for the academic year associated with this plan")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation algorithm executed successfully"),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Allocation algorithm execution failed")
+    })
+    public ResponseEntity<?> runAllocationAlgorithm(@PathVariable Long id) {
+        log.info("POST /api/allocation-plans/{}/run-allocation", id);
+
+        Long newPlanId = allocationPlanService.runAllocationForPlan(id);
+        log.info("New allocation plan created with ID: {}", newPlanId);
+        return ResponseHandler.success("Allocation algorithm executed successfully. A new allocation plan has been created.", 
+            java.util.Map.of("newPlanId", newPlanId));
+    }
 }

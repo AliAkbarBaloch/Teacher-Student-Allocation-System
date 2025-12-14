@@ -23,7 +23,8 @@ import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 export default function AllocationPlanPage() {
   const { t } = useTranslation("allocationPlans");
   const dialogs = useDialogState();
-  const [allocationPlanToDelete, setAllocationPlanToDelete] = useState<AllocationPlan | null>(null);
+  const [allocationPlanToDelete, setAllocationPlanToDelete] =
+    useState<AllocationPlan | null>(null);
 
   const {
     allocationPlans,
@@ -65,7 +66,12 @@ export default function AllocationPlanPage() {
         // Error already handled in hook
       }
     },
-    [handleUpdateInternal, selectedAllocationPlan, setSelectedAllocationPlan, dialogs.edit]
+    [
+      handleUpdateInternal,
+      selectedAllocationPlan,
+      setSelectedAllocationPlan,
+      dialogs.edit,
+    ]
   );
 
   const handleDelete = useCallback(async () => {
@@ -79,26 +85,37 @@ export default function AllocationPlanPage() {
     }
   }, [handleDeleteInternal, allocationPlanToDelete, dialogs.delete]);
 
-  const handleEditClick = useCallback((allocationPlan: AllocationPlan) => {
-    setSelectedAllocationPlan(allocationPlan);
-    dialogs.edit.setIsOpen(true);
-  }, [setSelectedAllocationPlan, dialogs.edit]);
+  const handleEditClick = useCallback(
+    (allocationPlan: AllocationPlan) => {
+      setSelectedAllocationPlan(allocationPlan);
+      dialogs.edit.setIsOpen(true);
+    },
+    [setSelectedAllocationPlan, dialogs.edit]
+  );
 
-  const handleDeleteClick = useCallback((allocationPlan: AllocationPlan) => {
-    setAllocationPlanToDelete(allocationPlan);
-    dialogs.delete.setIsOpen(true);
-  }, [dialogs.delete]);
+  const handleDeleteClick = useCallback(
+    (allocationPlan: AllocationPlan) => {
+      setAllocationPlanToDelete(allocationPlan);
+      dialogs.delete.setIsOpen(true);
+    },
+    [dialogs.delete]
+  );
 
-  const handleViewClick = useCallback((allocationPlan: AllocationPlan) => {
-    setSelectedAllocationPlan(allocationPlan);
-    dialogs.view.setIsOpen(true);
-  }, [setSelectedAllocationPlan, dialogs.view]);
+  const handleViewClick = useCallback(
+    (allocationPlan: AllocationPlan) => {
+      setSelectedAllocationPlan(allocationPlan);
+      dialogs.view.setIsOpen(true);
+    },
+    [setSelectedAllocationPlan, dialogs.view]
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">{t("title")}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h2>
           <p className="text-muted-foreground text-sm mt-1">{t("subtitle")}</p>
         </div>
         <Button onClick={() => dialogs.create.setIsOpen(true)}>

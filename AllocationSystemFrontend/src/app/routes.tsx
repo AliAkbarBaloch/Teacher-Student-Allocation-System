@@ -29,14 +29,16 @@ import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTracki
 import AllocationReportPage from "@/pages/reports/AllocationReportPage";
 
 const withSuspense = (node: React.ReactNode) => (
-  <Suspense fallback={
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-        <p className="text-muted-foreground">Loading...</p>
+  <Suspense
+    fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
-    </div>
-  }>
+    }
+  >
     {node}
   </Suspense>
 );
@@ -93,6 +95,10 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.main.allocationReport,
+        element: withSuspense(<AllocationReportPage />),
+      },
+      {
+        path: `${ROUTES.main.allocationReport}/:planId`,
         element: withSuspense(<AllocationReportPage />),
       },
       {
@@ -196,4 +202,3 @@ export const router = createBrowserRouter([
     element: <Navigate to={ROUTES.auth.login} replace />,
   },
 ]);
-

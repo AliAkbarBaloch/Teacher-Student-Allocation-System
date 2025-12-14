@@ -19,7 +19,10 @@ import type {
   UpdateAllocationPlanRequest,
   PlanStatus,
 } from "../types/allocationPlan.types";
-import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
+import {
+  AcademicYearService,
+  type AcademicYear,
+} from "@/features/academic-years";
 
 const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
   { value: "DRAFT", label: "Draft" },
@@ -30,7 +33,9 @@ const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
 
 interface AllocationPlanFormProps {
   allocationPlan?: AllocationPlan | null;
-  onSubmit: (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -75,7 +80,9 @@ export function AllocationPlanForm({
     };
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateAllocationPlanRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateAllocationPlanRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load academic years for dropdown
@@ -118,11 +125,19 @@ export function AllocationPlanForm({
   }, [allocationPlan, currentUserId]);
 
   // Normalize select values
-  const yearValue = useMemo(() => (formData.yearId > 0 ? String(formData.yearId) : "__none__"), [formData.yearId]);
-  const statusValue = useMemo(() => formData.status ?? "DRAFT", [formData.status]);
+  const yearValue = useMemo(
+    () => (formData.yearId > 0 ? String(formData.yearId) : "__none__"),
+    [formData.yearId]
+  );
+  const statusValue = useMemo(
+    () => formData.status ?? "DRAFT",
+    [formData.status]
+  );
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateAllocationPlanRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateAllocationPlanRequest, string>
+    > = {};
     if (!formData.yearId || formData.yearId < 1) {
       newErrors.yearId = t("form.errors.yearIdRequired");
     }
@@ -173,7 +188,10 @@ export function AllocationPlanForm({
     }
   };
 
-  const handleChange = (field: keyof CreateAllocationPlanRequest, value: string | number | boolean | null) => {
+  const handleChange = (
+    field: keyof CreateAllocationPlanRequest,
+    value: string | number | boolean | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -191,7 +209,7 @@ export function AllocationPlanForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="yearId" className="text-sm font-medium">
+          <Label className="text-sm font-medium">
             {t("form.fields.yearId")}
             <span className="text-destructive ml-1">*</span>
           </Label>
@@ -207,11 +225,15 @@ export function AllocationPlanForm({
             }}
             disabled={isLoading || isSubmitting || loadingYears}
           >
-            <SelectTrigger className={`w-full ${errors.yearId ? "border-destructive" : ""}`}>
+            <SelectTrigger
+              className={`w-full ${errors.yearId ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder={t("form.placeholders.yearId")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">{t("form.placeholders.yearId")}</SelectItem>
+              <SelectItem value="__none__">
+                {t("form.placeholders.yearId")}
+              </SelectItem>
               {years.map((year) => (
                 <SelectItem key={year.id} value={String(year.id)}>
                   {year.yearName}
@@ -219,7 +241,9 @@ export function AllocationPlanForm({
               ))}
             </SelectContent>
           </Select>
-          {errors.yearId && <p className="text-sm text-destructive">{errors.yearId}</p>}
+          {errors.yearId && (
+            <p className="text-sm text-destructive">{errors.yearId}</p>
+          )}
         </div>
 
         <div className="space-y-2 col-span-1">
@@ -236,7 +260,9 @@ export function AllocationPlanForm({
             className={errors.planName ? "border-destructive" : ""}
             maxLength={255}
           />
-          {errors.planName && <p className="text-sm text-destructive">{errors.planName}</p>}
+          {errors.planName && (
+            <p className="text-sm text-destructive">{errors.planName}</p>
+          )}
         </div>
 
         <div className="space-y-2 col-span-1">
@@ -253,20 +279,26 @@ export function AllocationPlanForm({
             className={errors.planVersion ? "border-destructive" : ""}
             maxLength={100}
           />
-          {errors.planVersion && <p className="text-sm text-destructive">{errors.planVersion}</p>}
+          {errors.planVersion && (
+            <p className="text-sm text-destructive">{errors.planVersion}</p>
+          )}
         </div>
 
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="status" className="text-sm font-medium">
+          <Label className="text-sm font-medium">
             {t("form.fields.status")}
             <span className="text-destructive ml-1">*</span>
           </Label>
           <Select
             value={statusValue}
-            onValueChange={(value) => handleChange("status", value as PlanStatus)}
+            onValueChange={(value) =>
+              handleChange("status", value as PlanStatus)
+            }
             disabled={isLoading || isSubmitting}
           >
-            <SelectTrigger className={`w-full ${errors.status ? "border-destructive" : ""}`}>
+            <SelectTrigger
+              className={`w-full ${errors.status ? "border-destructive" : ""}`}
+            >
               <SelectValue placeholder={t("form.placeholders.status")} />
             </SelectTrigger>
             <SelectContent>
@@ -277,7 +309,9 @@ export function AllocationPlanForm({
               ))}
             </SelectContent>
           </Select>
-          {errors.status && <p className="text-sm text-destructive">{errors.status}</p>}
+          {errors.status && (
+            <p className="text-sm text-destructive">{errors.status}</p>
+          )}
         </div>
 
         <div className="space-y-2 col-span-1">
@@ -285,7 +319,9 @@ export function AllocationPlanForm({
             <Checkbox
               id="isCurrent"
               checked={!!formData.isCurrent}
-              onCheckedChange={(checked) => handleChange("isCurrent", checked === true)}
+              onCheckedChange={(checked) =>
+                handleChange("isCurrent", checked === true)
+              }
               disabled={isLoading || isSubmitting}
               className="h-5 w-5"
             />
@@ -312,7 +348,9 @@ export function AllocationPlanForm({
             maxLength={5000}
             rows={3}
           />
-          {errors.notes && <p className="text-sm text-destructive">{errors.notes}</p>}
+          {errors.notes && (
+            <p className="text-sm text-destructive">{errors.notes}</p>
+          )}
         </div>
       </div>
 
