@@ -47,7 +47,7 @@ export default function AllocationReportPage() {
 
     try {
       // Use planId from URL or data, or default to 1
-      const id = planId || (data as any)?.planId || "1";
+      const id = planId || "1";
 
       const token = localStorage.getItem("auth_token");
       if (!token) {
