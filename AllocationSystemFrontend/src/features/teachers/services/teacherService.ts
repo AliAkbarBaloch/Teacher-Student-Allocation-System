@@ -7,6 +7,7 @@ import type {
   UpdateTeacherRequest,
   TeacherStatusUpdateRequest,
   BulkImportResponse,
+  EmploymentStatus,
 } from "../types/teacher.types";
 
 type ApiResponse<T> = {
@@ -53,8 +54,8 @@ export class TeacherService {
     return response.data;
   }
 
-  static async updateStatus(id: number, isActive: boolean): Promise<Teacher> {
-    const body: TeacherStatusUpdateRequest = { isActive };
+  static async updateStatus(id: number, status: EmploymentStatus): Promise<Teacher> {
+    const body: TeacherStatusUpdateRequest = { status };
     const response = await apiClient.patch<ApiResponse<Teacher>>(`/teachers/${id}/status`, body);
     return response.data;
   }

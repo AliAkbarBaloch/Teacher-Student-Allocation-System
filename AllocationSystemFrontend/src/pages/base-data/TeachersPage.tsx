@@ -9,7 +9,6 @@ import type { CreateTeacherRequest, Teacher, UpdateTeacherRequest } from "@/feat
 import { useTeachersColumnConfig } from "@/features/teachers/utils/columnConfig";
 import { useDialogState } from "@/hooks/useDialogState";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
-import { Power } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +20,6 @@ export default function TeachersPage() {
   const isAdmin = user?.role === "ADMIN";
 
   const dialogs = useDialogState();
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
 
   const {
@@ -48,17 +46,12 @@ export default function TeachersPage() {
     fetchTeacherDetails,
     handleCreateSubmit: handleCreateSubmitInternal,
     handleUpdateSubmit: handleUpdateSubmitInternal,
-    handleStatusChange,
     handleDelete,
     handleOpenCreate,
     refreshList,
     isSubmitting,
-    statusTarget,
-    setStatusTarget,
     deleteTarget,
     setDeleteTarget,
-    warningMessage,
-    setWarningMessage,
   } = useTeachersPage();
 
   const handleOpenView = (teacher: Teacher) => {
@@ -67,9 +60,8 @@ export default function TeachersPage() {
   };
 
   const handleOpenEdit = async (teacher: Teacher) => {
-      await fetchTeacherDetails(teacher.id);
-      dialogs.edit.setIsOpen(true);
-
+    await fetchTeacherDetails(teacher.id);
+    dialogs.edit.setIsOpen(true);
   };
 
   const handleEdit = async () => {
@@ -79,21 +71,13 @@ export default function TeachersPage() {
   };
 
   const handleCreateSubmit = async (payload: CreateTeacherRequest) => {
-      await handleCreateSubmitInternal(payload);
-      dialogs.create.setIsOpen(false);
+    await handleCreateSubmitInternal(payload);
+    dialogs.create.setIsOpen(false);
   };
 
   const handleUpdateSubmit = async (payload: UpdateTeacherRequest) => {
-      await handleUpdateSubmitInternal(payload);
-      // Success toast is shown in the hook
-      dialogs.edit.setIsOpen(false);
-    
-  };
-
-  const openStatusDialog = (teacher: Teacher) => {
-    setStatusTarget({ teacher, nextState: !teacher.isActive });
-    setWarningMessage(null);
-    setIsStatusDialogOpen(true);
+    await handleUpdateSubmitInternal(payload);
+    dialogs.edit.setIsOpen(false);
   };
 
   const openDeleteDialog = (teacher: Teacher) => {
@@ -101,30 +85,16 @@ export default function TeachersPage() {
     dialogs.delete.setIsOpen(true);
   };
 
-  const confirmStatusChange = async () => {
-    if (!statusTarget.teacher) return;
-      await handleStatusChange(statusTarget.teacher, statusTarget.nextState);
-      setIsStatusDialogOpen(false);
-      setStatusTarget({ teacher: null, nextState: false });
-      setWarningMessage(null);
-  };
-
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-      await handleDelete(deleteTarget);
-      // Success toast is shown in the hook
-      dialogs.delete.setIsOpen(false);
-      setDeleteTarget(null);
+    await handleDelete(deleteTarget);
+    dialogs.delete.setIsOpen(false);
+    setDeleteTarget(null);
   };
 
   const handleOpenCreateWithDialog = () => {
     handleOpenCreate();
     dialogs.create.setIsOpen(true);
-  };
-
-  const handleCloseStatus = () => {
-    setStatusTarget({ teacher: null, nextState: false });
-    setWarningMessage(null);
   };
 
   const handleRowClick = (teacher: Teacher) => {
@@ -184,17 +154,7 @@ export default function TeachersPage() {
           onView: handleOpenView,
           onEdit: isAdmin ? handleOpenEdit : undefined,
           onDelete: isAdmin ? openDeleteDialog : undefined,
-          customActions: isAdmin
-            ? [
-                {
-                  label: (teacher: Teacher) =>
-                    teacher.isActive ? t("actions.deactivate") : t("actions.activate"),
-                  icon: <Power className="h-4 w-4" />,
-                  onClick: openStatusDialog,
-                  separator: false,
-                },
-              ]
-            : undefined,
+          // Removed customActions for status change
           labels: {
             view: t("actions.view"),
             edit: t("actions.edit"),
@@ -212,21 +172,15 @@ export default function TeachersPage() {
         setIsEditDialogOpen={dialogs.edit.setIsOpen}
         isViewDialogOpen={dialogs.view.isOpen}
         setIsViewDialogOpen={dialogs.view.setIsOpen}
-        isStatusDialogOpen={isStatusDialogOpen}
-        setIsStatusDialogOpen={setIsStatusDialogOpen}
         isDeleteDialogOpen={dialogs.delete.isOpen}
         setIsDeleteDialogOpen={dialogs.delete.setIsOpen}
         selectedTeacher={selectedTeacher}
         formLoading={formLoading}
         createFormKey={createFormKey}
-        statusTarget={statusTarget}
         deleteTarget={deleteTarget}
-        warningMessage={warningMessage}
         onCreateSubmit={handleCreateSubmit}
         onUpdateSubmit={handleUpdateSubmit}
-        onStatusChange={confirmStatusChange}
         onDelete={confirmDelete}
-        onCloseStatus={handleCloseStatus}
         onEdit={handleEdit}
         isSubmitting={isSubmitting}
         isAdmin={isAdmin}
@@ -246,4 +200,3 @@ export default function TeachersPage() {
     </div>
   );
 }
-

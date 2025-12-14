@@ -121,19 +121,19 @@ export function TeacherAssignmentDialogs({
               <div className="grid gap-4 md:grid-cols-2">
                 <ReadOnlyField
                   label={t("form.fields.planId")}
-                  value={assignment.planId}
+                  value={assignment.planTitle}
                 />
                 <ReadOnlyField
                   label={t("form.fields.teacherId")}
-                  value={assignment.teacherId}
+                  value={assignment.teacherTitle}
                 />
                 <ReadOnlyField
                   label={t("form.fields.internshipTypeId")}
-                  value={assignment.internshipTypeId}
+                  value={assignment.internshipTypeTitle}
                 />
                 <ReadOnlyField
                   label={t("form.fields.subjectId")}
-                  value={assignment.subjectId}
+                  value={assignment.subjectTitle}
                 />
                 <ReadOnlyField
                   label={t("form.fields.studentGroupSize")}

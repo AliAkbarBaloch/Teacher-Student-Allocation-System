@@ -71,7 +71,7 @@ public class AllocationReportService {
         log.info("Found {} assignments for plan ID: {}", assignments.size(), plan.getId());
 
         // 3. Fetch All Active Teachers (to find unassigned ones)
-        List<Teacher> allTeachers = teacherRepository.findAllByIsActiveTrue();
+        List<Teacher> allTeachers = teacherRepository.findAllByEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         log.info("Found {} active teachers", allTeachers.size());
 
         // 4. Build Assignment Details List
