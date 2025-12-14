@@ -1,19 +1,10 @@
-// components
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // types
-import type { CreateTeacherRequest, Teacher, UpdateTeacherRequest } from "../types/teacher.types";
+import type {
+  CreateTeacherRequest,
+  Teacher,
+  UpdateTeacherRequest,
+} from "../types/teacher.types";
 
 // hooks
 import { useTeacherForm } from "../hooks/useTeacherForm";
@@ -22,8 +13,12 @@ import { useMemo, useEffect } from "react";
 // translations
 import { useTranslation } from "react-i18next";
 
-// icons
-import { AlertCircle, Loader2 } from "lucide-react";
+// components
+import { SelectField } from "@/components/form/fields/SelectField";
+import { TextField } from "@/components/form/fields/TextField";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
 
 type BaseTeacherFormProps = {
   onCancel: () => void;
@@ -46,7 +41,13 @@ type EditTeacherFormProps = BaseTeacherFormProps & {
 type TeacherFormProps = CreateTeacherFormProps | EditTeacherFormProps;
 
 export function TeacherForm(props: TeacherFormProps) {
-  const { mode, onSubmit, onCancel, isSubmitting = false, readOnly = false } = props;
+  const {
+    mode,
+    onSubmit,
+    onCancel,
+    isSubmitting = false,
+    readOnly = false,
+  } = props;
   const { t } = useTranslation("teachers");
   const { t: tCommon } = useTranslation("common");
   const hookProps =
@@ -104,37 +105,29 @@ export function TeacherForm(props: TeacherFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {(allErrors.generalError || allErrors.fieldErrors.length > 0) && (
-        <div className="rounded-md border border-destructive/20 bg-destructive/10 p-4 space-y-2">
-          {allErrors.generalError && (
-            <div className="flex items-start gap-2 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-              <span>{allErrors.generalError}</span>
-            </div>
-          )}
-          {allErrors.fieldErrors.length > 0 && (
-            <div className="space-y-1">
-              {allErrors.fieldErrors.map(({ field, message }) => (
-                <div
-                  key={field}
-                  className="flex items-start gap-2 text-sm text-destructive"
-                >
-                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>
-                    <span className="font-medium capitalize">
-                      {field.replace(/([A-Z])/g, " $1").trim()}:
-                    </span>{" "}
-                    {message}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
+        <SelectField
+          id="schoolId"
+          label={t("form.fields.school")}
+          value={schoolIdValue || ""}
+          onChange={(value) => handleInputChange("schoolId", value || "")}
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.school"),
+              disabled: true,
+            },
+            ...schools.map((school) => ({
+              value: school.id.toString(),
+              label: school.schoolName,
+            })),
+          ]}
+          placeholder={t("form.placeholders.school")}
+          disabled={isDisabled || loadingSchools}
+          error={errors.schoolId}
+          required={true}
+        />
+        {/* <div className="space-y-2">
           <Label htmlFor="schoolId">
             {t("form.fields.school")}
             <span className="text-destructive ml-1">*</span>
@@ -174,197 +167,122 @@ export function TeacherForm(props: TeacherFormProps) {
           {errors.schoolId && (
             <p className="text-sm text-destructive">{errors.schoolId}</p>
           )}
-        </div>
+        </div> */}
 
-        <div className="space-y-2">
-          <Label htmlFor="employmentStatus">
-            {t("form.fields.employmentStatus")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Select
-            value={employmentStatusValue}
-            onValueChange={(value) =>
-              handleInputChange("employmentStatus", value || "")
-            }
-            disabled={isDisabled}
-          >
-            <SelectTrigger
-              className={errors.employmentStatus ? "border-destructive" : ""}
-            >
-              <SelectValue
-                placeholder={t("form.placeholders.employmentStatus")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {employmentStatusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.employmentStatus && (
-            <p className="text-sm text-destructive">
-              {errors.employmentStatus}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="firstName">
-            {t("form.fields.firstName")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
-            id="firstName"
-            value={formState.firstName}
-            onChange={(event) =>
-              handleInputChange("firstName", event.target.value)
-            }
-            placeholder={t("form.placeholders.firstName")}
-            disabled={isDisabled}
-            className={errors.firstName ? "border-destructive" : ""}
-          />
-          {errors.firstName && (
-            <p className="text-sm text-destructive">{errors.firstName}</p>
-          )}
-        </div>
+        <SelectField
+          id="employmentStatus"
+          label={t("form.fields.employmentStatus")}
+          value={employmentStatusValue || ""}
+          onChange={(value) =>
+            handleInputChange("employmentStatus", value || "")
+          }
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.employmentStatus"),
+              disabled: true,
+            },
+            ...employmentStatusOptions.map((option) => ({
+              value: option.value,
+              label: option.label,
+            })),
+          ]}
+          placeholder={t("form.placeholders.employmentStatus")}
+          disabled={isDisabled}
+          error={errors.employmentStatus}
+          required={true}
+        />
+        <TextField
+          id="firstName"
+          label={t("form.fields.firstName")}
+          value={formState.firstName}
+          onChange={(value) => handleInputChange("firstName", value || "")}
+          placeholder={t("form.placeholders.firstName")}
+          disabled={isDisabled}
+          error={errors.firstName}
+          required={true}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="lastName">
-            {t("form.fields.lastName")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
-            id="lastName"
-            value={formState.lastName}
-            onChange={(event) =>
-              handleInputChange("lastName", event.target.value)
-            }
-            placeholder={t("form.placeholders.lastName")}
-            disabled={isDisabled}
-            className={errors.lastName ? "border-destructive" : ""}
-          />
-          {errors.lastName && (
-            <p className="text-sm text-destructive">{errors.lastName}</p>
-          )}
-        </div>
+        <TextField
+          id="lastName"
+          label={t("form.fields.lastName")}
+          value={formState.lastName}
+          onChange={(value) => handleInputChange("lastName", value || "")}
+          placeholder={t("form.placeholders.lastName")}
+          disabled={isDisabled}
+          error={errors.lastName}
+          required={true}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="email">
-            {t("form.fields.email")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            value={formState.email}
-            onChange={(event) => handleInputChange("email", event.target.value)}
-            placeholder={t("form.placeholders.email")}
-            disabled={isDisabled}
-            className={errors.email ? "border-destructive" : ""}
-          />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email}</p>
-          )}
-        </div>
+        <TextField
+          id="email"
+          label={t("form.fields.email")}
+          value={formState.email}
+          onChange={(value) => handleInputChange("email", value || "")}
+          placeholder={t("form.placeholders.email")}
+          disabled={isDisabled}
+          error={errors.email}
+          required={true}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="phone">{t("form.fields.phone")}</Label>
-          <Input
-            id="phone"
-            value={formState.phone}
-            onChange={(event) => handleInputChange("phone", event.target.value)}
-            placeholder={t("form.placeholders.phone")}
-            disabled={isDisabled}
-            className={errors.phone ? "border-destructive" : ""}
-          />
-          {errors.phone && (
-            <p className="text-sm text-destructive">{errors.phone}</p>
-          )}
-        </div>
+        <TextField
+          id="phone"
+          label={t("form.fields.phone")}
+          value={formState.phone}
+          onChange={(value) => handleInputChange("phone", value || "")}
+          placeholder={t("form.placeholders.phone")}
+          disabled={isDisabled}
+          error={errors.phone}
+        />
 
-        <div className="space-y-2">
-          <Label
-            htmlFor="isPartTime"
-            className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10"
-          >
-            <Checkbox
-              id="isPartTime"
-              checked={formState.isPartTime}
-              onCheckedChange={(checked) =>
-                handleInputChange("isPartTime", Boolean(checked))
-              }
-              disabled={isDisabled}
-            />
-            <div>
-              <span className="font-medium">
-                {t("form.fields.isPartTime")}
-              </span>
-              <p className="text-xs text-muted-foreground">
-                {t("form.helpers.isPartTime")}
-              </p>
-            </div>
-          </Label>
-          {errors.isPartTime && (
-            <p className="text-sm text-destructive">{errors.isPartTime}</p>
-          )}
-        </div>
+        <CheckboxField
+          id="isPartTime"
+          label={t("form.fields.isPartTime")}
+          checked={formState.isPartTime}
+          onCheckedChange={(checked) =>
+            handleInputChange("isPartTime", Boolean(checked))
+          }
+          disabled={isDisabled}
+          description={t("form.helpers.isPartTime")}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="usageCycle">{t("form.fields.usageCycle")}</Label>
-          <Select
-            value={usageCycleValue}
-            onValueChange={(value) => {
-              // Handle "none" as a special value to clear the selection
-              handleInputChange(
-                "usageCycle",
-                value === "__none__" ? "" : value || ""
-              );
-            }}
-            disabled={isDisabled}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("form.placeholders.usageCycle")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">
-                {t("form.placeholders.usageCycle")}
-              </SelectItem>
-              {usageCycleOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectField
+          id="usageCycle"
+          label={t("form.fields.usageCycle")}
+          value={usageCycleValue || ""}
+          onChange={(value) => handleInputChange("usageCycle", value || "")}
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.usageCycle"),
+              disabled: true,
+            },
+            ...usageCycleOptions.map((option) => ({
+              value: option.value,
+              label: option.label,
+            })),
+          ]}
+          placeholder={t("form.placeholders.usageCycle")}
+          disabled={isDisabled}
+          error={errors.usageCycle}
+        />
       </div>
 
       {!readOnly && (
         <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isDisabled}
-          >
+          <CancelButton onClick={onCancel} disabled={isDisabled}>
             {tCommon("actions.cancel")}
-          </Button>
-          <Button type="submit" disabled={isDisabled}>
-            {isDisabled ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {tCommon("actions.saving")}
-              </>
-            ) : mode === "edit" ? (
-              tCommon("actions.update")
-            ) : (
-              tCommon("actions.create")
-            )}
-          </Button>
+          </CancelButton>
+          <SubmitButton
+            isLoading={isSubmitting || internalSubmitting}
+            isEdit={mode === "edit"}
+            createText={tCommon("actions.create")}
+            updateText={tCommon("actions.update")}
+            savingText={tCommon("actions.saving")}
+            disabled={isDisabled}
+          />
         </div>
       )}
     </form>
   );
 }
-

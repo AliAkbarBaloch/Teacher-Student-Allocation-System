@@ -62,6 +62,6 @@ export const SelectField: React.FC<SelectFieldProps> = ({
         ))}
       </SelectContent>
     </Select>
-    {error && <p className="text-sm text-destructive">{error}</p>}
+    {error && <p className="text-sm text-destructive mt-1">{error}</p>}
   </div>
 );

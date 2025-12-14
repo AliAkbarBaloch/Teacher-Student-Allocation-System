@@ -19,6 +19,7 @@ import type { TeacherFormSubmission } from "../types/teacherFormSubmission.types
 import type { School } from "@/features/schools/types/school.types";
 import type { Subject } from "@/features/subjects/types/subject.types";
 import type { InternshipType } from "@/features/internship-types/types/internshipType.types";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface SubmissionDataViewProps {
   submission: TeacherFormSubmission;
@@ -104,7 +105,9 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
       {/* Teacher Info */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
+          <label className="text-sm font-medium">
+            {t("form.fields.teacher")}
+          </label>
           <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
             <Link
               to={`${ROUTES.baseData.teachers}?teacherId=${submission.teacherId}`}
@@ -115,42 +118,20 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
             <div className="text-xs mt-1">{submission.teacherEmail}</div>
           </div>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
-          <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-            {submission.yearName}
-          </div>
-        </div>
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium">{t("form.fields.formToken")}</label>
-          <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50 font-mono break-all overflow-wrap-anywhere">
-            {submission.formToken || "-"}
-          </div>
-        </div>
+        <ReadOnlyField
+          label={t("form.fields.academicYear")}
+          value={submission.yearName}
+        />
         {submission.submittedAt && (
           <div className="space-y-2">
-            <label className="text-sm font-medium">{t("form.fields.submittedAt")}</label>
+            <label className="text-sm font-medium">
+              {t("form.fields.submittedAt")}
+            </label>
             <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
               {new Date(submission.submittedAt).toLocaleString()}
             </div>
           </div>
         )}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t("form.fields.status")}</label>
-          <div className="p-2">
-            {submission.isProcessed ? (
-              <Badge variant="success" className="flex items-center gap-1 w-fit">
-                <CheckCircle2 className="h-3 w-3" />
-                {t("form.fields.processed")}
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                <XCircle className="h-3 w-3" />
-                {t("form.fields.unprocessed")}
-              </Badge>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Form Submission Data */}
@@ -160,66 +141,68 @@ export function SubmissionDataView({ submission }: SubmissionDataViewProps) {
         </div>
       ) : (
         <div className="space-y-4 border-t pt-4">
-          <h3 className="text-lg font-semibold">{t("form.submissionDetails")}</h3>
-          
+          <h3 className="text-lg font-semibold">
+            {t("form.submissionDetails")}
+          </h3>
+
           <div className="grid gap-4 md:grid-cols-2">
             {/* School Type */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("publicForm.schoolType")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.schoolId ? getSchoolType(submission.schoolId) : "-"}
-              </div>
-            </div>
+            <ReadOnlyField
+              label={t("publicForm.schoolType")}
+              value={submission.schoolId ? getSchoolType(submission.schoolId) : "-"}
+            />
 
             {/* School Name */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("publicForm.school")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {submission.schoolId ? getSchoolName(submission.schoolId) : "-"}
-              </div>
-            </div>
+            <ReadOnlyField
+              label={t("publicForm.school")}
+              value={submission.schoolId ? getSchoolName(submission.schoolId) : "-"}
+            />
 
             {/* Subjects */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t("publicForm.subjects")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {subjectNames.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {subjectNames.map((name, idx) => (
-                      <Badge key={idx} variant="secondary">
-                        {name}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </div>
-            </div>
+            <ReadOnlyField
+              label={t("publicForm.subjects")}
+              value={subjectNames.length > 0 ? <div className="flex flex-wrap gap-2">{subjectNames.map((name) => <Badge key={name} variant="muted"> {name} </Badge>)}</div> : "-"}
+            />
 
             {/* Internship Types */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t("publicForm.internshipTypes")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {internshipTypeNames.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {internshipTypeNames.map((name, idx) => (
-                      <Badge key={idx} variant="secondary">
-                        {name}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </div>
-            </div>
+            <ReadOnlyField
+              label={t("publicForm.internshipTypes")}
+              value={internshipTypeNames.length > 0 ? <div className="flex flex-wrap gap-2">{internshipTypeNames.map((name) => <Badge key={name} variant="muted"> {name} </Badge>)}</div> : "-"}
+            />
 
             {/* Notes */}
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{t("publicForm.notes")}</label>
+              <label className="text-sm font-medium">
+                {t("publicForm.notes")}
+              </label>
               <div className="text-sm text-muted-foreground p-3 border rounded-md bg-muted/50 whitespace-pre-wrap">
-                {submission.notes || <span className="text-muted-foreground">-</span>}
+                {submission.notes || (
+                  <span className="text-muted-foreground">-</span>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("form.fields.status")}
+              </label>
+              <div className="p-2">
+                {submission.isProcessed ? (
+                  <Badge
+                    variant="success"
+                    className="flex items-center gap-1 w-fit"
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    {t("form.fields.processed")}
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1 w-fit"
+                  >
+                    <XCircle className="h-3 w-3" />
+                    {t("form.fields.unprocessed")}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>

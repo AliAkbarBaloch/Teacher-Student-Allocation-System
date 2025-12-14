@@ -17,6 +17,7 @@ import type {
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { formatDate } from "@/lib/utils/date";
 
 interface TeacherSubjectDialogsProps {
   // Dialog states
@@ -33,8 +34,12 @@ interface TeacherSubjectDialogsProps {
   selectedTeacherSubject: TeacherSubject | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest) => Promise<void>;
+  onCreateSubmit: (
+    data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest
+  ) => Promise<void>;
+  onUpdateSubmit: (
+    data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (teacherSubject: TeacherSubject) => void;
   onSelectedChange: (teacherSubject: TeacherSubject | null) => void;
@@ -65,10 +70,12 @@ export function TeacherSubjectDialogs({
   t,
 }: TeacherSubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
-  
-  const getAvailabilityStatusLabel = (status: string | null | undefined): string => {
+
+  const getAvailabilityStatusLabel = (
+    status: string | null | undefined
+  ): string => {
     if (!status) return t("table.available");
-    
+
     switch (status) {
       case "AVAILABLE":
         return t("table.available");
@@ -82,7 +89,7 @@ export function TeacherSubjectDialogs({
         return t("table.available");
     }
   };
-  
+
   return (
     <>
       {/* Create Dialog */}
@@ -147,7 +154,9 @@ export function TeacherSubjectDialogs({
                 />
                 <ReadOnlyField
                   label={t("form.fields.availabilityStatus")}
-                  value={getAvailabilityStatusLabel(teacherSubject.availabilityStatus)}
+                  value={getAvailabilityStatusLabel(
+                    teacherSubject.availabilityStatus
+                  )}
                 />
                 <ReadOnlyField
                   label={t("form.fields.gradeLevelFrom")}
@@ -159,14 +168,13 @@ export function TeacherSubjectDialogs({
                 />
                 <ReadOnlyField
                   label={t("form.fields.notes")}
-                  value={teacherSubject.notes || "-"}
-                  className="md:col-span-2"
+                  value={teacherSubject.notes ?? "-"}
                 />
                 <ReadOnlyField
                   label={t("form.fields.createdAt")}
                   value={
                     teacherSubject.createdAt
-                      ? new Date(teacherSubject.createdAt).toLocaleString()
+                      ? formatDate(teacherSubject.createdAt)
                       : "-"
                   }
                 />
@@ -174,7 +182,7 @@ export function TeacherSubjectDialogs({
                   label={t("form.fields.updatedAt")}
                   value={
                     teacherSubject.updatedAt
-                      ? new Date(teacherSubject.updatedAt).toLocaleString()
+                      ? formatDate(teacherSubject.updatedAt)
                       : "-"
                   }
                 />

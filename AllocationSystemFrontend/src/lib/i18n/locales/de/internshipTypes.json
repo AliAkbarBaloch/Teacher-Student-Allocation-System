@@ -47,8 +47,11 @@
       "codeMaxLength": "Code darf maximal 50 Zeichen lang sein",
       "fullNameRequired": "Vollständiger Name ist erforderlich",
       "fullNameMaxLength": "Vollständiger Name darf maximal 255 Zeichen lang sein",
+      "timingRequired": "Zeitpunkt ist erforderlich",
       "timingMaxLength": "Zeitpunkt darf maximal 100 Zeichen lang sein",
+      "periodTypeRequired": "Periodentyp ist erforderlich",
       "periodTypeMaxLength": "Periodentyp darf maximal 50 Zeichen lang sein",
+      "semesterRequired": "Semester ist erforderlich",
       "semesterMaxLength": "Semester darf maximal 50 Zeichen lang sein",
       "priorityOrderInvalid": "Prioritätsreihenfolge muss eine positive Zahl sein"
     },

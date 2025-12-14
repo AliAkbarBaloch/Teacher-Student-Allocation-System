@@ -122,6 +122,12 @@ export function AllocationPlanDialogs({
                   label={t("form.fields.isCurrent")}
                   value={plan.isCurrent ? t("table.current") : t("table.notCurrent")}
                 />
+                  <ReadOnlyField
+                    label={t("form.fields.notes")}
+                    value={plan.notes ?? "-"}
+                    className="space-y-2 md:col-span-2"
+                    valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50 min-h-[48px]"
+                  />
                 <ReadOnlyField
                   label={t("form.fields.createdAt")}
                   value={plan.createdAt ? new Date(plan.createdAt).toLocaleString() : "-"}
@@ -129,12 +135,6 @@ export function AllocationPlanDialogs({
                 <ReadOnlyField
                   label={t("form.fields.updatedAt")}
                   value={plan.updatedAt ? new Date(plan.updatedAt).toLocaleString() : "-"}
-                />
-                <ReadOnlyField
-                  label={t("form.fields.notes")}
-                  value={plan.notes ?? "-"}
-                  className="space-y-2 md:col-span-2"
-                  valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50 min-h-[48px]"
                 />
               </div>
             </div>

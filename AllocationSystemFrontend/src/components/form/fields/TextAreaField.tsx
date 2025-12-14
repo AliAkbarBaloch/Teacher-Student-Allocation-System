@@ -11,6 +11,7 @@ interface TextAreaFieldProps {
   disabled?: boolean;
   rows?: number;
   className?: string;
+  maxLength?: number;
   labelClassName?: string;
 }
 
@@ -25,6 +26,7 @@ export const TextAreaField: React.FC<TextAreaFieldProps> = ({
   disabled,
   rows = 3,
   className = "",
+  maxLength,
   labelClassName = "text-sm font-medium",
 }) => (
   <div className="space-y-2">
@@ -39,6 +41,7 @@ export const TextAreaField: React.FC<TextAreaFieldProps> = ({
       placeholder={placeholder}
       onChange={e => onChange(e.target.value)}
       disabled={disabled}
+      maxLength={maxLength}
       className={`flex min-h-[90px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : "border-input"} ${className}`}
     />
     {error && <p className="text-sm text-destructive">{error}</p>}

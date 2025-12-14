@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
+// translations
 import { useTranslation } from "react-i18next";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+// components
+import { TextField } from "@/components/form/fields/TextField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+
+// icons
 import { AlertCircle } from "lucide-react";
+
+// types
 import type {
   PlanChangeLog,
   CreatePlanChangeLogRequest,
@@ -12,7 +18,9 @@ import type {
 
 interface PlanChangeLogFormProps {
   planChangeLog?: PlanChangeLog | null;
-  onSubmit: (data: CreatePlanChangeLogRequest | UpdatePlanChangeLogRequest) => Promise<void>;
+  onSubmit: (
+    data: CreatePlanChangeLogRequest | UpdatePlanChangeLogRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -51,7 +59,9 @@ export function PlanChangeLogForm({
     };
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof CreatePlanChangeLogRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreatePlanChangeLogRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -80,7 +90,8 @@ export function PlanChangeLogForm({
   }, [planChangeLog]);
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreatePlanChangeLogRequest, string>> = {};
+    const newErrors: Partial<Record<keyof CreatePlanChangeLogRequest, string>> =
+      {};
 
     if (!formData.planId || isNaN(formData.planId)) {
       newErrors.planId = t("form.errors.planIdRequired");
@@ -148,7 +159,10 @@ export function PlanChangeLogForm({
     }
   };
 
-  const handleChange = (field: keyof CreatePlanChangeLogRequest, value: string | number | null) => {
+  const handleChange = (
+    field: keyof CreatePlanChangeLogRequest,
+    value: string | number | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error for this field when user starts typing
@@ -163,118 +177,105 @@ export function PlanChangeLogForm({
         <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
           <AlertCircle className="h-4 w-4" />
           <span>
-            {externalError ||
-              Object.values(errors)
-                .filter(Boolean)
-                .join(", ")}
+            {externalError || Object.values(errors).filter(Boolean).join(", ")}
           </span>
         </div>
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="planId">{t("form.fields.planId")}</Label>
-          <Input
-            id="planId"
-            type="number"
-            value={formData.planId}
-            onChange={(e) => handleChange("planId", Number(e.target.value))}
-            placeholder={t("form.placeholders.planId")}
-            disabled={isLoading || isSubmitting}
-            className={errors.planId ? "border-destructive" : ""}
-          />
-        </div>
+        <TextField
+          id="planId"
+          label={t("form.fields.planId")}
+          value={formData.planId.toString()}
+          onChange={(val: string) => handleChange("planId", Number(val))}
+          placeholder={t("form.placeholders.planId")}
+          disabled={isLoading || isSubmitting}
+          error={errors.planId}
+          required={true}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="changeType">{t("form.fields.changeType")}</Label>
-          <Input
-            id="changeType"
-            value={formData.changeType}
-            onChange={(e) => handleChange("changeType", e.target.value)}
-            placeholder={t("form.placeholders.changeType")}
-            disabled={isLoading || isSubmitting}
-            className={errors.changeType ? "border-destructive" : ""}
-            maxLength={50}
-          />
-        </div>
+        <TextField
+          id="changeType"
+          label={t("form.fields.changeType")}
+          value={formData.changeType}
+          onChange={(val: string) => handleChange("changeType", val)}
+          placeholder={t("form.placeholders.changeType")}
+          disabled={isLoading || isSubmitting}
+          error={errors.changeType}
+          required={true}
+          maxLength={50}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="entityType">{t("form.fields.entityType")}</Label>
-          <Input
-            id="entityType"
-            value={formData.entityType}
-            onChange={(e) => handleChange("entityType", e.target.value)}
-            placeholder={t("form.placeholders.entityType")}
-            disabled={isLoading || isSubmitting}
-            className={errors.entityType ? "border-destructive" : ""}
-            maxLength={100}
-          />
-        </div>
+        <TextField
+          id="entityType"
+          label={t("form.fields.entityType")}
+          value={formData.entityType}
+          onChange={(val: string) => handleChange("entityType", val)}
+          placeholder={t("form.placeholders.entityType")}
+          disabled={isLoading || isSubmitting}
+          error={errors.entityType}
+          required={true}
+          maxLength={100}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="entityId">{t("form.fields.entityId")}</Label>
-          <Input
-            id="entityId"
-            type="number"
-            value={formData.entityId}
-            onChange={(e) => handleChange("entityId", Number(e.target.value))}
-            placeholder={t("form.placeholders.entityId")}
-            disabled={isLoading || isSubmitting}
-            className={errors.entityId ? "border-destructive" : ""}
-          />
-        </div>
+        <TextField
+          id="entityId"
+          label={t("form.fields.entityId")}
+          value={formData.entityId.toString()}
+          onChange={(val: string) => handleChange("entityId", Number(val))}
+          placeholder={t("form.placeholders.entityId")}
+          disabled={isLoading || isSubmitting}
+          error={errors.entityId}
+          required={true}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="oldValue">{t("form.fields.oldValue")}</Label>
-          <Input
-            id="oldValue"
-            value={formData.oldValue ?? ""}
-            onChange={(e) => handleChange("oldValue", e.target.value)}
-            placeholder={t("form.placeholders.oldValue")}
-            disabled={isLoading || isSubmitting}
-          />
-        </div>
+        <TextField
+          id="oldValue"
+          label={t("form.fields.oldValue")}
+          value={formData.oldValue ?? ""}
+          onChange={(val: string) => handleChange("oldValue", val)}
+          placeholder={t("form.placeholders.oldValue")}
+          disabled={isLoading || isSubmitting}
+          error={errors.oldValue}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="newValue">{t("form.fields.newValue")}</Label>
-          <Input
-            id="newValue"
-            value={formData.newValue ?? ""}
-            onChange={(e) => handleChange("newValue", e.target.value)}
-            placeholder={t("form.placeholders.newValue")}
-            disabled={isLoading || isSubmitting}
-          />
-        </div>
+        <TextField
+          id="newValue"
+          label={t("form.fields.newValue")}
+          value={formData.newValue ?? ""}
+          onChange={(val: string) => handleChange("newValue", val)}
+          placeholder={t("form.placeholders.newValue")}
+          disabled={isLoading || isSubmitting}
+          error={errors.newValue}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="reason">{t("form.fields.reason")}</Label>
-          <Input
-            id="reason"
-            value={formData.reason ?? ""}
-            onChange={(e) => handleChange("reason", e.target.value)}
-            placeholder={t("form.placeholders.reason")}
-            disabled={isLoading || isSubmitting}
-            maxLength={500}
-          />
-        </div>
+        <TextField
+          id="reason"
+          label={t("form.fields.reason")}
+          value={formData.reason ?? ""}
+          onChange={(val: string) => handleChange("reason", val)}
+          placeholder={t("form.placeholders.reason")}
+          disabled={isLoading || isSubmitting}
+          error={errors.reason}
+          maxLength={500}
+        />
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button
-          type="button"
-          variant="secondary"
+        <CancelButton
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button
-          type="submit"
-          variant="default"
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!planChangeLog}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
           disabled={isLoading || isSubmitting}
-        >
-          {planChangeLog ? tCommon("actions.save") : tCommon("actions.create")}
-        </Button>
+        />
       </div>
     </form>
   );
