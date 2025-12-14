@@ -16,10 +16,10 @@
             "planning": "Planung & Zuweisung",
             "reports": "Berichte",
             "settings": "Einstellungen",
-            "allocationReport": "AllocationReport"
+            "allocationReport": "Zuweisungsbericht"
         },
         "dashboard": "Dashboard",
-        "allocationReport": "AllocationReport",
+        "allocationReport": "Zuweisungsbericht",
         "baseData": "Stammdatenverwaltung",
         "baseDataAcademicYears": "Studienjahre",
         "baseDataSubjectCategories": "Fachkategorien",
@@ -27,6 +27,7 @@
         "baseDataSchools": "Schulen",
         "baseDataTeachers": "Lehrer",
         "baseDataInternshipTypes": "Praktikumstypen",
+        "baseDataZoneConstraints": "Zonenbeschränkungen",
         "teacherManagement": "Lehrerverwaltung",
         "teacherManagementTeacherSubjects": "Lehrerfächer",
         "teacherManagementTeacherAvailability": "Lehrerverfügbarkeit",
@@ -37,7 +38,6 @@
         "allocationPlanningAllocationPlans": "Zuweisungspläne",
         "allocationPlanningTeacherAssignments": "Lehrerzuweisungen",
         "allocationPlanningCreditHourTracking": "Leistungspunkte-Verfolgung",
-        "allocationPlanningZoneConstraints": "Zonenbeschränkungen",
         "allocationPlanningPlanChangeLogs": "Planänderungsprotokolle",
         "reports": "Berichte",
         "reportsAllocationReports": "Zuweisungsberichte",
