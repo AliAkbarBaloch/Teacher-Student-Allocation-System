@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
     InternshipDemand, 
     DemandFilter, 
@@ -6,7 +7,7 @@ import type {
 
 //Base path for the backend endpoints 
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}intership-demands`;
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/internship-demands`;
 
 //turn filter object into a query string like 
 //?year=2025&subject=Math 

@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 //
 import React from "react";
 // useState - remember values 
 // useEffect - runs code when something changes 
-// useMemo - remember a calculated value 
+// useMemo - remember a calculated result 
 import {useEffect, useMemo, useState} from "react";
 
 //styled button 
@@ -123,7 +125,7 @@ const internshipDemandColumns : ColumnConfig[] = [
     },
     {
         //column requredTeacher 
-        field:"requredTeachers",
+        field:"requiredTeachers",
         title: "Required Teachers",
         align: "right",
         fieldType: "number",
@@ -190,7 +192,6 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
     const [data, setData] = useState<InternshipDemand[]>([]);
 
-
     //loading - true/false; true - when loading data from backend 
     const [loading, setLoading] = useState(false);
 
@@ -205,7 +206,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
         if (!filters.year) return; 
 
         try {
-            //show loading state 
+
+            //show loading spinner
             setLoading(true);
             //clear any old error 
             setError(null);
@@ -213,8 +215,10 @@ const InternshipDemandPerYearPage: React.FC = () => {
             //calls backend with current filters 
             //await - wait for response, list - array returned from backend, setDate(list) - update data with new list 
             const list = await fetchInternshipDemand(filters);
+
             //update data with new list 
             setData(list);
+        
         } catch (e: any) 
         {
             //if somethng goes wrongs set an error message 
@@ -222,7 +226,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         }
         finally 
         {
-            //loading is done whethere or not  there was an error 
+            //stop spinner
             setLoading(false);
         }
 
@@ -239,7 +243,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
     }, [
         filters.year,
         filters.internshipType,
-        filters.internshipType,
+        filters.schoolType,
         filters.subject,
         filters.onlyForecasted,
         ]
