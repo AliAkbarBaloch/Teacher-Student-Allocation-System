@@ -123,7 +123,7 @@ export function SubjectDialogs({
                 />
                 <ReadOnlyField
                   label={t("form.fields.isActive")}
-                  value={<Badge variant={subject.isActive ? "success" : "secondary"}>{subject.isActive ? t("table.active") : t("table.inactive")}</Badge>}
+                  value={<Badge variant={subject.isActive ? "success" : "secondary"} className="rounded-sm">{subject.isActive ? t("table.active") : t("table.inactive")}</Badge>}
                 />
               </div>
             </div>

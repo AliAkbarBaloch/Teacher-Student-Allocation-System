@@ -128,10 +128,8 @@ export function CreditHourTrackingDialogs({
                   className="space-y-2"
                   valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
                 />
-              </div>
 
               {/* Credit Hours Info */}
-              <div className="grid gap-4 md:grid-cols-3">
                   <ReadOnlyField
                     label={t("form.fields.assignmentsCount")}
                     value={entry.assignmentsCount ?? 0}
@@ -144,7 +142,7 @@ export function CreditHourTrackingDialogs({
                     className="space-y-2"
                     valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
                   />
-                <div className="space-y-2">
+
                   <ReadOnlyField
                     label={t("form.fields.creditBalance")}
                     value={
@@ -166,7 +164,7 @@ export function CreditHourTrackingDialogs({
                       )
                     }
                   />
-                </div>
+
               </div>
 
               {/* Notes Section */}
