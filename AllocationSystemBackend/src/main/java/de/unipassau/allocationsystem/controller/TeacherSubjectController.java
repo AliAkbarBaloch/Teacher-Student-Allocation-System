@@ -120,6 +120,26 @@ public class TeacherSubjectController {
     }
 
     @Operation(
+        summary = "Get teacher-subjects by teacher ID",
+        description = "Retrieves all teacher-subject mappings for a specific teacher"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Teacher-subjects retrieved successfully",
+                content = @Content(schema = @Schema(implementation = TeacherSubjectResponseDto.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "Teacher not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/by-teacher/{teacherId}")
+    public ResponseEntity<?> getByTeacherId(@PathVariable Long teacherId) {
+        log.info("Fetching teacher-subjects by teacherId: {}", teacherId);
+        List<TeacherSubjectResponseDto> result = mapper.toResponseDtoList(service.getByTeacherId(teacherId));
+        return ResponseHandler.success("Teacher-subjects retrieved successfully", result);
+    }
+
+    @Operation(
             summary = "Create new teacher-subject mapping",
             description = "Creates a new teacher-subject mapping with the provided details"
     )
@@ -195,4 +215,6 @@ public class TeacherSubjectController {
             return ResponseHandler.notFound("Teacher-subject not found");
         }
     }
+
+
 }
