@@ -1,4 +1,6 @@
-import { Loader2 } from "lucide-react";
+import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ViewDialog } from "@/components/common/ViewDialog";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 import {
   Dialog,
   DialogBody,
@@ -7,24 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { ViewDialog } from "@/components/common/ViewDialog";
-import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { TeacherForm } from "./TeacherForm";
-import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest } from "../types/teacher.types";
 import type { TFunction } from "i18next";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import type { CreateTeacherRequest, Teacher, UpdateTeacherRequest } from "../types/teacher.types";
+import { TeacherForm } from "./TeacherForm";
 
 interface TeacherDialogsProps {
   // Dialog states
@@ -34,8 +23,6 @@ interface TeacherDialogsProps {
   setIsEditDialogOpen: (open: boolean) => void;
   isViewDialogOpen: boolean;
   setIsViewDialogOpen: (open: boolean) => void;
-  isStatusDialogOpen: boolean;
-  setIsStatusDialogOpen: (open: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (open: boolean) => void;
 
@@ -43,16 +30,12 @@ interface TeacherDialogsProps {
   selectedTeacher: Teacher | null;
   formLoading: boolean;
   createFormKey: number;
-  statusTarget: { teacher: Teacher | null; nextState: boolean };
   deleteTarget: Teacher | null;
-  warningMessage: string | null;
 
   // Handlers
   onCreateSubmit: (payload: CreateTeacherRequest) => Promise<void>;
   onUpdateSubmit: (payload: UpdateTeacherRequest) => Promise<void>;
-  onStatusChange: () => Promise<void>;
   onDelete: () => Promise<void>;
-  onCloseStatus: () => void;
   onEdit?: () => void;
 
   // States
@@ -70,20 +53,14 @@ export function TeacherDialogs({
   setIsEditDialogOpen,
   isViewDialogOpen,
   setIsViewDialogOpen,
-  isStatusDialogOpen,
-  setIsStatusDialogOpen,
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
   selectedTeacher,
   formLoading,
   createFormKey,
-  statusTarget,
-  warningMessage,
   onCreateSubmit,
   onUpdateSubmit,
-  onStatusChange,
   onDelete,
-  onCloseStatus,
   onEdit,
   isSubmitting,
   isAdmin,
@@ -161,59 +138,12 @@ export function TeacherDialogs({
               <ReadOnlyField label={t("form.fields.school")} value={teacher.schoolName} />
               <ReadOnlyField label={t("form.fields.employmentStatus")} value={t(`${teacher.employmentStatus}`)} />
               <ReadOnlyField label={t("form.fields.isPartTime")} value={teacher.isPartTime ? t("table.yes") : t("table.no")} />
+              <ReadOnlyField label={t("form.fields.workingHoursPerWeek")} value={teacher.workingHoursPerWeek} />
               <ReadOnlyField label={t("form.fields.usageCycle")} value={teacher.usageCycle ? t(`${teacher.usageCycle}`) : "-"} />
-              <ReadOnlyField label={t("form.fields.isActive")} value={<Badge variant={teacher.isActive ? "success" : "secondary"}>{teacher.isActive ? t("table.active") : t("table.inactive")}</Badge>} />
-
             </div>
           </DialogBody>
         )}
       />
-
-      {/* Activate/Deactivate Confirmation */}
-      <AlertDialog
-        open={isStatusDialogOpen}
-        onOpenChange={(open) => {
-          setIsStatusDialogOpen(open);
-          if (!open) {
-            onCloseStatus();
-          }
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {statusTarget.nextState ? t("status.activateTitle") : t("status.deactivateTitle")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {statusTarget.nextState ? t("status.activateDescription") : t("status.deactivateDescription")}
-              {warningMessage && (
-                <div className="mt-3 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-400/30 dark:text-amber-100">
-                  <p className="text-sm font-medium">{t("status.warning")}</p>
-                  <p className="text-sm mt-1">{warningMessage}</p>
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting} onClick={onCloseStatus}>
-              {t("actions.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onStatusChange}
-              disabled={isSubmitting || !statusTarget.teacher}
-              className={statusTarget.nextState ? "" : "bg-destructive text-white hover:bg-destructive/90"}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : statusTarget.nextState ? (
-                t("actions.activate")
-              ) : (
-                t("actions.deactivate")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Delete Confirmation */}
       <DeleteConfirmationDialog
@@ -229,4 +159,3 @@ export function TeacherDialogs({
     </>
   );
 }
-

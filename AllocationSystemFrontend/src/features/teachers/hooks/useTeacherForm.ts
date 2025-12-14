@@ -21,9 +21,9 @@ type FormState = {
   email: string;
   phone: string;
   isPartTime: boolean;
+  workingHoursPerWeek: string;
   employmentStatus: EmploymentStatus | "";
   usageCycle: UsageCycle | "";
-  isActive: boolean;
 };
 
 const createDefaultState = (): FormState => ({
@@ -33,9 +33,9 @@ const createDefaultState = (): FormState => ({
   email: "",
   phone: "",
   isPartTime: false,
+  workingHoursPerWeek: "",
   employmentStatus: "",
   usageCycle: "",
-  isActive: true,
 });
 
 const mapTeacherToFormState = (teacher: Teacher): FormState => ({
@@ -45,9 +45,9 @@ const mapTeacherToFormState = (teacher: Teacher): FormState => ({
   email: teacher.email ?? "",
   phone: teacher.phone ?? "",
   isPartTime: Boolean(teacher.isPartTime), // Keep for form state, but derive from employmentStatus in payload
+  workingHoursPerWeek: teacher.workingHoursPerWeek != null ? String(teacher.workingHoursPerWeek) : "", // <-- Add this line
   employmentStatus: teacher.employmentStatus ?? "",
   usageCycle: teacher.usageCycle ?? "",
-  isActive: Boolean(teacher.isActive),
 });
 
 type BaseTeacherFormOptions = {
@@ -126,8 +126,12 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
   }, [errors]);
 
   const handleInputChange = useCallback(
-    (field: keyof FormState, value: string | boolean) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+    (field: keyof FormState, value: string | boolean | number) => {
+      let newValue = value;
+      if (field === "workingHoursPerWeek" && typeof value === "number") {
+        newValue = String(value);
+      }
+      setFormState((prev) => ({ ...prev, [field]: newValue }));
       resetFieldError(field as keyof TeacherFormErrors);
     },
     [resetFieldError]
@@ -168,6 +172,17 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       validationErrors.employmentStatus = t("form.errors.employmentStatusRequired");
     }
 
+    if (formState.isPartTime) {
+      if (!formState.workingHoursPerWeek.trim()) {
+        validationErrors.workingHoursPerWeek = t("form.errors.workingHoursRequired");
+      } else if (
+        isNaN(Number(formState.workingHoursPerWeek)) ||
+        Number(formState.workingHoursPerWeek) <= 0
+      ) {
+        validationErrors.workingHoursPerWeek = t("form.errors.workingHoursInvalid");
+      }
+    }
+
     setErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
   }, [formState, t]);
@@ -185,6 +200,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       lastName: formState.lastName.trim(),
       email: formState.email.trim(),
       isPartTime: formState.isPartTime,
+      workingHoursPerWeek: formState.isPartTime && String(formState.workingHoursPerWeek).trim() ? Number(formState.workingHoursPerWeek) : null,
       employmentStatus,
     };
 
@@ -228,6 +244,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
             isPartTime: basePayload.isPartTime,
             employmentStatus: basePayload.employmentStatus,
             usageCycle: basePayload.usageCycle,
+            workingHoursPerWeek: formState.isPartTime && String(formState.workingHoursPerWeek).trim() ? Number(formState.workingHoursPerWeek) : null,
           };
           await onSubmit(updatePayload);
         } else {

@@ -19,6 +19,7 @@ import { TextField } from "@/components/form/fields/TextField";
 import { CheckboxField } from "@/components/form/fields/CheckboxField";
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { NumberField } from "@/components/form/fields/NumberField";
 
 type BaseTeacherFormProps = {
   onCancel: () => void;
@@ -266,6 +267,19 @@ export function TeacherForm(props: TeacherFormProps) {
           disabled={isDisabled}
           error={errors.usageCycle}
         />
+
+        {formState.isPartTime && (
+          <NumberField
+            id="workingHoursPerWeek"
+            label={t("form.fields.workingHoursPerWeek")}
+            value={String(formState.workingHoursPerWeek ?? "")}
+            onChange={(val) => handleInputChange("workingHoursPerWeek", val != null ? String(val) : "")}
+            error={errors.workingHoursPerWeek}
+            min={1}
+            required
+            disabled={isDisabled}
+          />
+        )}
       </div>
 
       {!readOnly && (
