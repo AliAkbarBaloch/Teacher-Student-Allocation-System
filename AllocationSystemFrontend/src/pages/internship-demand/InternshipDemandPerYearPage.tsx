@@ -216,8 +216,10 @@ const InternshipDemandPerYearPage: React.FC = () => {
             //await - wait for response, list - array returned from backend, setDate(list) - update data with new list 
             const list = await fetchInternshipDemand(filters);
 
+            console.log("internship demands response", list);
+
             //update data with new list 
-            setData(list);
+            setData(Array.isArray(list)? list: []);
         
         } catch (e: any) 
         {

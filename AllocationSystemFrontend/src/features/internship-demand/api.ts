@@ -9,6 +9,11 @@ import type {
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/internship-demands`;
 
+function getAuthHeader(): HeadersInit {
+    const token = localStorage.getItem("auth_token");
+    return token ? {Authorization: `Bearer ${token}` } : {};
+}
+
 //turn filter object into a query string like 
 //?year=2025&subject=Math 
 function buildQuery(filter: DemandFilter)
@@ -95,12 +100,22 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     // call the backend URL with the selected filters, and include cookies 
     // await means wait until the response comes back and store it in res 
     const res = await fetch(`${BASE_URL}${buildQuery(filter)}`, {
-        credentials: "include", // send cookies (auth)
-    });
+        headers:{
+        ...getAuthHeader(), 
+        },
+        });
 
+    const json = await handleResponse(res);
 
-    //pass the response to handleResponse 
-    return handleResponse(res);
+    //normalize to array 
+    if (Array.isArray(json)) return json; 
+
+    if (json && Array.isArray((json as any).content)) return (json as any).content;
+    if (json && Array.isArray((json as any).items)) return (json as any).items;
+    if (json && Array.isArray((json as any).data)) return (json as any).data;
+
+    //fallback 
+    return [];
 
 }
 
@@ -119,8 +134,10 @@ export async function createInternshipDemand(payload: CreateDemandPayload): Prom
     const res = await fetch(BASE_URL, 
         {
             method: "POST",
-            headers: {"Content-Type" : "application/json"},
-            credentials: "include",
+            headers: {
+                "Content-Type" : "application/json",
+                ...getAuthHeader(),
+            },
             body: JSON.stringify(payload),
 
         }
@@ -143,8 +160,10 @@ export async function updateInternshipDemand(
     const res = await fetch(`${BASE_URL}/${id}`, 
         {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeader(),
+        },
         body: JSON.stringify(payload),
     }
     );
@@ -161,7 +180,9 @@ export async function deleteInternshipDemand(id: string) : Promise<void> {
     const res = await fetch(`${BASE_URL}/${id}`,
         {
             method: "DELETE",
-            credentials: "include",
+            headers: {
+                ...getAuthHeader(),
+            },
         }
     );
 
