@@ -1,12 +1,10 @@
-import { MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { DataTableActions } from "@/types/datatable.types";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -32,91 +30,117 @@ export function createActionsColumn<TData, TValue>(
     enableHiding: true,
     enableSorting: false,
     header: actionsHeader,
+    size: 120,
+    minSize: 100,
+    maxSize: 150,
+    enableResizing: false,
     cell: ({ row }) => {
       const rowData = row.original;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-7 w-7 sm:h-8 sm:w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {actions.onView && (
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onView(rowData);
-                }}
-                className="cursor-pointer"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                {actions.labels?.view || "View"}
-              </DropdownMenuItem>
-            )}
-            {actions.onEdit && (
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(rowData);
-                }}
-                className="cursor-pointer"
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                {actions.labels?.edit || "Edit"}
-              </DropdownMenuItem>
-            )}
-            {actions.customActions && actions.customActions.length > 0 && (
-              <>
-                {(actions.onView || actions.onEdit) && (
-                  <DropdownMenuSeparator />
-                )}
-                {actions.customActions.map((customAction, index) => (
-                  <div key={index}>
-                    {customAction.separator && index > 0 && (
-                      <DropdownMenuSeparator />
-                    )}
-                    <DropdownMenuItem
+        <div className="flex items-center gap-1">
+          {actions.onView && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onView(rowData);
+                  }}
+                >
+                  <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="sr-only">{actions.labels?.view || "View"}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{actions.labels?.view || "View"}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {actions.onEdit && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(rowData);
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="sr-only">{actions.labels?.edit || "Edit"}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{actions.labels?.edit || "Edit"}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {actions.customActions &&
+            actions.customActions.length > 0 &&
+            actions.customActions.map((customAction, index) => {
+              const label =
+                typeof customAction.label === "function"
+                  ? customAction.label(rowData)
+                  : customAction.label;
+              const icon =
+                typeof customAction.icon === "function"
+                  ? customAction.icon(rowData)
+                  : customAction.icon;
+
+              return (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-7 w-7 sm:h-8 sm:w-8 ${customAction.className || ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         customAction.onClick(rowData);
                       }}
-                      className={`cursor-pointer ${customAction.className || ""}`}
                     >
-                      {customAction.icon && (
-                        <span className="mr-2 h-4 w-4 flex items-center">
-                          {typeof customAction.icon === "function"
-                            ? customAction.icon(rowData)
-                            : customAction.icon}
+                      {icon && (
+                        <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex items-center">
+                          {icon}
                         </span>
                       )}
-                      {typeof customAction.label === "function"
-                        ? customAction.label(rowData)
-                        : customAction.label}
-                    </DropdownMenuItem>
-                  </div>
-                ))}
-              </>
-            )}
-            {actions.onDelete && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
+                      <span className="sr-only">{label}</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          {actions.onDelete && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(rowData);
                   }}
-                  className="cursor-pointer text-destructive focus:text-destructive"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {actions.labels?.delete || "Delete"}
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="sr-only">{actions.labels?.delete || "Delete"}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{actions.labels?.delete || "Delete"}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       );
     },
   } as ColumnDef<TData, TValue>;
