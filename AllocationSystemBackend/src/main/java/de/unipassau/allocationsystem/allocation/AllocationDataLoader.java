@@ -23,10 +23,10 @@ public class AllocationDataLoader {
      * Loads all available teachers for the academic year.
      */
     public List<Teacher> loadAvailableTeachers(Long academicYearId) {
-        return entityManager.createQuery(
-                        "SELECT t FROM Teacher t WHERE t.isActive = true",
-                        Teacher.class)
-                .getResultList();
+            return entityManager.createQuery(
+                            "SELECT t FROM Teacher t WHERE t.employmentStatus = 'ACTIVE'",
+                            Teacher.class)
+                            .getResultList();
     }
 
     /**
