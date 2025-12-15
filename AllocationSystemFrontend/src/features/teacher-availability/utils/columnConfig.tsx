@@ -34,7 +34,7 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.academicYear"),
     },
     {
-      field: "internshipTypeName",
+      field: "internshipTypeCode",
       title: t("table.internshipType"),
       enableSorting: true,
       fieldType: "text",
