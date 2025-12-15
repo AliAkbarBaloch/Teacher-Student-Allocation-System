@@ -53,6 +53,7 @@ export interface ColumnConfig {
   enableSorting?: boolean;
   width?: string | number; // Fixed width for column
   maxWidth?: string | number; // Maximum width for column
+  enableTruncation?: boolean; // Enable text truncation (defaults to true if maxWidth is set)
   // Form field configuration
   fieldType?: FieldType;
   fieldOptions?: SelectOption[]; // For select type
