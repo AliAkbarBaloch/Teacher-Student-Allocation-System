@@ -82,11 +82,8 @@ import type {
 
 import { fetchAcademicYears, type AcademicYear } from "@/features/academic-years/api";
 import { fetchSubjects, type Subject } from "@/features/subjects/api";
+import { fetchInternshipTypes, type InternshipType } from "@/features/internship-types/api";
 
-
-
-// current year 
-const defaultYear = new Date().getFullYear();
 
 // TODO, wire with real auth system. now it is like evryone is admin
 const useIsAdmin = () => true;
@@ -108,8 +105,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
     // Initial filter values year, other fileds are empty, onlyForecasted = false  
     const [filters, setFilters] = useState<DemandFilter>(
         {
-            academicYearId: defaultYear,
-            internshipType: "",
+            academicYearId: "",
+            internshipTypeId: "",
             schoolType: "",
             subjectId: "",
             onlyForecasted: false,
@@ -119,6 +116,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
     const [subjects, setSubjects] = useState<Subject[]>([]);
 
+    const [internshipTypes, setInternshipTypes] = useState<InternshipType[]>([]);
 
     // data loading state (what we got from backend)
 
@@ -133,6 +131,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
     // used to show errors above the table 
     const [error, setError] = useState<string | null>(null);
 
+    // Memos 
+
     const academicYearById = useMemo(() => {
         const map = new Map<number, string>();
         academicYears.forEach((y) => map.set(y.id, y.yearName));
@@ -145,6 +145,14 @@ const InternshipDemandPerYearPage: React.FC = () => {
         return map;
     }, [subjects]);
 
+    const internshipTypeById = useMemo(() => {
+        const map = new Map<number, string>();
+        internshipTypes.forEach(
+            (t) => map.set(t.id, t.fullName || t.internshipCode));
+        return map;
+    }, [internshipTypes]);
+
+    // conlumns 
     const internshipDemandColumns: ColumnConfig[] = [
         {
             field: "academicYearId",
@@ -153,8 +161,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
                 academicYearById.get(Number(value)) ?? String(value),
         },
         {
-            field: "internshipType",
+            field: "internshipTypeId",
             title: "Internship Type",
+            format: (value) => internshipTypeById.get(Number(value)) ?? String(value),
         },
         {
             field: "schoolType",
@@ -227,14 +236,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
             //stop spinner
             setLoading(false);
         }
-
-
-
     };
 
     useEffect(() => {
         (async () => {
             try {
+                // get avaliable years 
                 const yearsRes = await fetchAcademicYears();
                 const years =
                     Array.isArray(yearsRes) ? yearsRes :
@@ -242,7 +249,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             Array.isArray((yearsRes as any)?.content) ? (yearsRes as any).content :
                                 [];
                 setAcademicYears(years);
-
+                // get avaliable subjects 
                 const subjectsRes = await fetchSubjects();
                 const subs =
                     Array.isArray(subjectsRes) ? subjectsRes :
@@ -251,12 +258,22 @@ const InternshipDemandPerYearPage: React.FC = () => {
                                 [];
                 setSubjects(subs);
 
+                const typesRes = await fetchInternshipTypes();
+                const types =
+                    Array.isArray(typesRes) ? typesRes :
+                        Array.isArray((typesRes as any)?.data) ? (typesRes as any).data :
+                            Array.isArray((typesRes as any)?.content) ? (typesRes as any).content :
+                                [];
+                setInternshipTypes(types);
+
                 console.log("academicYears response raw:", yearsRes);
                 console.log("subjects response raw:", subjectsRes);
             } catch (e) {
                 console.error("Failed to load academic years/subjects", e);
                 setAcademicYears([]);
                 setSubjects([]);
+                setInternshipTypes([]);
+
             }
         })();
     }, []);
@@ -269,7 +286,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         loadData();
     }, [
         filters.academicYearId,
-        filters.internshipType,
+        filters.internshipTypeId,
         filters.schoolType,
         filters.subjectId,
         filters.onlyForecasted,
@@ -294,7 +311,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
     const [form, setForm] = useState<DemandFormState>({
         academicYearId: "",
         subjectId: "",
-        internshipType: "",
+        internshipTypeId: "",
         schoolType: "",
         requiredTeachers: "",
         studentCount: "",
@@ -341,7 +358,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         setForm({
             academicYearId: "",
             subjectId: "",
-            internshipType: "",
+            internshipTypeId: "",
             schoolType: "",
             requiredTeachers: "",
             studentCount: "",
@@ -368,12 +385,13 @@ const InternshipDemandPerYearPage: React.FC = () => {
         setForm({
             academicYearId: (row as any).academicYearId,
             subjectId: (row as any).subjectId,
-            internshipType: row.internshipType,
+            internshipTypeId: (row as any).internshipTypeId,
             schoolType: row.schoolType,
             requiredTeachers: row.requiredTeachers,
             studentCount: row.studentCount,
-            IsForecasted: (row as any).isForecasted ?? row.isForecasted,
-        } as any);
+            isForecasted: (row as any).isForecasted,
+        });
+
 
         // Clear errors.
         // Open dialog.
@@ -418,7 +436,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         const errs: Record<string, string> = {};
 
         if (!(form as any).academicYearId) errs.academicYearId = "Academic year is required";
-        if (!form.internshipType) errs.internshipType = "Internship type is required";
+        if (!form.internshipTypeId) errs.internshipTypeId = "Internship type is required";
         if (!form.schoolType) errs.schoolType = "School type is required";
         if (!(form as any).subjectId) errs.subjectId = "Subject is required";
 
@@ -446,7 +464,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         const payload: CreateInternshipDemandRequest = {
             academicYearId: Number(form.academicYearId),
             subjectId: Number(form.subjectId),
-            internshipType: form.internshipType,
+            internshipTypeId: Number(form.internshipTypeId),
             schoolType: form.schoolType,
             requiredTeachers: Number(form.requiredTeachers),
             studentCount: Number(form.studentCount),
@@ -524,7 +542,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             onChange={(e) =>
                                 setFilters((f) => ({
                                     ...f,
-                                    year: e.target.value ? Number(e.target.value) : ("" as any),
+                                    academicYearId: e.target.value ? Number(e.target.value) : "",
                                 }))
                             }
                             min={2000}
@@ -534,7 +552,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                         <Label htmlFor="filter-internshipType">Internship type</Label>
                         <Input
                             id="filter-internshipType"
-                            value={filters.internshipType || ""}
+                            value={filters.internshipTypeId || ""}
                             onChange={(e) =>
                                 setFilters((f) => ({ ...f, internshipType: e.target.value }))
                             }
@@ -555,10 +573,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
                     <div className="space-y-1">
                         <Label htmlFor="filter-subject">Subject</Label>
                         <Input
-                            id="filter-subject"
-                            value={filters.subjectId || ""}
+                            value={filters.subjectId ?? ""}
                             onChange={(e) =>
-                                setFilters((f) => ({ ...f, subject: e.target.value }))
+                                setFilters((f) => ({
+                                    ...f,
+                                    subjectId: e.target.value ? Number(e.target.value) : "",
+                                }))
                             }
                             placeholder="All"
                         />
@@ -649,16 +669,26 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
                             <div className="space-y-1">
                                 <Label htmlFor="form-internshipType">Internship type *</Label>
-                                <Input
+                                <select
                                     id="form-internshipType"
-                                    value={form.internshipType}
-                                    onChange={(e) =>
-                                        updateFormField("internshipType", e.target.value)
+                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    value={form.internshipTypeId ?? ""}
+                                    onChange={(e) => updateFormField("internshipTypeId", e.target.value ? Number(e.target.value) : "")
                                     }
-                                />
-                                {formErrors.internshipType && (
+                                >
+                                    <option value="">Select internship type
+                                    </option>
+                                    {internshipTypes.map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.fullName ?? t.internshipCode ?? `Type #${t.id}`}
+                                        </option>
+                                    ))
+                                    }
+                                </select>
+
+                                {formErrors.internshipTypeId && (
                                     <p className="text-xs text-destructive">
-                                        {formErrors.internshipType}
+                                        {formErrors.internshipTypeId}
                                     </p>
                                 )}
                             </div>
@@ -823,3 +853,5 @@ const InternshipDemandPerYearPage: React.FC = () => {
 };
 
 export default InternshipDemandPerYearPage;
+
+

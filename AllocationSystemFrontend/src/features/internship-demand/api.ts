@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { API_BASE_URL } from "@/config.ts";
 import type {
     InternshipDemandDto as InternshipDemand, 
     DemandFilter, 
@@ -33,7 +35,7 @@ function buildQuery(filter: DemandFilter)
         params.set("subjectId", String(filter.subjectId));
     }
         
-    if (filter.internshipType) params.set("internshipType", filter.internshipType);
+    if (filter.internshipTypeId) params.set("internshipTypeId", String(filter.internshipTypeId));
     
     if (filter.schoolType) params.set("schoolType", filter.schoolType);
 
@@ -121,6 +123,8 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     return [];
 
 }
+
+
 
 // Create a new internship demand entry 
 // input payload : CreateDemandPayload 

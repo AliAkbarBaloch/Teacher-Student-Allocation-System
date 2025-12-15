@@ -3,7 +3,7 @@ export interface InternshipDemandDto {
     id: number;
     academicYearId: number;
     subjectId: number;
-    internshipType: string;
+    internshipTypeId: number;
     schoolType: string;
     requiredTeachers: number;
     studentCount: number;
@@ -14,8 +14,8 @@ export interface InternshipDemandDto {
 // What we send to backend
 export type CreateInternshipDemandRequest = {
     academicYearId: number;
+    internshipTypeId: number;
     subjectId: number;
-    internshipType: string;
     schoolType: string;
     requiredTeachers: number;
     studentCount: number;
@@ -26,8 +26,8 @@ export type CreateInternshipDemandRequest = {
 // Your form state (now uses ids)
 export interface DemandFormState {
     academicYearId: number | "";
-    subjectId: number | "";
-    internshipType: string;
+    internshipTypeId: number | "";
+    subjectId: number | ""; 
     schoolType: string;
     requiredTeachers: number | "";
     studentCount: number | "";
@@ -38,8 +38,8 @@ export interface DemandFormState {
 // you may want academicYearId instead of year later.
 export interface DemandFilter {
     academicYearId: number | "";
-    internshipType?: string;
+    internshipTypeId?: number | "";
     schoolType?: string;
-    subjectId?: string;
+    subjectId?: number | "";
     onlyForecasted?: boolean;
 }
