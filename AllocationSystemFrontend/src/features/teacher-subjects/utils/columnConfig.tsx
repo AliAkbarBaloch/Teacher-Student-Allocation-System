@@ -27,7 +27,7 @@ export function useTeacherSubjectsColumnConfig(): ColumnConfig[] {
     },
     {
       field: "subjectTitle",
-      title: t("table.subjectCode"),
+      title: t("table.subjectTitle"),
       enableSorting: true,
       fieldType: "text",
       fieldRequired: true,
