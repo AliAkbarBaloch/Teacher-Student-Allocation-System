@@ -68,7 +68,7 @@ export function Navigation() {
           },
           {
             path: ROUTES.baseData.zoneConstraints,
-            translationKey: "navigation.allocationPlanningZoneConstraints",
+            translationKey: "navigation.baseDataZoneConstraints",
           },
         ],
       },

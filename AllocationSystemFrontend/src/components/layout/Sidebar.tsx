@@ -68,7 +68,7 @@ export default function Sidebar() {
         crumbs.push({ label: t("navigation.baseDataInternshipTypes") });
       } else if (path === ROUTES.baseData.zoneConstraints) {
         crumbs.push({
-          label: t("navigation.allocationPlanningZoneConstraints"),
+          label: t("navigation.baseDataZoneConstraints"),
         });
       }
       return crumbs;
