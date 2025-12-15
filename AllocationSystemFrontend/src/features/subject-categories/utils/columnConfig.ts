@@ -20,7 +20,6 @@ export function useSubjectCategoriesColumnConfig(): ColumnConfig[] {
       enableSorting: true,
       fieldType: "date",
       fieldReadOnly: true,
-      width: "200px",
     },
     {
       field: "updatedAt",
@@ -29,7 +28,6 @@ export function useSubjectCategoriesColumnConfig(): ColumnConfig[] {
       enableSorting: true,
       fieldType: "date",
       fieldReadOnly: true,
-      width: "200px",
     },
   ];
 }

@@ -84,28 +84,63 @@ export function DataTableBody<TData>({
             const cellColumnConfig = columnConfig?.find(
               (c) => c.field === accessorKey || c.field === cell.column.id
             );
-            const width = cellColumnConfig?.width;
-            const maxWidth = cellColumnConfig?.maxWidth;
+            const isActionsColumn = cell.column.id === "actions";
+            
+            // Skip config lookup for actions column (it doesn't have a ColumnConfig)
+            const width = isActionsColumn ? undefined : cellColumnConfig?.width;
+            const maxWidth = isActionsColumn ? undefined : cellColumnConfig?.maxWidth;
+            const enableTruncation =
+              isActionsColumn
+                ? false
+                : cellColumnConfig?.enableTruncation ??
+                  (maxWidth !== undefined ? true : false);
             const isFullNameColumn = cellColumnConfig?.field === "fullName";
+
+            // Determine cell className based on column type and config
+            let cellClassName = "px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm";
+            if (isFullNameColumn) {
+              cellClassName += " break-all";
+            } else if (isActionsColumn) {
+              // Actions column: no special text handling needed
+            } else if (enableTruncation && maxWidth) {
+              cellClassName += " truncate";
+            } else {
+              cellClassName += " whitespace-nowrap";
+            }
+
+            // Build cell styles
+            const cellStyles: React.CSSProperties = {};
+            if (isActionsColumn) {
+              cellStyles.width = "fit-content";
+              cellStyles.minWidth = "fit-content";
+            } else {
+              if (width) {
+                cellStyles.width =
+                  typeof width === "number" ? `${width}px` : width;
+              }
+              if (maxWidth) {
+                cellStyles.maxWidth =
+                  typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth;
+              }
+            }
+
+            // Get title text for truncated cells (native browser tooltip)
+            const titleText =
+              enableTruncation && maxWidth
+                ? (() => {
+                    const rawValue = cell.getValue();
+                    return rawValue !== null && rawValue !== undefined
+                      ? String(rawValue)
+                      : undefined;
+                  })()
+                : undefined;
 
             return (
               <TableCell
                 key={cell.id}
-                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm ${
-                  isFullNameColumn ? "break-all" : "whitespace-nowrap"
-                }`}
-                style={{
-                  minWidth: "fit-content",
-                  ...(width && {
-                    width: typeof width === "number" ? `${width}px` : width,
-                  }),
-                  ...(maxWidth && {
-                    maxWidth:
-                      typeof maxWidth === "number"
-                        ? `${maxWidth}px`
-                        : maxWidth,
-                  }),
-                }}
+                className={cellClassName}
+                style={cellStyles}
+                title={titleText}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
