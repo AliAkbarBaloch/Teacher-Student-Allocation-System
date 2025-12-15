@@ -30,9 +30,6 @@ export function createActionsColumn<TData, TValue>(
     enableHiding: true,
     enableSorting: false,
     header: actionsHeader,
-    size: 120,
-    minSize: 100,
-    maxSize: 150,
     enableResizing: false,
     cell: ({ row }) => {
       const rowData = row.original;
