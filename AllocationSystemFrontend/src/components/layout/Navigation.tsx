@@ -67,7 +67,7 @@ export function Navigation() {
           { path: ROUTES.allocationPlanning.allocationPlans, translationKey: "navigation.allocationPlanningAllocationPlans" },
           { path: ROUTES.allocationPlanning.teacherAssignments, translationKey: "navigation.allocationPlanningTeacherAssignments" },
           { path: ROUTES.allocationPlanning.creditHourTracking, translationKey: "navigation.allocationPlanningCreditHourTracking" },
-          { path: ROUTES.allocationPlanning.zoneConstraints, translationKey: "navigation.allocationPlanningZoneConstraints" },
+          { path: ROUTES.baseData.zoneConstraints, translationKey: "navigation.allocationPlanningZoneConstraints" },
           { path: ROUTES.allocationPlanning.planChangeLogs, translationKey: "navigation.allocationPlanningPlanChangeLogs" },
         ],
       },
