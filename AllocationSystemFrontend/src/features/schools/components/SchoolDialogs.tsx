@@ -189,7 +189,7 @@ export function SchoolDialogs({
               />
               <ReadOnlyField
                 label={t("form.fields.isActive")}
-                value={<Badge variant={school.isActive ? "success" : "secondary"}>{school.isActive ? t("status.active") : t("status.inactive")}</Badge>}
+                value={<Badge variant={school.isActive ? "success" : "secondary"} className="rounded-sm">{school.isActive ? t("status.active") : t("status.inactive")}</Badge>}
               />
               <ReadOnlyField
                 label={t("form.fields.contactEmail")}

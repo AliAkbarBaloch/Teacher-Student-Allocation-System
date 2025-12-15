@@ -22,6 +22,7 @@ import { NumberField } from "@/components/form/fields/NumberField";
 import { TextAreaField } from "@/components/form/fields/TextAreaField";
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { SelectSearchField } from "@/components/form/fields/SelectSearchField";
 
 interface TeacherSubjectFormProps {
   teacherSubject?: TeacherSubject | null;
@@ -249,7 +250,7 @@ export function TeacherSubjectForm({
           required={true}
         />
 
-        <SelectField
+        <SelectSearchField
           id="teacherId"
           label={t("form.fields.teacher")}
           value={
@@ -296,7 +297,7 @@ export function TeacherSubjectForm({
           required={true}
         />
 
-        <SelectField
+        <SelectSearchField
           id="subjectId"
           label={t("form.fields.subject")}
           value={formData.subjectId > 0 ? String(formData.subjectId) : ""}

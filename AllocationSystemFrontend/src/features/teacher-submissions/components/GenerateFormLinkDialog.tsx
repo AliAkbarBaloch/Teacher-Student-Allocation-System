@@ -29,6 +29,7 @@ import { TeacherService } from "@/features/teachers/services/teacherService";
 import type { Teacher } from "@/features/teachers/types/teacher.types";
 import type { FormLinkResponse } from "../types/teacherFormSubmission.types";
 import { SelectField } from "@/components/form/fields/SelectField";
+import { SelectSearchField } from "@/components/form/fields/SelectSearchField";
 
 interface AcademicYear {
   id: number;
@@ -211,7 +212,7 @@ export function GenerateFormLinkDialog({
                   </div>
                 </div>
               )}
-              <SelectField
+              <SelectSearchField
                 id="teacherId"
                 label={t("formLink.teacher")}
                 value={teacherId?.toString() || ""}

@@ -89,5 +89,9 @@
   "update": {
     "success": "Teacher subject assignment updated successfully",
     "error": "Failed to update teacher subject assignment"
+  },
+  "columns": {
+    "email": "Email Address",
+    "employmentStatus": "Employment Status"
   }
 }

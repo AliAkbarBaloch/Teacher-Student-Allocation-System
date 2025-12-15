@@ -152,6 +152,7 @@ export function TeacherAssignmentDialogs({
                           ? "muted"
                           : "default"
                       }
+                      className="rounded-sm"
                     >
                       {t(
                         `form.status.${assignment.assignmentStatus.toLowerCase()}`
@@ -164,8 +165,9 @@ export function TeacherAssignmentDialogs({
                   value={
                     <Badge
                       variant={
-                        assignment.isManualOverride ? "success" : "secondary"
+                        assignment.isManualOverride ? "success" : "muted"
                       }
+                      className="rounded-sm"
                     >
                       {assignment.isManualOverride
                         ? t("table.yes")
