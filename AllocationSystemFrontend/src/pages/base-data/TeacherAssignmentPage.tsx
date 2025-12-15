@@ -110,7 +110,7 @@ export default function TeacherAssignmentPage() {
       <DataTable
         columnConfig={columnConfig}
         data={teacherAssignments}
-        searchKey="planId"
+        searchKey="planTitle"
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}
