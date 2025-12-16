@@ -73,7 +73,8 @@ export function useAllocationPlansPage() {
         const createData = data as CreateAllocationPlanRequest;
         const allocationResult = await AllocationService.runAllocation(
           createData.yearId,
-          createData.isCurrent
+          createData.isCurrent,
+          createData.planVersion
         );
 
         toast.success(

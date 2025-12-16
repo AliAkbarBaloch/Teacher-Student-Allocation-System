@@ -50,7 +50,7 @@ public class TeacherAllocationService {
      */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId) {
-        return performAllocation(academicYearId, false);
+        return performAllocation(academicYearId, false, null);
     }
 
     /**
@@ -63,7 +63,22 @@ public class TeacherAllocationService {
      */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId, Boolean isCurrent) {
-        log.info("=== Starting Allocation Process for Academic Year ID: {}, isCurrent: {} ===", academicYearId, isCurrent);
+        return performAllocation(academicYearId, isCurrent, null);
+    }
+
+    /**
+     * Main orchestration method that orchestrates the entire allocation process.
+     * 
+     * @param academicYearId The ID of the academic year for allocation
+     * @param isCurrent Whether this plan should be marked as current
+     * @param customVersion Custom version string (optional). If null, auto-generates version.
+     * @return AllocationPlan containing all teacher assignments
+     * @throws IllegalArgumentException if the academic year is invalid or locked
+     */
+    @Transactional
+    public AllocationPlan performAllocation(Long academicYearId, Boolean isCurrent, String customVersion) {
+        log.info("=== Starting Allocation Process for Academic Year ID: {}, isCurrent: {}, customVersion: {} ===", 
+                academicYearId, isCurrent, customVersion);
         
         // Step 1: Validate that the AcademicYear exists and is not locked
         AcademicYear academicYear = entityManager.find(AcademicYear.class, academicYearId);
@@ -74,9 +89,15 @@ public class TeacherAllocationService {
             throw new IllegalArgumentException("Academic year is locked and cannot be modified");
         }
 
-        // Step 2: Generate unique version number for this academic year
-        String newVersion = generateNextVersion(academicYearId);
-        log.info("Generated plan version: {}", newVersion);
+        // Step 2: Use custom version or generate unique version number
+        String newVersion;
+        if (customVersion != null && !customVersion.trim().isEmpty()) {
+            newVersion = customVersion.trim();
+            log.info("Using custom plan version: {}", newVersion);
+        } else {
+            newVersion = generateNextVersion(academicYearId);
+            log.info("Generated plan version: {}", newVersion);
+        }
 
         // Step 3: Create a new AllocationPlan entity with status 'DRAFT'
         AllocationPlan allocationPlan = new AllocationPlan();

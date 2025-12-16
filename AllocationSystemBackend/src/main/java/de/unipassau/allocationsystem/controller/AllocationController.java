@@ -49,9 +49,13 @@ public class AllocationController {
         Boolean isCurrent = requestBody != null && requestBody.containsKey("isCurrent") 
             ? (Boolean) requestBody.get("isCurrent") 
             : false;
-        log.info("Allocation process triggered from API for academic year ID: {}, isCurrent: {}", academicYearId, isCurrent);
+        String customVersion = requestBody != null && requestBody.containsKey("planVersion")
+            ? (String) requestBody.get("planVersion")
+            : null;
+        log.info("Allocation process triggered from API for academic year ID: {}, isCurrent: {}, customVersion: {}", 
+                academicYearId, isCurrent, customVersion);
         
-        AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId, isCurrent);
+        AllocationPlan allocationPlan = teacherAllocationService.performAllocation(academicYearId, isCurrent, customVersion);
         
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("planId", allocationPlan.getId());
