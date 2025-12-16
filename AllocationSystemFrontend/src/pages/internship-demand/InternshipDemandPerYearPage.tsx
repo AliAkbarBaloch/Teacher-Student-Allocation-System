@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//
+//hooks 
 import React from "react";
 // useState - remember values 
 // useEffect - runs code when something changes 
@@ -83,6 +83,7 @@ import type {
 import { fetchAcademicYears, type AcademicYear } from "@/features/academic-years/api";
 import { fetchSubjects, type Subject } from "@/features/subjects/api";
 import { fetchInternshipTypes, type InternshipType } from "@/features/internship-types/api";
+import { fetchSchoolTypes } from "@/features/meta/api";
 
 
 // TODO, wire with real auth system. now it is like evryone is admin
@@ -96,6 +97,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
     // evryone is admin for now. to decide whether show buttons like Add/Edit/Delete 
     const isAdmin = useIsAdmin();
+
+    // 
+    const [schoolTypes, setSchoolTypes] = useState<{ value: string; label: string }[]>([]);
 
     //filter state (searh control)
 
@@ -237,7 +241,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             setLoading(false);
         }
     };
-
+    //Academic years 
     useEffect(() => {
         (async () => {
             try {
@@ -295,6 +299,14 @@ const InternshipDemandPerYearPage: React.FC = () => {
     useEffect(() => {
         console.log("academicYears in state:", academicYears, "length:", academicYears.length);
     }, [academicYears]);
+
+    //School types 
+
+    useEffect(() => {
+        fetchSchoolTypes()
+            .then((res) => { console.log("schoolTypes:", res); setSchoolTypes(res); })
+            .catch((e) => console.error("fetchSchoolTypes failed", e));
+    }, []);
 
 
     //Dialog state - Create/Edit popup
@@ -695,13 +707,21 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
                             <div className="space-y-1">
                                 <Label htmlFor="form-schoolType">School type *</Label>
-                                <Input
+                                <select
                                     id="form-schoolType"
+                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                     value={form.schoolType}
-                                    onChange={(e) =>
-                                        updateFormField("schoolType", e.target.value)
-                                    }
-                                />
+                                    onChange={(e) => updateFormField("schoolType", e.target.value)}
+                                >
+                                    <option value="">Select school type</option>
+                                    {schoolTypes.map((st) => (
+                                        <option key={st.value} value={st.value}>
+                                            {st.label}
+                                        </option>
+                                    ))}
+
+                                </select>
+
                                 {formErrors.schoolType && (
                                     <p className="text-xs text-destructive">
                                         {formErrors.schoolType}
