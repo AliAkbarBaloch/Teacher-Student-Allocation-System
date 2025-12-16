@@ -29,7 +29,7 @@
     "yearPlaceholder": "All years",
     "loadingYears": "Loading years...",
     "teacherLabel": "Teacher",
-    "teacherPlaceholder": "Search by teacher name or email",
+    "teacherPlaceholder": "Search by teacher name",
     "minBalanceLabel": "Min Balance",
     "minBalancePlaceholder": "Minimum balance",
     "reset": "Reset filters"

@@ -25,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -77,10 +78,35 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        Specification<CreditHourTracking> spec = buildSearchSpecification(searchValue);
+        Specification<CreditHourTracking> spec = buildFilterSpecification(queryParams, searchValue);
         Page<CreditHourTracking> page = repository.findAll(spec, pageable);
 
         return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    private Specification<CreditHourTracking> buildFilterSpecification(Map<String, String> queryParams, String searchValue) {
+        return (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
+            // Search filter
+            if (searchValue != null && !searchValue.trim().isEmpty()) {
+                Specification<CreditHourTracking> searchSpec = buildSearchSpecification(searchValue);
+                predicates.add(searchSpec.toPredicate(root, query, cb));
+            }
+
+            // Academic Year ID filter
+            String academicYearIdParam = queryParams.get("academicYearId");
+            if (academicYearIdParam != null && !academicYearIdParam.trim().isEmpty()) {
+                try {
+                    Long academicYearId = Long.parseLong(academicYearIdParam);
+                    predicates.add(cb.equal(root.get("academicYear").get("id"), academicYearId));
+                } catch (NumberFormatException e) {
+                    // Invalid academic year ID, ignore filter
+                }
+            }
+
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
     }
 
     @Audited(

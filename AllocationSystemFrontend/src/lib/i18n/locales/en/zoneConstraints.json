@@ -13,7 +13,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No zone constraints found.",
-    "searchPlaceholder": "Search zone constraints..."
+    "searchPlaceholder": "Search Zone Number.."
   },
   "form": {
     "title": {

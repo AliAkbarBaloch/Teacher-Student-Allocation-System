@@ -2,7 +2,12 @@ import { useCallback, useEffect } from "react";
 import { useTeachersData } from "./useTeachersData";
 import { useTeachersFilters } from "./useTeachersFilters";
 import { useTeachersDialogs } from "./useTeachersDialogs";
-import type { Teacher, CreateTeacherRequest, UpdateTeacherRequest, EmploymentStatus } from "../types/teacher.types";
+import type {
+  Teacher,
+  CreateTeacherRequest,
+  UpdateTeacherRequest,
+  EmploymentStatus,
+} from "../types/teacher.types";
 
 /**
  * Main hook that orchestrates teachers page functionality
@@ -38,13 +43,6 @@ export function useTeachersPage() {
   const handleEmploymentStatusChange = useCallback(
     (value?: EmploymentStatus) => {
       filters.handleEmploymentStatusChange(value, resetToFirstPage);
-    },
-    [filters, resetToFirstPage]
-  );
-
-  const handleStatusFilterChange = useCallback(
-    (value: "all" | "active" | "inactive") => {
-      filters.handleStatusFilterChange(value, resetToFirstPage);
     },
     [filters, resetToFirstPage]
   );
@@ -90,7 +88,10 @@ export function useTeachersPage() {
         const error = err as { message?: string; teacher?: Teacher };
         const message = error?.message || "An error occurred";
         // Check if error message indicates active allocation plan
-        if (message.toLowerCase().includes("allocation") || message.toLowerCase().includes("active")) {
+        if (
+          message.toLowerCase().includes("allocation") ||
+          message.toLowerCase().includes("active")
+        ) {
           dialogs.setWarningMessage(message);
         } else {
           dialogs.closeStatusDialog();
@@ -148,11 +149,9 @@ export function useTeachersPage() {
     searchInput: filters.searchInput,
     selectedSchoolId: filters.selectedSchoolId,
     selectedEmploymentStatus: filters.selectedEmploymentStatus,
-    statusFilter: filters.statusFilter,
     handleSearchChange,
     handleSchoolIdChange,
     handleEmploymentStatusChange,
-    handleStatusFilterChange,
     handleResetFilters,
 
     // Actions

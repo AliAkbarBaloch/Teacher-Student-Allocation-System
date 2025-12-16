@@ -18,7 +18,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No teacher subjects found.",
-    "searchPlaceholder": "Search teacher subjects...",
+    "searchPlaceholder": "Search subject title...",
     "teacherSubjects": "Teacher Subjects"
   },
   "form": {

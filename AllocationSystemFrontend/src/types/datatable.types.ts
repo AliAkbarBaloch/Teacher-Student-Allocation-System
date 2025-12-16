@@ -1,6 +1,6 @@
 /**
  * DataTable type definitions
- * 
+ *
  * Types for the reusable DataTable component
  */
 
@@ -31,7 +31,14 @@ export interface DataTableActions<TData> {
 /**
  * Field types for form inputs in the edit dialog
  */
-export type FieldType = "text" | "textarea" | "number" | "date" | "select" | "email" | "url";
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "number"
+  | "date"
+  | "select"
+  | "email"
+  | "url";
 
 /**
  * Select option for select field type
@@ -48,12 +55,21 @@ export interface ColumnConfig {
   field: string;
   title: string;
   align?: "left" | "center" | "right";
-  format?: "currency" | "number" | "date" | "capitalize" | "lowercase" | "uppercase" | ((value: unknown, row?: unknown) => string | React.ReactNode);
+  format?:
+    | "currency"
+    | "number"
+    | "date"
+    | "capitalize"
+    | "lowercase"
+    | "uppercase"
+    | ((value: unknown, row?: unknown) => string | React.ReactNode);
   currencyCode?: string;
   enableSorting?: boolean;
   width?: string | number; // Fixed width for column
   maxWidth?: string | number; // Maximum width for column
   enableTruncation?: boolean; // Enable text truncation (defaults to true if maxWidth is set)
+  // Custom filter function for this column
+  filterFn?: (row: any, columnId: string, filterValue: any) => boolean;
   // Form field configuration
   fieldType?: FieldType;
   fieldOptions?: SelectOption[]; // For select type
@@ -78,7 +94,10 @@ export interface ServerSidePaginationProps {
 /**
  * Props for the DataTable component
  */
-export interface DataTableProps<TData = Record<string, unknown>, TValue = unknown> {
+export interface DataTableProps<
+  TData = Record<string, unknown>,
+  TValue = unknown
+> {
   columns?: ColumnDef<TData, TValue>[];
   columnConfig?: ColumnConfig[];
   data: TData[];
@@ -108,4 +127,3 @@ export interface DataTableProps<TData = Record<string, unknown>, TValue = unknow
   tableLayout?: "auto" | "fixed";
   onRowClick?: (row: TData) => void;
 }
-

@@ -27,10 +27,6 @@
     "loadingSchools": "Schulen werden geladen...",
     "employmentStatusLabel": "Beschäftigungsstatus",
     "employmentStatusPlaceholder": "Alle Status",
-    "statusLabel": "Status",
-    "statusAll": "Alle",
-    "statusActive": "Aktiv",
-    "statusInactive": "Inaktiv",
     "reset": "Filter zurücksetzen"
   },
   "actions": {
@@ -148,4 +144,3 @@
     "pageSizeShort": "Zeilen"
   }
 }
-

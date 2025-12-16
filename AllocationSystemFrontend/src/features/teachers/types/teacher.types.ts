@@ -1,8 +1,8 @@
-  export type EmploymentStatus =
-    | "ACTIVE"
-    | "INACTIVE_THIS_YEAR"
-    | "ON_LEAVE"
-    | "ARCHIVED";
+export type EmploymentStatus =
+  | "ACTIVE"
+  | "INACTIVE_THIS_YEAR"
+  | "ON_LEAVE"
+  | "ARCHIVED";
 
 export type UsageCycle =
   | "GRADES_1_2"
@@ -38,7 +38,6 @@ export interface TeacherFilters {
   search?: string;
   schoolId?: number;
   employmentStatus?: EmploymentStatus;
-  isActive?: boolean;
 }
 
 export interface TeacherListParams extends TeacherFilters {
@@ -76,7 +75,9 @@ export interface TeacherStatusUpdateRequest {
   status: EmploymentStatus;
 }
 
-export type TeacherFormErrors = Partial<Record<keyof CreateTeacherRequest, string>> & {
+export type TeacherFormErrors = Partial<
+  Record<keyof CreateTeacherRequest, string>
+> & {
   general?: string;
 };
 
@@ -137,5 +138,10 @@ export interface ImportResultRow {
   teacher?: Teacher;
 }
 
-export type ImportStep = "upload" | "parsing" | "preview" | "validating" | "importing" | "results";
-
+export type ImportStep =
+  | "upload"
+  | "parsing"
+  | "preview"
+  | "validating"
+  | "importing"
+  | "results";
