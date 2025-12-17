@@ -23,7 +23,8 @@ import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 export default function ZoneConstraintPage() {
   const { t } = useTranslation("zoneConstraints");
   const dialogs = useDialogState();
-  const [zoneConstraintToDelete, setZoneConstraintToDelete] = useState<ZoneConstraint | null>(null);
+  const [zoneConstraintToDelete, setZoneConstraintToDelete] =
+    useState<ZoneConstraint | null>(null);
 
   const {
     zoneConstraints,
@@ -65,7 +66,12 @@ export default function ZoneConstraintPage() {
         // Error already handled in hook
       }
     },
-    [handleUpdateInternal, selectedZoneConstraint, setSelectedZoneConstraint, dialogs.edit]
+    [
+      handleUpdateInternal,
+      selectedZoneConstraint,
+      setSelectedZoneConstraint,
+      dialogs.edit,
+    ]
   );
 
   const handleDelete = useCallback(async () => {
@@ -79,26 +85,37 @@ export default function ZoneConstraintPage() {
     }
   }, [handleDeleteInternal, zoneConstraintToDelete, dialogs.delete]);
 
-  const handleEditClick = useCallback((zoneConstraint: ZoneConstraint) => {
-    setSelectedZoneConstraint(zoneConstraint);
-    dialogs.edit.setIsOpen(true);
-  }, [setSelectedZoneConstraint, dialogs.edit]);
+  const handleEditClick = useCallback(
+    (zoneConstraint: ZoneConstraint) => {
+      setSelectedZoneConstraint(zoneConstraint);
+      dialogs.edit.setIsOpen(true);
+    },
+    [setSelectedZoneConstraint, dialogs.edit]
+  );
 
-  const handleDeleteClick = useCallback((zoneConstraint: ZoneConstraint) => {
-    setZoneConstraintToDelete(zoneConstraint);
-    dialogs.delete.setIsOpen(true);
-  }, [dialogs.delete]);
+  const handleDeleteClick = useCallback(
+    (zoneConstraint: ZoneConstraint) => {
+      setZoneConstraintToDelete(zoneConstraint);
+      dialogs.delete.setIsOpen(true);
+    },
+    [dialogs.delete]
+  );
 
-  const handleViewClick = useCallback((zoneConstraint: ZoneConstraint) => {
-    setSelectedZoneConstraint(zoneConstraint);
-    dialogs.view.setIsOpen(true);
-  }, [setSelectedZoneConstraint, dialogs.view]);
+  const handleViewClick = useCallback(
+    (zoneConstraint: ZoneConstraint) => {
+      setSelectedZoneConstraint(zoneConstraint);
+      dialogs.view.setIsOpen(true);
+    },
+    [setSelectedZoneConstraint, dialogs.view]
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">{t("title")}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            {t("title")}
+          </h2>
           <p className="text-muted-foreground text-sm mt-1">{t("subtitle")}</p>
         </div>
         <Button onClick={() => dialogs.create.setIsOpen(true)}>

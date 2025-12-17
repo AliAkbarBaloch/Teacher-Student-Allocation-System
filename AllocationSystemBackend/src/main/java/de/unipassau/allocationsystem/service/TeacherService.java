@@ -130,17 +130,6 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
                 }
             }
 
-            // Active status filter
-            String isActiveParam = queryParams.get("isActive");
-            if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
-                try {
-                    Boolean isActive = Boolean.parseBoolean(isActiveParam);
-                    predicates.add(cb.equal(root.get("isActive"), isActive));
-                } catch (IllegalArgumentException e) {
-                    // Invalid boolean value, ignore filter
-                }
-            }
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

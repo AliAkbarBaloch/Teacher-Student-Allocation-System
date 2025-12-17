@@ -14,7 +14,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No plan change logs found.",
-    "searchPlaceholder": "Search plan change logs..."
+    "searchPlaceholder": "Search plan ID..."
   },
   "form": {
     "title": {

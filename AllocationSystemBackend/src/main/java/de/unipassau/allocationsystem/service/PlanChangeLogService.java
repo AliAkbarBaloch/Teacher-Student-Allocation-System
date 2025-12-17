@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,10 +56,27 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        // No searchValue logic for PlanChangeLog, but you can add if needed
-        Page<PlanChangeLog> page = planChangeLogRepository.findAll(pageable);
+        Specification<PlanChangeLog> spec = buildSearchSpecification(searchValue);
+        Page<PlanChangeLog> page = planChangeLogRepository.findAll(spec, pageable);
 
         return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    private Specification<PlanChangeLog> buildSearchSpecification(String searchValue) {
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.trim().isEmpty()) {
+                return cb.conjunction();
+            }
+
+            // Search by Plan ID
+            try {
+                Long planId = Long.parseLong(searchValue.trim());
+                return cb.equal(root.get("allocationPlan").get("id"), planId);
+            } catch (NumberFormatException e) {
+                // If not a valid number, return no results
+                return cb.disjunction();
+            }
+        };
     }
 
     @Transactional(readOnly = true)

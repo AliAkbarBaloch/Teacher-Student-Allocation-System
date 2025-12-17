@@ -74,7 +74,7 @@ export interface PaginatedSchoolsResponse {
 }
 
 export interface SchoolFilters {
-  searchValue?: string;
+  search?: string;
   schoolType?: SchoolType;
   zoneNumber?: number;
   isActive?: boolean;
@@ -101,7 +101,9 @@ export interface SchoolStatusUpdateRequest {
   isActive: boolean;
 }
 
-export type SchoolFormErrors = Partial<Record<keyof CreateSchoolRequest, string>> & {
+export type SchoolFormErrors = Partial<
+  Record<keyof CreateSchoolRequest, string>
+> & {
   general?: string;
 };
 

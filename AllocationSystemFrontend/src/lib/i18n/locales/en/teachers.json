@@ -21,16 +21,12 @@
     "title": "Filters",
     "subtitle": "Search and refine teacher records.",
     "searchLabel": "Search",
-    "searchPlaceholder": "Search by name or email",
+    "searchPlaceholder": "Search by email",
     "schoolLabel": "School",
     "schoolPlaceholder": "All schools",
     "loadingSchools": "Loading schools...",
     "employmentStatusLabel": "Employment Status",
     "employmentStatusPlaceholder": "All statuses",
-    "statusLabel": "Status",
-    "statusAll": "All",
-    "statusActive": "Active",
-    "statusInactive": "Inactive",
     "reset": "Reset filters"
   },
   "actions": {
@@ -151,4 +147,3 @@
     "pageSizeShort": "Rows"
   }
 }
-

@@ -18,6 +18,12 @@ export function useZoneConstraintsColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.zoneNumber"),
       width: "120px",
       maxWidth: "160px",
+      filterFn: (row, columnId, filterValue) => {
+        // Exact match for zone numbers
+        const value = row.getValue(columnId);
+        if (!filterValue) return true;
+        return String(value) === String(filterValue);
+      },
     },
     {
       field: "internshipTypeCode",
@@ -62,6 +68,6 @@ export function useZoneConstraintsColumnConfig(): ColumnConfig[] {
         typeof value === "string" ? new Date(value).toLocaleString() : "-",
       width: "160px",
       maxWidth: "200px",
-    }
+    },
   ];
 }

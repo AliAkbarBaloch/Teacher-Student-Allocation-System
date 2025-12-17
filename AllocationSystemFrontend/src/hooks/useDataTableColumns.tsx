@@ -17,6 +17,7 @@ export function useDataTableColumns<TData, TValue>(
       const column: ColumnDef<TData, TValue> = {
         accessorKey: config.field as keyof TData,
         enableSorting: config.enableSorting ?? true,
+        ...(config.filterFn && { filterFn: config.filterFn }),
         header: ({ column: headerColumn }) => {
           const canSort = headerColumn.getCanSort();
           const sortDirection = headerColumn.getIsSorted();
@@ -180,4 +181,3 @@ export function useDataTableColumns<TData, TValue>(
     });
   }, [columnConfig]);
 }
-

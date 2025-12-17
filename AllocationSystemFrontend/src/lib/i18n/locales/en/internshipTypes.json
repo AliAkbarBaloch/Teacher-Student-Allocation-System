@@ -13,7 +13,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No internship types found.",
-    "searchPlaceholder": "Search internship types...",
+    "searchPlaceholder": "Search internship Name...",
     "yes": "Yes",
     "no": "No"
   },
@@ -88,4 +88,3 @@
     "error": "Failed to update internship type"
   }
 }
-

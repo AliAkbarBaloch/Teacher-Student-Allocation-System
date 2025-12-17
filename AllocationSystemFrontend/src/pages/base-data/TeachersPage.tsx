@@ -5,7 +5,11 @@ import { TeacherDialogs } from "@/features/teachers/components/TeacherDialogs";
 import { TeacherFilters } from "@/features/teachers/components/TeacherFilters";
 import { TeachersPageHeader } from "@/features/teachers/components/TeachersPageHeader";
 import { useTeachersPage } from "@/features/teachers/hooks/useTeachersPage";
-import type { CreateTeacherRequest, Teacher, UpdateTeacherRequest } from "@/features/teachers/types/teacher.types";
+import type {
+  CreateTeacherRequest,
+  Teacher,
+  UpdateTeacherRequest,
+} from "@/features/teachers/types/teacher.types";
 import { useTeachersColumnConfig } from "@/features/teachers/utils/columnConfig";
 import { useDialogState } from "@/hooks/useDialogState";
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
@@ -37,11 +41,9 @@ export default function TeachersPage() {
     searchInput,
     selectedSchoolId,
     selectedEmploymentStatus,
-    statusFilter,
     handleSearchChange,
     handleSchoolIdChange,
     handleEmploymentStatusChange,
-    handleStatusFilterChange,
     handleResetFilters,
     fetchTeacherDetails,
     handleCreateSubmit: handleCreateSubmitInternal,
@@ -124,8 +126,6 @@ export default function TeachersPage() {
         onSchoolIdChange={handleSchoolIdChange}
         employmentStatus={selectedEmploymentStatus}
         onEmploymentStatusChange={handleEmploymentStatusChange}
-        status={statusFilter}
-        onStatusChange={handleStatusFilterChange}
         onReset={handleResetFilters}
       />
 
