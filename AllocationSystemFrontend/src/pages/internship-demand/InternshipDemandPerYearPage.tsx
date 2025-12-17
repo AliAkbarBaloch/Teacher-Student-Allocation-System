@@ -149,6 +149,14 @@ const InternshipDemandPerYearPage: React.FC = () => {
         return map;
     }, [subjects]);
 
+    const tableData = useMemo(() => {
+        return data.map((row) => ({
+            ...row,
+            subject: subjectById.get(row.subjectId) ?? "",
+            }));
+        }, [data, subjectById]);
+    
+
     const internshipTypeById = useMemo(() => {
         const map = new Map<number, string>();
         internshipTypes.forEach(
@@ -566,8 +574,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             id="filter-internshipType"
                             value={filters.internshipTypeId || ""}
                             onChange={(e) =>
-                                setFilters((f) => ({ ...f, internshipType: e.target.value }))
+                                setFilters((f) => ({
+                                    ...f, 
+                                    internshipTypeId: e.target.value ? Number(e.target.value) : "", 
+                                }))
                             }
+                            
                             placeholder="All"
                         />
                     </div>
@@ -620,7 +632,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <DataTable<InternshipDemand>
-                        data={data}
+                        data={tableData}
                         columnConfig={internshipDemandColumns}
                         loading={loading}
                         error={error}
