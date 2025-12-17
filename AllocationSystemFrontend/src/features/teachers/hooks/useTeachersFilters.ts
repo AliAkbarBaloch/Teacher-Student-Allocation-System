@@ -5,9 +5,12 @@ import type { TeacherFilters, EmploymentStatus } from "../types/teacher.types";
 
 export function useTeachersFilters() {
   const [searchInput, setSearchInput] = useState("");
-  const [selectedSchoolId, setSelectedSchoolId] = useState<number | undefined>(undefined);
-  const [selectedEmploymentStatus, setSelectedEmploymentStatus] = useState<EmploymentStatus | undefined>(undefined);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [selectedSchoolId, setSelectedSchoolId] = useState<number | undefined>(
+    undefined
+  );
+  const [selectedEmploymentStatus, setSelectedEmploymentStatus] = useState<
+    EmploymentStatus | undefined
+  >(undefined);
   const [isSearchInputLoading, setIsSearchInputLoading] = useState(false);
 
   const debouncedSearch = useDebounce(searchInput, SEARCH_DEBOUNCE_MS);
@@ -17,37 +20,39 @@ export function useTeachersFilters() {
       search: debouncedSearch || undefined,
       schoolId: selectedSchoolId,
       employmentStatus: selectedEmploymentStatus,
-      isActive: statusFilter === "all" ? undefined : statusFilter === "active",
     }),
-    [debouncedSearch, selectedSchoolId, selectedEmploymentStatus, statusFilter]
+    [debouncedSearch, selectedSchoolId, selectedEmploymentStatus]
   );
 
-  const handleSearchChange = useCallback((value: string, onResetPage?: () => void) => {
-    setSearchInput(value);
-    setIsSearchInputLoading(true);
-    onResetPage?.();
-  }, []);
+  const handleSearchChange = useCallback(
+    (value: string, onResetPage?: () => void) => {
+      setSearchInput(value);
+      setIsSearchInputLoading(true);
+      onResetPage?.();
+    },
+    []
+  );
 
-  const handleSchoolIdChange = useCallback((value?: number, onResetPage?: () => void) => {
-    setSelectedSchoolId(value);
-    onResetPage?.();
-  }, []);
+  const handleSchoolIdChange = useCallback(
+    (value?: number, onResetPage?: () => void) => {
+      setSelectedSchoolId(value);
+      onResetPage?.();
+    },
+    []
+  );
 
-  const handleEmploymentStatusChange = useCallback((value?: EmploymentStatus, onResetPage?: () => void) => {
-    setSelectedEmploymentStatus(value);
-    onResetPage?.();
-  }, []);
-
-  const handleStatusFilterChange = useCallback((value: "all" | "active" | "inactive", onResetPage?: () => void) => {
-    setStatusFilter(value);
-    onResetPage?.();
-  }, []);
+  const handleEmploymentStatusChange = useCallback(
+    (value?: EmploymentStatus, onResetPage?: () => void) => {
+      setSelectedEmploymentStatus(value);
+      onResetPage?.();
+    },
+    []
+  );
 
   const handleResetFilters = useCallback((onResetPage?: () => void) => {
     setSearchInput("");
     setSelectedSchoolId(undefined);
     setSelectedEmploymentStatus(undefined);
-    setStatusFilter("all");
     setIsSearchInputLoading(false);
     onResetPage?.();
   }, []);
@@ -57,7 +62,6 @@ export function useTeachersFilters() {
     searchInput,
     selectedSchoolId,
     selectedEmploymentStatus,
-    statusFilter,
     isSearchInputLoading,
     setIsSearchInputLoading,
     // Computed filters
@@ -66,8 +70,6 @@ export function useTeachersFilters() {
     handleSearchChange,
     handleSchoolIdChange,
     handleEmploymentStatusChange,
-    handleStatusFilterChange,
     handleResetFilters,
   };
 }
-

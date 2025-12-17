@@ -9,7 +9,8 @@
       "employmentStatus": "Beschäftigungsstatus",
       "isPartTime": "Teilzeit",
       "status": "Status",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "workingHoursPerWeek": "Arbeitsstunden pro Woche"
     },
     "empty": "Keine Lehrer entsprechen den ausgewählten Filtern.",
     "loading": "Lehrer werden geladen...",
@@ -26,10 +27,6 @@
     "loadingSchools": "Schulen werden geladen...",
     "employmentStatusLabel": "Beschäftigungsstatus",
     "employmentStatusPlaceholder": "Alle Status",
-    "statusLabel": "Status",
-    "statusAll": "Alle",
-    "statusActive": "Aktiv",
-    "statusInactive": "Inaktiv",
     "reset": "Filter zurücksetzen"
   },
   "actions": {
@@ -74,7 +71,8 @@
       "isPartTime": "Teilzeit",
       "employmentStatus": "Beschäftigungsstatus",
       "usageCycle": "Nutzungszyklus",
-      "isActive": "Aktiv"
+      "isActive": "Aktiv",
+      "workingHoursPerWeek": "Arbeitsstunden pro Woche"
     },
     "placeholders": {
       "school": "Schule auswählen",
@@ -146,4 +144,3 @@
     "pageSizeShort": "Zeilen"
   }
 }
-

@@ -70,16 +70,6 @@ export function useAllocationPlansColumnConfig(): ColumnConfig[] {
       maxWidth: "140px",
     },
     {
-      field: "createdByUserName",
-      title: t("table.createdBy"),
-      enableSorting: true,
-      fieldType: "text",
-      fieldRequired: false,
-      fieldPlaceholder: t("form.placeholders.createdBy"),
-      width: "160px",
-      maxWidth: "200px",
-    },
-    {
       field: "createdAt",
       title: t("table.createdAt"),
       enableSorting: true,

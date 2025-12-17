@@ -28,9 +28,13 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         teacher.setEmail(createDto.getEmail());
         teacher.setPhone(createDto.getPhone());
         teacher.setIsPartTime(createDto.getIsPartTime());
+        if (createDto.getIsPartTime()) {
+            teacher.setWorkingHoursPerWeek(createDto.getWorkingHoursPerWeek());
+        } else {
+            teacher.setWorkingHoursPerWeek(0);
+        }
         teacher.setEmploymentStatus(createDto.getEmploymentStatus());
         teacher.setUsageCycle(createDto.getUsageCycle());
-        teacher.setIsActive(createDto.getIsActive() != null ? createDto.getIsActive() : true);
         teacher.setEmploymentStatus(createDto.getEmploymentStatus());
         return teacher;
     }
@@ -46,6 +50,11 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         teacher.setEmail(updateDto.getEmail());
         teacher.setPhone(updateDto.getPhone());
         teacher.setIsPartTime(updateDto.getIsPartTime());
+        if (updateDto.getIsPartTime()) {
+            teacher.setWorkingHoursPerWeek(updateDto.getWorkingHoursPerWeek());
+        } else {
+            teacher.setWorkingHoursPerWeek(0);
+        }
         teacher.setEmploymentStatus(updateDto.getEmploymentStatus());
         teacher.setUsageCycle(updateDto.getUsageCycle());
         // School should be set by service using schoolId if present
@@ -67,9 +76,9 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
                 .email(teacher.getEmail())
                 .phone(teacher.getPhone())
                 .isPartTime(teacher.getIsPartTime())
+                .workingHoursPerWeek(teacher.getWorkingHoursPerWeek())
                 .employmentStatus(teacher.getEmploymentStatus())
                 .usageCycle(teacher.getUsageCycle())
-                .isActive(teacher.getIsActive())
                 .creditHourBalance(teacher.getCreditHourBalance())
                 .createdAt(teacher.getCreatedAt())
                 .updatedAt(teacher.getUpdatedAt())
@@ -106,14 +115,14 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         if (updateDto.getIsPartTime() != null) {
             teacher.setIsPartTime(updateDto.getIsPartTime());
         }
+        if (updateDto.getWorkingHoursPerWeek() != null) {
+            teacher.setWorkingHoursPerWeek(updateDto.getWorkingHoursPerWeek());
+        }
         if (updateDto.getEmploymentStatus() != null) {
             teacher.setEmploymentStatus(updateDto.getEmploymentStatus());
         }
         if (updateDto.getUsageCycle() != null) {
             teacher.setUsageCycle(updateDto.getUsageCycle());
-        }
-        if (updateDto.getIsActive() != null) {
-            teacher.setIsActive(updateDto.getIsActive());
         }
         // School should be set by service using schoolId if present
     }

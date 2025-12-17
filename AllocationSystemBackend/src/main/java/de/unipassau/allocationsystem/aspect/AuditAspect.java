@@ -74,8 +74,13 @@ public class AuditAspect {
     }
 
     private Object extractRecordId(JoinPoint joinPoint, Object result) {
-        // Try to extract ID from result if it has an getId() method
+        // If result is already a primitive/wrapper type (Long, Integer, String), return it directly
         if (result != null) {
+            if (result instanceof Long || result instanceof Integer || result instanceof String) {
+                return result;
+            }
+            
+            // Try to extract ID from result if it has an getId() method
             try {
                 java.lang.reflect.Method getIdMethod = result.getClass().getMethod("getId");
                 Object id = getIdMethod.invoke(result);

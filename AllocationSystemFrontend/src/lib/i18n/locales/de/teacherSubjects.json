@@ -18,7 +18,8 @@
     "updatedAt": "Aktualisiert am",
     "actions": "Aktionen",
     "emptyMessage": "Keine Lehrfachzuweisungen gefunden.",
-    "searchPlaceholder": "Lehrfachzuweisungen suchen..."
+    "searchPlaceholder": "Lehrfachzuweisungen suchen...",
+    "teacherSubjects": "Lehrfachzuweisungen"
   },
   "form": {
     "title": {
@@ -40,7 +41,8 @@
       "updatedAt": "Aktualisiert am"
     },
     "placeholders": {
-      "academicYear": "ID des akademischen Jahres eingeben",
+      "academicYear": "Akademisches Jahr auswählen",
+      "noAcademicYears": "Keine akademischen Jahre verfügbar",
       "teacher": "Wählen Sie eine Lehrkraft",
       "noTeachers": "Keine Lehrkräfte verfügbar",
       "subject": "Wählen Sie ein Fach",
@@ -87,5 +89,9 @@
   "update": {
     "success": "Lehrfachzuweisung erfolgreich aktualisiert",
     "error": "Aktualisierung der Lehrfachzuweisung fehlgeschlagen"
+  },
+  "columns": {
+    "email": "E-Mail Adresse",
+    "employmentStatus": "Beschäftigungsstatus"
   }
 }

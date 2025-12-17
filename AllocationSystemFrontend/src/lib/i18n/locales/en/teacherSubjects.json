@@ -18,7 +18,8 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No teacher subjects found.",
-    "searchPlaceholder": "Search teacher subjects..."
+    "searchPlaceholder": "Search subject title...",
+    "teacherSubjects": "Teacher Subjects"
   },
   "form": {
     "title": {
@@ -40,7 +41,8 @@
       "updatedAt": "Updated At"
     },
     "placeholders": {
-      "academicYear": "Enter academic year ID",
+      "academicYear": "Select academic year",
+      "noAcademicYears": "No academic years available",
       "teacher": "Select a teacher",
       "noTeachers": "No teachers available",
       "subject": "Select a subject",
@@ -87,5 +89,9 @@
   "update": {
     "success": "Teacher subject assignment updated successfully",
     "error": "Failed to update teacher subject assignment"
+  },
+  "columns": {
+    "email": "Email Address",
+    "employmentStatus": "Employment Status"
   }
 }

@@ -13,7 +13,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No internship types found.",
-    "searchPlaceholder": "Search internship types...",
+    "searchPlaceholder": "Search internship Name...",
     "yes": "Yes",
     "no": "No"
   },
@@ -47,8 +47,11 @@
       "codeMaxLength": "Code must not exceed 50 characters",
       "fullNameRequired": "Full name is required",
       "fullNameMaxLength": "Full name must not exceed 255 characters",
+      "timingRequired": "Timing is required",
       "timingMaxLength": "Timing must not exceed 100 characters",
+      "periodTypeRequired": "Period Type is required",
       "periodTypeMaxLength": "Period type must not exceed 50 characters",
+      "semesterRequired": "Semester is required",
       "semesterMaxLength": "Semester must not exceed 50 characters",
       "priorityOrderInvalid": "Priority order must be a positive number"
     },
@@ -85,4 +88,3 @@
     "error": "Failed to update internship type"
   }
 }
-

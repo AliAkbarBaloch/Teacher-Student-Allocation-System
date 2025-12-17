@@ -87,17 +87,16 @@ export function useTeachersColumnConfig(): ColumnConfig[] {
       },
     },
     {
-      field: "isActive",
-      title: t("table.columns.status"),
+      field: "workingHoursPerWeek",
+      title: t("table.columns.workingHoursPerWeek"),
       enableSorting: true,
       format: (value: unknown) => {
-        const isActive = typeof value === "boolean" ? value : false;
-        return isActive ? (
-          <Badge variant="success">
-            {t("status.active")}
-          </Badge>
+        const hours =
+          typeof value === "number" && !isNaN(value) && value > 0 ? value : null;
+        return hours !== null ? (
+          <span>{hours}</span>
         ) : (
-          <Badge variant="secondary">{t("status.inactive")}</Badge>
+          <span className="text-muted-foreground">{'-'}</span>
         );
       },
     },

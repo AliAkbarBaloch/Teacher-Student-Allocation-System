@@ -9,13 +9,13 @@ import { useCreditHourTrackingFiltersExtended } from "@/features/credit-hour-tra
 import { useCreditHourTrackingDialogs } from "@/features/credit-hour-tracking/hooks/useCreditHourTrackingDialogs";
 // components
 import { DataTable } from "@/components/common/DataTable";
-import { CreditHourTrackingFiltersContainer } from "@/features/credit-hour-tracking/components/CreditHourTrackingFiltersContainer";
-import { CreditHourTrackingDialogsContainer } from "@/features/credit-hour-tracking/components/CreditHourTrackingDialogsContainer";
 import { useCreditHourTrackingColumnConfig } from "@/features/credit-hour-tracking/utils/columnConfig";
 // icons
 import { Trash2 } from "lucide-react";
 // constants
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
+import { CreditHourTrackingDialogs } from "@/features/credit-hour-tracking/components/CreditHourTrackingDialogs";
+import { CreditHourTrackingFilters } from "@/features/credit-hour-tracking";
 
 export default function CreditHourTrackingPage() {
   const { t } = useTranslation("creditHourTracking");
@@ -92,8 +92,20 @@ export default function CreditHourTrackingPage() {
         </div>
       </div>
 
-      <CreditHourTrackingFiltersContainer filters={filters} disabled={loading} />
-
+      <CreditHourTrackingFilters
+        yearId={filters.effectiveYearId}
+        onYearIdChange={filters.handleYearChange}
+        teacherId={filters.filters.teacherId}
+        onTeacherIdChange={filters.handleTeacherChange}
+        teacherSearch={filters.teacherSearch}
+        onTeacherSearchChange={filters.handleTeacherSearchChange}
+        minBalance={filters.filters.minBalance}
+        onMinBalanceChange={(value) =>
+          filters.handleFilterChange({ minBalance: value })
+        }
+        onReset={filters.handleResetFilters}
+        disabled={loading}
+      />
       <DataTable
         columnConfig={columnConfig}
         data={filters.filteredEntries}
@@ -105,9 +117,7 @@ export default function CreditHourTrackingPage() {
         loading={loading}
         error={error}
         emptyMessage={
-          entries.length === 0
-            ? t("table.empty")
-            : t("table.noFilteredResults")
+          entries.length === 0 ? t("table.empty") : t("table.noFilteredResults")
         }
         disableInternalDialog={true}
         pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
@@ -141,7 +151,15 @@ export default function CreditHourTrackingPage() {
         }}
       />
 
-      <CreditHourTrackingDialogsContainer dialogs={dialogs} isSubmitting={isSubmitting} />
+      <CreditHourTrackingDialogs
+        dialogs={dialogs.dialogs}
+        selectedEntry={dialogs.selectedEntry}
+        onUpdateSubmit={dialogs.handleUpdateSubmit}
+        onDelete={dialogs.handleDelete}
+        onEditClick={dialogs.handleEditClick}
+        onSelectedChange={dialogs.setSelectedEntry}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }

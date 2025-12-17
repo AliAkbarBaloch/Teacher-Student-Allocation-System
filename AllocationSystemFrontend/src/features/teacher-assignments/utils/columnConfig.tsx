@@ -10,25 +10,25 @@ export function useTeacherAssignmentsColumnConfig(): ColumnConfig[] {
 
   return [
     {
-      field: "planId",
+      field: "planTitle",
       title: t("table.planId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "teacherId",
+      field: "teacherTitle",
       title: t("table.teacherId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "internshipTypeId",
+      field: "internshipTypeTitle",
       title: t("table.internshipTypeId"),
       enableSorting: true,
       fieldType: "number",
     },
     {
-      field: "subjectId",
+      field: "subjectTitle",
       title: t("table.subjectId"),
       enableSorting: true,
       fieldType: "number",
@@ -75,20 +75,6 @@ export function useTeacherAssignmentsColumnConfig(): ColumnConfig[] {
     {
       field: "assignedAt",
       title: t("table.assignedAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) => (typeof value === "string" && value) || "-",
-    },
-    {
-      field: "createdAt",
-      title: t("table.createdAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) => (typeof value === "string" && value) || "-",
-    },
-    {
-      field: "updatedAt",
-      title: t("table.updatedAt"),
       enableSorting: true,
       fieldType: "date",
       format: (value: unknown) => (typeof value === "string" && value) || "-",

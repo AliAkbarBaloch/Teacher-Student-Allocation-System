@@ -4,8 +4,6 @@ import de.unipassau.allocationsystem.dto.teachersubject.TeacherSubjectCreateDto;
 import de.unipassau.allocationsystem.dto.teachersubject.TeacherSubjectResponseDto;
 import de.unipassau.allocationsystem.dto.teachersubject.TeacherSubjectUpdateDto;
 import de.unipassau.allocationsystem.entity.TeacherSubject;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherSubjectMapper;
 import de.unipassau.allocationsystem.service.TeacherSubjectService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -18,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -120,6 +117,26 @@ public class TeacherSubjectController {
     }
 
     @Operation(
+        summary = "Get teacher-subjects by teacher ID",
+        description = "Retrieves all teacher-subject mappings for a specific teacher"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Teacher-subjects retrieved successfully",
+                content = @Content(schema = @Schema(implementation = TeacherSubjectResponseDto.class))
+        ),
+        @ApiResponse(responseCode = "404", description = "Teacher not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/by-teacher/{teacherId}")
+    public ResponseEntity<?> getByTeacherId(@PathVariable Long teacherId) {
+        log.info("Fetching teacher-subjects by teacherId: {}", teacherId);
+        List<TeacherSubjectResponseDto> result = mapper.toResponseDtoList(service.getByTeacherId(teacherId));
+        return ResponseHandler.success("Teacher-subjects retrieved successfully", result);
+    }
+
+    @Operation(
             summary = "Create new teacher-subject mapping",
             description = "Creates a new teacher-subject mapping with the provided details"
     )
@@ -135,17 +152,9 @@ public class TeacherSubjectController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody TeacherSubjectCreateDto dto) {
         log.info("Creating teacher-subject mapping with payload {}", dto);
-        try {
-            TeacherSubject entity = mapper.toEntityCreate(dto);
-            TeacherSubject created = service.create(entity);
-            return ResponseHandler.created("Teacher-subject mapping created successfully", mapper.toResponseDto(created));
-        } catch (DuplicateResourceException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        } catch (ResourceNotFoundException e) {
-            return ResponseHandler.notFound(e.getMessage());
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherSubject entity = mapper.toEntityCreate(dto);
+        TeacherSubject created = service.create(entity);
+        return ResponseHandler.created("Teacher-subject mapping created successfully", mapper.toResponseDto(created));
     }
 
     @Operation(
@@ -165,15 +174,9 @@ public class TeacherSubjectController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody TeacherSubjectUpdateDto dto) {
         log.info("Updating teacher-subject {} with payload {}", id, dto);
-        try {
-            TeacherSubject update = mapper.toEntityUpdate(dto);
-            TeacherSubject updated = service.update(id, update);
-            return ResponseHandler.updated("Teacher-subject mapping updated successfully", mapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher-subject not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherSubject update = mapper.toEntityUpdate(dto);
+        TeacherSubject updated = service.update(id, update);
+        return ResponseHandler.updated("Teacher-subject mapping updated successfully", mapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -188,11 +191,9 @@ public class TeacherSubjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         log.info("Deleting teacher-subject mapping {}", id);
-        try {
-            service.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher-subject not found");
-        }
+        service.delete(id);
+        return ResponseHandler.noContent();
     }
+
+
 }

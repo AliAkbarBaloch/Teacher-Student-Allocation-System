@@ -17,7 +17,7 @@
     "updatedAt": "Updated At",
     "actions": "Actions",
     "emptyMessage": "No teacher availability records found.",
-    "searchPlaceholder": "Search teacher availability..."
+    "searchPlaceholder": "Search Teacher First Name..."
   },
   "form": {
     "title": {

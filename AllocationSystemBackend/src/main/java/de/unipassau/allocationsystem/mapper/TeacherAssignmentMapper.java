@@ -38,22 +38,22 @@ public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, Te
         // Check and set relations
         if (dto.getPlanId() != null) {
             AllocationPlan plan = allocationPlanRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + dto.getPlanId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + dto.getPlanId()));
             entity.setAllocationPlan(plan);
         }
         if (dto.getTeacherId() != null) {
             Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + dto.getTeacherId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + dto.getTeacherId()));
             entity.setTeacher(teacher);
         }
         if (dto.getInternshipTypeId() != null) {
             InternshipType internshipType = internshipTypeRepository.findById(dto.getInternshipTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with id: " + dto.getInternshipTypeId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with id: " + dto.getInternshipTypeId()));
             entity.setInternshipType(internshipType);
         }
         if (dto.getSubjectId() != null) {
             Subject subject = subjectRepository.findById(dto.getSubjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + dto.getSubjectId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + dto.getSubjectId()));
             entity.setSubject(subject);
         }
 
@@ -82,20 +82,75 @@ public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, Te
         if (entity == null) {
             return null;
         }
-        return new TeacherAssignmentResponseDto(
-            entity.getId(),
-            entity.getAllocationPlan() != null ? entity.getAllocationPlan().getId() : null,
-            entity.getTeacher() != null ? entity.getTeacher().getId() : null,
-            entity.getInternshipType() != null ? entity.getInternshipType().getId() : null,
-            entity.getSubject() != null ? entity.getSubject().getId() : null,
-            entity.getStudentGroupSize(),
-            entity.getAssignmentStatus() != null ? entity.getAssignmentStatus().name() : null,
-            entity.getIsManualOverride(),
-            entity.getNotes(),
-            entity.getAssignedAt(),
-            entity.getCreatedAt(),
-            entity.getUpdatedAt()
-        );
+
+        // Build response using setters to match DTO fields including title details (null-safe)
+        TeacherAssignmentResponseDto dto = new TeacherAssignmentResponseDto();
+        dto.setId(entity.getId());
+
+        if (entity.getAllocationPlan() != null) {
+            dto.setPlanId(entity.getAllocationPlan().getId());
+            // assume allocation plan exposes a title getter named getPlanTitle or getTitle; try common name
+            String planTitle = null;
+            try {
+                planTitle = entity.getAllocationPlan().getAcademicYear().getYearName() + "(" + entity.getAllocationPlan().getPlanVersion() + ")";
+            } catch (Exception ignored) {
+                try {
+                    planTitle = entity.getAllocationPlan().getAcademicYear().getYearName() + "(" + entity.getAllocationPlan().getPlanVersion() + ")";
+                } catch (Exception ignored2) {
+
+                }
+            }
+            dto.setPlanTitle(planTitle);
+        }
+
+        if (entity.getTeacher() != null) {
+            dto.setTeacherId(entity.getTeacher().getId());
+            String teacherTitle = null;
+            try {
+                teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
+            } catch (Exception ignored) {
+                try {
+                    teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
+                } catch (Exception ignored2) {
+                    try {
+                        teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
+                    } catch (Exception ignored3) {
+
+                    }
+                }
+            }
+            dto.setTeacherTitle(teacherTitle);
+        }
+
+        if (entity.getInternshipType() != null) {
+            dto.setInternshipTypeId(entity.getInternshipType().getId());
+            String internshipTitle = null;
+            try {
+                internshipTitle = entity.getInternshipType().getInternshipCode() + " " + entity.getInternshipType().getPeriodType();
+            } catch (Exception ignored) {
+                try {
+                    internshipTitle = entity.getInternshipType().getInternshipCode() + " " + entity.getInternshipType().getPeriodType();
+                } catch (Exception ignored2) {
+
+                }
+            }
+            dto.setInternshipTypeTitle(internshipTitle);
+        }
+
+        if (entity.getSubject() != null) {
+            dto.setSubjectId(entity.getSubject().getId());
+            dto.setSubjectTitle(entity.getSubject().getSubjectTitle());
+        }
+
+        dto.setStudentGroupSize(entity.getStudentGroupSize());
+        dto.setAssignmentStatus(entity.getAssignmentStatus() != null ? entity.getAssignmentStatus().name() : null);
+        dto.setIsManualOverride(entity.getIsManualOverride());
+        dto.setNotes(entity.getNotes());
+        dto.setAssignedAt(entity.getAssignedAt());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+
+        return dto;
     }
 
     @Override

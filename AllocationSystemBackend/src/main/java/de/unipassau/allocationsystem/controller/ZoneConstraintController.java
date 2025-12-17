@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -129,12 +128,8 @@ public class ZoneConstraintController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody ZoneConstraintCreateDto dto) {
-        try {
-            ZoneConstraintResponseDto created = zoneConstraintService.create(dto);
-            return ResponseHandler.created("Zone constraint created successfully", created);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        ZoneConstraintResponseDto created = zoneConstraintService.create(dto);
+        return ResponseHandler.created("Zone constraint created successfully", created);
     }
 
     @Operation(
@@ -153,14 +148,8 @@ public class ZoneConstraintController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ZoneConstraintUpdateDto dto) {
-        try {
-            ZoneConstraintResponseDto updated = zoneConstraintService.update(id, dto);
-            return ResponseHandler.updated("Zone constraint updated successfully", updated);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Zone constraint not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        ZoneConstraintResponseDto updated = zoneConstraintService.update(id, dto);
+        return ResponseHandler.updated("Zone constraint updated successfully", updated);
     }
 
     @Operation(
@@ -174,11 +163,7 @@ public class ZoneConstraintController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            zoneConstraintService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Zone constraint not found");
-        }
+        zoneConstraintService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

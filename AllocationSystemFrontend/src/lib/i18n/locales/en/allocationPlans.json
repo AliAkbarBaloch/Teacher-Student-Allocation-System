@@ -15,7 +15,7 @@
     "notes": "Notes",
     "actions": "Actions",
     "emptyMessage": "No allocation plans found.",
-    "searchPlaceholder": "Search allocation plans..."
+    "searchPlaceholder": "Search allocation plans name"
   },
   "form": {
     "title": {

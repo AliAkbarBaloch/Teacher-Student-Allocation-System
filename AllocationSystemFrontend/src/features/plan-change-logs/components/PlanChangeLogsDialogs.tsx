@@ -1,3 +1,4 @@
+// components
 import {
   Dialog,
   DialogBody,
@@ -8,14 +9,22 @@ import {
 } from "@/components/ui/dialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+
+// forms
 import { PlanChangeLogForm } from "./PlanChangeLogsForm";
+
+// types
 import type {
   PlanChangeLog,
   CreatePlanChangeLogRequest,
   UpdatePlanChangeLogRequest,
 } from "../types/planChangeLog.types";
+
+// translations
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+
 
 interface PlanChangeLogsDialogsProps {
   // Dialog states
@@ -108,60 +117,42 @@ export function PlanChangeLogsDialogs({
           <DialogBody>
             <div className="space-y-4 py-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.planId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.planId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.changeType")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.changeType}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.entityType")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.entityType}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.entityId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.entityId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.oldValue")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.oldValue ?? "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.newValue")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.newValue ?? "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.reason")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.reason ?? "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.createdAt}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {log.updatedAt ?? "-"}
-                  </div>
-                </div>
+                <ReadOnlyField
+                  label={t("form.fields.planId")}
+                  value={log.planId}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.changeType")}
+                  value={log.changeType}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.entityType")}
+                  value={log.entityType}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.entityId")}
+                  value={log.entityId}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.oldValue")}
+                  value={log.oldValue ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.newValue")}
+                  value={log.newValue ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.reason")}
+                  value={log.reason ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={log.createdAt}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.updatedAt")}
+                  value={log.updatedAt ?? "-"}
+                />
               </div>
             </div>
           </DialogBody>

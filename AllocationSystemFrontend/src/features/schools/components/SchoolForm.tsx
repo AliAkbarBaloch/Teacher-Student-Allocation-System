@@ -1,19 +1,14 @@
 // components
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { SchoolLocationMap } from "./SchoolLocationMap";
 
 // types
-import type { CreateSchoolRequest, School, SchoolType, UpdateSchoolRequest } from "../types/school.types";
+import type {
+  CreateSchoolRequest,
+  School,
+  UpdateSchoolRequest,
+} from "../types/school.types";
 
 // hooks
 import { useSchoolForm } from "../hooks/useSchoolForm";
@@ -22,7 +17,12 @@ import { useSchoolForm } from "../hooks/useSchoolForm";
 import { useTranslation } from "react-i18next";
 
 // icons
-import { AlertCircle, Loader2 } from "lucide-react";
+import { NumberField } from "@/components/form/fields/NumberField";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { TextField } from "@/components/form/fields/TextField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
 
 type BaseSchoolFormProps = {
   onCancel: () => void;
@@ -52,188 +52,133 @@ export function SchoolForm(props: SchoolFormProps) {
       ? { mode, onSubmit, school: props.school, t }
       : ({ mode, onSubmit, t } as const);
 
-  const { formState, errors, generalError, typeOptions, handleInputChange, handleSubmit, internalSubmitting } =
-    useSchoolForm(hookProps);
+  const {
+    formState,
+    errors,
+    typeOptions,
+    handleInputChange,
+    handleSubmit,
+    internalSubmitting,
+  } = useSchoolForm(hookProps);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {(generalError || Object.values(errors).some(Boolean)) && (
-        <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <span>{generalError || Object.values(errors).find(Boolean)}</span>
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} className="space-y-6 pb-2">
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="schoolName">
-            {t("form.fields.schoolName")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
-            id="schoolName"
-            value={formState.schoolName}
-            onChange={(event) => handleInputChange("schoolName", event.target.value)}
-            placeholder={t("form.placeholders.schoolName")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.schoolName ? "border-destructive" : ""}
-          />
-          {errors.schoolName && <p className="text-sm text-destructive">{errors.schoolName}</p>}
-        </div>
+        <TextField
+          id="schoolName"
+          label={t("form.fields.schoolName")}
+          value={formState.schoolName}
+          onChange={(val) => handleInputChange("schoolName", val)}
+          placeholder={t("form.placeholders.schoolName")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.schoolName}
+        />
 
-        <div className="space-y-2">
-          <Label>
-            {t("form.fields.schoolType")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Select
-            value={formState.schoolType}
-            onValueChange={(value) => handleInputChange("schoolType", value as SchoolType)}
-            disabled={isSubmitting || internalSubmitting}
-          >
-            <SelectTrigger className={errors.schoolType ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.schoolType")} />
-            </SelectTrigger>
-            <SelectContent>
-              {typeOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.schoolType && <p className="text-sm text-destructive">{errors.schoolType}</p>}
-        </div>
+        <SelectField
+          id="schoolType"
+          label={t("form.fields.schoolType")}
+          value={formState.schoolType}
+          onChange={(val) => handleInputChange("schoolType", val)}
+          options={typeOptions}
+          placeholder={t("form.placeholders.schoolType")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.schoolType}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="zoneNumber">
-            {t("form.fields.zoneNumber")}
-            <span className="text-destructive ml-1">*</span>
-          </Label>
-          <Input
-            id="zoneNumber"
-            type="number"
-            min={1}
-            step={1}
-            value={formState.zoneNumber}
-            onChange={(event) => handleInputChange("zoneNumber", event.target.value)}
-            placeholder={t("form.placeholders.zoneNumber")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.zoneNumber ? "border-destructive" : ""}
-          />
-          {errors.zoneNumber && <p className="text-sm text-destructive">{errors.zoneNumber}</p>}
-        </div>
+        <NumberField
+          id="zoneNumber"
+          label={t("form.fields.zoneNumber")}
+          value={formState.zoneNumber}
+          onChange={(val) => handleInputChange("zoneNumber", val)}
+          placeholder={t("form.placeholders.zoneNumber")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.zoneNumber}
+          min={1}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="latitude">{t("form.fields.latitude")}</Label>
-          <Input
-            id="latitude"
-            type="number"
-            step="0.000001"
-            value={formState.latitude}
-            onChange={(event) => handleInputChange("latitude", event.target.value)}
-            placeholder={t("form.placeholders.latitude")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.latitude ? "border-destructive" : ""}
-          />
-          {errors.latitude && <p className="text-sm text-destructive">{errors.latitude}</p>}
-        </div>
+        <NumberField
+          id="latitude"
+          label={t("form.fields.latitude")}
+          value={formState.latitude}
+          onChange={(val) => handleInputChange("latitude", val)}
+          placeholder={t("form.placeholders.latitude")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.latitude}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="longitude">{t("form.fields.longitude")}</Label>
-          <Input
-            id="longitude"
-            type="number"
-            step="0.000001"
-            value={formState.longitude}
-            onChange={(event) => handleInputChange("longitude", event.target.value)}
-            placeholder={t("form.placeholders.longitude")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.longitude ? "border-destructive" : ""}
-          />
-          {errors.longitude && <p className="text-sm text-destructive">{errors.longitude}</p>}
-        </div>
+        <NumberField
+          id="longitude"
+          label={t("form.fields.longitude")}
+          value={formState.longitude}
+          onChange={(val) => handleInputChange("longitude", val)}
+          placeholder={t("form.placeholders.longitude")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.longitude}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="distanceFromCenter">{t("form.fields.distanceFromCenter")}</Label>
-          <Input
+        <div>
+          <NumberField
             id="distanceFromCenter"
-            type="number"
-            step="0.1"
+            label={t("form.fields.distanceFromCenter")}
             value={formState.distanceFromCenter}
-            onChange={(event) => handleInputChange("distanceFromCenter", event.target.value)}
+            onChange={(val) => handleInputChange("distanceFromCenter", val)}
             placeholder={t("form.placeholders.distanceFromCenter")}
             disabled={isSubmitting || internalSubmitting}
-            className={errors.distanceFromCenter ? "border-destructive" : ""}
+            error={errors.distanceFromCenter}
+            min={0}
           />
           {mode === "create" && (
-            <p className="text-xs text-muted-foreground">
-              Distance is automatically calculated from University of Passau. You can edit this value if needed.
+            <p className="text-xs text-muted-foreground mt-2">
+              Distance is automatically calculated from University of Passau.
+              You can edit this value if needed.
             </p>
           )}
-          {errors.distanceFromCenter && (
-            <p className="text-sm text-destructive">{errors.distanceFromCenter}</p>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="transportAccessibility">{t("form.fields.transportAccessibility")}</Label>
-          <Input
-            id="transportAccessibility"
-            value={formState.transportAccessibility}
-            onChange={(event) => handleInputChange("transportAccessibility", event.target.value)}
-            placeholder={t("form.placeholders.transportAccessibility")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.transportAccessibility ? "border-destructive" : ""}
-          />
-          {errors.transportAccessibility && (
-            <p className="text-sm text-destructive">{errors.transportAccessibility}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="contactEmail">{t("form.fields.contactEmail")}</Label>
-          <Input
-            id="contactEmail"
-            type="email"
-            value={formState.contactEmail}
-            onChange={(event) => handleInputChange("contactEmail", event.target.value)}
-            placeholder={t("form.placeholders.contactEmail")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.contactEmail ? "border-destructive" : ""}
-          />
-          {errors.contactEmail && <p className="text-sm text-destructive">{errors.contactEmail}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="contactPhone">{t("form.fields.contactPhone")}</Label>
-          <Input
-            id="contactPhone"
-            value={formState.contactPhone}
-            onChange={(event) => handleInputChange("contactPhone", event.target.value)}
-            placeholder={t("form.placeholders.contactPhone")}
-            disabled={isSubmitting || internalSubmitting}
-            className={errors.contactPhone ? "border-destructive" : ""}
-          />
-          {errors.contactPhone && <p className="text-sm text-destructive">{errors.contactPhone}</p>}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="address">{t("form.fields.address")}</Label>
-        <textarea
-          id="address"
-          rows={3}
-          value={formState.address}
-          placeholder={t("form.placeholders.addressDetailed")}
-          onChange={(event) => handleInputChange("address", event.target.value)}
+        <SelectField
+          id="transportAccessibility"
+          label={t("form.fields.transportAccessibility")}
+          value={formState.transportAccessibility}
+          onChange={(val) => handleInputChange("transportAccessibility", val)}
+          options={[
+            { value: "4a", label: "4a" },
+            { value: "4b", label: "4b" },
+          ]}
+          placeholder={t("form.placeholders.transportAccessibility")}
           disabled={isSubmitting || internalSubmitting}
-          className={`flex min-h-[90px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-            errors.address ? "border-destructive" : "border-input"
-          }`}
+          error={errors.transportAccessibility}
         />
-        {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
+
+        <TextField
+          id="contactEmail"
+          label={t("form.fields.contactEmail")}
+          value={formState.contactEmail}
+          onChange={(val) => handleInputChange("contactEmail", val)}
+          placeholder={t("form.placeholders.contactEmail")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.contactEmail}
+        />
+
+        <TextField
+          id="contactPhone"
+          label={t("form.fields.contactPhone")}
+          value={formState.contactPhone}
+          onChange={(val) => handleInputChange("contactPhone", val)}
+          placeholder={t("form.placeholders.contactPhone")}
+          disabled={isSubmitting || internalSubmitting}
+          error={errors.contactPhone}
+        />
       </div>
+
+      <TextAreaField
+        id="address"
+        label={t("form.fields.address")}
+        value={formState.address}
+        onChange={(val) => handleInputChange("address", val)}
+        placeholder={t("form.placeholders.addressDetailed")}
+        disabled={isSubmitting || internalSubmitting}
+        error={errors.address}
+      />
 
       {/* Location Map - shown in all modes */}
       {(formState.latitude || formState.longitude) && (
@@ -246,7 +191,8 @@ export function SchoolForm(props: SchoolFormProps) {
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
-            The map shows the school location and University of Passau for reference
+            The map shows the school location and University of Passau for
+            reference
           </p>
         </div>
       )}
@@ -254,47 +200,42 @@ export function SchoolForm(props: SchoolFormProps) {
       {mode === "create" && (
         <Label
           htmlFor="isActive"
-          className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10"
+          className="flex items-center gap-2 rounded-md border border-muted px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors has-aria-checked:border-primary has-aria-checked:bg-primary/10"
         >
           <Checkbox
             id="isActive"
             checked={formState.isActive}
-            onCheckedChange={(checked) => handleInputChange("isActive", Boolean(checked))}
+            onCheckedChange={(checked) =>
+              handleInputChange("isActive", Boolean(checked))
+            }
             disabled={isSubmitting || internalSubmitting}
             className="h-5 w-5"
           />
           <div>
-            <span className="font-medium">
-              {t("form.fields.isActive")}
-            </span>
-            <p className="text-xs text-muted-foreground">{t("form.helpers.isActive")}</p>
+            <span className="font-medium">{t("form.fields.isActive")}</span>
+            <p className="text-xs text-muted-foreground">
+              {t("form.helpers.isActive")}
+            </p>
           </div>
         </Label>
       )}
 
       <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isSubmitting || internalSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isSubmitting || internalSubmitting}>
-          {isSubmitting || internalSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tCommon("actions.saving")}
-            </>
-          ) : mode === "edit" ? (
-            tCommon("actions.update")
-          ) : (
-            tCommon("actions.create")
-          )}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || internalSubmitting}
+          isEdit={mode === "edit"}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isSubmitting || internalSubmitting}
+        />
       </div>
     </form>
   );
 }
-

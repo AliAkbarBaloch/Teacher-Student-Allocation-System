@@ -1,15 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AlertCircle } from "lucide-react";
+
+
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -18,10 +8,18 @@ import type {
   TeacherAssignment,
   UpdateTeacherAssignmentRequest,
 } from "../types/teacherAssignment.types";
+import { NumberField } from "@/components/form/fields/NumberField";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+import { CancelButton } from "@/components/form/button/CancelButton";
 
 interface TeacherAssignmentFormProps {
   assignment?: TeacherAssignment | null;
-  onSubmit: (data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -39,37 +37,40 @@ export function TeacherAssignmentForm({
   onSubmit,
   onCancel,
   isLoading = false,
-  error: externalError = null,
 }: TeacherAssignmentFormProps) {
   const { t } = useTranslation("teacherAssignments");
   const { t: tCommon } = useTranslation("common");
 
-  const [formData, setFormData] = useState<CreateTeacherAssignmentRequest>(() => {
-    if (assignment) {
+  const [formData, setFormData] = useState<CreateTeacherAssignmentRequest>(
+    () => {
+      if (assignment) {
+        return {
+          planId: assignment.planId,
+          teacherId: assignment.teacherId,
+          internshipTypeId: assignment.internshipTypeId,
+          subjectId: assignment.subjectId,
+          studentGroupSize: assignment.studentGroupSize,
+          assignmentStatus: assignment.assignmentStatus,
+          isManualOverride: assignment.isManualOverride,
+          notes: assignment.notes ?? "",
+        };
+      }
       return {
-        planId: assignment.planId,
-        teacherId: assignment.teacherId,
-        internshipTypeId: assignment.internshipTypeId,
-        subjectId: assignment.subjectId,
-        studentGroupSize: assignment.studentGroupSize,
-        assignmentStatus: assignment.assignmentStatus,
-        isManualOverride: assignment.isManualOverride,
-        notes: assignment.notes ?? "",
+        planId: 0,
+        teacherId: 0,
+        internshipTypeId: 0,
+        subjectId: 0,
+        studentGroupSize: 1,
+        assignmentStatus: "PLANNED",
+        isManualOverride: false,
+        notes: "",
       };
     }
-    return {
-      planId: 0,
-      teacherId: 0,
-      internshipTypeId: 0,
-      subjectId: 0,
-      studentGroupSize: 1,
-      assignmentStatus: "PLANNED",
-      isManualOverride: false,
-      notes: "",
-    };
-  });
+  );
 
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateTeacherAssignmentRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateTeacherAssignmentRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -100,7 +101,9 @@ export function TeacherAssignmentForm({
   }, [assignment]);
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateTeacherAssignmentRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateTeacherAssignmentRequest, string>
+    > = {};
 
     if (!formData.planId || formData.planId <= 0) {
       newErrors.planId = t("form.errors.planRequired");
@@ -117,7 +120,10 @@ export function TeacherAssignmentForm({
     if (!formData.studentGroupSize || formData.studentGroupSize < 1) {
       newErrors.studentGroupSize = t("form.errors.groupSizeMin");
     }
-    if (!formData.assignmentStatus || !ASSIGNMENT_STATUS_OPTIONS.includes(formData.assignmentStatus)) {
+    if (
+      !formData.assignmentStatus ||
+      !ASSIGNMENT_STATUS_OPTIONS.includes(formData.assignmentStatus)
+    ) {
       newErrors.assignmentStatus = t("form.errors.statusRequired");
     }
     if (formData.notes && formData.notes.length > 5000) {
@@ -156,7 +162,10 @@ export function TeacherAssignmentForm({
     }
   };
 
-  const handleChange = (field: keyof CreateTeacherAssignmentRequest, value: string | boolean | number) => {
+  const handleChange = (
+    field: keyof CreateTeacherAssignmentRequest,
+    value: string | boolean | number
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -164,145 +173,119 @@ export function TeacherAssignmentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      {(externalError || Object.keys(errors).length > 0) && (
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          <AlertCircle className="h-4 w-4" />
-          <span>
-            {externalError ||
-              Object.values(errors)
-                .filter(Boolean)
-                .join(", ")}
-          </span>
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} className="space-y-4 pb-2">
       <div className="grid gap-4 md:grid-cols-2">
+        <NumberField
+          id="planId"
+          label={t("form.fields.planId")}
+          value={formData.planId}
+          onChange={(val: number) => handleChange("planId", val)}
+          placeholder={t("form.placeholders.planId")}
+          disabled={isLoading || isSubmitting || !!assignment}
+          error={errors.planId}
+          min={1}
+        />
+
+        <NumberField
+          id="teacherId"
+          label={t("form.fields.teacherId")}
+          value={formData.teacherId}
+          onChange={(val: number) => handleChange("teacherId", val)}
+          placeholder={t("form.placeholders.teacherId")}
+          disabled={isLoading || isSubmitting || !!assignment}
+          error={errors.teacherId}
+          min={1}
+        />
+        <NumberField
+          id="internshipTypeId"
+          label={t("form.fields.internshipTypeId")}
+          value={formData.internshipTypeId}
+          onChange={(val: number) => handleChange("internshipTypeId", val)}
+          placeholder={t("form.placeholders.internshipTypeId")}
+          disabled={isLoading || isSubmitting || !!assignment}
+          error={errors.internshipTypeId}
+          min={1}
+        />
+
+        <NumberField
+          id="subjectId"
+          label={t("form.fields.subjectId")}
+          value={formData.subjectId}
+          onChange={(val: number) => handleChange("subjectId", val)}
+          placeholder={t("form.placeholders.subjectId")}
+          disabled={isLoading || isSubmitting || !!assignment}
+          error={errors.subjectId}
+          min={1}
+        />
+
+        <NumberField
+          id="studentGroupSize"
+          label={t("form.fields.studentGroupSize")}
+          value={formData.studentGroupSize}
+          onChange={(val: number) => handleChange("studentGroupSize", val)}
+          placeholder={t("form.placeholders.studentGroupSize")}
+          disabled={isLoading || isSubmitting}
+          error={errors.studentGroupSize}
+          min={1}
+        />
+        <SelectField
+          id="assignmentStatus"
+          label={t("form.fields.assignmentStatus")}
+          value={formData.assignmentStatus}
+          onChange={(val: string) =>
+            handleChange("assignmentStatus", val as AssignmentStatus)
+          }
+          options={ASSIGNMENT_STATUS_OPTIONS.map((status) => ({
+            value: status,
+            label: t(`form.status.${status.toLowerCase()}`),
+          }))}
+          placeholder={t("form.placeholders.assignmentStatus")}
+          disabled={isLoading || isSubmitting}
+          error={errors.assignmentStatus}
+        />
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="planId">{t("form.fields.planId")}</Label>
-          <Input
-            id="planId"
-            type="number"
-            value={formData.planId}
-            onChange={(e) => handleChange("planId", Number(e.target.value))}
-            placeholder={t("form.placeholders.planId")}
-            disabled={isLoading || isSubmitting || !!assignment}
-            className={errors.planId ? "border-destructive" : ""}
-            min={1}
+          <CheckboxField
+            id="isManualOverride"
+            label={t("form.fields.isManualOverride")}
+            checked={!!formData.isManualOverride}
+            onCheckedChange={(checked: boolean) =>
+              handleChange("isManualOverride", checked)
+            }
+            disabled={isLoading || isSubmitting}
+            className="lg:mt-7"
+            labelClassName="mt-1.5"
           />
         </div>
         <div className="space-y-2 col-span-1">
-          <Label htmlFor="teacherId">{t("form.fields.teacherId")}</Label>
-          <Input
-            id="teacherId"
-            type="number"
-            value={formData.teacherId}
-            onChange={(e) => handleChange("teacherId", Number(e.target.value))}
-            placeholder={t("form.placeholders.teacherId")}
-            disabled={isLoading || isSubmitting}
-            className={errors.teacherId ? "border-destructive" : ""}
-            min={1}
-          />
-        </div>
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="internshipTypeId">{t("form.fields.internshipTypeId")}</Label>
-          <Input
-            id="internshipTypeId"
-            type="number"
-            value={formData.internshipTypeId}
-            onChange={(e) => handleChange("internshipTypeId", Number(e.target.value))}
-            placeholder={t("form.placeholders.internshipTypeId")}
-            disabled={isLoading || isSubmitting}
-            className={errors.internshipTypeId ? "border-destructive" : ""}
-            min={1}
-          />
-        </div>
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="subjectId">{t("form.fields.subjectId")}</Label>
-          <Input
-            id="subjectId"
-            type="number"
-            value={formData.subjectId}
-            onChange={(e) => handleChange("subjectId", Number(e.target.value))}
-            placeholder={t("form.placeholders.subjectId")}
-            disabled={isLoading || isSubmitting}
-            className={errors.subjectId ? "border-destructive" : ""}
-            min={1}
-          />
-        </div>
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="studentGroupSize">{t("form.fields.studentGroupSize")}</Label>
-          <Input
-            id="studentGroupSize"
-            type="number"
-            value={formData.studentGroupSize}
-            onChange={(e) => handleChange("studentGroupSize", Number(e.target.value))}
-            placeholder={t("form.placeholders.studentGroupSize")}
-            disabled={isLoading || isSubmitting}
-            className={errors.studentGroupSize ? "border-destructive" : ""}
-            min={1}
-          />
-        </div>
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="assignmentStatus">{t("form.fields.assignmentStatus")}</Label>
-          <Select
-            value={formData.assignmentStatus}
-            onValueChange={(value) => handleChange("assignmentStatus", value as AssignmentStatus)}
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger className={errors.assignmentStatus ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.assignmentStatus")} />
-            </SelectTrigger>
-            <SelectContent>
-              {ASSIGNMENT_STATUS_OPTIONS.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {t(`form.status.${status.toLowerCase()}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.assignmentStatus && (
-            <p className="text-sm text-destructive">{errors.assignmentStatus}</p>
-          )}
-        </div>
-        <div className="space-y-2 col-span-1">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isManualOverride"
-              checked={formData.isManualOverride}
-              onCheckedChange={(checked) => handleChange("isManualOverride", checked === true)}
-              disabled={isLoading || isSubmitting}
-              className="h-5 w-5"
-            />
-            <Label
-              htmlFor="isManualOverride"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-            >
-              {t("form.fields.isManualOverride")}
-            </Label>
-          </div>
-        </div>
-        <div className="space-y-2 col-span-1">
-          <Label htmlFor="notes">{t("form.fields.notes")}</Label>
-          <Input
+          <TextAreaField
             id="notes"
-            value={formData.notes}
-            onChange={(e) => handleChange("notes", e.target.value)}
+            label={t("form.fields.notes")}
+            value={formData.notes ?? ""}
+            onChange={(val: string) => handleChange("notes", val)}
             placeholder={t("form.placeholders.notes")}
             disabled={isLoading || isSubmitting}
-            className={errors.notes ? "border-destructive" : ""}
-            maxLength={5000}
+            error={errors.notes}
+            maxLength={500}
           />
         </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting || isLoading}>
+        <CancelButton
+          onClick={onCancel}
+          disabled={isLoading || isSubmitting}
+        >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" variant="default">
-          {assignment ? tCommon("actions.update") : tCommon("actions.create")}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!assignment}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isLoading || isSubmitting}
+        />
+
       </div>
     </form>
   );

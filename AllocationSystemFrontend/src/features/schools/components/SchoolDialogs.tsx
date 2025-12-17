@@ -21,10 +21,11 @@ import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { SchoolForm } from "./SchoolForm";
 import { SchoolLocationMap } from "./SchoolLocationMap";
-import { SchoolStatusBadge } from "./SchoolStatusBadge";
 import type { School, CreateSchoolRequest, UpdateSchoolRequest } from "../types/school.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
 
 interface SchoolDialogsProps {
   // Dialog states
@@ -150,87 +151,72 @@ export function SchoolDialogs({
         renderCustomContent={(school) => (
           <DialogBody>
             <div className="grid gap-4">
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolName")}</p>
-                <p className="text-base">{school.schoolName}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolType")}</p>
-                <p>{t(`typeLabels.${school.schoolType}`)}</p>
-              </div>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.zoneNumber")}</p>
-                <p>{school.zoneNumber}</p>
-              </div>
+              <ReadOnlyField
+                label={t("form.fields.schoolName")}
+                value={school.schoolName}
+              />
+              <ReadOnlyField
+                label={t("form.fields.schoolType")}
+                value={t(`typeLabels.${school.schoolType}`)}
+              />
+              <ReadOnlyField
+                label={t("form.fields.zoneNumber")}
+                value={school.zoneNumber}
+              />
               {school.address && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.address")}</p>
-                  <p className="whitespace-pre-line">{school.address}</p>
-                </div>
+                <ReadOnlyField
+                  label={t("form.fields.address")}
+                  value={school.address}
+                />
               )}
               {school.transportAccessibility && (
-                <div className="grid gap-1">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.transportAccessibility")}
-                  </p>
-                  <p className="whitespace-pre-line">{school.transportAccessibility}</p>
-                </div>
+                <ReadOnlyField
+                  label={t("form.fields.transportAccessibility")}
+                  value={school.transportAccessibility}
+                />
               )}
-              <div className="grid gap-4">
-                {school.latitude && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.latitude")}</p>
-                    <p>{school.latitude}</p>
-                  </div>
-                )}
-                {school.longitude && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{t("form.fields.longitude")}</p>
-                    <p>{school.longitude}</p>
-                  </div>
-                )}
-                {school.distanceFromCenter && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.distanceFromCenter")}
-                    </p>
-                    <p>{school.distanceFromCenter}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                  <SchoolStatusBadge isActive={school.isActive} />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {school.contactEmail && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.contactEmail")}
-                    </p>
+              <ReadOnlyField
+                label={t("form.fields.latitude")}
+                value={school.latitude ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.longitude")}
+                value={school.longitude ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.distanceFromCenter")}
+                value={school.distanceFromCenter ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.isActive")}
+                value={<Badge variant={school.isActive ? "success" : "secondary"} className="rounded-sm">{school.isActive ? t("status.active") : t("status.inactive")}</Badge>}
+              />
+              <ReadOnlyField
+                label={t("form.fields.contactEmail")}
+                value={
+                  school.contactEmail ? (
                     <a
                       href={`mailto:${school.contactEmail}`}
                       className="text-primary underline-offset-2 hover:underline"
                     >
                       {school.contactEmail}
                     </a>
-                  </div>
-                )}
-                {school.contactPhone && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.contactPhone")}
-                    </p>
+                  ) : "—"
+                }
+              />
+              <ReadOnlyField
+                label={t("form.fields.contactPhone")}
+                value={
+                  school.contactPhone ? (
                     <a
                       href={`tel:${school.contactPhone}`}
                       className="text-primary underline-offset-2 hover:underline"
                     >
                       {school.contactPhone}
                     </a>
-                  </div>
-                )}
-              </div>
-              {/* Location Map - at the bottom */}
+                  ) : "—"
+                }
+              />
               {(school.latitude || school.longitude) && (
                 <div className="grid gap-1">
                   <p className="text-sm font-medium text-muted-foreground">Location Map</p>

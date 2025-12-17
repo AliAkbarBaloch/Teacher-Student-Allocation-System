@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.school.SchoolResponseDto;
 import de.unipassau.allocationsystem.dto.school.SchoolStatusUpdateDto;
 import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.SchoolMapper;
 import de.unipassau.allocationsystem.service.SchoolService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -16,13 +17,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/schools")
@@ -64,7 +63,7 @@ public class SchoolController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         SchoolResponseDto result = schoolService.getById(id)
                 .map(schoolMapper::toResponseDto)
-                .orElseThrow(() -> new NoSuchElementException("School not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("School not found with id: " + id));
         return ResponseHandler.success("School retrieved successfully", result);
     }
 
@@ -129,13 +128,9 @@ public class SchoolController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody SchoolCreateDto dto) {
-        try {
-            School school = schoolMapper.toEntityCreate(dto);
-            School created = schoolService.create(school);
-            return ResponseHandler.created("School created successfully", schoolMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        School school = schoolMapper.toEntityCreate(dto);
+        School created = schoolService.create(school);
+        return ResponseHandler.created("School created successfully", schoolMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -154,15 +149,9 @@ public class SchoolController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody SchoolUpdateDto dto) {
-        try {
-            School school = schoolMapper.toEntityUpdate(dto);
-            School updated = schoolService.update(id, school);
-            return ResponseHandler.updated("School updated successfully", schoolMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("School not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        School school = schoolMapper.toEntityUpdate(dto);
+        School updated = schoolService.update(id, school);
+        return ResponseHandler.updated("School updated successfully", schoolMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -183,12 +172,8 @@ public class SchoolController {
     public ResponseEntity<?> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody SchoolStatusUpdateDto statusDto) {
-        try {
-            School updated = schoolService.updateStatus(id, statusDto.getIsActive());
-            return ResponseHandler.updated("School status updated successfully", schoolMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("School not found");
-        }
+        School updated = schoolService.updateStatus(id, statusDto.getIsActive());
+        return ResponseHandler.updated("School status updated successfully", schoolMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -202,11 +187,7 @@ public class SchoolController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            schoolService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("School not found");
-        }
+        schoolService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

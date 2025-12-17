@@ -9,9 +9,11 @@
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
+    "primary": "Primary",
+    "middle": "Middle",
     "actions": "Actions",
     "emptyMessage": "No subjects found.",
-    "searchPlaceholder": "Search subjects..."
+    "searchPlaceholder": "Search subjects Title"
   },
   "form": {
     "title": {
@@ -33,7 +35,7 @@
       "category": "Select category",
       "selectCategory": "Select a category",
       "noCategories": "No categories available. Please create categories first.",
-      "schoolType": "Enter school type (optional)"
+      "schoolType": "Enter school type"
     },
     "errors": {
       "codeRequired": "Subject code is required",
@@ -77,4 +79,3 @@
     "error": "Failed to update subject"
   }
 }
-

@@ -12,11 +12,19 @@ import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmation
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import type { CreditHourTracking, UpdateCreditHourTrackingRequest } from "../types/creditHourTracking.types";
+import type {
+  CreditHourTracking,
+  UpdateCreditHourTrackingRequest,
+} from "../types/creditHourTracking.types";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { NOTES_CONSTRAINTS } from "../constants/creditHourTracking.constants";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { formatDate } from "@/lib/utils/date";
 
 interface CreditHourTrackingDialogsProps {
   dialogs: {
@@ -34,7 +42,10 @@ interface CreditHourTrackingDialogsProps {
     };
   };
   selectedEntry: CreditHourTracking | null;
-  onUpdateSubmit: (id: number, data: UpdateCreditHourTrackingRequest) => Promise<void>;
+  onUpdateSubmit: (
+    id: number,
+    data: UpdateCreditHourTrackingRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (entry: CreditHourTracking) => void;
   onSelectedChange: (entry: CreditHourTracking | null) => void;
@@ -105,58 +116,55 @@ export function CreditHourTrackingDialogs({
             <div className="space-y-6 py-4">
               {/* Teacher and Year Info */}
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.teacher")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {entry.teacherName || "-"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.academicYear")}
-                  </label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {entry.academicYearTitle || "-"}
-                  </div>
-                </div>
-              </div>
+                <ReadOnlyField
+                  label={t("form.fields.teacher")}
+                  value={entry.teacherName || "-"}
+                  className="space-y-2"
+                  valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
+                />
+                <ReadOnlyField
+                  label={t("form.fields.academicYear")}
+                  value={entry.academicYearTitle || "-"}
+                  className="space-y-2"
+                  valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
+                />
 
               {/* Credit Hours Info */}
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.assignmentsCount")}
-                  </label>
-                  <div className="text-sm font-semibold p-2 border rounded-md bg-muted/50">
-                    {entry.assignmentsCount ?? 0}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.creditHoursAllocated")}
-                  </label>
-                  <div className="text-sm font-semibold p-2 border rounded-md bg-muted/50">
-                    {(entry.creditHoursAllocated ?? 0).toFixed(2)}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("form.fields.creditBalance")}
-                  </label>
-                  <div
-                    className={`text-sm font-semibold p-2 border rounded-md ${
-                      (entry.creditBalance ?? 0) < 0
-                        ? "bg-destructive/10 text-destructive border-destructive/20"
-                        : (entry.creditBalance ?? 0) > 50
-                        ? "bg-green-500/10 text-green-600 border-green-500/20"
-                        : "bg-muted/50"
-                    }`}
-                  >
-                    {(entry.creditBalance ?? 0).toFixed(2)}
-                  </div>
-                </div>
+                  <ReadOnlyField
+                    label={t("form.fields.assignmentsCount")}
+                    value={entry.assignmentsCount ?? 0}
+                    className="space-y-2"
+                    valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.creditHoursAllocated")}
+                    value={(entry.creditHoursAllocated ?? 0).toFixed(2)}
+                    className="space-y-2"
+                    valueClassName="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50"
+                  />
+
+                  <ReadOnlyField
+                    label={t("form.fields.creditBalance")}
+                    value={
+                      (entry.creditBalance ?? 0) < 0 ? (
+                        <Badge variant="destructive" className="font-semibold">
+                          {entry.creditBalance ?? 0}
+                        </Badge>
+                      ) : (entry.creditBalance ?? 0) > 50 ? (
+                        <Badge
+                          variant="outline"
+                          className="font-semibold bg-green-500/10 text-green-600 border-green-500/20"
+                        >
+                          {entry.creditBalance ?? 0}
+                        </Badge>
+                      ) : (
+                        <span className="font-medium">
+                          {entry.creditBalance ?? 0}
+                        </span>
+                      )
+                    }
+                  />
+
               </div>
 
               {/* Notes Section */}
@@ -178,10 +186,12 @@ export function CreditHourTrackingDialogs({
                 </div>
                 {isEditingNotes ? (
                   <div className="space-y-2">
-                    <Textarea
+                    <TextAreaField
+                      id="notes"
+                      label={""}
                       value={notes}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
+                      onChange={(val: string) => {
+                        const newValue = val;
                         if (newValue.length <= NOTES_CONSTRAINTS.MAX_LENGTH) {
                           setNotes(newValue);
                         }
@@ -191,11 +201,6 @@ export function CreditHourTrackingDialogs({
                       disabled={isSubmitting}
                       maxLength={NOTES_CONSTRAINTS.MAX_LENGTH}
                     />
-                    {notes.length > NOTES_CONSTRAINTS.MAX_LENGTH * 0.9 && (
-                      <p className="text-xs text-muted-foreground">
-                        {notes.length} / {NOTES_CONSTRAINTS.MAX_LENGTH} characters
-                      </p>
-                    )}
                     <div className="flex gap-2">
                       <Button
                         size="sm"
@@ -208,15 +213,12 @@ export function CreditHourTrackingDialogs({
                         )}
                         {tCommon("actions.save")}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
+                      <CancelButton
                         onClick={handleCancelNotes}
                         disabled={isSubmitting}
-                        className="h-8"
                       >
                         {tCommon("actions.cancel")}
-                      </Button>
+                      </CancelButton>
                     </div>
                   </div>
                 ) : (
@@ -230,25 +232,15 @@ export function CreditHourTrackingDialogs({
 
               {/* Timestamps */}
               <div className="grid gap-4 md:grid-cols-2 pt-2 border-t">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.createdAt")}
-                  </label>
-                  <div className="text-xs text-muted-foreground">
-                    {entry.createdAt
-                      ? new Date(entry.createdAt).toLocaleString()
-                      : "-"}
-                  </div>
-                </div>
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={entry.createdAt ? formatDate(entry.createdAt) : "-"}
+                />
                 {entry.updatedAt && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      {t("form.fields.updatedAt")}
-                    </label>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(entry.updatedAt).toLocaleString()}
-                    </div>
-                  </div>
+                  <ReadOnlyField
+                    label={t("form.fields.updatedAt")}
+                    value={entry.updatedAt ? formatDate(entry.updatedAt) : "-"}
+                  />
                 )}
               </div>
             </div>
@@ -265,28 +257,28 @@ export function CreditHourTrackingDialogs({
           </DialogHeader>
           <DialogBody>
             {selectedEntry && (
-                <div>
-                  <Label htmlFor="notes">{t("form.fields.notes")}</Label>
-                  <Textarea
-                    id="notes"
-                    value={notes}
-                    onChange={(e) => {
-                      const newValue = e.target.value;
-                      if (newValue.length <= NOTES_CONSTRAINTS.MAX_LENGTH) {
-                        setNotes(newValue);
-                      }
-                    }}
-                    placeholder={t("form.placeholders.notes")}
-                    className="min-h-[100px] mt-2"
-                    disabled={isSubmitting}
-                    maxLength={NOTES_CONSTRAINTS.MAX_LENGTH}
-                  />
-                  {notes.length > NOTES_CONSTRAINTS.MAX_LENGTH * 0.9 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {notes.length} / {NOTES_CONSTRAINTS.MAX_LENGTH} characters
-                    </p>
-                  )}
-                </div>
+              <div>
+                <Label htmlFor="notes">{t("form.fields.notes")}</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if (newValue.length <= NOTES_CONSTRAINTS.MAX_LENGTH) {
+                      setNotes(newValue);
+                    }
+                  }}
+                  placeholder={t("form.placeholders.notes")}
+                  className="min-h-[100px] mt-2"
+                  disabled={isSubmitting}
+                  maxLength={NOTES_CONSTRAINTS.MAX_LENGTH}
+                />
+                {notes.length > NOTES_CONSTRAINTS.MAX_LENGTH * 0.9 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {notes.length} / {NOTES_CONSTRAINTS.MAX_LENGTH} characters
+                  </p>
+                )}
+              </div>
             )}
           </DialogBody>
           <DialogFooter className="p-3">
@@ -316,7 +308,9 @@ export function CreditHourTrackingDialogs({
               }}
               disabled={isSubmitting || !selectedEntry}
             >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {tCommon("actions.save")}
             </Button>
           </DialogFooter>

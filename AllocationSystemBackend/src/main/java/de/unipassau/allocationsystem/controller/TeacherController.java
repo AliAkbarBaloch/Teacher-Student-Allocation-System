@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -135,12 +134,8 @@ public class TeacherController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody TeacherCreateDto dto) {
-        try {
-            TeacherResponseDto created = teacherService.createTeacher(dto);
-            return ResponseHandler.created("Teacher created successfully", created);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherResponseDto created = teacherService.createTeacher(dto);
+        return ResponseHandler.created("Teacher created successfully", created);
     }
 
     @Operation(
@@ -159,14 +154,8 @@ public class TeacherController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TeacherUpdateDto dto) {
-        try {
-            TeacherResponseDto updated = teacherService.updateTeacher(id, dto);
-            return ResponseHandler.updated("Teacher updated successfully", updated);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherResponseDto updated = teacherService.updateTeacher(id, dto);
+        return ResponseHandler.updated("Teacher updated successfully", updated);
     }
 
     @Operation(
@@ -187,12 +176,8 @@ public class TeacherController {
     public ResponseEntity<?> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody TeacherStatusUpdateDto statusDto) {
-        try {
-            TeacherResponseDto updated = teacherService.updateEmploymentStatus(id, statusDto.getEmploymentStatus());
-            return ResponseHandler.updated("Teacher status updated successfully", updated);
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher not found");
-        }
+        TeacherResponseDto updated = teacherService.updateEmploymentStatus(id, statusDto.getEmploymentStatus());
+        return ResponseHandler.updated("Teacher status updated successfully", updated);
     }
 
     @Operation(
@@ -206,12 +191,8 @@ public class TeacherController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            teacherService.deleteTeacher(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher not found");
-        }
+        teacherService.deleteTeacher(id);
+        return ResponseHandler.noContent();
     }
 
     @Operation(
@@ -231,16 +212,11 @@ public class TeacherController {
     @PostMapping("/check-emails")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> checkExistingEmails(@RequestBody List<String> emails) {
-        try {
-            if (emails == null || emails.isEmpty()) {
-                return ResponseHandler.success("No emails to check", Set.of());
-            }
-            Set<String> existingEmails = teacherService.findExistingEmails(emails);
-            return ResponseHandler.success("Email check completed", existingEmails);
-        } catch (Exception e) {
-            log.error("Error checking emails", e);
-            return ResponseHandler.serverError("Failed to check emails", Map.of());
+        if (emails == null || emails.isEmpty()) {
+            return ResponseHandler.success("No emails to check", Set.of());
         }
+        Set<String> existingEmails = teacherService.findExistingEmails(emails);
+        return ResponseHandler.success("Email check completed", existingEmails);
     }
 
     @Operation(
@@ -263,30 +239,19 @@ public class TeacherController {
     public ResponseEntity<?> bulkImport(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "skipInvalidRows", defaultValue = "false") boolean skipInvalidRows
-    ) {
-        try {
-            // Validate file
-            if (file.isEmpty()) {
-                return ResponseHandler.badRequest("File is empty", Map.of());
-            }
-
-            String contentType = file.getContentType();
-            if (contentType == null || (!contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    && !contentType.equals("application/vnd.ms-excel"))) {
-                return ResponseHandler.badRequest(
-                        "Invalid file type. Please upload an Excel file (.xlsx or .xls)", Map.of());
-            }
-
-            BulkImportResponseDto result = teacherService.bulkImportTeachers(file, skipInvalidRows);
-            return ResponseHandler.success("Bulk import completed", result);
-        } catch (IllegalArgumentException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        } catch (IOException e) {
-            log.error("Error processing bulk import file", e);
-            return ResponseHandler.badRequest("Failed to process file: " + e.getMessage(), Map.of());
-        } catch (Exception e) {
-            log.error("Unexpected error during bulk import", e);
-            return ResponseHandler.badRequest("An error occurred during import: " + e.getMessage(), Map.of());
+    ) throws IOException {
+        // Validate file
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
         }
+
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                && !contentType.equals("application/vnd.ms-excel"))) {
+            throw new IllegalArgumentException("Invalid file type. Please upload an Excel file (.xlsx or .xls)");
+        }
+
+        BulkImportResponseDto result = teacherService.bulkImportTeachers(file, skipInvalidRows);
+        return ResponseHandler.success("Bulk import completed", result);
     }
 }

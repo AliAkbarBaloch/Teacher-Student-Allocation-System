@@ -34,7 +34,7 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.academicYear"),
     },
     {
-      field: "internshipTypeName",
+      field: "internshipTypeCode",
       title: t("table.internshipType"),
       enableSorting: true,
       fieldType: "text",
@@ -75,7 +75,7 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldType: "text",
       format: (value: unknown) => (typeof value === "string" && value) || "-",
       width: "200px",
-      maxWidth: "300px",
+      maxWidth: "250px",
     },
   ];
 }

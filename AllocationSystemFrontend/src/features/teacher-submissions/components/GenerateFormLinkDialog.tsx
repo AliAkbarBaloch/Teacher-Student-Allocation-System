@@ -18,13 +18,6 @@ import {
 } from "@/components/ui/dialog";
 // components
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
@@ -35,6 +28,8 @@ import { TeacherService } from "@/features/teachers/services/teacherService";
 // types
 import type { Teacher } from "@/features/teachers/types/teacher.types";
 import type { FormLinkResponse } from "../types/teacherFormSubmission.types";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { SelectSearchField } from "@/components/form/fields/SelectSearchField";
 
 interface AcademicYear {
   id: number;
@@ -217,65 +212,64 @@ export function GenerateFormLinkDialog({
                   </div>
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="teacher">{t("formLink.teacher")}</Label>
-                <Select
-                  value={teacherId?.toString() || ""}
-                  onValueChange={(value) => {
-                    setTeacherId(value ? Number(value) : undefined);
-                    setError(null);
-                  }}
-                  disabled={loading || !!initialTeacherId}
-                >
-                  <SelectTrigger id="teacher">
-                    <SelectValue placeholder={t("formLink.selectTeacher")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teachers.map((teacher) => (
-                      <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                        {teacher.firstName} {teacher.lastName} ({teacher.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SelectSearchField
+                id="teacherId"
+                label={t("formLink.teacher")}
+                value={teacherId?.toString() || ""}
+                onChange={(value: string) => {
+                  setTeacherId(value ? Number(value) : undefined);
+                  setError(null);
+                }}
+                disabled={loading || !!initialTeacherId}
+                options={[
+                  {
+                    value: "__placeholder__",
+                    label: t("formLink.selectTeacher"),
+                    disabled: true,
+                  },
+                  ...teachers.map((teacher) => ({
+                    value: String(teacher.id),
+                    label: `${teacher.firstName} ${teacher.lastName} (${teacher.email})`,
+                  })),
+                ]}
+                placeholder={t("formLink.selectTeacher")}
+                required={true}
+              />
+              <SelectField
+                id="yearId"
+                label={t("formLink.academicYear")}
+                value={yearId?.toString() || ""}
+                onChange={(value: string) => {
+                  setYearId(value ? Number(value) : undefined);
+                  setError(null);
+                }}
+                disabled={loading || !!initialYearId}
+                options={[
+                  {
+                    value: "__placeholder__",
+                    label: t("formLink.selectYear"),
+                    disabled: true,
+                  },
+                  ...academicYears.map((year) => ({
+                    value: String(year.id),
+                    label: year.yearName,
+                  })),
+                ]}
+                placeholder={t("formLink.selectYear")}
+                required={true}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="year">{t("formLink.academicYear")}</Label>
-                <Select
-                  value={yearId?.toString() || ""}
-                  onValueChange={(value) => {
-                    setYearId(value ? Number(value) : undefined);
-                    setError(null);
-                  }}
-                  disabled={loading || !!initialYearId}
-                >
-                  <SelectTrigger id="year">
-                    <SelectValue placeholder={t("formLink.selectYear")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {academicYears.map((year) => (
-                      <SelectItem key={year.id} value={year.id.toString()}>
-                        {year.yearName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-                <div>
                   <Label className="text-sm font-medium">{t("formLink.teacher")}</Label>
                   <p className="text-sm text-muted-foreground">
                     {formLink.teacherName} ({formLink.teacherEmail})
                   </p>
-                </div>
-                <div>
                   <Label className="text-sm font-medium">{t("formLink.academicYear")}</Label>
                   <p className="text-sm text-muted-foreground">{formLink.yearName}</p>
-                </div>
+
                 <div>
                   <Label className="text-sm font-medium">{t("formLink.formUrl")}</Label>
                   <div className="flex items-center gap-2 mt-1">

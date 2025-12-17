@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -128,13 +127,9 @@ public class CreditHourTrackingController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreditHourTrackingCreateDto dto) {
-        try {
-            CreditHourTracking entity = mapper.toEntityCreate(dto);
-            CreditHourTracking created = service.create(entity);
-            return ResponseHandler.created("Credit hour tracking entry created successfully", mapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        CreditHourTracking entity = mapper.toEntityCreate(dto);
+        CreditHourTracking created = service.create(entity);
+        return ResponseHandler.created("Credit hour tracking entry created successfully", mapper.toResponseDto(created));
     }
 
     @Operation(
@@ -153,15 +148,9 @@ public class CreditHourTrackingController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody CreditHourTrackingUpdateDto dto) {
-        try {
-            CreditHourTracking entity = mapper.toEntityUpdate(dto);
-            CreditHourTracking updated = service.update(id, entity);
-            return ResponseHandler.updated("Credit hour tracking entry updated successfully", mapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Credit hour tracking entry not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        CreditHourTracking entity = mapper.toEntityUpdate(dto);
+        CreditHourTracking updated = service.update(id, entity);
+        return ResponseHandler.updated("Credit hour tracking entry updated successfully", mapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -175,11 +164,7 @@ public class CreditHourTrackingController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            service.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Credit hour tracking entry not found");
-        }
+        service.delete(id);
+        return ResponseHandler.noContent();
     }
 }

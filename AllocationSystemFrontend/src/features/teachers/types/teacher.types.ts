@@ -1,8 +1,8 @@
-  export type EmploymentStatus =
-    | "ACTIVE"
-    | "INACTIVE_THIS_YEAR"
-    | "ON_LEAVE"
-    | "ARCHIVED";
+export type EmploymentStatus =
+  | "ACTIVE"
+  | "INACTIVE_THIS_YEAR"
+  | "ON_LEAVE"
+  | "ARCHIVED";
 
 export type UsageCycle =
   | "GRADES_1_2"
@@ -19,9 +19,9 @@ export interface Teacher {
   email: string;
   phone?: string | null;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle | null;
-  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -38,7 +38,6 @@ export interface TeacherFilters {
   search?: string;
   schoolId?: number;
   employmentStatus?: EmploymentStatus;
-  isActive?: boolean;
 }
 
 export interface TeacherListParams extends TeacherFilters {
@@ -55,9 +54,9 @@ export interface CreateTeacherRequest {
   email: string;
   phone?: string;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle;
-  // Note: isActive is not in the backend create DTO - teachers are created as active by default
 }
 
 export interface UpdateTeacherRequest {
@@ -67,15 +66,18 @@ export interface UpdateTeacherRequest {
   email?: string;
   phone?: string;
   isPartTime?: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus?: EmploymentStatus;
   usageCycle?: UsageCycle;
 }
 
 export interface TeacherStatusUpdateRequest {
-  isActive: boolean;
+  status: EmploymentStatus;
 }
 
-export type TeacherFormErrors = Partial<Record<keyof CreateTeacherRequest, string>> & {
+export type TeacherFormErrors = Partial<
+  Record<keyof CreateTeacherRequest, string>
+> & {
   general?: string;
 };
 
@@ -102,6 +104,7 @@ export interface ParsedTeacherRow {
   email: string;
   phone?: string;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle;
   errors?: string[];
@@ -135,5 +138,10 @@ export interface ImportResultRow {
   teacher?: Teacher;
 }
 
-export type ImportStep = "upload" | "parsing" | "preview" | "validating" | "importing" | "results";
-
+export type ImportStep =
+  | "upload"
+  | "parsing"
+  | "preview"
+  | "validating"
+  | "importing"
+  | "results";

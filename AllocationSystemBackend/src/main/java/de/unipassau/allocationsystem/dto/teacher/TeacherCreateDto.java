@@ -44,12 +44,12 @@ public class TeacherCreateDto {
     @NotNull(message = "Part-time status is required")
     private Boolean isPartTime;
 
+    private Integer workingHoursPerWeek;
+
     @NotNull(message = "Employment status is required")
     private Teacher.EmploymentStatus employmentStatus;
 
     private Teacher.UsageCycle usageCycle;
-
-    private Boolean isActive = true;
 
     private Integer creditHourBalance;
 }

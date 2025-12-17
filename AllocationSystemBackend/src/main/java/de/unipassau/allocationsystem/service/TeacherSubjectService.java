@@ -106,6 +106,17 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     }
 
     @Audited(
+        action = AuditLog.AuditAction.VIEW,
+        entityName = AuditEntityNames.TEACHER_SUBJECT,
+        description = "Viewed teacher-subjects by teacherId",
+        captureNewValue = false
+    )
+    @Transactional(readOnly = true)
+    public List<TeacherSubject> getByTeacherId(Long teacherId) {
+        return teacherSubjectRepository.findByTeacherId(teacherId);
+    }
+
+    @Audited(
             action = AuditLog.AuditAction.CREATE,
             entityName = AuditEntityNames.TEACHER_SUBJECT,
             description = "Created teacher-subject mapping",
@@ -228,10 +239,6 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
         if (entity.getAvailabilityStatus() == null) {
             throw new IllegalArgumentException("availabilityStatus is required");
         }
-        try {
-            TeacherSubject.AvailabilityStatus.valueOf(entity.getAvailabilityStatus());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid availabilityStatus value: " + entity.getAvailabilityStatus());
-        }
+        TeacherSubject.AvailabilityStatus.valueOf(entity.getAvailabilityStatus());
     }
 }

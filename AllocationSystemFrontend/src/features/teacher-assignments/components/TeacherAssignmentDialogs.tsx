@@ -1,3 +1,4 @@
+// components
 import {
   Dialog,
   DialogBody,
@@ -9,13 +10,19 @@ import {
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { TeacherAssignmentForm } from "./TeacherAssignmentForm";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
+
+// types
 import type {
   TeacherAssignment,
   CreateTeacherAssignmentRequest,
   UpdateTeacherAssignmentRequest,
 } from "../types/teacherAssignment.types";
-import type { TFunction } from "i18next";
+
+// hooks
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 interface TeacherAssignmentDialogsProps {
   // Dialog states
@@ -32,8 +39,12 @@ interface TeacherAssignmentDialogsProps {
   selectedAssignment: TeacherAssignment | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest) => Promise<void>;
+  onCreateSubmit: (
+    data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest
+  ) => Promise<void>;
+  onUpdateSubmit: (
+    data: CreateTeacherAssignmentRequest | UpdateTeacherAssignmentRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (assignment: TeacherAssignment) => void;
   onSelectedChange: (assignment: TeacherAssignment | null) => void;
@@ -108,54 +119,67 @@ export function TeacherAssignmentDialogs({
           <DialogBody>
             <div className="space-y-4 py-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.planId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.planId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.teacherId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.teacherId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.internshipTypeId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.internshipTypeId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.subjectId")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.subjectId}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.studentGroupSize")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.studentGroupSize}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.assignmentStatus")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {t(`form.status.${assignment.assignmentStatus.toLowerCase()}`)}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t("form.fields.isManualOverride")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.isManualOverride ? t("table.yes") : t("table.no")}
-                  </div>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">{t("form.fields.notes")}</label>
-                  <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                    {assignment.notes || "-"}
-                  </div>
-                </div>
+                <ReadOnlyField
+                  label={t("form.fields.planId")}
+                  value={assignment.planTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.teacherId")}
+                  value={assignment.teacherTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.internshipTypeId")}
+                  value={assignment.internshipTypeTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.subjectId")}
+                  value={assignment.subjectTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.studentGroupSize")}
+                  value={assignment.studentGroupSize}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.assignmentStatus")}
+                  value={
+                    <Badge
+                      variant={
+                        assignment.assignmentStatus === "CONFIRMED"
+                          ? "success"
+                          : assignment.assignmentStatus === "CANCELLED"
+                          ? "secondary"
+                          : assignment.assignmentStatus === "ON_HOLD"
+                          ? "muted"
+                          : "default"
+                      }
+                      className="rounded-sm"
+                    >
+                      {t(
+                        `form.status.${assignment.assignmentStatus.toLowerCase()}`
+                      )}
+                    </Badge>
+                  }
+                />
+                <ReadOnlyField
+                  label={t("form.fields.isManualOverride")}
+                  value={
+                    <Badge
+                      variant={
+                        assignment.isManualOverride ? "success" : "muted"
+                      }
+                      className="rounded-sm"
+                    >
+                      {assignment.isManualOverride
+                        ? t("table.yes")
+                        : t("table.no")}
+                    </Badge>
+                  }
+                />
+
+                <ReadOnlyField
+                  label={t("form.fields.notes")}
+                  value={assignment.notes || "-"}
+                />
               </div>
             </div>
           </DialogBody>

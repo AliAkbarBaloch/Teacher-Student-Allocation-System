@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -126,13 +125,9 @@ public class TeacherAvailabilityController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody TeacherAvailabilityCreateDto dto) {
-        try {
-            TeacherAvailability entity = teacherAvailabilityMapper.toEntityCreate(dto);
-            TeacherAvailability created = teacherAvailabilityService.create(entity);
-            return ResponseHandler.created("Availability created successfully", teacherAvailabilityMapper.toResponseDto(created));
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherAvailability entity = teacherAvailabilityMapper.toEntityCreate(dto);
+        TeacherAvailability created = teacherAvailabilityService.create(entity);
+        return ResponseHandler.created("Availability created successfully", teacherAvailabilityMapper.toResponseDto(created));
     }
 
     @Operation(
@@ -151,15 +146,9 @@ public class TeacherAvailabilityController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TeacherAvailabilityUpdateDto dto) {
-        try {
-            TeacherAvailability entity = teacherAvailabilityMapper.toEntityUpdate(dto);
-            TeacherAvailability updated = teacherAvailabilityService.update(id, entity);
-            return ResponseHandler.updated("Availability updated successfully", teacherAvailabilityMapper.toResponseDto(updated));
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher availability not found");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseHandler.badRequest(e.getMessage(), Map.of());
-        }
+        TeacherAvailability entity = teacherAvailabilityMapper.toEntityUpdate(dto);
+        TeacherAvailability updated = teacherAvailabilityService.update(id, entity);
+        return ResponseHandler.updated("Availability updated successfully", teacherAvailabilityMapper.toResponseDto(updated));
     }
 
     @Operation(
@@ -173,11 +162,7 @@ public class TeacherAvailabilityController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            teacherAvailabilityService.delete(id);
-            return ResponseHandler.noContent();
-        } catch (NoSuchElementException e) {
-            return ResponseHandler.notFound("Teacher availability not found");
-        }
+        teacherAvailabilityService.delete(id);
+        return ResponseHandler.noContent();
     }
 }

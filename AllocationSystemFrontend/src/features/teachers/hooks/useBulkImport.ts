@@ -31,7 +31,7 @@ export function useBulkImport(onImportComplete?: () => void) {
       let hasMore = true;
 
       while (hasMore) {
-        const response = await SchoolService.list({
+        const response = await SchoolService.getPaginated({
           isActive: true,
           page,
           pageSize,

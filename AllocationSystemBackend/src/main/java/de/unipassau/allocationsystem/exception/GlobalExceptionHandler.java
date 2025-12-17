@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -73,7 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleAuthenticationException(Exception ex) {
         LOGGER.warn("Authentication failed: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        Map<String, Object> body = buildBody(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
@@ -132,5 +133,12 @@ public class GlobalExceptionHandler {
         String message = "Invalid request body. " + ex.getMostSpecificCause().getMessage();
         Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Map<String, Object>> handleIOException(IOException ex) {
+        LOGGER.error("I/O error occurred: {}", ex.getMessage(), ex);
+        Map<String, Object> body = buildBody(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to process file operation: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

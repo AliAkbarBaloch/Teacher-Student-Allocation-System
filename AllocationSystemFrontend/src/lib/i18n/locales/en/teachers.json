@@ -9,7 +9,8 @@
       "employmentStatus": "Employment Status",
       "isPartTime": "Part-time",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "workingHoursPerWeek": "Working Hours Per Week"
     },
     "empty": "No teachers match the selected filters.",
     "loading": "Loading teachers...",
@@ -20,16 +21,12 @@
     "title": "Filters",
     "subtitle": "Search and refine teacher records.",
     "searchLabel": "Search",
-    "searchPlaceholder": "Search by name or email",
+    "searchPlaceholder": "Search by email",
     "schoolLabel": "School",
     "schoolPlaceholder": "All schools",
     "loadingSchools": "Loading schools...",
     "employmentStatusLabel": "Employment Status",
     "employmentStatusPlaceholder": "All statuses",
-    "statusLabel": "Status",
-    "statusAll": "All",
-    "statusActive": "Active",
-    "statusInactive": "Inactive",
     "reset": "Reset filters"
   },
   "actions": {
@@ -74,7 +71,8 @@
       "isPartTime": "Part-time",
       "employmentStatus": "Employment Status",
       "usageCycle": "Usage Cycle",
-      "isActive": "Active"
+      "isActive": "Active",
+      "workingHoursPerWeek": "Working Hours Per Week"
     },
     "placeholders": {
       "school": "Select school",
@@ -149,4 +147,3 @@
     "pageSizeShort": "Rows"
   }
 }
-
