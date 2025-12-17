@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 
 @RestController
-@RequestMapping("/api/meta")
+@RequestMapping("/meta")
 public class MetaController {
 
     @GetMapping("/school-type")
     public List<Map<String, String>> schoolTypes(){
+
+        System.out.println("MetaController.schoolTypes HIT");
 
         return Arrays.stream(SchoolType.values()).map(
             v -> Map.of(

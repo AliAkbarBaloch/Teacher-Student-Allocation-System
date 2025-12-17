@@ -638,7 +638,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                         error={error}
                         emptyMessage="No internship demand found."
                         enableSearch={true}
-                        searchKey="subject"
+                        searchKey="subjectId"
                         enablePagination={true}
                         actions={tableActions}
                         actionsHeader="Actions"
