@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { API_BASE_URL } from "@/config.ts";
+import { INTERNSHIP_DEMAND_BASE_URL} from "@/config.ts";
 import type {
     InternshipDemandDto as InternshipDemand, 
     DemandFilter, 
@@ -9,7 +9,7 @@ import type {
 
 //Base path for the backend endpoints 
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/internship-demands`;
+//const BASE_URL = INTERNSHIP_DEMAND_BASE_URL;
 
 function getAuthHeader(): HeadersInit {
     const token = localStorage.getItem("auth_token");
@@ -104,7 +104,7 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
 
     // call the backend URL with the selected filters, and include cookies 
     // await means wait until the response comes back and store it in res 
-    const res = await fetch(`${BASE_URL}${buildQuery(filter)}`, {
+    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}${buildQuery(filter)}`, {
         headers:{
         ...getAuthHeader(), 
         },
@@ -138,7 +138,7 @@ export async function createInternshipDemand(payload: CreateInternshipDemandRequ
     // headers: tells backend we are sending JSON 
     // credentials - send cookies 
     // body - convert the payload object into JSON string 
-    const res = await fetch(BASE_URL, 
+    const res = await fetch(INTERNSHIP_DEMAND_BASE_URL, 
         {
             method: "POST",
             headers: {
@@ -164,7 +164,7 @@ export async function updateInternshipDemand(
 {
     // calls eg /internship-demand/123 
     // PUT - HTTP verb for "update/replace"
-    const res = await fetch(`${BASE_URL}/${id}`, 
+    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`, 
         {
         method: "PUT",
         headers: {
@@ -184,7 +184,7 @@ export async function updateInternshipDemand(
 export async function deleteInternshipDemand(id: string) : Promise<void> {
 
     // no body, just the method and cookies 
-    const res = await fetch(`${BASE_URL}/${id}`,
+    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`,
         {
             method: "DELETE",
             headers: {
