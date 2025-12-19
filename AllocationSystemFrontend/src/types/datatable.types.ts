@@ -4,7 +4,7 @@
  * Types for the reusable DataTable component
  */
 
-import type { ColumnDef, FilterFn } from "@tanstack/react-table";
+import type { ColumnDef, FilterFnOption } from "@tanstack/react-table";
 
 /**
  * Configuration for table actions (view, edit, delete, update)
@@ -69,7 +69,7 @@ export interface ColumnConfig {
   maxWidth?: string | number; // Maximum width for column
   enableTruncation?: boolean; // Enable text truncation (defaults to true if maxWidth is set)
   // Custom filter function for this column
-  filterFn?: FilterFn<unknown>;
+  filterFn?: FilterFnOption<unknown>;
   // Form field configuration
   fieldType?: FieldType;
   fieldOptions?: SelectOption[]; // For select type

@@ -1,14 +1,15 @@
 import { useMemo } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, FilterFnOption } from "@tanstack/react-table";
 import { ChevronsUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import type { ColumnConfig } from "@/types/datatable.types";
+
 
 /**
  * Hook to generate Table columns from ColumnConfig
  * Handles formatting, sorting, and alignment
  */
 export function useDataTableColumns<TData, TValue>(
-  columnConfig?: ColumnConfig<TData>[]
+  columnConfig?: ColumnConfig[]
 ): ColumnDef<TData, TValue>[] {
   return useMemo(() => {
     if (!columnConfig) return [];
@@ -17,7 +18,7 @@ export function useDataTableColumns<TData, TValue>(
       const column: ColumnDef<TData, TValue> = {
         accessorKey: config.field as keyof TData,
         enableSorting: config.enableSorting ?? true,
-        ...(config.filterFn && { filterFn: config.filterFn }),
+        ...(config.filterFn && { filterFn: config.filterFn as unknown as FilterFnOption<TData>,}),
         header: ({ column: headerColumn }) => {
           const canSort = headerColumn.getCanSort();
           const sortDirection = headerColumn.getIsSorted();
