@@ -4,7 +4,7 @@
  * Types for the reusable DataTable component
  */
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Row } from "@tanstack/react-table";
 
 /**
  * Configuration for table actions (view, edit, delete, update)
@@ -51,7 +51,7 @@ export interface SelectOption {
 /**
  * Column configuration for column setup
  */
-export interface ColumnConfig {
+export interface ColumnConfig<TData = unknown> {
   field: string;
   title: string;
   align?: "left" | "center" | "right";
@@ -69,7 +69,7 @@ export interface ColumnConfig {
   maxWidth?: string | number; // Maximum width for column
   enableTruncation?: boolean; // Enable text truncation (defaults to true if maxWidth is set)
   // Custom filter function for this column
-  filterFn?: (row: any, columnId: string, filterValue: any) => boolean;
+  filterFn?: (row: Row<TData>, columnId: string, filterValue: unknown) => boolean;
   // Form field configuration
   fieldType?: FieldType;
   fieldOptions?: SelectOption[]; // For select type
@@ -99,7 +99,7 @@ export interface DataTableProps<
   TValue = unknown
 > {
   columns?: ColumnDef<TData, TValue>[];
-  columnConfig?: ColumnConfig[];
+  columnConfig?: ColumnConfig<TData>[];
   data: TData[];
   searchKey?: string;
   searchPlaceholder?: string;

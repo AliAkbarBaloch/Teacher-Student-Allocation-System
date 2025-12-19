@@ -8,7 +8,7 @@ import type { ColumnConfig } from "@/types/datatable.types";
  * Handles formatting, sorting, and alignment
  */
 export function useDataTableColumns<TData, TValue>(
-  columnConfig?: ColumnConfig[]
+  columnConfig?: ColumnConfig<TData>[]
 ): ColumnDef<TData, TValue>[] {
   return useMemo(() => {
     if (!columnConfig) return [];
