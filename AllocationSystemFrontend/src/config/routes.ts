@@ -7,6 +7,7 @@ export const ROUTES = {
   main: {
     home: "/home",
     dashboard: "/dashboard",
+    allocationReport: "/allocation-report",
     settings: "/settings",
   },
   baseData: {
@@ -16,11 +17,12 @@ export const ROUTES = {
     schools: "/base-data/schools",
     teachers: "/base-data/teachers",
     internshipTypes: "/base-data/internship-types",
+    zoneConstraints: "/base-data/zone-constraints",
   },
   teacherManagement: {
     teacherSubjects: "/teacher-management/teacher-subjects",
     teacherAvailability: "/teacher-management/teacher-availability",
-    teacherFormSubmissions: "/teacher-management/teacher-form-submissions",
+    teacherSubmissions: "/teacher-management/teacher-submissions",
   },
   internshipDemand: {
     demandPerYear: "/internship-demand",
@@ -29,7 +31,6 @@ export const ROUTES = {
     allocationPlans: "/allocation-planning/allocation-plans",
     teacherAssignments: "/allocation-planning/teacher-assignments",
     creditHourTracking: "/allocation-planning/credit-hour-tracking",
-    zoneConstraints: "/allocation-planning/zone-constraints",
     planChangeLogs: "/allocation-planning/plan-change-logs",
   },
   reports: {

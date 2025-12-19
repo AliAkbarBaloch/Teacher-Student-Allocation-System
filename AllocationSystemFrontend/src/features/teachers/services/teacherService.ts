@@ -7,6 +7,7 @@ import type {
   UpdateTeacherRequest,
   TeacherStatusUpdateRequest,
   BulkImportResponse,
+  EmploymentStatus,
 } from "../types/teacher.types";
 
 type ApiResponse<T> = {
@@ -14,7 +15,9 @@ type ApiResponse<T> = {
 };
 
 export class TeacherService {
-  static async list(params: TeacherListParams = {}): Promise<PaginatedTeacherResponse> {
+  static async list(
+    params: TeacherListParams = {}
+  ): Promise<PaginatedTeacherResponse> {
     const query = new URLSearchParams();
 
     if (params.page) query.set("page", String(params.page));
@@ -23,8 +26,8 @@ export class TeacherService {
     if (params.sortOrder) query.set("sortOrder", params.sortOrder);
     if (params.search) query.set("searchValue", params.search);
     if (params.schoolId) query.set("schoolId", String(params.schoolId));
-    if (params.employmentStatus) query.set("employmentStatus", params.employmentStatus);
-    if (typeof params.isActive === "boolean") query.set("isActive", String(params.isActive));
+    if (params.employmentStatus)
+      query.set("employmentStatus", params.employmentStatus);
 
     const response = await apiClient.get<ApiResponse<PaginatedTeacherResponse>>(
       `/teachers/paginate${query.toString() ? `?${query.toString()}` : ""}`
@@ -33,24 +36,46 @@ export class TeacherService {
     return response.data;
   }
 
+  static async getAll(): Promise<Teacher[]> {
+    const response = await apiClient.get<ApiResponse<Teacher[]>>("/teachers");
+    return response.data;
+  }
+
   static async getById(id: number): Promise<Teacher> {
-    const response = await apiClient.get<ApiResponse<Teacher>>(`/teachers/${id}`);
+    const response = await apiClient.get<ApiResponse<Teacher>>(
+      `/teachers/${id}`
+    );
     return response.data;
   }
 
   static async create(payload: CreateTeacherRequest): Promise<Teacher> {
-    const response = await apiClient.post<ApiResponse<Teacher>>("/teachers", payload);
+    const response = await apiClient.post<ApiResponse<Teacher>>(
+      "/teachers",
+      payload
+    );
     return response.data;
   }
 
-  static async update(id: number, payload: UpdateTeacherRequest): Promise<Teacher> {
-    const response = await apiClient.put<ApiResponse<Teacher>>(`/teachers/${id}`, payload);
+  static async update(
+    id: number,
+    payload: UpdateTeacherRequest
+  ): Promise<Teacher> {
+    const response = await apiClient.put<ApiResponse<Teacher>>(
+      `/teachers/${id}`,
+      payload
+    );
     return response.data;
   }
 
-  static async updateStatus(id: number, isActive: boolean): Promise<Teacher> {
-    const body: TeacherStatusUpdateRequest = { isActive };
-    const response = await apiClient.patch<ApiResponse<Teacher>>(`/teachers/${id}/status`, body);
+  static async updateStatus(
+    id: number,
+    status: EmploymentStatus
+  ): Promise<Teacher> {
+    const body: TeacherStatusUpdateRequest = { status };
+    const response = await apiClient.patch<ApiResponse<Teacher>>(
+      `/teachers/${id}/status`,
+      body
+    );
     return response.data;
   }
 
@@ -82,13 +107,13 @@ export class TeacherService {
    */
   static async checkExistingEmails(emails: string[]): Promise<Set<string>> {
     if (emails.length === 0) return new Set();
-    
+
     try {
       const response = await apiClient.post<ApiResponse<string[]>>(
         "/teachers/check-emails",
         emails
       );
-      return new Set(response.data.map(email => email.toLowerCase()));
+      return new Set(response.data.map((email) => email.toLowerCase()));
     } catch (error) {
       // If checking fails, return empty set - backend will catch duplicates anyway
       console.warn("Failed to check existing emails:", error);
@@ -96,4 +121,3 @@ export class TeacherService {
     }
   }
 }
-

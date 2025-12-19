@@ -10,7 +10,7 @@ export function useTeacherSubjectsColumnConfig(): ColumnConfig[] {
 
   return [
     {
-      field: "academicYearId",
+      field: "academicYearTitle",
       title: t("table.academicYear"),
       enableSorting: true,
       fieldType: "text",
@@ -18,7 +18,7 @@ export function useTeacherSubjectsColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.academicYear"),
     },
     {
-      field: "teacherId",
+      field: "teacherTitle",
       title: t("table.teacher"),
       enableSorting: true,
       fieldType: "text",
@@ -26,8 +26,8 @@ export function useTeacherSubjectsColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.teacher"),
     },
     {
-      field: "subjectId",
-      title: t("table.subjectCode"),
+      field: "subjectTitle",
+      title: t("table.subjectTitle"),
       enableSorting: true,
       fieldType: "text",
       fieldRequired: true,

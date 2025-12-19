@@ -16,15 +16,61 @@ export interface School {
   contactPhone?: string | null;
   isActive: boolean;
   createdAt?: string;
-  updatedAt?: string;
+  updatedAt?: string | null;
 }
 
-export interface PaginatedSchoolResponse {
-  items: School[];
-  totalItems: number;
-  totalPages: number;
-  page: number;
-  pageSize: number;
+// --- Added types below ---
+
+export interface CreateSchoolRequest {
+  schoolName: string;
+  schoolType: SchoolType;
+  zoneNumber: number;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  distanceFromCenter?: number | null;
+  transportAccessibility?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  isActive: boolean;
+}
+
+export interface UpdateSchoolRequest {
+  schoolName?: string;
+  schoolType?: SchoolType;
+  zoneNumber?: number;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  distanceFromCenter?: number | null;
+  transportAccessibility?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  isActive?: boolean;
+}
+
+export interface SchoolResponse {
+  success: boolean;
+  message: string;
+  data: School;
+}
+
+export interface SchoolsListResponse {
+  success: boolean;
+  message: string;
+  data: School[];
+}
+
+export interface PaginatedSchoolsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    items: School[];
+    totalItems: number;
+    totalPages: number;
+    page: number;
+    pageSize: number;
+  };
 }
 
 export interface SchoolFilters {
@@ -34,34 +80,30 @@ export interface SchoolFilters {
   isActive?: boolean;
 }
 
-export interface SchoolListParams extends SchoolFilters {
+export interface SchoolsListParams extends SchoolFilters {
   page?: number;
   pageSize?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
-export interface CreateSchoolRequest {
-  schoolName: string;
-  schoolType: SchoolType;
-  zoneNumber: number;
-  address?: string;
-  latitude?: number | null;
-  longitude?: number | null;
-  distanceFromCenter?: number | null;
-  transportAccessibility?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  isActive: boolean;
-}
+// --- Existing types below ---
 
-export type UpdateSchoolRequest = Partial<CreateSchoolRequest>;
+export interface PaginatedSchoolResponse {
+  items: School[];
+  totalItems: number;
+  totalPages: number;
+  page: number;
+  pageSize: number;
+}
 
 export interface SchoolStatusUpdateRequest {
   isActive: boolean;
 }
 
-export type SchoolFormErrors = Partial<Record<keyof CreateSchoolRequest, string>> & {
+export type SchoolFormErrors = Partial<
+  Record<keyof CreateSchoolRequest, string>
+> & {
   general?: string;
 };
 
@@ -77,4 +119,3 @@ export type ApiErrorResponse = Error & {
 export function isApiError(error: unknown): error is ApiErrorResponse {
   return typeof error === "object" && error !== null && "message" in error;
 }
-

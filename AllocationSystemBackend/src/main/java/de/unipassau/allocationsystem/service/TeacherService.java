@@ -31,6 +31,8 @@ import de.unipassau.allocationsystem.repository.SchoolRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.ExcelParser;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.dto.teacher.BulkImportResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.ImportResultRowDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,14 +65,11 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
 
     @Override
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "firstName", "label", "First Name"));
-        fields.add(Map.of("key", "lastName", "label", "Last Name"));
-        fields.add(Map.of("key", "email", "label", "Email"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "firstName", "lastName", "email", "createdAt", "updatedAt");
+    }
+
+    public List<String> getSortFieldKeys() {
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     @Override
@@ -101,13 +100,12 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Search filter
+            // Search filter using utility
+            Specification<Teacher> searchSpec = SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+                new String[]{"firstName", "lastName", "email"}, searchValue
+            );
             if (searchValue != null && !searchValue.trim().isEmpty()) {
-                String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-                Predicate firstNameLike = cb.like(cb.lower(root.get("firstName")), likePattern);
-                Predicate lastNameLike = cb.like(cb.lower(root.get("lastName")), likePattern);
-                Predicate emailLike = cb.like(cb.lower(root.get("email")), likePattern);
-                predicates.add(cb.or(firstNameLike, lastNameLike, emailLike));
+                predicates.add(searchSpec.toPredicate(root, query, cb));
             }
 
             // School ID filter
@@ -131,7 +129,6 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
                     // Invalid employment status, ignore filter
                 }
             }
-
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

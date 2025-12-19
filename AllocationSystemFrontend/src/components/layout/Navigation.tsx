@@ -36,47 +36,108 @@ export function Navigation() {
     () => [
       { path: ROUTES.main.dashboard, translationKey: "navigation.dashboard" },
       {
+        path: ROUTES.main.allocationReport,
+        translationKey: "navigation.allocationReport",
+      },
+      {
         translationKey: "navigation.baseData",
         submenu: [
-          { path: ROUTES.baseData.academicYears, translationKey: "navigation.baseDataAcademicYears" },
-          { path: ROUTES.baseData.subjectCategories, translationKey: "navigation.baseDataSubjectCategories" },
-          { path: ROUTES.baseData.subjects, translationKey: "navigation.baseDataSubjects" },
-          { path: ROUTES.baseData.schools, translationKey: "navigation.baseDataSchools" },
-          { path: ROUTES.baseData.teachers, translationKey: "navigation.baseDataTeachers" },
-          { path: ROUTES.baseData.internshipTypes, translationKey: "navigation.baseDataInternshipTypes" },
+          {
+            path: ROUTES.baseData.academicYears,
+            translationKey: "navigation.baseDataAcademicYears",
+          },
+          {
+            path: ROUTES.baseData.subjectCategories,
+            translationKey: "navigation.baseDataSubjectCategories",
+          },
+          {
+            path: ROUTES.baseData.subjects,
+            translationKey: "navigation.baseDataSubjects",
+          },
+          {
+            path: ROUTES.baseData.schools,
+            translationKey: "navigation.baseDataSchools",
+          },
+          {
+            path: ROUTES.baseData.teachers,
+            translationKey: "navigation.baseDataTeachers",
+          },
+          {
+            path: ROUTES.baseData.internshipTypes,
+            translationKey: "navigation.baseDataInternshipTypes",
+          },
+          {
+            path: ROUTES.baseData.zoneConstraints,
+            translationKey: "navigation.baseDataZoneConstraints",
+          },
         ],
       },
       {
         translationKey: "navigation.teacherManagement",
         submenu: [
-          { path: ROUTES.teacherManagement.teacherSubjects, translationKey: "navigation.teacherManagementTeacherSubjects" },
-          { path: ROUTES.teacherManagement.teacherAvailability, translationKey: "navigation.teacherManagementTeacherAvailability" },
-          { path: ROUTES.teacherManagement.teacherFormSubmissions, translationKey: "navigation.teacherManagementTeacherFormSubmissions" },
+          {
+            path: ROUTES.teacherManagement.teacherSubjects,
+            translationKey: "navigation.teacherManagementTeacherSubjects",
+          },
+          {
+            path: ROUTES.teacherManagement.teacherAvailability,
+            translationKey: "navigation.teacherManagementTeacherAvailability",
+          },
+          {
+            path: ROUTES.teacherManagement.teacherSubmissions,
+            translationKey: "navigation.teacherManagementTeacherSubmissions",
+          },
         ],
       },
       {
         translationKey: "navigation.internshipDemand",
         submenu: [
-          { path: ROUTES.internshipDemand.demandPerYear, translationKey: "navigation.internshipDemandDemandPerYear" },
+          {
+            path: ROUTES.internshipDemand.demandPerYear,
+            translationKey: "navigation.internshipDemandDemandPerYear",
+          },
         ],
       },
       {
         translationKey: "navigation.allocationPlanning",
         submenu: [
-          { path: ROUTES.allocationPlanning.allocationPlans, translationKey: "navigation.allocationPlanningAllocationPlans" },
-          { path: ROUTES.allocationPlanning.teacherAssignments, translationKey: "navigation.allocationPlanningTeacherAssignments" },
-          { path: ROUTES.allocationPlanning.creditHourTracking, translationKey: "navigation.allocationPlanningCreditHourTracking" },
-          { path: ROUTES.allocationPlanning.zoneConstraints, translationKey: "navigation.allocationPlanningZoneConstraints" },
-          { path: ROUTES.allocationPlanning.planChangeLogs, translationKey: "navigation.allocationPlanningPlanChangeLogs" },
+          {
+            path: ROUTES.allocationPlanning.allocationPlans,
+            translationKey: "navigation.allocationPlanningAllocationPlans",
+          },
+          {
+            path: ROUTES.allocationPlanning.teacherAssignments,
+            translationKey: "navigation.allocationPlanningTeacherAssignments",
+          },
+          {
+            path: ROUTES.allocationPlanning.creditHourTracking,
+            translationKey: "navigation.allocationPlanningCreditHourTracking",
+          },
+          {
+            path: ROUTES.allocationPlanning.planChangeLogs,
+            translationKey: "navigation.allocationPlanningPlanChangeLogs",
+          },
         ],
       },
       {
         translationKey: "navigation.reports",
         submenu: [
-          { path: ROUTES.reports.allocationReports, translationKey: "navigation.reportsAllocationReports" },
-          { path: ROUTES.reports.teacherReports, translationKey: "navigation.reportsTeacherReports" },
-          { path: ROUTES.reports.schoolReports, translationKey: "navigation.reportsSchoolReports" },
-          { path: ROUTES.reports.auditReports, translationKey: "navigation.reportsAuditReports" },
+          {
+            path: ROUTES.reports.allocationReports,
+            translationKey: "navigation.reportsAllocationReports",
+          },
+          {
+            path: ROUTES.reports.teacherReports,
+            translationKey: "navigation.reportsTeacherReports",
+          },
+          {
+            path: ROUTES.reports.schoolReports,
+            translationKey: "navigation.reportsSchoolReports",
+          },
+          {
+            path: ROUTES.reports.auditReports,
+            translationKey: "navigation.reportsAuditReports",
+          },
         ],
       },
     ],

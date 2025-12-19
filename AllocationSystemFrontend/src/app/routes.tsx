@@ -1,38 +1,47 @@
+import AuthLayout from "@/components/layout/AuthLayout";
 import { Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import App from "./App";
-import AuthLayout from "@/components/layout/AuthLayout";
 import { ROUTES } from "../config/routes";
+import App from "./App";
 
 // Pages
-import HomePage from "@/pages/home/HomePage";
-import LoginPage from "@/pages/auth/LoginPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
+import LoginPage from "@/pages/auth/LoginPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import SettingsPage from "@/pages/settings/SettingsPage";
-import RolesPage from "@/pages/roles/RolesPage";
-import SchoolsPage from "@/pages/base-data/SchoolsPage";
-import TeachersPage from "@/pages/base-data/TeachersPage";
-import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
-import SubjectsPage from "@/pages/base-data/SubjectsPage";
-import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
-import TeacherFormSubmissionsPage from "@/pages/teacher-management/TeacherFormSubmissionsPage";
-import TeacherFormPage from "@/pages/public/TeacherFormPage";
 import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
-import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
+import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
+import SchoolsPage from "@/pages/base-data/SchoolsPage";
+import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
+import SubjectsPage from "@/pages/base-data/SubjectsPage";
 import TeacherAvailabilityPage from "@/pages/base-data/TeacherAvailabilityPage";
+import TeachersPage from "@/pages/base-data/TeachersPage";
+import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
+import ZoneConstraintPage from "@/pages/base-data/ZoneConstraintPage";
+import HomePage from "@/pages/home/HomePage";
+import TeacherFormPage from "@/pages/public/TeacherFormPage";
+import RolesPage from "@/pages/roles/RolesPage";
+import SettingsPage from "@/pages/settings/SettingsPage";
+import TeacherSubmissionsPage from "@/pages/teacher-management/TeacherSubmissionsPage";
+import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
+import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
+import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
+import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
+import AllocationReportPage from "@/pages/reports/AllocationReportPage";
+import TeacherDetailPage from "@/pages/base-data/TeacherDetailPage";
 
 import InternshipDemandPerYearPage from "@/pages/internship-demand/InternshipDemandPerYearPage";
 
 const withSuspense = (node: React.ReactNode) => (
-  <Suspense fallback={
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-        <p className="text-muted-foreground">Loading...</p>
+  <Suspense
+    fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
-    </div>
-  }>
+    }
+  >
     {node}
   </Suspense>
 );
@@ -88,6 +97,14 @@ export const router = createBrowserRouter([
         element: withSuspense(<HomePage />),
       },
       {
+        path: ROUTES.main.allocationReport,
+        element: withSuspense(<AllocationReportPage />),
+      },
+      {
+        path: `${ROUTES.main.allocationReport}/:planId`,
+        element: withSuspense(<AllocationReportPage />),
+      },
+      {
         path: ROUTES.main.settings,
         element: withSuspense(<SettingsPage />),
       },
@@ -113,8 +130,16 @@ export const router = createBrowserRouter([
         element: withSuspense(<TeachersPage />),
       },
       {
+        path: `${ROUTES.baseData.teachers}/:id`,
+        element: withSuspense(<TeacherDetailPage />), // or <TeacherDetailPage />
+      },
+      {
         path: ROUTES.baseData.internshipTypes,
         element: withSuspense(<InternshipTypesPage />),
+      },
+      {
+        path: ROUTES.baseData.zoneConstraints,
+        element: withSuspense(<ZoneConstraintPage />),
       },
       // Teacher Management
       {
@@ -126,8 +151,8 @@ export const router = createBrowserRouter([
         element: withSuspense(<TeacherAvailabilityPage />),
       },
       {
-        path: ROUTES.teacherManagement.teacherFormSubmissions,
-        element: withSuspense(<TeacherFormSubmissionsPage />),
+        path: ROUTES.teacherManagement.teacherSubmissions,
+        element: withSuspense(<TeacherSubmissionsPage />),
       },
       // Internship Demand
       {
@@ -137,23 +162,23 @@ export const router = createBrowserRouter([
       // Allocation Planning
       {
         path: ROUTES.allocationPlanning.allocationPlans,
-        element: withSuspense(<div>Allocation Plans</div>),
+        element: withSuspense(<AllocationPlanPage />),
       },
       {
         path: ROUTES.allocationPlanning.teacherAssignments,
-        element: withSuspense(<div>Teacher Assignments</div>),
+        element: withSuspense(<TeacherAssignmentPage />),
       },
       {
         path: ROUTES.allocationPlanning.creditHourTracking,
-        element: withSuspense(<div>Credit Hour Tracking</div>),
+        element: withSuspense(<CreditHourTrackingPage />),
       },
       {
-        path: ROUTES.allocationPlanning.zoneConstraints,
-        element: withSuspense(<div>Zone Constraints</div>),
+        path: `${ROUTES.allocationPlanning.creditHourTracking}/:yearId`,
+        element: withSuspense(<CreditHourTrackingPage />),
       },
       {
         path: ROUTES.allocationPlanning.planChangeLogs,
-        element: withSuspense(<div>Plan Change Logs</div>),
+        element: withSuspense(<PlanChangeLogsPage />),
       },
       // Reports
       {
@@ -179,9 +204,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "*",
-    element: <Navigate to={ROUTES.auth.login} replace />,
-  },
+  // {
+  //   path: "*",
+  //   element: <Navigate to={ROUTES.auth.login} replace />,
+  // },
 ]);
-

@@ -1,17 +1,19 @@
 package de.unipassau.allocationsystem.repository;
 
-import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
 
 @Repository
-public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssignment, Long> {
+public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssignment, Long>, JpaSpecificationExecutor<TeacherAssignment>  {
 
     boolean existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(Long planId, Long teacherId, Long internshipTypeId, Long subjectId);
 
@@ -31,4 +33,13 @@ public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssign
 
     @Query("SELECT ta FROM TeacherAssignment ta WHERE ta.teacher.id = :teacherId AND ta.allocationPlan.academicYear.id = :yearId")
     List<TeacherAssignment> findByTeacherIdAndYearId(@Param("teacherId") Long teacherId, @Param("yearId") Long yearId);
+
+
+    @Query("SELECT ta FROM TeacherAssignment ta " +
+            "JOIN FETCH ta.teacher t " +
+            "JOIN FETCH t.school s " +
+            "JOIN FETCH ta.internshipType it " +
+            "JOIN FETCH ta.subject sub " +
+            "WHERE ta.allocationPlan.id = :planId")
+    List<TeacherAssignment> findAllByPlanIdWithDetails(@Param("planId") Long planId);
 }

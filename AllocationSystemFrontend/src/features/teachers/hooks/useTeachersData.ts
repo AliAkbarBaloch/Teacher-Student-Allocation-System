@@ -10,7 +10,6 @@ type TeachersDataFilters = {
   search?: string;
   schoolId?: number;
   employmentStatus?: EmploymentStatus;
-  isActive?: boolean;
 };
 
 export function useTeachersData(filters: TeachersDataFilters) {
@@ -37,8 +36,8 @@ export function useTeachersData(filters: TeachersDataFilters) {
 
       setTeachers(response.items || []);
       updatePagination({
-        page: response.page || 1,
-        pageSize: response.pageSize || pagination.pageSize,
+        page: response.page || pagination.page,
+        pageSize: pagination.pageSize,
         totalItems: response.totalItems || 0,
         totalPages: response.totalPages || 0,
       });
@@ -48,7 +47,9 @@ export function useTeachersData(filters: TeachersDataFilters) {
     } finally {
       setLoading(false);
     }
-  }, [filters, pagination.page, pagination.pageSize, t, updatePagination]);
+    // updatePagination is stable (useCallback with no deps) - doesn't need to be in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, pagination.page, pagination.pageSize, t]);
 
   useEffect(() => {
     loadTeachers();
@@ -89,9 +90,9 @@ export function useTeachersData(filters: TeachersDataFilters) {
         email: payload.email,
         phone: payload.phone || null,
         isPartTime: payload.isPartTime,
+        workingHoursPerWeek: payload.workingHoursPerWeek ?? null,
         employmentStatus: payload.employmentStatus,
         usageCycle: payload.usageCycle || null,
-        isActive: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -146,20 +147,18 @@ export function useTeachersData(filters: TeachersDataFilters) {
   );
 
   const updateTeacherStatus = useCallback(
-    async (id: number, isActive: boolean) => {
+    async (id: number, status: EmploymentStatus) => {
       const teacher = teachers.find((t) => t.id === id);
       if (!teacher) return;
 
       // Optimistic update
-      setTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, isActive } : t)));
+      setTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, employmentStatus: status } : t)));
 
       try {
-        const updated = await TeacherService.updateStatus(id, isActive);
+        const updated = await TeacherService.updateStatus(id, status);
         // Replace with real data
         setTeachers((prev) => prev.map((t) => (t.id === id ? updated : t)));
-        toast.success(
-          isActive ? t("notifications.activateSuccess") : t("notifications.deactivateSuccess")
-        );
+        toast.success(t("notifications.updateSuccess"));
         await refreshList();
         return updated;
       } catch (err) {
@@ -217,4 +216,3 @@ export function useTeachersData(filters: TeachersDataFilters) {
     refreshList,
   };
 }
-

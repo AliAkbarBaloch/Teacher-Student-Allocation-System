@@ -1,6 +1,6 @@
 {
-  "title": "Dashboard",
+  "title": "Übersicht",
   "welcome": "Willkommen im Praktikumszuweisungssystem",
-  "overview": "Übersicht"
+  "overview": "Übersicht",
+  "allocationReport": "Zuweisungsbericht"
 }
-

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_internship_demand_school_type", columnList = "school_type"),
         @Index(name = "idx_internship_demand_subject", columnList = "subject_id")
 }, uniqueConstraints = {
-        @UniqueConstraint(name = "uk_internship_demand_unique", columnNames = {"academic_year_id", "internship_type_id", "school_type", "subject_id", "is_forecasted"})
+//        @UniqueConstraint(name = "uk_internship_demand_unique", columnNames = {"academic_year_id", "internship_type_id", "school_type", "subject_id", "is_forecasted"})
 })
 @Getter
 @Setter

@@ -1,17 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AlertCircle, Loader2 } from "lucide-react";
+
 import type {
   InternshipType,
   CreateInternshipTypeRequest,
@@ -22,13 +12,19 @@ import {
   PERIOD_TYPE_OPTIONS,
   SEMESTER_OPTIONS,
 } from "../types/internshipType.types";
+import { TextField } from "@/components/form/fields/TextField";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { NumberField } from "@/components/form/fields/NumberField";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
+import { Loader2 } from "lucide-react";
 
 interface InternshipTypeFormProps {
   internshipType?: InternshipType | null;
-  onSubmit: (data: CreateInternshipTypeRequest | UpdateInternshipTypeRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateInternshipTypeRequest | UpdateInternshipTypeRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
-  error?: string | null;
 }
 
 export function InternshipTypeForm({
@@ -36,7 +32,6 @@ export function InternshipTypeForm({
   onSubmit,
   onCancel,
   isLoading = false,
-  error: externalError = null,
 }: InternshipTypeFormProps) {
   const { t } = useTranslation("internshipTypes");
   const { t: tCommon } = useTranslation("common");
@@ -62,7 +57,9 @@ export function InternshipTypeForm({
       priorityOrder: null as number | null,
     };
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateInternshipTypeRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateInternshipTypeRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -90,23 +87,10 @@ export function InternshipTypeForm({
     setErrors({});
   }, [internshipType]);
 
-  const timingValue = useMemo((): string => {
-    const trimmed = formData.timing?.trim();
-    return trimmed && trimmed.length > 0 ? trimmed : "__none__";
-  }, [formData.timing]);
-
-  const periodTypeValue = useMemo((): string => {
-    const trimmed = formData.periodType?.trim();
-    return trimmed && trimmed.length > 0 ? trimmed : "__none__";
-  }, [formData.periodType]);
-
-  const semesterValue = useMemo((): string => {
-    const trimmed = formData.semester?.trim();
-    return trimmed && trimmed.length > 0 ? trimmed : "__none__";
-  }, [formData.semester]);
-
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateInternshipTypeRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateInternshipTypeRequest, string>
+    > = {};
 
     if (!formData.internshipCode.trim()) {
       newErrors.internshipCode = t("form.errors.codeRequired");
@@ -120,19 +104,29 @@ export function InternshipTypeForm({
       newErrors.fullName = t("form.errors.fullNameMaxLength");
     }
 
-    if (formData.timing && formData.timing.length > 100) {
+    if (!formData.timing || !formData.timing.trim()) {
+      newErrors.timing = t("form.errors.timingRequired");
+    } else if (formData.timing.length > 100) {
       newErrors.timing = t("form.errors.timingMaxLength");
     }
 
-    if (formData.periodType && formData.periodType.length > 50) {
+    if (!formData.periodType || !formData.periodType.trim()) {
+      newErrors.periodType = t("form.errors.periodTypeRequired");
+    } else if (formData.periodType.length > 50) {
       newErrors.periodType = t("form.errors.periodTypeMaxLength");
     }
 
-    if (formData.semester && formData.semester.length > 50) {
+    if (!formData.semester || !formData.semester.trim()) {
+      newErrors.semester = t("form.errors.semesterRequired");
+    } else if (formData.semester.length > 50) {
       newErrors.semester = t("form.errors.semesterMaxLength");
     }
 
-    if (formData.priorityOrder !== null && formData.priorityOrder !== undefined && formData.priorityOrder < 0) {
+    if (
+      formData.priorityOrder !== null &&
+      formData.priorityOrder !== undefined &&
+      formData.priorityOrder < 0
+    ) {
       newErrors.priorityOrder = t("form.errors.priorityOrderInvalid");
     }
 
@@ -167,7 +161,7 @@ export function InternshipTypeForm({
           isSubjectSpecific: formData.isSubjectSpecific,
           priorityOrder: formData.priorityOrder ?? null,
         };
-        
+
         await onSubmit(updateData);
       } else {
         // For create, send all required fields
@@ -189,9 +183,12 @@ export function InternshipTypeForm({
     }
   };
 
-  const handleChange = (field: keyof CreateInternshipTypeRequest, value: string | boolean | number | null) => {
+  const handleChange = (
+    field: keyof CreateInternshipTypeRequest,
+    value: string | boolean | number | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -200,200 +197,96 @@ export function InternshipTypeForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      {(externalError || Object.keys(errors).length > 0) && (
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          <AlertCircle className="h-4 w-4" />
-          <span>{externalError || Object.values(errors)[0]}</span>
-        </div>
-      )}
 
       <div className="grid gap-4 md:grid-cols-2 justify-center">
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="fullName" className="text-sm font-medium">
-            {t("form.fields.fullName")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
-            id="fullName"
-            value={formData.fullName}
-            onChange={(e) => handleChange("fullName", e.target.value)}
-            placeholder={t("form.placeholders.fullName")}
-            disabled={isLoading || isSubmitting}
-            className={errors.fullName ? "border-destructive" : ""}
-            maxLength={255}
-          />
-          {errors.fullName && (
-            <p className="text-sm text-destructive">{errors.fullName}</p>
-          )}
-        </div>
+        <TextField
+          id="fullName"
+          label={t("form.fields.fullName")}
+          value={formData.fullName}
+          onChange={(val: string) => handleChange("fullName", val)}
+          placeholder={t("form.placeholders.fullName")}
+          disabled={isLoading || isSubmitting}
+          maxLength={255}
+          error={errors.fullName}
+        />
+        <TextField
+          id="internshipCode"
+          label={t("form.fields.code")}
+          value={formData.internshipCode}
+          onChange={(val: string) => handleChange("internshipCode", val)}
+          placeholder={t("form.placeholders.code")}
+          disabled={isLoading || isSubmitting}
+          maxLength={20}
+          error={errors.internshipCode}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="internshipCode" className="text-sm font-medium">
-            {t("form.fields.code")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Input
-            id="internshipCode"
-            value={formData.internshipCode}
-            onChange={(e) => handleChange("internshipCode", e.target.value)}
-            placeholder={t("form.placeholders.code")}
-            disabled={isLoading || isSubmitting}
-            className={errors.internshipCode ? "border-destructive" : ""}
-            maxLength={50}
-          />
-          {errors.internshipCode && (
-            <p className="text-sm text-destructive">{errors.internshipCode}</p>
-          )}
-        </div>
+        <SelectField
+          id="timing"
+          label={t("form.fields.timing")}
+          value={formData.timing}
+          onChange={(val: string) => handleChange("timing", val)}
+          placeholder={t("form.placeholders.timing")}
+          disabled={isLoading || isSubmitting}
+          options={TIMING_OPTIONS.map((option) => ({
+            value: option.value,
+            label: option.label,
+          }))}
+          error={errors.timing}
+          required={true}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="timing" className="text-sm font-medium">
-            {t("form.fields.timing")}
-          </label>
-          <Select
-            value={timingValue}
-            onValueChange={(value) =>
-              handleChange("timing", value === "__none__" ? "" : value || "")
-            }
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger
-              className={`w-full ${errors.timing ? "border-destructive" : ""}`}
-            >
-              <SelectValue placeholder={t("form.placeholders.timing")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">
-                {t("form.placeholders.none")}
-              </SelectItem>
-              {TIMING_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.timing && (
-            <p className="text-sm text-destructive">{errors.timing}</p>
-          )}
-        </div>
+        <SelectField
+          id="periodType"
+          label={t("form.fields.periodType")}
+          value={formData.periodType}
+          onChange={(val: string) => handleChange("periodType", val)}
+          placeholder={t("form.placeholders.periodType")}
+          disabled={isLoading || isSubmitting}
+          options={PERIOD_TYPE_OPTIONS.map((option) => ({
+            value: option.value,
+            label: option.label,
+          }))}
+          error={errors.periodType}
+          required={true}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="periodType" className="text-sm font-medium">
-            {t("form.fields.periodType")}
-          </label>
-          <Select
-            value={periodTypeValue}
-            onValueChange={(value) =>
-              handleChange("periodType", value === "__none__" ? "" : value || "")
-            }
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger
-              className={`w-full ${errors.periodType ? "border-destructive" : ""}`}
-            >
-              <SelectValue placeholder={t("form.placeholders.periodType")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">
-                {t("form.placeholders.none")}
-              </SelectItem>
-              {PERIOD_TYPE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.periodType && (
-            <p className="text-sm text-destructive">{errors.periodType}</p>
-          )}
-        </div>
+        <SelectField
+          id="semester"
+          label={t("form.fields.semester")}
+          value={formData.semester}
+          onChange={(val: string) => handleChange("semester", val)}
+          placeholder={t("form.placeholders.semester")}
+          disabled={isLoading || isSubmitting}
+          options={SEMESTER_OPTIONS.map((option) => ({
+            value: option.value,
+            label: option.label,
+          }))}
+          error={errors.semester}
+          required={true}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="semester" className="text-sm font-medium">
-            {t("form.fields.semester")}
-          </label>
-          <Select
-            value={semesterValue}
-            onValueChange={(value) =>
-              handleChange("semester", value === "__none__" ? "" : value || "")
-            }
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger
-              className={`w-full ${errors.semester ? "border-destructive" : ""}`}
-            >
-              <SelectValue placeholder={t("form.placeholders.semester")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none__">
-                {t("form.placeholders.none")}
-              </SelectItem>
-              {SEMESTER_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.semester && (
-            <p className="text-sm text-destructive">{errors.semester}</p>
-          )}
-        </div>
-
-          <div className="space-y-2 col-span-1">
-            <label htmlFor="priorityOrder" className="text-sm font-medium">
-              {t("form.fields.priorityOrder")}
-            </label>
-            <Input
-              id="priorityOrder"
-              type="number"
-              min={0}
-              step={1}
-              value={formData.priorityOrder ?? ""}
-              onChange={(e) =>
-                handleChange(
-                  "priorityOrder",
-                  e.target.value ? parseInt(e.target.value, 10) : null
-                )
-              }
-              placeholder={t("form.placeholders.priorityOrder")}
-              disabled={isLoading || isSubmitting}
-              className={errors.priorityOrder ? "border-destructive" : ""}
-            />
-            {errors.priorityOrder && (
-              <p className="text-sm text-destructive">{errors.priorityOrder}</p>
-            )}
-          </div>
-
+        <NumberField
+          id="priorityOrder"
+          label={t("form.fields.priorityOrder")}
+          value={formData.priorityOrder ?? 1}
+          onChange={(val: number) => handleChange("priorityOrder", val)}
+          placeholder={t("form.placeholders.priorityOrder")}
+          disabled={isLoading || isSubmitting}
+          error={errors.priorityOrder}
+          min={0}
+        />
       </div>
 
-      <Label
-        htmlFor="isSubjectSpecific"
-        className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-4 cursor-pointer has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-primary/10 transition-colors"
-      >
-        <Checkbox
-          id="isSubjectSpecific"
-          checked={formData.isSubjectSpecific}
-          onCheckedChange={(checked) =>
-            handleChange("isSubjectSpecific", checked === true)
-          }
-          disabled={isLoading || isSubmitting}
-          className="h-5 w-5 mt-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-        />
-        <div className="grid gap-1.5 flex-1">
-          <p className="text-sm font-medium leading-none">
-            {t("form.fields.isSubjectSpecific")}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {t("form.fields.isSubjectSpecificDescription")}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {formData.isSubjectSpecific ? t("table.yes") : t("table.no")}
-          </p>
-        </div>
-      </Label>
+      <CheckboxField
+        id="isSubjectSpecific"
+        checked={formData.isSubjectSpecific}
+        onCheckedChange={(checked) =>
+          handleChange("isSubjectSpecific", checked === true)
+        }
+        label={t("form.fields.isSubjectSpecific")}
+        description={t("form.fields.isSubjectSpecificDescription")}
+        disabled={isLoading || isSubmitting}
+      />
 
       <div className="flex justify-end gap-2 pt-4">
         <Button
@@ -420,4 +313,3 @@ export function InternshipTypeForm({
     </form>
   );
 }
-

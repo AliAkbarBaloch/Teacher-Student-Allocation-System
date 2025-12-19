@@ -1,13 +1,6 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
-import { SubjectForm } from "./SubjectForm";
+
 import type {
   Subject,
   CreateSubjectRequest,
@@ -15,6 +8,10 @@ import type {
 } from "../types/subject.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SubjectForm } from "./SubjectForm";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
 
 interface SubjectDialogsProps {
   // Dialog states
@@ -63,6 +60,7 @@ export function SubjectDialogs({
   t,
 }: SubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+
   return (
     <>
       {/* Create Dialog */}
@@ -72,11 +70,13 @@ export function SubjectDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <SubjectForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <SubjectForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,40 +102,32 @@ export function SubjectDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(subject) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.code")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectCode}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.title")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectTitle}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.category")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.subjectCategoryTitle || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.schoolType")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.schoolType || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.isActive")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {subject.isActive ? t("table.active") : t("table.inactive")}
-                </div>
+          <DialogBody>
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <ReadOnlyField
+                  label={t("form.fields.code")}
+                  value={subject.subjectCode}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.title")}
+                  value={subject.subjectTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.category")}
+                  value={subject.subjectCategoryTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.schoolType")}
+                  value={subject.schoolType}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.isActive")}
+                  value={<Badge variant={subject.isActive ? "success" : "secondary"} className="rounded-sm">{subject.isActive ? t("table.active") : t("table.inactive")}</Badge>}
+                />
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -146,18 +138,20 @@ export function SubjectDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedSubject && (
-            <SubjectForm
-              key={`edit-${selectedSubject.id}`}
-              subject={selectedSubject}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedSubject && (
+              <SubjectForm
+                key={`edit-${selectedSubject.id}`}
+                subject={selectedSubject}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

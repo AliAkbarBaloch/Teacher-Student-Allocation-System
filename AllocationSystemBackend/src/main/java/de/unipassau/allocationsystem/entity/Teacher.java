@@ -65,6 +65,9 @@ public class Teacher {
     @Column(name = "is_part_time", nullable = false)
     private Boolean isPartTime = false;
 
+    @Column(name = "working_hours_per_week")
+    private Integer workingHoursPerWeek;
+
     @NotNull(message = "Employment status is required")
     @Column(name = "employment_status", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
@@ -73,9 +76,6 @@ public class Teacher {
     @Column(name = "usage_cycle", length = 50)
     @Enumerated(EnumType.STRING)
     private UsageCycle usageCycle = UsageCycle.FLEXIBLE;
-
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
 
     // --- Allocation Specific Constraints ---
     // Positive = University owes teacher.
@@ -126,9 +126,15 @@ public class Teacher {
      * Enum representing usage cycle/availability periods.
      */
     public enum UsageCycle {
-        GRADES_1_2,
-        GRADES_3_4,
+        // Primary School Cycles
+        GRADES_1_2,      // Limits HSU supervision (General HSU only)
+        GRADES_3_4,      // Allows History/Geography supervision within HSU
+
         GRADES_5_TO_9,
-        FLEXIBLE
+        
+        // Middle School / General
+        SECONDARY_CYCLE, // Grades 5-9 (Subject specific teaching)
+        
+        FLEXIBLE         // Teacher acts as a "Springer" or specialist (e.g., Sports/Religion only)
     }
 }

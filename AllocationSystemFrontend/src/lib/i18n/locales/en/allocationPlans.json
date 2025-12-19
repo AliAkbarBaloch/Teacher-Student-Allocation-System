@@ -1,0 +1,88 @@
+{
+  "title": "Allocation Plans",
+  "subtitle": "Manage allocation plan records and configurations",
+  "table": {
+    "planName": "Plan Name",
+    "planVersion": "Plan Version",
+    "yearName": "Academic Year",
+    "status": "Status",
+    "isCurrent": "Current",
+    "current": "Current",
+    "notCurrent": "Not Current",
+    "createdBy": "Created By",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "notes": "Notes",
+    "actions": "Actions",
+    "emptyMessage": "No allocation plans found.",
+    "searchPlaceholder": "Search allocation plans name"
+  },
+  "form": {
+    "title": {
+      "create": "Create Allocation Plan",
+      "edit": "Edit Allocation Plan",
+      "view": "Allocation Plan Details"
+    },
+    "fields": {
+      "planName": "Plan Name",
+      "planVersion": "Plan Version",
+      "yearName": "Academic Year",
+      "yearId": "Academic Year",
+      "status": "Status",
+      "isCurrent": "Current",
+      "createdByUserId": "Created By (User ID)",
+      "createdByUserName": "Created By",
+      "createdByUserEmail": "Created By (Email)",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "planName": "Enter plan name",
+      "planVersion": "Enter plan version",
+      "yearName": "Select academic year",
+      "yearId": "Select academic year",
+      "status": "Select status",
+      "isCurrent": "Is current plan?",
+      "createdBy": "Created by",
+      "notes": "Enter notes (optional)"
+    },
+    "errors": {
+      "planNameRequired": "Plan name is required",
+      "planVersionRequired": "Plan version is required",
+      "yearIdRequired": "Academic year is required",
+      "statusRequired": "Status is required",
+      "createdByUserIdRequired": "Created by user is required",
+      "notesMaxLength": "Notes must be less than 5000 characters"
+    },
+    "actions": {
+      "create": "Create Allocation Plan",
+      "update": "Update Allocation Plan",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "close": "Close"
+    }
+  },
+  "actions": {
+    "create": "Create Allocation Plan",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "delete": {
+    "title": "Delete Allocation Plan",
+    "message": "Are you sure you want to delete this allocation plan? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel",
+    "success": "Allocation plan deleted successfully",
+    "error": "Failed to delete allocation plan"
+  },
+  "create": {
+    "success": "Allocation plan created successfully",
+    "error": "Failed to create allocation plan"
+  },
+  "update": {
+    "success": "Allocation plan updated successfully",
+    "error": "Failed to update allocation plan"
+  }
+}

@@ -1,5 +1,7 @@
+// components
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -7,14 +9,18 @@ import {
 } from "@/components/ui/dialog";
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
+// forms
 import { InternshipTypeForm } from "./InternshipTypeForm";
+// types
 import type {
   InternshipType,
   CreateInternshipTypeRequest,
   UpdateInternshipTypeRequest,
 } from "../types/internshipType.types";
+// translations
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
 
 interface InternshipTypeDialogsProps {
   // Dialog states
@@ -72,11 +78,13 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <InternshipTypeForm
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <InternshipTypeForm
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,52 +110,41 @@ export function InternshipTypeDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(internshipType) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.code")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.internshipCode}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.fullName")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.fullName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.timing")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.timing || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.periodType")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.periodType || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.semester")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.semester || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.priorityOrder")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {internshipType.priorityOrder ?? "-"}
-                </div>
-              </div>
+          <DialogBody>
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                  <ReadOnlyField
+                    label={t("form.fields.code")}
+                    value={internshipType.internshipCode}
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.fullName")}
+                    value={internshipType.fullName}
+                  />
+
+                  <ReadOnlyField
+                    label={t("form.fields.timing")}
+                    value={internshipType.timing || "-"}
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.periodType")}
+                    value={internshipType.periodType || "-"}
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.semester")}
+                    value={internshipType.semester || "-"}
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.priorityOrder")}
+                    value={internshipType.priorityOrder ?? "-"}
+                  />
+                  <ReadOnlyField
+                    label={t("form.fields.isSubjectSpecific")}
+                    value={internshipType.isSubjectSpecific ? t("table.yes") : t("table.no")}
+                  />
+                  </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t("form.fields.isSubjectSpecific")}</label>
-              <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                {internshipType.isSubjectSpecific ? t("table.yes") : t("table.no")}
-              </div>
-            </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -158,18 +155,20 @@ export function InternshipTypeDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedInternshipType && (
-            <InternshipTypeForm
-              key={`edit-${selectedInternshipType.id}`}
-              internshipType={selectedInternshipType}
-              onSubmit={onUpdateSubmit}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedInternshipType && (
+              <InternshipTypeForm
+                key={`edit-${selectedInternshipType.id}`}
+                internshipType={selectedInternshipType}
+                onSubmit={onUpdateSubmit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

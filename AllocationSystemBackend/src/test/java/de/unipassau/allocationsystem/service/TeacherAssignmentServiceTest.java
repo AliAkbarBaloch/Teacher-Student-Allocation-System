@@ -1,46 +1,31 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentCreateDto;
-import de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentUpdateDto;
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.mapper.TeacherAssignmentMapper;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class TeacherAssignmentServiceTest {
 
     @Mock
     private TeacherAssignmentRepository teacherAssignmentRepository;
-
-    @Mock
-    private AllocationPlanRepository allocationPlanRepository;
-
-    @Mock
-    private TeacherRepository teacherRepository;
-
-    @Mock
-    private InternshipTypeRepository internshipTypeRepository;
-
-    @Mock
-    private SubjectRepository subjectRepository;
-
-    @Mock
-    private TeacherAssignmentMapper mapper;
 
     @Mock
     private CreditHourTrackingService creditHourTrackingService;
@@ -72,72 +57,50 @@ class TeacherAssignmentServiceTest {
         subject = new Subject();
         subject.setId(5L);
         subject.setIsActive(true);
-
-        // default mapper behavior for response DTO
-        when(mapper.toResponseDto(any())).thenAnswer(inv -> {
-            TeacherAssignment t = inv.getArgument(0);
-            de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentResponseDto r = new de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentResponseDto();
-            if (t != null) {
-                r.setId(t.getId());
-                if (t.getAllocationPlan() != null) r.setPlanId(t.getAllocationPlan().getId());
-                if (t.getTeacher() != null) r.setTeacherId(t.getTeacher().getId());
-            }
-            return r;
-        });
     }
 
     @Test
     void create_Success() {
-        TeacherAssignment taEntity = new TeacherAssignment();
-        taEntity.setId(10L);
-        when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(plan));
-        when(teacherRepository.findById(3L)).thenReturn(Optional.of(teacher));
-        when(internshipTypeRepository.findById(4L)).thenReturn(Optional.of(internshipType));
-        when(subjectRepository.findById(5L)).thenReturn(Optional.of(subject));
-        when(teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(1L, 3L, 4L, 5L)).thenReturn(false);
-        when(mapper.toEntity(any(), any(), any(), any(), any())).thenReturn(taEntity);
-        when(mapper.toResponseDto(any())).thenAnswer(inv -> {
+        TeacherAssignment entity = new TeacherAssignment();
+        entity.setAllocationPlan(plan);
+        entity.setTeacher(teacher);
+        entity.setInternshipType(internshipType);
+        entity.setSubject(subject);
+        entity.setStudentGroupSize(1);
+
+        when(teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
+                eq(1L), eq(3L), eq(4L), eq(5L)))
+                .thenReturn(false);
+
+        when(teacherAssignmentRepository.save(any(TeacherAssignment.class))).thenAnswer(inv -> {
             TeacherAssignment t = inv.getArgument(0);
-            de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentResponseDto r = new de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentResponseDto();
-            r.setId(t.getId());
-            if (t.getAllocationPlan() != null) r.setPlanId(t.getAllocationPlan().getId());
-            if (t.getTeacher() != null) r.setTeacherId(t.getTeacher().getId());
-            return r;
-        });
-        when(teacherAssignmentRepository.save(any(TeacherAssignment.class))).thenAnswer(invocation -> {
-            TeacherAssignment t = invocation.getArgument(0);
             t.setId(10L);
             return t;
         });
 
-        TeacherAssignmentCreateDto dto = new TeacherAssignmentCreateDto();
-        dto.setTeacherId(3L);
-        dto.setInternshipTypeId(4L);
-        dto.setSubjectId(5L);
-        dto.setStudentGroupSize(1);
+        TeacherAssignment saved = teacherAssignmentService.create(entity);
 
-        var resp = teacherAssignmentService.create(1L, dto, true);
-
-        assertNotNull(resp);
-        assertEquals(10L, resp.getId());
+        assertNotNull(saved);
+        assertEquals(10L, saved.getId());
         verify(teacherAssignmentRepository).save(any(TeacherAssignment.class));
         verify(creditHourTrackingService).recalculateForTeacherAndYear(eq(3L), eq(2L));
     }
 
     @Test
     void create_Duplicate_Throws() {
-        when(allocationPlanRepository.findById(1L)).thenReturn(Optional.of(plan));
-        when(teacherRepository.findById(3L)).thenReturn(Optional.of(teacher));
-        when(internshipTypeRepository.findById(4L)).thenReturn(Optional.of(internshipType));
-        when(subjectRepository.findById(5L)).thenReturn(Optional.of(subject));
-        when(teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(1L, 3L, 4L, 5L)).thenReturn(true);
+        TeacherAssignment entity = new TeacherAssignment();
+        entity.setAllocationPlan(plan);
+        entity.setTeacher(teacher);
+        entity.setInternshipType(internshipType);
+        entity.setSubject(subject);
 
-        TeacherAssignmentCreateDto dto = new TeacherAssignmentCreateDto();
-        dto.setTeacherId(3L);
-        dto.setInternshipTypeId(4L);
-        dto.setSubjectId(5L);
+        when(teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
+                eq(1L), eq(3L), eq(4L), eq(5L)))
+                .thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> teacherAssignmentService.create(1L, dto, true));
+        assertThrows(DuplicateResourceException.class, () -> teacherAssignmentService.create(entity));
+        verify(teacherAssignmentRepository, never()).save(any());
+        verify(creditHourTrackingService, never()).recalculateForTeacherAndYear(anyLong(), anyLong());
     }
 
     @Test
@@ -147,15 +110,16 @@ class TeacherAssignmentServiceTest {
         existing.setAllocationPlan(plan);
         existing.setTeacher(teacher);
         existing.setStudentGroupSize(1);
+
         when(teacherAssignmentRepository.findById(20L)).thenReturn(Optional.of(existing));
         when(teacherAssignmentRepository.save(any(TeacherAssignment.class))).thenAnswer(i -> i.getArgument(0));
 
-        TeacherAssignmentUpdateDto dto = new TeacherAssignmentUpdateDto();
-        dto.setStudentGroupSize(3);
+        TeacherAssignment updateData = new TeacherAssignment();
+        updateData.setStudentGroupSize(3);
 
-        var res = teacherAssignmentService.update(1L, 20L, dto, true);
+        TeacherAssignment updated = teacherAssignmentService.update(20L, updateData);
 
-        assertNotNull(res);
+        assertNotNull(updated);
         verify(teacherAssignmentRepository).save(any(TeacherAssignment.class));
         verify(creditHourTrackingService).recalculateForTeacherAndYear(eq(3L), eq(2L));
     }
@@ -166,11 +130,11 @@ class TeacherAssignmentServiceTest {
         existing.setId(30L);
         existing.setAllocationPlan(plan);
         existing.setTeacher(teacher);
-        when(teacherAssignmentRepository.findById(30L)).thenReturn(Optional.of(existing));
 
+        when(teacherAssignmentRepository.findById(30L)).thenReturn(Optional.of(existing));
         doNothing().when(teacherAssignmentRepository).delete(existing);
 
-        teacherAssignmentService.delete(1L, 30L, true);
+        teacherAssignmentService.delete(30L);
 
         verify(teacherAssignmentRepository).delete(existing);
         verify(creditHourTrackingService).recalculateForTeacherAndYear(eq(3L), eq(2L));

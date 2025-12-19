@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface TeacherSubjectRepository extends JpaRepository<TeacherSubject, Long>, JpaSpecificationExecutor<TeacherSubject>  {
-
+    List<TeacherSubject> findByTeacherId(Long teacherId);
     List<TeacherSubject> findByTeacherIdAndAcademicYearId(Long teacherId, Long yearId);
 
     @Query("SELECT t FROM TeacherSubject t WHERE " +

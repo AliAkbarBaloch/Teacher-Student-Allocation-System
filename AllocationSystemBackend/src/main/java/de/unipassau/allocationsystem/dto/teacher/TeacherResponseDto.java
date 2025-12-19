@@ -26,9 +26,9 @@ public class TeacherResponseDto {
     private String email;
     private String phone;
     private Boolean isPartTime;
+    private Integer workingHoursPerWeek;
     private Teacher.EmploymentStatus employmentStatus;
     private Teacher.UsageCycle usageCycle;
-    private Boolean isActive;
     private Integer creditHourBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,0 +1,88 @@
+{
+  "title": "Zuteilungspläne",
+  "subtitle": "Verwalten Sie Datensätze und Konfigurationen von Zuteilungsplänen",
+  "table": {
+    "planName": "Planname",
+    "planVersion": "Planversion",
+    "yearName": "Akademisches Jahr",
+    "status": "Status",
+    "isCurrent": "Aktuell",
+    "current": "Aktuell",
+    "notCurrent": "Nicht aktuell",
+    "createdBy": "Erstellt von",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "notes": "Notizen",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Zuteilungspläne gefunden.",
+    "searchPlaceholder": "Zuteilungspläne suchen..."
+  },
+  "form": {
+    "title": {
+      "create": "Zuteilungsplan erstellen",
+      "edit": "Zuteilungsplan bearbeiten",
+      "view": "Details zum Zuteilungsplan"
+    },
+    "fields": {
+      "planName": "Planname",
+      "planVersion": "Planversion",
+      "yearName": "Akademisches Jahr",
+      "yearId": "Akademisches Jahr",
+      "status": "Status",
+      "isCurrent": "Aktuell",
+      "createdByUserId": "Erstellt von (Benutzer-ID)",
+      "createdByUserName": "Erstellt von",
+      "createdByUserEmail": "Erstellt von (E-Mail)",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am",
+      "notes": "Notizen"
+    },
+    "placeholders": {
+      "planName": "Planname eingeben",
+      "planVersion": "Planversion eingeben",
+      "yearName": "Akademisches Jahr auswählen",
+      "yearId": "Akademisches Jahr auswählen",
+      "status": "Status auswählen",
+      "isCurrent": "Ist dies der aktuelle Plan?",
+      "createdBy": "Erstellt von",
+      "notes": "Notizen eingeben (optional)"
+    },
+    "errors": {
+      "planNameRequired": "Planname ist erforderlich",
+      "planVersionRequired": "Planversion ist erforderlich",
+      "yearIdRequired": "Akademisches Jahr ist erforderlich",
+      "statusRequired": "Status ist erforderlich",
+      "createdByUserIdRequired": "Ersteller (Benutzer) ist erforderlich",
+      "notesMaxLength": "Die Notizen dürfen nicht länger als 5000 Zeichen sein"
+    },
+    "actions": {
+      "create": "Zuteilungsplan erstellen",
+      "update": "Zuteilungsplan aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Zuteilungsplan erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Zuteilungsplan löschen",
+    "message": "Möchten Sie diesen Zuteilungsplan wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Zuteilungsplan erfolgreich gelöscht",
+    "error": "Löschen des Zuteilungsplans fehlgeschlagen"
+  },
+  "create": {
+    "success": "Zuteilungsplan erfolgreich erstellt",
+    "error": "Erstellen des Zuteilungsplans fehlgeschlagen"
+  },
+  "update": {
+    "success": "Zuteilungsplan erfolgreich aktualisiert",
+    "error": "Aktualisierung des Zuteilungsplans fehlgeschlagen"
+  }
+}

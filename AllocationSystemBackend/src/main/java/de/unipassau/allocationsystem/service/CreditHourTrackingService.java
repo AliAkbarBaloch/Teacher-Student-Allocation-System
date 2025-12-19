@@ -25,7 +25,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -39,33 +45,18 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
     private final AcademicYearRepository academicYearRepository;
 
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "teacherId", "label", "Teacher"));
-        fields.add(Map.of("key", "academicYearId", "label", "Academic Year"));
-        fields.add(Map.of("key", "assignmentsCount", "label", "Assignments Count"));
-        fields.add(Map.of("key", "creditHoursAllocated", "label", "Credit Hours Allocated"));
-        fields.add(Map.of("key", "creditBalance", "label", "Credit Balance"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "teacherId", "academicYearId", "assignmentsCount", 
+            "creditHoursAllocated", "creditBalance", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     private Specification<CreditHourTracking> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("notes")), likePattern)
+        // Search across notes (extend fields if needed)
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"notes"}, searchValue
         );
     }
 
@@ -87,10 +78,35 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        Specification<CreditHourTracking> spec = buildSearchSpecification(searchValue);
+        Specification<CreditHourTracking> spec = buildFilterSpecification(queryParams, searchValue);
         Page<CreditHourTracking> page = repository.findAll(spec, pageable);
 
         return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    private Specification<CreditHourTracking> buildFilterSpecification(Map<String, String> queryParams, String searchValue) {
+        return (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
+            // Search filter
+            if (searchValue != null && !searchValue.trim().isEmpty()) {
+                Specification<CreditHourTracking> searchSpec = buildSearchSpecification(searchValue);
+                predicates.add(searchSpec.toPredicate(root, query, cb));
+            }
+
+            // Academic Year ID filter
+            String academicYearIdParam = queryParams.get("academicYearId");
+            if (academicYearIdParam != null && !academicYearIdParam.trim().isEmpty()) {
+                try {
+                    Long academicYearId = Long.parseLong(academicYearIdParam);
+                    predicates.add(cb.equal(root.get("academicYear").get("id"), academicYearId));
+                } catch (NumberFormatException e) {
+                    // Invalid academic year ID, ignore filter
+                }
+            }
+
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
     }
 
     @Audited(

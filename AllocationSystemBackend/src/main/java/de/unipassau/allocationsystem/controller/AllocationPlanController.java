@@ -4,6 +4,7 @@ import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
+import de.unipassau.allocationsystem.mapper.AllocationPlanMapper;
 import de.unipassau.allocationsystem.service.AllocationPlanService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +35,32 @@ import java.util.Map;
 public class AllocationPlanController {
 
     private final AllocationPlanService allocationPlanService;
+    private final AllocationPlanMapper allocationPlanMapper;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get sort fields", description = "Retrieves available fields that can be used for sorting allocation plans")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/sort-fields")
+    public ResponseEntity<?> getSortFields() {
+        List<Map<String, String>> result = allocationPlanService.getSortFields();
+        return ResponseHandler.success("Sort fields retrieved successfully", result);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all allocation plans", description = "Retrieves all allocation plans without pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plans retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("")
+    public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
+        List<AllocationPlanResponseDto> result = allocationPlanMapper.toResponseDtoList(allocationPlanService.getAll());
+        return ResponseHandler.success("Allocation plans retrieved successfully", result);
+    }
+
 
     /**
      * Get all allocation plans with filtering and pagination.
@@ -40,21 +68,21 @@ public class AllocationPlanController {
      * Optional filters: status, isCurrent
      * Optional pagination: page, pageSize, sortBy, sortOrder
      */
-    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all allocation plans", 
+    @Operation(summary = "Get all allocation plans",
                description = "Retrieve allocation plans with filtering by year, status, and current flag. Supports pagination.")
         @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Allocation plans retrieved successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid pagination or filter parameters"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
-    public ResponseEntity<?> getAllPlans(
-            @RequestParam(required = true) Long yearId,
+    @GetMapping("/paginate")
+    public ResponseEntity<?> getPaginated(
+            @RequestParam(required = false) Long yearId,
             @RequestParam(required = false) PlanStatus status,
             @RequestParam(required = false) Boolean isCurrent,
             @RequestParam Map<String, String> queryParams) {
-        log.info("GET /api/allocation-plans - yearId: {}, status: {}, isCurrent: {}", 
+        log.info("GET /api/allocation-plans - yearId: {}, status: {}, isCurrent: {}",
                 yearId, status, isCurrent);
 
         Map<String, Object> result = allocationPlanService.getAllPlans(
@@ -66,9 +94,9 @@ public class AllocationPlanController {
     /**
      * Get a specific allocation plan by ID.
      */
-    @GetMapping("/{id}")
+
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get allocation plan by ID", 
+    @Operation(summary = "Get allocation plan by ID",
                description = "Retrieve details of a specific allocation plan")
         @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Allocation plan found",
@@ -76,6 +104,7 @@ public class AllocationPlanController {
             @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
+    @GetMapping("/{id}")
     public ResponseEntity<?> getPlanById(@PathVariable Long id) {
         log.info("GET /api/allocation-plans/{}", id);
 
@@ -87,7 +116,7 @@ public class AllocationPlanController {
      * Create a new allocation plan.
      * Only users with CREATE permission can create plans.
      */
-    @PostMapping
+
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create new allocation plan", 
                description = "Create a new allocation plan instance for an academic year")
@@ -97,10 +126,12 @@ public class AllocationPlanController {
             @ApiResponse(responseCode = "400", description = "Invalid input or duplicate plan"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
+    @PostMapping
     public ResponseEntity<?> createPlan(
             @Valid @RequestBody AllocationPlanCreateDto createDto) {
-        log.info("POST /api/allocation-plans - Creating plan: {} v{}", 
-                createDto.getPlanName(), createDto.getPlanVersion());
+
+        log.info("POST /api/allocation-plans - Creating plan: {} v{} | isCurrent: {}", 
+            createDto.getPlanName(), createDto.getPlanVersion(), createDto.getIsCurrent());
 
         AllocationPlanResponseDto created = allocationPlanService.createPlan(createDto);
         return ResponseHandler.created("Allocation plan created successfully", created);
@@ -110,7 +141,7 @@ public class AllocationPlanController {
      * Update an existing allocation plan.
      * Only users with UPDATE permission can update plans.
      */
-    @PutMapping("/{id}")
+
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update allocation plan", 
                description = "Update metadata of an existing allocation plan (name, status, notes, isCurrent)")
@@ -121,6 +152,7 @@ public class AllocationPlanController {
             @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
+    @PutMapping("/{id}")
     public ResponseEntity<?> updatePlan(
             @PathVariable Long id,
             @Valid @RequestBody AllocationPlanUpdateDto updateDto) {
@@ -134,7 +166,6 @@ public class AllocationPlanController {
      * Set a specific plan as the current plan for its academic year.
      * This will unset is_current on all other plans for the same year.
      */
-    @PostMapping("/{id}/current")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Set plan as current", 
                description = "Mark this plan as the current active plan for its academic year")
@@ -144,6 +175,7 @@ public class AllocationPlanController {
             @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
+    @PostMapping("/{id}/current")
     public ResponseEntity<?> setCurrentPlan(@PathVariable Long id) {
         log.info("POST /api/allocation-plans/{}/current", id);
 
@@ -191,5 +223,28 @@ public class AllocationPlanController {
 
         AllocationPlanResponseDto plan = allocationPlanService.getCurrentPlanForYear(yearId);
         return ResponseHandler.success("Current allocation plan retrieved successfully", plan);
+    }
+
+    /**
+     * Run the allocation algorithm for a specific allocation plan.
+     * This triggers the teacher allocation process for the academic year associated with the plan.
+     * Used by Create Allocation Plan functionality.
+     */
+    @PostMapping("/{id}/run-allocation")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Run allocation algorithm",
+               description = "Trigger the teacher allocation algorithm for the academic year associated with this plan")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation algorithm executed successfully"),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Allocation algorithm execution failed")
+    })
+    public ResponseEntity<?> runAllocationAlgorithm(@PathVariable Long id) {
+        log.info("POST /api/allocation-plans/{}/run-allocation", id);
+
+        Long newPlanId = allocationPlanService.runAllocationForPlan(id);
+        log.info("New allocation plan created with ID: {}", newPlanId);
+        return ResponseHandler.success("Allocation algorithm executed successfully. A new allocation plan has been created.", 
+            java.util.Map.of("newPlanId", newPlanId));
     }
 }

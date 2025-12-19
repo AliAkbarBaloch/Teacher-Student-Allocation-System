@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PlanChangeLogFilterDto {
     private Long planId;
-    private Long userId;
     private String changeType;
     private String entityType;
     private LocalDateTime startDate;

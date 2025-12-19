@@ -97,7 +97,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(patterns).permitAll()
                         .requestMatchers("/api/meta/**").permitAll()   
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/**", "/reports/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

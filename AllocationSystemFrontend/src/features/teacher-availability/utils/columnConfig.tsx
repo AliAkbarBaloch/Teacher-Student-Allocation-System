@@ -10,12 +10,20 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
 
   return [
     {
-      field: "teacherName",
+      field: "teacherFirstName",
       title: t("table.teacher"),
       enableSorting: true,
       fieldType: "text",
       fieldRequired: true,
       fieldPlaceholder: t("form.placeholders.teacher"),
+      format: (value: unknown, row?: unknown) => {
+        if (row && typeof row === "object" && "teacherFirstName" in row && "teacherLastName" in row) {
+          const firstName = String(row.teacherFirstName || "");
+          const lastName = String(row.teacherLastName || "");
+          return `${firstName} ${lastName}`.trim() || "-";
+        }
+        return String(value || "");
+      },
     },
     {
       field: "academicYearName",
@@ -26,7 +34,7 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.academicYear"),
     },
     {
-      field: "internshipTypeName",
+      field: "internshipTypeCode",
       title: t("table.internshipType"),
       enableSorting: true,
       fieldType: "text",
@@ -34,16 +42,22 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldPlaceholder: t("form.placeholders.internshipType"),
     },
     {
-      field: "isAvailable",
-      title: t("table.isAvailable"),
+      field: "status",
+      title: t("table.status"),
       enableSorting: true,
       format: (value: unknown): ReactNode => {
-        const available = typeof value === "boolean" ? value : false;
-        return available ? (
-          <Badge variant="success">{t("table.available")}</Badge>
-        ) : (
-          <Badge variant="destructive">{t("table.notAvailable")}</Badge>
-        );
+        switch (value) {
+          case "AVAILABLE":
+            return <Badge variant="success">{t("table.available")}</Badge>;
+          case "PREFERRED":
+            return <Badge variant="default">{t("table.preferred")}</Badge>;
+          case "NOT_AVAILABLE":
+            return <Badge variant="destructive">{t("table.notAvailable")}</Badge>;
+          case "BACKUP_ONLY":
+            return <Badge variant="secondary">{t("table.backupOnly")}</Badge>;
+          default:
+            return <Badge>{String(value)}</Badge>;
+        }
       },
     },
     {
@@ -61,23 +75,7 @@ export function useTeacherAvailabilityColumnConfig(): ColumnConfig[] {
       fieldType: "text",
       format: (value: unknown) => (typeof value === "string" && value) || "-",
       width: "200px",
-      maxWidth: "300px",
-    },
-    {
-      field: "createdAt",
-      title: t("table.createdAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) =>
-        typeof value === "string" ? new Date(value).toLocaleString() : "-",
-    },
-    {
-      field: "updatedAt",
-      title: t("table.updatedAt"),
-      enableSorting: true,
-      fieldType: "date",
-      format: (value: unknown) =>
-        typeof value === "string" ? new Date(value).toLocaleString() : "-",
+      maxWidth: "250px",
     },
   ];
 }

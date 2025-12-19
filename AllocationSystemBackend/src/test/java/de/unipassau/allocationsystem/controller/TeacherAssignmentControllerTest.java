@@ -97,7 +97,6 @@ class TeacherAssignmentControllerTest {
         plan.setPlanName("Test Plan");
         plan.setPlanVersion("v1");
         plan.setStatus(AllocationPlan.PlanStatus.DRAFT);
-        plan.setCreatedByUser(creator);
         plan = allocationPlanRepository.save(plan);
 
         // create and persist a school for the teacher
@@ -138,13 +137,14 @@ class TeacherAssignmentControllerTest {
     @WithMockUser(roles = "ADMIN")
     void createAndGetAndDeleteAssignment_Success() throws Exception {
         TeacherAssignmentCreateDto dto = new TeacherAssignmentCreateDto();
+        dto.setPlanId(plan.getId()); // new controller expects planId in DTO
         dto.setTeacherId(teacher.getId());
         dto.setInternshipTypeId(internshipType.getId());
         dto.setSubjectId(subject.getId());
         dto.setStudentGroupSize(2);
         dto.setAssignmentStatus("PLANNED");
 
-        var createResult = mockMvc.perform(post("/api/allocation-plans/{planId}/assignments", plan.getId())
+        var createResult = mockMvc.perform(post("/api/teacher-assignments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -155,7 +155,7 @@ class TeacherAssignmentControllerTest {
         String content = createResult.getResponse().getContentAsString();
         Long createdId = objectMapper.readTree(content).at("/data/id").asLong();
 
-        mockMvc.perform(get("/api/allocation-plans/{planId}/assignments/{id}", plan.getId(), createdId))
+        mockMvc.perform(get("/api/teacher-assignments/{id}", createdId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(createdId));
@@ -163,14 +163,14 @@ class TeacherAssignmentControllerTest {
         TeacherAssignmentUpdateDto update = new TeacherAssignmentUpdateDto();
         update.setStudentGroupSize(5);
 
-        mockMvc.perform(put("/api/allocation-plans/{planId}/assignments/{id}", plan.getId(), createdId)
+        mockMvc.perform(put("/api/teacher-assignments/{id}", createdId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.studentGroupSize").value(5));
 
-        mockMvc.perform(delete("/api/allocation-plans/{planId}/assignments/{id}", plan.getId(), createdId))
+        mockMvc.perform(delete("/api/teacher-assignments/{id}", createdId))
                 .andExpect(status().isNoContent());
 
         boolean exists = teacherAssignmentRepository.existsById(createdId);
@@ -179,7 +179,7 @@ class TeacherAssignmentControllerTest {
 
     @Test
     void unauthorizedAccess_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/allocation-plans/{planId}/assignments", plan.getId()))
+        mockMvc.perform(get("/api/teacher-assignments"))
                 .andExpect(status().isUnauthorized());
     }
 }

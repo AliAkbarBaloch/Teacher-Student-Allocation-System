@@ -65,7 +65,6 @@ class PlanChangeLogServiceTest {
         testPlan.setPlanVersion("v1");
         testPlan.setStatus(AllocationPlan.PlanStatus.DRAFT);
         testPlan.setAcademicYear(year);
-        testPlan.setCreatedByUser(testUser);
         testPlan = allocationPlanRepository.save(testPlan);
     }
 
@@ -73,7 +72,6 @@ class PlanChangeLogServiceTest {
     void testLogPlanChangeAndQuery() {
         PlanChangeLog result = service.logPlanChange(
             testPlan.getId(),
-            testUser.getId(),
             de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE,
             "PLAN_CHANGE_LOG",
             testPlan.getId(),
@@ -85,11 +83,10 @@ class PlanChangeLogServiceTest {
         assertNotNull(result);
         assertNotNull(result.getId());
         assertEquals(testPlan.getId(), result.getAllocationPlan().getId());
-        assertEquals(testUser.getId(), result.getUser().getId());
         assertEquals(de.unipassau.allocationsystem.constant.PlanChangeTypes.CREATE, result.getChangeType());
 
         Page<PlanChangeLog> page = planChangeLogRepository.findByFilters(
-                testPlan.getId(), null, null, null, null, null, PageRequest.of(0, 10)
+                testPlan.getId(), null, null, null, null, PageRequest.of(0, 10)
         );
         assertTrue(page.getTotalElements() > 0);
     }

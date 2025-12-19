@@ -45,7 +45,7 @@ export function ImportResults({ results, onClose, onImportMore }: ImportResultsP
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 border rounded-lg bg-muted/30">

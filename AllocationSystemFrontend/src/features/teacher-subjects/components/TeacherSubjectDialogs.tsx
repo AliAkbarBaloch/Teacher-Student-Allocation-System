@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -15,6 +16,8 @@ import type {
 } from "../types/teacherSubject.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { formatDate } from "@/lib/utils/date";
 
 interface TeacherSubjectDialogsProps {
   // Dialog states
@@ -31,8 +34,12 @@ interface TeacherSubjectDialogsProps {
   selectedTeacherSubject: TeacherSubject | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest) => Promise<void>;
+  onCreateSubmit: (
+    data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest
+  ) => Promise<void>;
+  onUpdateSubmit: (
+    data: CreateTeacherSubjectRequest | UpdateTeacherSubjectRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (teacherSubject: TeacherSubject) => void;
   onSelectedChange: (teacherSubject: TeacherSubject | null) => void;
@@ -63,6 +70,26 @@ export function TeacherSubjectDialogs({
   t,
 }: TeacherSubjectDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+
+  const getAvailabilityStatusLabel = (
+    status: string | null | undefined
+  ): string => {
+    if (!status) return t("table.available");
+
+    switch (status) {
+      case "AVAILABLE":
+        return t("table.available");
+      case "NOT_AVAILABLE":
+        return t("table.notAvailable");
+      case "LIMITED":
+        return t("table.limited");
+      case "PREFERRED":
+        return t("table.preferred");
+      default:
+        return t("table.available");
+    }
+  };
+
   return (
     <>
       {/* Create Dialog */}
@@ -72,11 +99,15 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <TeacherSubjectForm
-            onSubmit={(data) => onCreateSubmit(data as CreateTeacherSubjectRequest)}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <TeacherSubjectForm
+              onSubmit={(data) =>
+                onCreateSubmit(data as CreateTeacherSubjectRequest)
+              }
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,74 +133,62 @@ export function TeacherSubjectDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(teacherSubject) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.academicYearName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.teacherName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.subjectCode")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.subjectCode}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.subjectTitle")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.subjectTitle}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.availabilityStatus")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {t(`table.${teacherSubject.availabilityStatus?.toLowerCase()}`) || teacherSubject.availabilityStatus}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.gradeLevelFrom")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.gradeLevelFrom ?? "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.gradeLevelTo")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.gradeLevelTo ?? "-"}
-                </div>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">{t("form.fields.notes")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.notes || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.createdAt
-                    ? new Date(teacherSubject.createdAt).toLocaleString()
-                    : "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {teacherSubject.updatedAt
-                    ? new Date(teacherSubject.updatedAt).toLocaleString()
-                    : "-"}
-                </div>
+          <DialogBody>
+            <div className="space-y-4 py-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <ReadOnlyField
+                  label={t("form.fields.academicYear")}
+                  value={teacherSubject.academicYearTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.teacher")}
+                  value={teacherSubject.teacherTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.subjectCode")}
+                  value={teacherSubject.subjectId}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.subjectTitle")}
+                  value={teacherSubject.subjectTitle}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.availabilityStatus")}
+                  value={getAvailabilityStatusLabel(
+                    teacherSubject.availabilityStatus
+                  )}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.gradeLevelFrom")}
+                  value={teacherSubject.gradeLevelFrom ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.gradeLevelTo")}
+                  value={teacherSubject.gradeLevelTo ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.notes")}
+                  value={teacherSubject.notes ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={
+                    teacherSubject.createdAt
+                      ? formatDate(teacherSubject.createdAt)
+                      : "-"
+                  }
+                />
+                <ReadOnlyField
+                  label={t("form.fields.updatedAt")}
+                  value={
+                    teacherSubject.updatedAt
+                      ? formatDate(teacherSubject.updatedAt)
+                      : "-"
+                  }
+                />
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -180,18 +199,22 @@ export function TeacherSubjectDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedTeacherSubject && (
-            <TeacherSubjectForm
-              key={`edit-${selectedTeacherSubject.id}`}
-              teacherSubject={selectedTeacherSubject}
-              onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherSubjectRequest)}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedTeacherSubject && (
+              <TeacherSubjectForm
+                key={`edit-${selectedTeacherSubject.id}`}
+                teacherSubject={selectedTeacherSubject}
+                onSubmit={(data) =>
+                  onUpdateSubmit(data as UpdateTeacherSubjectRequest)
+                }
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

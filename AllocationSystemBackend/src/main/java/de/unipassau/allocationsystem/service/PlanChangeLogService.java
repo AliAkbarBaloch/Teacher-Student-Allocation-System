@@ -1,77 +1,162 @@
 package de.unipassau.allocationsystem.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.PlanChangeLog;
-import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
 import de.unipassau.allocationsystem.repository.PlanChangeLogRepository;
-import de.unipassau.allocationsystem.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PlanChangeLogService {
-
-    /**
-     * Note: This service intentionally does NOT use the `@Audited` annotation.
-     *
-     * Reason: `PlanChangeLog` entries themselves are an audit-style record
-     * of changes to allocation plans. Annotating methods that create
-     * `PlanChangeLog` entries with `@Audited` would cause the audit aspect
-     * to generate additional audit log entries for those operations, which
-     * can produce duplicate/a cascading audit behavior. To avoid recursion
-     * and noisy duplicate audit records, we keep plan-change logging
-     * separate from the application's `AuditLog` mechanism.
-     */
+@Transactional
+public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
     private final PlanChangeLogRepository planChangeLogRepository;
-    private final UserRepository userRepository;
     private final AllocationPlanRepository allocationPlanRepository;
     private final ObjectMapper objectMapper;
+
+    public List<Map<String, String>> getSortFields() {
+        return SortFieldUtils.getSortFields("id", "planId", "changeType", "entityType", "entityId", "createdAt", "updatedAt");
+    }
+
+    public List<String> getSortFieldKeys() {
+        return getSortFields().stream().map(f -> f.get("key")).toList();
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return planChangeLogRepository.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+
+        Specification<PlanChangeLog> spec = buildSearchSpecification(searchValue);
+        Page<PlanChangeLog> page = planChangeLogRepository.findAll(spec, pageable);
+
+        return PaginationUtils.formatPaginationResponse(page);
+    }
+
+    private Specification<PlanChangeLog> buildSearchSpecification(String searchValue) {
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.trim().isEmpty()) {
+                return cb.conjunction();
+            }
+
+            // Search by Plan ID
+            try {
+                Long planId = Long.parseLong(searchValue.trim());
+                return cb.equal(root.get("allocationPlan").get("id"), planId);
+            } catch (NumberFormatException e) {
+                // If not a valid number, return no results
+                return cb.disjunction();
+            }
+        };
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PlanChangeLog> getAll() {
+        return planChangeLogRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<PlanChangeLog> getById(Long id) {
+        return planChangeLogRepository.findById(id);
+    }
+
+    @Transactional
+    @Override
+    public PlanChangeLog create(PlanChangeLog entity) {
+        // No uniqueness constraint for PlanChangeLog
+        return planChangeLogRepository.save(entity);
+    }
+
+    @Transactional
+    @Override
+    public PlanChangeLog update(Long id, PlanChangeLog data) {
+        PlanChangeLog existing = planChangeLogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PlanChangeLog not found with id: " + id));
+
+        if (data.getChangeType() != null) {
+            existing.setChangeType(data.getChangeType());
+        }
+        if (data.getEntityType() != null) {
+            existing.setEntityType(data.getEntityType());
+        }
+        if (data.getEntityId() != null) {
+            existing.setEntityId(data.getEntityId());
+        }
+        if (data.getOldValue() != null) {
+            existing.setOldValue(data.getOldValue());
+        }
+        if (data.getNewValue() != null) {
+            existing.setNewValue(data.getNewValue());
+        }
+        if (data.getReason() != null) {
+            existing.setReason(data.getReason());
+        }
+
+        return planChangeLogRepository.save(existing);
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        if (!planChangeLogRepository.existsById(id)) {
+            throw new ResourceNotFoundException("PlanChangeLog not found with id: " + id);
+        }
+        planChangeLogRepository.deleteById(id);
+    }
 
     /**
      * Create a new plan change log entry. Intended to be called by other services.
      */
     @Transactional
-    public PlanChangeLog logPlanChange(Long planId,
-                                          Long userId,
-                                          String changeType,
-                                          String entityType,
-                                          Long entityId,
-                                          Object oldValue,
-                                          Object newValue,
-                                          String reason) {
+    public PlanChangeLog logPlanChange(Long planId, String changeType, String entityType, Long entityId, Object oldValue, Object newValue, String reason) {
 
         AllocationPlan plan = allocationPlanRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + planId));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         String oldJson = serialize(oldValue);
         String newJson = serialize(newValue);
 
         PlanChangeLog log = PlanChangeLog.builder()
                 .allocationPlan(plan)
-                .user(user)
+                .eventTimestamp(LocalDateTime.now())
             .changeType(changeType)
                 .entityType(entityType)
                 .entityId(entityId)
                 .oldValue(oldJson)
                 .newValue(newJson)
                 .reason(reason)
-                .eventTimestamp(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PlanChangeLog saved = planChangeLogRepository.save(log);
@@ -90,16 +175,16 @@ public class PlanChangeLogService {
         }
     }
 
-    public Page<PlanChangeLog> getLogsByPlan(Long planId, Long userId, String entityType, String changeType,
+    public Page<PlanChangeLog> getLogsByPlan(Long planId, String entityType, String changeType,
                                              LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         if (planId != null && !allocationPlanRepository.existsById(planId)) {
             throw new ResourceNotFoundException("Allocation plan not found with id: " + planId);
         }
-        return planChangeLogRepository.findByFilters(planId, userId, entityType, changeType, startDate, endDate, pageable);
+        return planChangeLogRepository.findByFilters(planId, entityType, changeType, startDate, endDate, pageable);
     }
 
-    public Page<PlanChangeLog> getLogs(Long planId, Long userId, String entityType, String changeType,
+    public Page<PlanChangeLog> getLogs(Long planId, String entityType, String changeType,
                                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-        return planChangeLogRepository.findByFilters(planId, userId, entityType, changeType, startDate, endDate, pageable);
+        return planChangeLogRepository.findByFilters(planId, entityType, changeType, startDate, endDate, pageable);
     }
 }

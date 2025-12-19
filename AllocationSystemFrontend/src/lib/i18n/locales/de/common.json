@@ -15,9 +15,11 @@
             "dataManagement": "Datenverwaltung",
             "planning": "Planung & Zuweisung",
             "reports": "Berichte",
-            "settings": "Einstellungen"
+            "settings": "Einstellungen",
+            "allocationReport": "Zuweisungsbericht"
         },
         "dashboard": "Dashboard",
+        "allocationReport": "Zuweisungsbericht",
         "baseData": "Stammdatenverwaltung",
         "baseDataAcademicYears": "Studienjahre",
         "baseDataSubjectCategories": "Fachkategorien",
@@ -25,17 +27,17 @@
         "baseDataSchools": "Schulen",
         "baseDataTeachers": "Lehrer",
         "baseDataInternshipTypes": "Praktikumstypen",
+        "baseDataZoneConstraints": "Zonenbeschränkungen",
         "teacherManagement": "Lehrerverwaltung",
         "teacherManagementTeacherSubjects": "Lehrerfächer",
         "teacherManagementTeacherAvailability": "Lehrerverfügbarkeit",
-        "teacherManagementTeacherFormSubmissions": "Lehrerformular-Einreichungen",
+        "teacherManagementTeacherSubmissions": "Lehrereinreichungen",
         "internshipDemand": "Praktikumsnachfrage",
         "internshipDemandDemandPerYear": "Praktikumsnachfrage pro Jahr",
         "allocationPlanning": "Zuweisungsplanung",
         "allocationPlanningAllocationPlans": "Zuweisungspläne",
         "allocationPlanningTeacherAssignments": "Lehrerzuweisungen",
         "allocationPlanningCreditHourTracking": "Leistungspunkte-Verfolgung",
-        "allocationPlanningZoneConstraints": "Zonenbeschränkungen",
         "allocationPlanningPlanChangeLogs": "Planänderungsprotokolle",
         "reports": "Berichte",
         "reportsAllocationReports": "Zuweisungsberichte",
@@ -69,5 +71,59 @@
         "saving": "Wird gespeichert...",
         "close": "Schließen",
         "confirm": "Bestätigen"
+    },
+    "dashboard": {
+        "title": "Übersicht",
+        "subtitle": "Übersicht über Ihr Zuweisungssystem",
+        "refresh": "Aktualisieren",
+        "stats": {
+            "teachers": {
+                "title": "Lehrer",
+                "description": "Registrierte Lehrer"
+            },
+            "schools": {
+                "title": "Schulen",
+                "description": "Partnerschulen"
+            },
+            "allocationPlans": {
+                "title": "Zuweisungspläne",
+                "description": "Aktive Pläne"
+            },
+            "pendingSubmissions": {
+                "title": "Ausstehende Einreichungen",
+                "description": "Warten auf Überprüfung"
+            }
+        },
+        "allocationUtilization": {
+            "title": "Zuweisungsauslastung",
+            "description": "Leistungspunkte-Bilanzstatus der Lehrer",
+            "viewDetails": "Details anzeigen",
+            "overUtilized": "Überlastet",
+            "underUtilized": "Unterausgelastet",
+            "balanced": "Ausgewogen",
+            "teachers": "Lehrer"
+        },
+        "allocationPlansStatus": {
+            "title": "Zuweisungspläne nach Status",
+            "description": "Aktuelle Planstatus-Übersicht",
+            "viewAll": "Alle anzeigen",
+            "draft": "Entwurf",
+            "inReview": "In Überprüfung",
+            "approved": "Genehmigt",
+            "archived": "Archiviert",
+            "ofTotal": "von insgesamt"
+        },
+        "quickActions": {
+            "title": "Schnellaktionen",
+            "description": "Häufige Aufgaben",
+            "createAllocationPlan": "Zuweisungsplan erstellen",
+            "manageTeachers": "Lehrer verwalten",
+            "reviewSubmissions": "Einreichungen überprüfen",
+            "viewCreditHours": "Leistungspunkte anzeigen"
+        },
+        "error": {
+            "title": "Fehler beim Laden des Dashboards",
+            "retry": "Wiederholen"
+        }
     }
 }

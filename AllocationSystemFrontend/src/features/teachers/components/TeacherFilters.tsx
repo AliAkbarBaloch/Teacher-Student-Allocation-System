@@ -23,13 +23,6 @@ import { Filter, Loader2, X } from "lucide-react";
 // translations
 import { useTranslation } from "react-i18next";
 
-// constants
-const STATUS_OPTIONS = [
-  { value: "all", labelKey: "filters.statusAll" },
-  { value: "active", labelKey: "filters.statusActive" },
-  { value: "inactive", labelKey: "filters.statusInactive" },
-] as const;
-
 interface TeacherFiltersProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -37,8 +30,6 @@ interface TeacherFiltersProps {
   onSchoolIdChange: (value?: number) => void;
   employmentStatus?: EmploymentStatus;
   onEmploymentStatusChange: (value?: EmploymentStatus) => void;
-  status?: "all" | "active" | "inactive";
-  onStatusChange: (value: "all" | "active" | "inactive") => void;
   onReset: () => void;
   disabled?: boolean;
   searchLoading?: boolean;
@@ -51,8 +42,6 @@ export function TeacherFilters({
   onSchoolIdChange,
   employmentStatus,
   onEmploymentStatusChange,
-  status = "all",
-  onStatusChange,
   onReset,
   disabled = false,
   searchLoading = false,
@@ -62,14 +51,16 @@ export function TeacherFilters({
   const [loadingSchools, setLoadingSchools] = useState(false);
 
   // Ensure options arrays are always defined
-  const statusOptions = useMemo(() => STATUS_OPTIONS || [], []);
-  const employmentStatusOptions = useMemo(() => EMPLOYMENT_STATUS_OPTIONS || [], []);
+  const employmentStatusOptions = useMemo(
+    () => EMPLOYMENT_STATUS_OPTIONS || [],
+    []
+  );
 
   useEffect(() => {
     const loadSchools = async () => {
       setLoadingSchools(true);
       try {
-        const response = await SchoolService.list({
+        const response = await SchoolService.getPaginated({
           isActive: true,
           page: 1,
           pageSize: 1000,
@@ -89,17 +80,21 @@ export function TeacherFilters({
   const hasActiveFilters =
     Boolean(searchValue?.trim()) ||
     Boolean(schoolId) ||
-    Boolean(employmentStatus) ||
-    status !== "all";
+    Boolean(employmentStatus);
 
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Filter
+            className="h-4 w-4 text-muted-foreground"
+            aria-hidden="true"
+          />
           <div>
             <h3 className="text-sm font-semibold">{t("filters.title")}</h3>
-            <p className="text-xs text-muted-foreground">{t("filters.subtitle")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("filters.subtitle")}
+            </p>
           </div>
         </div>
         {hasActiveFilters && (
@@ -130,7 +125,9 @@ export function TeacherFilters({
               disabled={disabled}
               onChange={(event) => onSearchChange(event.target.value)}
               className="h-9 text-sm w-full min-w-0 pr-8 md:min-w-72"
-              aria-describedby={searchLoading ? "teacher-search-loading" : undefined}
+              aria-describedby={
+                searchLoading ? "teacher-search-loading" : undefined
+              }
             />
             {searchLoading && (
               <div
@@ -160,10 +157,18 @@ export function TeacherFilters({
             disabled={disabled || loadingSchools}
           >
             <SelectTrigger id="school-filter" className="h-9 text-sm">
-              <SelectValue placeholder={loadingSchools ? t("filters.loadingSchools") : t("filters.schoolPlaceholder")} />
+              <SelectValue
+                placeholder={
+                  loadingSchools
+                    ? t("filters.loadingSchools")
+                    : t("filters.schoolPlaceholder")
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("filters.schoolPlaceholder")}</SelectItem>
+              <SelectItem value="all">
+                {t("filters.schoolPlaceholder")}
+              </SelectItem>
               {(schools || []).map((school) => (
                 <SelectItem key={school.id} value={String(school.id)}>
                   {school.schoolName}
@@ -188,36 +193,19 @@ export function TeacherFilters({
             }}
             disabled={disabled}
           >
-            <SelectTrigger id="employment-status-filter" className="h-9 text-sm">
+            <SelectTrigger
+              id="employment-status-filter"
+              className="h-9 text-sm"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("filters.employmentStatusPlaceholder")}</SelectItem>
+              <SelectItem value="all">
+                {t("filters.employmentStatusPlaceholder")}
+              </SelectItem>
               {employmentStatusOptions.map((status) => (
                 <SelectItem key={status} value={status}>
                   {t(`form.employmentStatus.${status}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="status-filter" className="text-xs">
-            {t("filters.statusLabel")}
-          </Label>
-          <Select
-            value={status}
-            onValueChange={(value) => onStatusChange(value as "all" | "active" | "inactive")}
-            disabled={disabled}
-          >
-            <SelectTrigger id="status-filter" className="h-9 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {statusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {t(option.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -227,4 +215,3 @@ export function TeacherFilters({
     </div>
   );
 }
-

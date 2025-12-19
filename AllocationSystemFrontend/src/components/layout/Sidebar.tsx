@@ -66,6 +66,10 @@ export default function Sidebar() {
         crumbs.push({ label: t("navigation.baseDataTeachers") });
       } else if (path === ROUTES.baseData.internshipTypes) {
         crumbs.push({ label: t("navigation.baseDataInternshipTypes") });
+      } else if (path === ROUTES.baseData.zoneConstraints) {
+        crumbs.push({
+          label: t("navigation.baseDataZoneConstraints"),
+        });
       }
       return crumbs;
     }
@@ -77,8 +81,8 @@ export default function Sidebar() {
         crumbs.push({ label: t("navigation.teacherManagementTeacherSubjects") });
       } else if (path === ROUTES.teacherManagement.teacherAvailability) {
         crumbs.push({ label: t("navigation.teacherManagementTeacherAvailability") });
-      } else if (path === ROUTES.teacherManagement.teacherFormSubmissions) {
-        crumbs.push({ label: t("navigation.teacherManagementTeacherFormSubmissions") });
+      } else if (path === ROUTES.teacherManagement.teacherSubmissions) {
+        crumbs.push({ label: t("navigation.teacherManagementTeacherSubmissions") });
       }
       return crumbs;
     }
@@ -98,9 +102,7 @@ export default function Sidebar() {
         crumbs.push({ label: t("navigation.allocationPlanningTeacherAssignments") });
       } else if (path === ROUTES.allocationPlanning.creditHourTracking) {
         crumbs.push({ label: t("navigation.allocationPlanningCreditHourTracking") });
-      } else if (path === ROUTES.allocationPlanning.zoneConstraints) {
-        crumbs.push({ label: t("navigation.allocationPlanningZoneConstraints") });
-      } else if (path === ROUTES.allocationPlanning.planChangeLogs) {
+      }  else if (path === ROUTES.allocationPlanning.planChangeLogs) {
         crumbs.push({ label: t("navigation.allocationPlanningPlanChangeLogs") });
       }
       return crumbs;

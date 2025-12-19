@@ -1,6 +1,14 @@
-export type EmploymentStatus = "FULL_TIME" | "PART_TIME" | "ON_LEAVE" | "CONTRACT" | "PROBATION" | "RETIRED";
+export type EmploymentStatus =
+  | "ACTIVE"
+  | "INACTIVE_THIS_YEAR"
+  | "ON_LEAVE"
+  | "ARCHIVED";
 
-export type UsageCycle = "SEMESTER_1" | "SEMESTER_2" | "FULL_YEAR" | "QUARTERLY";
+export type UsageCycle =
+  | "GRADES_1_2"
+  | "GRADES_3_4"
+  | "GRADES_5_TO_9"
+  | "FLEXIBLE";
 
 export interface Teacher {
   id: number;
@@ -11,9 +19,9 @@ export interface Teacher {
   email: string;
   phone?: string | null;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle | null;
-  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -30,7 +38,6 @@ export interface TeacherFilters {
   search?: string;
   schoolId?: number;
   employmentStatus?: EmploymentStatus;
-  isActive?: boolean;
 }
 
 export interface TeacherListParams extends TeacherFilters {
@@ -47,9 +54,9 @@ export interface CreateTeacherRequest {
   email: string;
   phone?: string;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle;
-  // Note: isActive is not in the backend create DTO - teachers are created as active by default
 }
 
 export interface UpdateTeacherRequest {
@@ -59,15 +66,18 @@ export interface UpdateTeacherRequest {
   email?: string;
   phone?: string;
   isPartTime?: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus?: EmploymentStatus;
   usageCycle?: UsageCycle;
 }
 
 export interface TeacherStatusUpdateRequest {
-  isActive: boolean;
+  status: EmploymentStatus;
 }
 
-export type TeacherFormErrors = Partial<Record<keyof CreateTeacherRequest, string>> & {
+export type TeacherFormErrors = Partial<
+  Record<keyof CreateTeacherRequest, string>
+> & {
   general?: string;
 };
 
@@ -94,6 +104,7 @@ export interface ParsedTeacherRow {
   email: string;
   phone?: string;
   isPartTime: boolean;
+  workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle;
   errors?: string[];
@@ -127,5 +138,10 @@ export interface ImportResultRow {
   teacher?: Teacher;
 }
 
-export type ImportStep = "upload" | "parsing" | "preview" | "validating" | "importing" | "results";
-
+export type ImportStep =
+  | "upload"
+  | "parsing"
+  | "preview"
+  | "validating"
+  | "importing"
+  | "results";

@@ -41,6 +41,13 @@ backend-test:
     - cd AllocationSystemBackend
     - chmod +x ./gradlew
     - ./gradlew test
+  artifacts:
+    when: always
+    paths:
+      - AllocationSystemBackend/build/test-results/test/*.xml
+      - AllocationSystemBackend/build/reports/tests/test/
+    reports:
+      junit: AllocationSystemBackend/build/test-results/test/*.xml
   rules:
     - changes:
         - AllocationSystemBackend/**

@@ -1,5 +1,7 @@
+// components
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -8,13 +10,21 @@ import {
 import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { TeacherAvailabilityForm } from "./TeacherAvailabilityForm";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+
+// types
 import type {
   TeacherAvailability,
   CreateTeacherAvailabilityRequest,
   UpdateTeacherAvailabilityRequest,
 } from "../types/teacherAvailability.types";
+
+// translations
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+
+// hooks
+import { formatDate } from "@/lib/utils/date";
 
 interface TeacherAvailabilityDialogsProps {
   // Dialog states
@@ -31,8 +41,12 @@ interface TeacherAvailabilityDialogsProps {
   selectedTeacherAvailability: TeacherAvailability | null;
 
   // Handlers
-  onCreateSubmit: (data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest) => Promise<void>;
-  onUpdateSubmit: (data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest) => Promise<void>;
+  onCreateSubmit: (
+    data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest
+  ) => Promise<void>;
+  onUpdateSubmit: (
+    data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest
+  ) => Promise<void>;
   onDelete: () => void;
   onEditClick: (availability: TeacherAvailability) => void;
   onSelectedChange: (availability: TeacherAvailability | null) => void;
@@ -63,6 +77,25 @@ export function TeacherAvailabilityDialogs({
   t,
 }: TeacherAvailabilityDialogsProps) {
   const { t: tCommon } = useTranslation("common");
+
+  const getAvailabilityStatusLabel = (
+    status: string | null | undefined
+  ): string => {
+    if (!status) return t("table.available");
+
+    switch (status) {
+      case "AVAILABLE":
+        return t("table.available");
+      case "PREFERRED":
+        return t("table.preferred");
+      case "NOT_AVAILABLE":
+        return t("table.notAvailable");
+      case "BACKUP_ONLY":
+        return t("table.backupOnly");
+      default:
+        return t("table.available");
+    }
+  };
   return (
     <>
       {/* Create Dialog */}
@@ -72,11 +105,15 @@ export function TeacherAvailabilityDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          <TeacherAvailabilityForm
-            onSubmit={(data) => onCreateSubmit(data as CreateTeacherAvailabilityRequest)}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isLoading={isSubmitting}
-          />
+          <DialogBody>
+            <TeacherAvailabilityForm
+              onSubmit={(data) =>
+                onCreateSubmit(data as CreateTeacherAvailabilityRequest)
+              }
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isLoading={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -102,62 +139,52 @@ export function TeacherAvailabilityDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(availability) => (
-          <div className="space-y-4 py-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.teacher")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.teacherName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.academicYear")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.academicYearName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.internshipType")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.internshipTypeName}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.isAvailable")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.isAvailable ? t("table.available") : t("table.notAvailable")}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.preferenceRank")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.preferenceRank ?? "-"}
-                </div>
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">{t("form.fields.notes")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.notes || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.createdAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.createdAt
-                    ? new Date(availability.createdAt).toLocaleString()
-                    : "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("form.fields.updatedAt")}</label>
-                <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-                  {availability.updatedAt
-                    ? new Date(availability.updatedAt).toLocaleString()
-                    : "-"}
-                </div>
+          <DialogBody>
+            <div className="space-y-4 pb-2">
+              <div className="grid gap-4 md:grid-cols-2">
+                <ReadOnlyField
+                  label={t("form.fields.teacher")}
+                  value={`${availability.teacherFirstName} ${availability.teacherLastName}`}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.academicYear")}
+                  value={availability.academicYearName}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.internshipType")}
+                  value={availability.internshipTypeName}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.isAvailable")}
+                  value={getAvailabilityStatusLabel(availability.status)}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.preferenceRank")}
+                  value={availability.preferenceRank ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.notes")}
+                  value={availability.notes ?? "-"}
+                />
+                <ReadOnlyField
+                  label={t("form.fields.createdAt")}
+                  value={
+                    availability.createdAt
+                      ? formatDate(availability.createdAt)
+                      : "-"
+                  }
+                />
+                <ReadOnlyField
+                  label={t("form.fields.updatedAt")}
+                  value={
+                    availability.updatedAt
+                      ? formatDate(availability.updatedAt)
+                      : "-"
+                  }
+                />
               </div>
             </div>
-          </div>
+          </DialogBody>
         )}
       />
 
@@ -168,18 +195,22 @@ export function TeacherAvailabilityDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("subtitle")}</DialogDescription>
           </DialogHeader>
-          {selectedTeacherAvailability && (
-            <TeacherAvailabilityForm
-              key={`edit-${selectedTeacherAvailability.availabilityId}`}
-              teacherAvailability={selectedTeacherAvailability}
-              onSubmit={(data) => onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                onSelectedChange(null);
-              }}
-              isLoading={isSubmitting}
-            />
-          )}
+          <DialogBody>
+            {selectedTeacherAvailability && (
+              <TeacherAvailabilityForm
+                key={`edit-${selectedTeacherAvailability.id}`}
+                teacherAvailability={selectedTeacherAvailability}
+                onSubmit={(data) =>
+                  onUpdateSubmit(data as UpdateTeacherAvailabilityRequest)
+                }
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  onSelectedChange(null);
+                }}
+                isLoading={isSubmitting}
+              />
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 

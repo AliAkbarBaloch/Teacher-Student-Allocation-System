@@ -18,7 +18,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +35,7 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
 
     @Override
     public List<Map<String, String>> getSortFields() {
-        List<Map<String, String>> fields = new ArrayList<>();
-        fields.add(Map.of("key", "id", "label", "ID"));
-        fields.add(Map.of("key", "teacherId", "label", "Teacher ID"));
-        fields.add(Map.of("key", "createdAt", "label", "Creation Date"));
-        fields.add(Map.of("key", "updatedAt", "label", "Last Updated"));
-        return fields;
+        return SortFieldUtils.getSortFields("id", "teacherId", "createdAt", "updatedAt");
     }
 
     public List<String> getSortFieldKeys() {
@@ -47,11 +47,10 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     }
 
     private Specification<TeacherAvailability> buildSearchSpecification(String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        return (root, query, cb) -> cb.like(cb.lower(root.get("notes")), likePattern);
+        // Search across notes (extend fields if needed)
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
+            new String[]{"notes"}, searchValue
+        );
     }
 
     @Override

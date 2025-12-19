@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "plan_change_logs", indexes = {
         @Index(name = "idx_plan_change_plan", columnList = "plan_id"),
-        @Index(name = "idx_plan_change_user", columnList = "user_id"),
         @Index(name = "idx_plan_change_entity_type", columnList = "entity_type"),
         @Index(name = "idx_plan_change_timestamp", columnList = "event_timestamp")
 })
@@ -27,13 +26,12 @@ public class PlanChangeLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "event_timestamp", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime eventTimestamp;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false, foreignKey = @ForeignKey(name = "fk_plan_change_plan"))
     private AllocationPlan allocationPlan;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_plan_change_user"))
-    private User user;
 
     @Column(name = "change_type", nullable = false, length = 50)
     private String changeType;
@@ -50,16 +48,26 @@ public class PlanChangeLog {
     @Column(name = "new_value", columnDefinition = "TEXT")
     private String newValue;
 
-    @Column(name = "event_timestamp", nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime eventTimestamp;
-
     @Column(name = "reason", length = 500)
     private String reason;
+
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         if (eventTimestamp == null) {
             eventTimestamp = LocalDateTime.now();
         }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

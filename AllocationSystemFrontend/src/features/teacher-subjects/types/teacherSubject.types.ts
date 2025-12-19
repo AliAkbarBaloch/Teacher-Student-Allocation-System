@@ -2,16 +2,18 @@
  * TeacherSubject management types
  */
 
+export type AvailabilityStatus = "AVAILABLE" | "NOT_AVAILABLE" | "LIMITED" | "PREFERRED";
+
 export interface TeacherSubject {
   id: number;
   academicYearId: number;
-  academicYearName: string;
+  academicYearTitle: string;
   teacherId: number;
-  teacherName: string;
+  teacherTitle: string;
   subjectId: number;
   subjectCode: string;
   subjectTitle: string;
-  availabilityStatus: "AVAILABLE" | "NOT_AVAILABLE" | "LIMITED" | "PREFERRED" | string;
+  availabilityStatus: AvailabilityStatus;
   gradeLevelFrom?: number | null;
   gradeLevelTo?: number | null;
   notes?: string | null;
@@ -23,14 +25,14 @@ export interface CreateTeacherSubjectRequest {
   academicYearId: number;
   teacherId: number;
   subjectId: number;
-  availabilityStatus: "AVAILABLE" | "NOT_AVAILABLE" | "LIMITED" | "PREFERRED" | string;
+  availabilityStatus: AvailabilityStatus
   gradeLevelFrom?: number | null;
   gradeLevelTo?: number | null;
   notes?: string | null;
 }
 
 export interface UpdateTeacherSubjectRequest {
-  availabilityStatus?: "AVAILABLE" | "NOT_AVAILABLE" | "LIMITED" | "PREFERRED" | string;
+  availabilityStatus?: AvailabilityStatus
   gradeLevelFrom?: number | null;
   gradeLevelTo?: number | null;
   notes?: string | null;

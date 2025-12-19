@@ -1,0 +1,164 @@
+{
+  "title": "Teacher Submissions",
+  "subtitle": "View and manage teacher submissions per academic year.",
+  "table": {
+    "teacher": "Teacher",
+    "academicYear": "Academic Year",
+    "submittedAt": "Submitted At",
+    "processed": "Processed",
+    "invited": "Invited",
+    "invitedStatus": {
+      "invited": "Invited",
+      "accepted": "Accepted",
+      "notInvited": "-"
+    },
+    "formToken": "Form Token",
+    "formLink": "Form Link",
+    "linkGenerated": "Link Generated",
+    "linkCopied": "Form link copied to clipboard",
+    "copyLink": "Copy link",
+    "openLink": "Open link",
+    "yes": "Yes",
+    "no": "No",
+    "empty": "No form submissions found.",
+    "searchPlaceholder": "Search submissions...",
+    "perPage": "per page",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": {
+      "display": "Showing {{from}} to {{to}} of {{total}} entries"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "subtitle": "Filter submissions by academic year, teacher, or processing status.",
+    "yearLabel": "Academic Year",
+    "yearPlaceholder": "All years",
+    "loadingYears": "Loading years...",
+    "teacherLabel": "Teacher",
+    "teacherPlaceholder": "Search by teacher name or email",
+    "processedStatusLabel": "Processed Status",
+    "statusAll": "All",
+    "statusProcessed": "Processed",
+    "statusUnprocessed": "Unprocessed",
+    "reset": "Reset filters"
+  },
+  "actions": {
+    "view": "View",
+    "markProcessed": "Mark as Processed",
+    "markUnprocessed": "Mark as Unprocessed",
+    "generateLink": "Generate Form Link"
+  },
+  "form": {
+    "title": {
+      "view": "Form Submission Details"
+    },
+    "description": "View the complete details of this form submission.",
+    "fields": {
+      "teacher": "Teacher",
+      "academicYear": "Academic Year",
+      "formToken": "Form Token",
+      "submittedAt": "Submitted At",
+      "status": "Status",
+      "processed": "Processed",
+      "unprocessed": "Unprocessed",
+      "submissionData": "Submission Data"
+    },
+    "submissionDetails": "Submission Details"
+  },
+  "statusDialog": {
+    "title": "Change Processing Status",
+    "messageProcessed": "Are you sure you want to mark this submission as processed?",
+    "messageUnprocessed": "Are you sure you want to mark this submission as unprocessed?",
+    "teacher": "Teacher",
+    "academicYear": "Academic Year"
+  },
+  "notifications": {
+    "markedProcessed": "Submission marked as processed successfully.",
+    "markedUnprocessed": "Submission marked as unprocessed successfully."
+  },
+  "errors": {
+    "loadFailed": "Failed to load form submissions.",
+    "updateFailed": "Failed to update submission status."
+  },
+  "formLink": {
+    "title": "Generate Form Link",
+    "description": "Generate a shareable link for a teacher to fill out their form.",
+    "teacher": "Teacher",
+    "academicYear": "Academic Year",
+    "selectTeacher": "Select a teacher",
+    "selectYear": "Select an academic year",
+    "formUrl": "Form URL",
+    "generate": "Generate Link",
+    "generating": "Generating...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "success": {
+      "generated": "Form link generated successfully.",
+      "copied": "Link copied to clipboard."
+    },
+    "errors": {
+      "title": "Error",
+      "missingFields": "Please select both teacher and academic year.",
+      "generateFailed": "Failed to generate form link.",
+      "copyFailed": "Failed to copy link to clipboard.",
+      "alreadyExists": "A form submission already exists for this teacher and academic year.",
+      "yearLocked": "Cannot generate form link for locked academic year.",
+      "teacherNotFound": "Teacher not found.",
+      "yearNotFound": "Academic year not found.",
+      "networkError": "Network error. Please check your connection and try again.",
+      "unknownError": "An unexpected error occurred. Please try again."
+    },
+    "info": {
+      "title": "How to share",
+      "description": "Copy the link above and share it with the teacher via email or any other method. The teacher can use this link to fill out and submit their form without logging in."
+    }
+  },
+  "publicForm": {
+    "title": "Teacher Form Submission",
+    "description": "Please fill out your form for {{yearName}}. This form is for {{teacherName}}.",
+    "teacher": "Teacher",
+    "academicYear": "Academic Year",
+    "schoolType": "School Type",
+    "selectSchoolType": "Select a school type",
+    "selectSchoolTypeFirst": "Please select a school type first",
+    "schoolTypeOptions": {
+      "PRIMARY": "Primary School",
+      "MIDDLE": "Middle School"
+    },
+    "school": "School Name",
+    "selectSchool": "Select a school",
+    "subjects": "Subjects",
+    "selectSubjects": "Select subjects",
+    "subjectsHint": "Select all subjects you are qualified to teach",
+    "internshipTypes": "Internship Types",
+    "selectInternshipTypes": "Select internship types",
+    "internshipTypesHint": "Select all internship types you are willing to supervise",
+    "notes": "Notes or Special Remarks",
+    "notesPlaceholder": "Enter any additional notes, special remarks, or preferences...",
+    "notesHint": "Optional: Add any additional information that might be relevant",
+    "submit": "Submit Form",
+    "submitting": "Submitting...",
+    "loading": "Loading form...",
+    "backToHome": "Back to Home",
+    "validation": {
+      "schoolTypeRequired": "Please select a school type",
+      "schoolRequired": "Please select a school",
+      "subjectsRequired": "Please select at least one subject",
+      "internshipTypesRequired": "Please select at least one internship type"
+    },
+    "success": {
+      "title": "Form Submitted Successfully",
+      "message": "Thank you {{teacherName}}! Your form submission for {{yearName}} has been received successfully.",
+      "submitted": "Form submitted successfully."
+    },
+    "errors": {
+      "title": "Error",
+      "invalidToken": "Invalid form token.",
+      "loadFailed": "Failed to load form details.",
+      "notFound": "Form not found or has already been submitted.",
+      "missingData": "Please provide submission data.",
+      "submitFailed": "Failed to submit form. Please try again."
+    }
+  }
+}

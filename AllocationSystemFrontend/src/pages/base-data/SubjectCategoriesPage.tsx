@@ -15,6 +15,8 @@ import { useSubjectCategoriesPage } from "@/features/subject-categories/hooks/us
 import { useSubjectCategoriesColumnConfig } from "@/features/subject-categories/utils/columnConfig";
 // types
 import type { SubjectCategory } from "@/features/subject-categories/types/subjectCategory.types";
+// utils
+import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
 export default function SubjectCategoriesPage() {
   const { t } = useTranslation("subjectCategories");
@@ -30,6 +32,9 @@ export default function SubjectCategoriesPage() {
     isSubmitting,
     formError,
     setFormError,
+    pagination,
+    handlePageChange,
+    handlePageSizeChange,
     handleCreate: handleCreateInternal,
     handleUpdate: handleUpdateInternal,
     handleDelete: handleDeleteInternal,
@@ -111,12 +116,21 @@ export default function SubjectCategoriesPage() {
         searchPlaceholder={t("table.searchPlaceholder")}
         enableSearch={true}
         enableColumnVisibility={true}
-        enablePagination={true}
+        enablePagination={false}
         loading={loading}
         error={error}
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
         tableLayout="fixed"
+        pageSizeOptions={TABLE_PAGE_SIZE_OPTIONS}
+        serverSidePagination={{
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          onPageChange: handlePageChange,
+          onPageSizeChange: handlePageSizeChange,
+        }}
         actions={{
           onView: handleViewClick,
           onEdit: handleEditClick,

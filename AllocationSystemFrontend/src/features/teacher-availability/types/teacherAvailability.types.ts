@@ -2,14 +2,18 @@
  * TeacherAvailability management types
  */
 
+export type AvailabilityStatus = "AVAILABLE" | "PREFERRED" | "NOT_AVAILABLE" | "BACKUP_ONLY";
+
 export interface TeacherAvailability {
-  availabilityId: number;
+  id: number;
   teacherId: number;
-  teacherName: string;
+  teacherFirstName: string;
+  teacherLastName: string;
   academicYearId: number;
   academicYearName: string;
   internshipTypeId: number;
   internshipTypeName: string;
+  status: AvailabilityStatus;
   isAvailable: boolean;
   preferenceRank?: number | null;
   notes?: string | null;
@@ -21,12 +25,14 @@ export interface CreateTeacherAvailabilityRequest {
   teacherId: number;
   academicYearId: number;
   internshipTypeId: number;
-  isAvailable: boolean;
+  status: AvailabilityStatus;
+  isAvailable?: boolean;
   preferenceRank?: number | null;
   notes?: string | null;
 }
 
 export interface UpdateTeacherAvailabilityRequest {
+  status?: AvailabilityStatus;
   isAvailable?: boolean;
   preferenceRank?: number | null;
   notes?: string | null;

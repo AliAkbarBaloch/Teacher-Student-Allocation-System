@@ -12,7 +12,7 @@ import type {
   ImportStep,
 } from "../types/teacher.types";
 
-export function useBulkImport() {
+export function useBulkImport(onImportComplete?: () => void) {
   const [step, setStep] = useState<ImportStep>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedTeacherRow[]>([]);
@@ -31,7 +31,7 @@ export function useBulkImport() {
       let hasMore = true;
 
       while (hasMore) {
-        const response = await SchoolService.list({
+        const response = await SchoolService.getPaginated({
           isActive: true,
           page,
           pageSize,
@@ -64,8 +64,13 @@ export function useBulkImport() {
     setIsLoading(true);
 
     try {
-      // Parse Excel file
-      const parsed = await parseExcelFile(selectedFile);
+      // Parse Excel file with progress updates
+      // 
+        const parsed = await parseExcelFile(selectedFile, (progress) => {
+          // Progress updates can be used for UI feedback if needed
+          // For now, we just ensure the UI doesn't freeze
+          console.log("Progress:", progress);
+        });
       setParsedData(parsed);
 
       // Load schools for validation
@@ -76,8 +81,16 @@ export function useBulkImport() {
       const emailsToCheck = parsed.map(row => row.email.toLowerCase().trim());
       const existingEmails = await TeacherService.checkExistingEmails(emailsToCheck);
 
-      // Validate data (including database email check)
-      const validation = validateAllRows(parsed, loadedSchools, existingEmails);
+      // Validate data (including database email check) with progress updates
+      const validation = await validateAllRows(
+        parsed, 
+        loadedSchools, 
+        existingEmails,
+        (progress) => {
+          // Progress updates can be used for UI feedback if needed
+          console.log("Validation progress:", progress);
+        }
+      );
       setValidationResult(validation);
 
       setStep("preview");
@@ -131,6 +144,8 @@ export function useBulkImport() {
 
       if (results.successfulRows > 0) {
         toast.success(`Successfully imported ${results.successfulRows} teachers`);
+        // Call the callback immediately after successful import to refresh the table
+        onImportComplete?.();
       }
       if (results.failedRows > 0) {
         toast.error(`${results.failedRows} teachers failed to import`);
@@ -158,7 +173,7 @@ export function useBulkImport() {
     } finally {
       setIsLoading(false);
     }
-  }, [file, validationResult]);
+  }, [file, validationResult, onImportComplete]);
 
   // Reset to start over
   const reset = useCallback(() => {

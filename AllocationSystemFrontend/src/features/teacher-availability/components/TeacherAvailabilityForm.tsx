@@ -1,30 +1,34 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
+// translations
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AlertCircle, Loader2 } from "lucide-react";
+//types
 import type {
   TeacherAvailability,
   CreateTeacherAvailabilityRequest,
   UpdateTeacherAvailabilityRequest,
+  AvailabilityStatus,
 } from "../types/teacherAvailability.types";
 import type { Teacher } from "@/features/teachers/types/teacher.types";
 import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
 import type { InternshipType } from "@/features/internship-types/types/internshipType.types";
 import { TeacherService } from "@/features/teachers/services/teacherService";
+
+// services
 import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
 import { InternshipTypeService } from "@/features/internship-types/services/internshipTypeService";
 
+// components
+import { SelectField } from "@/components/form/fields/SelectField";
+import { NumberField } from "@/components/form/fields/NumberField";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { CancelButton } from "@/components/form/button/CancelButton";
+import { SubmitButton } from "@/components/form/button/SubmitButton";
+
 interface TeacherAvailabilityFormProps {
   teacherAvailability?: TeacherAvailability | null;
-  onSubmit: (data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest) => Promise<void>;
+  onSubmit: (
+    data: CreateTeacherAvailabilityRequest | UpdateTeacherAvailabilityRequest
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
@@ -35,18 +39,19 @@ export function TeacherAvailabilityForm({
   onSubmit,
   onCancel,
   isLoading = false,
-  error: externalError = null,
 }: TeacherAvailabilityFormProps) {
   const { t } = useTranslation("teacherAvailability");
   const { t: tCommon } = useTranslation("common");
 
-  const [formData, setFormData] = useState<CreateTeacherAvailabilityRequest>(() => {
+  const [formData, setFormData] = useState<
+    CreateTeacherAvailabilityRequest & { status: AvailabilityStatus }
+  >(() => {
     if (teacherAvailability) {
       return {
         teacherId: teacherAvailability.teacherId,
         academicYearId: teacherAvailability.academicYearId,
         internshipTypeId: teacherAvailability.internshipTypeId,
-        isAvailable: teacherAvailability.isAvailable,
+        status: teacherAvailability.status || "AVAILABLE",
         preferenceRank: teacherAvailability.preferenceRank ?? null,
         notes: teacherAvailability.notes ?? "",
       };
@@ -55,7 +60,7 @@ export function TeacherAvailabilityForm({
       teacherId: 0,
       academicYearId: 0,
       internshipTypeId: 0,
-      isAvailable: true,
+      status: "AVAILABLE",
       preferenceRank: null,
       notes: "",
     };
@@ -67,7 +72,9 @@ export function TeacherAvailabilityForm({
   const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [loadingAcademicYears, setLoadingAcademicYears] = useState(true);
   const [loadingInternshipTypes, setLoadingInternshipTypes] = useState(true);
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateTeacherAvailabilityRequest, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateTeacherAvailabilityRequest, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -118,7 +125,7 @@ export function TeacherAvailabilityForm({
         teacherId: teacherAvailability.teacherId,
         academicYearId: teacherAvailability.academicYearId,
         internshipTypeId: teacherAvailability.internshipTypeId,
-        isAvailable: teacherAvailability.isAvailable,
+        status: teacherAvailability.status || "AVAILABLE",
         preferenceRank: teacherAvailability.preferenceRank ?? null,
         notes: teacherAvailability.notes ?? "",
       });
@@ -127,7 +134,7 @@ export function TeacherAvailabilityForm({
         teacherId: 0,
         academicYearId: 0,
         internshipTypeId: 0,
-        isAvailable: true,
+        status: "AVAILABLE",
         preferenceRank: null,
         notes: "",
       });
@@ -136,7 +143,9 @@ export function TeacherAvailabilityForm({
   }, [teacherAvailability]);
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateTeacherAvailabilityRequest, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CreateTeacherAvailabilityRequest, string>
+    > = {};
 
     if (!formData.teacherId || formData.teacherId <= 0) {
       newErrors.teacherId = t("form.errors.teacherRequired");
@@ -147,7 +156,14 @@ export function TeacherAvailabilityForm({
     if (!formData.internshipTypeId || formData.internshipTypeId <= 0) {
       newErrors.internshipTypeId = t("form.errors.internshipTypeRequired");
     }
-    if (formData.preferenceRank !== null && formData.preferenceRank !== undefined && formData.preferenceRank <= 0) {
+    if (!formData.status) {
+      newErrors.status = t("form.errors.isAvailableRequired");
+    }
+    if (
+      formData.preferenceRank !== null &&
+      formData.preferenceRank !== undefined &&
+      formData.preferenceRank <= 0
+    ) {
       newErrors.preferenceRank = t("form.errors.preferenceRankPositive");
     }
     setErrors(newErrors);
@@ -161,7 +177,7 @@ export function TeacherAvailabilityForm({
     try {
       if (teacherAvailability) {
         const updateData: UpdateTeacherAvailabilityRequest = {
-          isAvailable: formData.isAvailable,
+          status: formData.status,
           preferenceRank: formData.preferenceRank,
           notes: formData.notes,
         };
@@ -171,7 +187,7 @@ export function TeacherAvailabilityForm({
           teacherId: formData.teacherId,
           academicYearId: formData.academicYearId,
           internshipTypeId: formData.internshipTypeId,
-          isAvailable: formData.isAvailable,
+          status: formData.status,
           preferenceRank: formData.preferenceRank,
           notes: formData.notes,
         };
@@ -182,7 +198,10 @@ export function TeacherAvailabilityForm({
     }
   };
 
-  const handleChange = (field: keyof CreateTeacherAvailabilityRequest, value: string | number | boolean | null) => {
+  const handleChange = (
+    field: keyof CreateTeacherAvailabilityRequest,
+    value: string | number | boolean | null | AvailabilityStatus
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -190,187 +209,140 @@ export function TeacherAvailabilityForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      {(externalError || Object.keys(errors).length > 0) && (
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          <AlertCircle className="h-4 w-4" />
-          <span>{externalError || Object.values(errors)[0]}</span>
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} className="space-y-4 pb-2">
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="teacherId" className="text-sm font-medium">
-            {t("form.fields.teacher")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Select
-            value={formData.teacherId > 0 ? String(formData.teacherId) : ""}
-            onValueChange={(value) => handleChange("teacherId", Number(value))}
-            disabled={isLoading || isSubmitting || loadingTeachers}
-          >
-            <SelectTrigger className={errors.teacherId ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.teacher")} />
-            </SelectTrigger>
-            <SelectContent>
-              {teachers.length === 0 && !loadingTeachers ? (
-                <SelectItem value="" disabled>
-                  {t("form.placeholders.noTeachers")}
-                </SelectItem>
-              ) : (
-                teachers.map((teacher) => (
-                  <SelectItem key={teacher.id} value={String(teacher.id)}>
-                    {teacher.firstName} {teacher.lastName} ({teacher.email})
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-          {errors.teacherId && (
-            <p className="text-sm text-destructive">{errors.teacherId}</p>
-          )}
-        </div>
+        <SelectField
+          id="teacherId"
+          label={t("form.fields.teacher")}
+          value={formData.teacherId > 0 ? String(formData.teacherId) : ""}
+          onChange={(value: string) => handleChange("teacherId", Number(value))}
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.teacher"),
+              disabled: true,
+            },
+            ...teachers.map((teacher) => ({
+              value: String(teacher.id),
+              label: `${teacher.firstName} ${teacher.lastName} (${teacher.email})`,
+            })),
+          ]}
+          placeholder={t("form.placeholders.teacher")}
+          disabled={isLoading || isSubmitting || loadingTeachers}
+          error={errors.teacherId}
+        />
+        <SelectField
+          id="academicYearId"
+          label={t("form.fields.academicYear")}
+          value={
+            formData.academicYearId > 0 ? String(formData.academicYearId) : ""
+          }
+          onChange={(value: string) =>
+            handleChange("academicYearId", Number(value))
+          }
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.academicYear"),
+              disabled: true,
+            },
+            ...academicYears.map((year) => ({
+              value: String(year.id),
+              label: year.yearName,
+            })),
+          ]}
+          placeholder={t("form.placeholders.academicYear")}
+          disabled={isLoading || isSubmitting || loadingAcademicYears}
+          error={errors.academicYearId}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="academicYearId" className="text-sm font-medium">
-            {t("form.fields.academicYear")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Select
-            value={formData.academicYearId > 0 ? String(formData.academicYearId) : ""}
-            onValueChange={(value) => handleChange("academicYearId", Number(value))}
-            disabled={isLoading || isSubmitting || loadingAcademicYears}
-          >
-            <SelectTrigger className={errors.academicYearId ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.academicYear")} />
-            </SelectTrigger>
-            <SelectContent>
-              {academicYears.length === 0 && !loadingAcademicYears ? (
-                <SelectItem value="" disabled>
-                  {t("form.placeholders.noAcademicYears")}
-                </SelectItem>
-              ) : (
-                academicYears.map((year) => (
-                  <SelectItem key={year.id} value={String(year.id)}>
-                    {year.yearName}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-          {errors.academicYearId && (
-            <p className="text-sm text-destructive">{errors.academicYearId}</p>
-          )}
-        </div>
+        <SelectField
+          id="internshipTypeId"
+          label={t("form.fields.internshipType")}
+          value={
+            formData.internshipTypeId > 0
+              ? String(formData.internshipTypeId)
+              : ""
+          }
+          onChange={(value: string) =>
+            handleChange("internshipTypeId", Number(value))
+          }
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.internshipType"),
+              disabled: true,
+            },
+            ...internshipTypes.map((type) => ({
+              value: String(type.id),
+              label: type.fullName,
+            })),
+          ]}
+          placeholder={t("form.placeholders.internshipType")}
+          disabled={isLoading || isSubmitting || loadingInternshipTypes}
+          error={errors.internshipTypeId}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="internshipTypeId" className="text-sm font-medium">
-            {t("form.fields.internshipType")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Select
-            value={formData.internshipTypeId > 0 ? String(formData.internshipTypeId) : ""}
-            onValueChange={(value) => handleChange("internshipTypeId", Number(value))}
-            disabled={isLoading || isSubmitting || loadingInternshipTypes}
-          >
-            <SelectTrigger className={errors.internshipTypeId ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.internshipType")} />
-            </SelectTrigger>
-            <SelectContent>
-              {internshipTypes.length === 0 && !loadingInternshipTypes ? (
-                <SelectItem value="" disabled>
-                  {t("form.placeholders.noInternshipTypes")}
-                </SelectItem>
-              ) : (
-                internshipTypes.map((type) => (
-                  <SelectItem key={type.id} value={String(type.id)}>
-                    {type.fullName}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-          {errors.internshipTypeId && (
-            <p className="text-sm text-destructive">{errors.internshipTypeId}</p>
-          )}
-        </div>
+        <SelectField
+          id="status"
+          label={t("form.fields.isAvailable")}
+          value={formData.status ?? ""}
+          onChange={(value: string) => handleChange("status", value)}
+          options={[
+            {
+              value: "__placeholder__",
+              label: t("form.placeholders.isAvailable"),
+              disabled: true,
+            },
+            { value: "AVAILABLE", label: t("table.available") },
+            { value: "PREFERRED", label: t("table.preferred") },
+            { value: "NOT_AVAILABLE", label: t("table.notAvailable") },
+            { value: "BACKUP_ONLY", label: t("table.backupOnly") },
+          ]}
+          placeholder={t("form.placeholders.isAvailable")}
+          disabled={isLoading || isSubmitting}
+          error={errors.status}
+        />
 
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="isAvailable" className="text-sm font-medium">
-            {t("form.fields.isAvailable")}
-            <span className="text-destructive ml-1">*</span>
-          </label>
-          <Select
-            value={formData.isAvailable ? "true" : "false"}
-            onValueChange={(value) => handleChange("isAvailable", value === "true")}
-            disabled={isLoading || isSubmitting}
-          >
-            <SelectTrigger className={errors.isAvailable ? "border-destructive" : ""}>
-              <SelectValue placeholder={t("form.placeholders.isAvailable")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="true">{t("table.available")}</SelectItem>
-              <SelectItem value="false">{t("table.notAvailable")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2 col-span-1">
-          <label htmlFor="preferenceRank" className="text-sm font-medium">
-            {t("form.fields.preferenceRank")}
-          </label>
-          <Input
-            id="preferenceRank"
-            type="number"
-            value={formData.preferenceRank ?? ""}
-            onChange={(e) =>
-              handleChange("preferenceRank", e.target.value === "" ? null : Number(e.target.value))
-            }
-            placeholder={t("form.placeholders.preferenceRank")}
-            disabled={isLoading || isSubmitting}
-            min={1}
-          />
-          {errors.preferenceRank && (
-            <p className="text-sm text-destructive">{errors.preferenceRank}</p>
-          )}
-        </div>
-
-        <div className="space-y-2 md:col-span-2">
-          <label htmlFor="notes" className="text-sm font-medium">
-            {t("form.fields.notes")}
-          </label>
-          <Input
+        <NumberField
+          id="preferenceRank"
+          label={t("form.fields.preferenceRank")}
+          value={formData.preferenceRank ?? ""}
+          onChange={(value: number) => handleChange("preferenceRank", value)}
+          placeholder={t("form.placeholders.preferenceRank")}
+          disabled={isLoading || isSubmitting}
+          error={errors.preferenceRank}
+        />
+        <div className="col-span-2">
+          <TextAreaField
             id="notes"
+            label={t("form.fields.notes")}
             value={formData.notes ?? ""}
-            onChange={(e) => handleChange("notes", e.target.value)}
+            onChange={(value: string) => handleChange("notes", value)}
             placeholder={t("form.placeholders.notes")}
             disabled={isLoading || isSubmitting}
-            maxLength={1000}
+            error={errors.notes}
+            maxLength={500}
+            rows={4}
           />
         </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button
-          type="button"
-          variant="outline"
+        <CancelButton
           onClick={onCancel}
           disabled={isLoading || isSubmitting}
         >
           {tCommon("actions.cancel")}
-        </Button>
-        <Button type="submit" disabled={isLoading || isSubmitting}>
-          {isSubmitting || isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tCommon("actions.saving")}
-            </>
-          ) : teacherAvailability ? (
-            tCommon("actions.update")
-          ) : (
-            tCommon("actions.create")
-          )}
-        </Button>
+        </CancelButton>
+        <SubmitButton
+          isLoading={isSubmitting || isLoading}
+          isEdit={!!teacherAvailability}
+          createText={tCommon("actions.create")}
+          updateText={tCommon("actions.update")}
+          savingText={tCommon("actions.saving")}
+          disabled={isLoading || isSubmitting}
+        />
       </div>
     </form>
   );

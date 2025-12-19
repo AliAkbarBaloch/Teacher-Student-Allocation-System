@@ -7,6 +7,7 @@ import {
   TrendingUp,
   BarChart3,
   Database,
+  LucideLayoutDashboard,
 } from "lucide-react"
 // translations
 import { useTranslation } from "react-i18next"
@@ -47,6 +48,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: LayoutDashboard,
           isActive: location.pathname === ROUTES.main.dashboard,
         },
+        {
+          title: t("navigation.allocationReport"),
+          url: ROUTES.main.allocationReport,
+          icon: LucideLayoutDashboard,
+          isActive: location.pathname === ROUTES.main.allocationReport,
+        },
       ],
     },
     {
@@ -82,6 +89,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: t("navigation.baseDataInternshipTypes"),
               url: ROUTES.baseData.internshipTypes,
             },
+            {
+              title: t("navigation.baseDataZoneConstraints"),
+              url: ROUTES.baseData.zoneConstraints,
+            },
           ],
         },
         {
@@ -99,8 +110,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: ROUTES.teacherManagement.teacherAvailability,
             },
             {
-              title: t("navigation.teacherManagementTeacherFormSubmissions"),
-              url: ROUTES.teacherManagement.teacherFormSubmissions,
+              title: t("navigation.teacherManagementTeacherSubmissions"),
+              url: ROUTES.teacherManagement.teacherSubmissions,
             },
           ],
         },
@@ -132,10 +143,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: t("navigation.allocationPlanningCreditHourTracking"),
               url: ROUTES.allocationPlanning.creditHourTracking,
-            },
-            {
-              title: t("navigation.allocationPlanningZoneConstraints"),
-              url: ROUTES.allocationPlanning.zoneConstraints,
             },
             {
               title: t("navigation.allocationPlanningPlanChangeLogs"),

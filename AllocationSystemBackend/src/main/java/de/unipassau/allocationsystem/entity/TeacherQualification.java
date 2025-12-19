@@ -37,6 +37,7 @@ public class TeacherQualification {
     private Teacher.UsageCycle gradeCycleFocus;
 
     @Column(name = "is_main_subject")
+    @Builder.Default
     private Boolean isMainSubject = true; // Helpful for SFP prioritization
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")

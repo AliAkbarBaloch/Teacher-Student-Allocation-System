@@ -1,0 +1,78 @@
+{
+  "title": "Credit Hour Tracking",
+  "subtitle": "Monitor and manage credit hours allocated to teachers per academic year.",
+  "table": {
+    "teacher": "Teacher",
+    "academicYear": "Academic Year",
+    "assignmentsCount": "Assignments",
+    "creditHoursAllocated": "Hours Allocated",
+    "creditBalance": "Balance",
+    "notes": "Notes",
+    "createdAt": "Created",
+    "empty": "No credit hour tracking entries found.",
+    "emptyDescription": "Credit hour tracking entries will appear here once teacher assignments are created.",
+    "noFilteredResults": "No results match your filters",
+    "noFilteredResultsDescription": "Try adjusting your filters to see more results.",
+    "filteredResults": "filtered",
+    "searchPlaceholder": "Search by teacher name...",
+    "perPage": "per page",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": {
+      "display": "Showing {{from}} to {{to}} of {{total}} entries"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "subtitle": "Filter credit hour tracking by academic year, teacher, or balance.",
+    "yearLabel": "Academic Year",
+    "yearPlaceholder": "All years",
+    "loadingYears": "Loading years...",
+    "teacherLabel": "Teacher",
+    "teacherPlaceholder": "Search by teacher name",
+    "minBalanceLabel": "Min Balance",
+    "minBalancePlaceholder": "Minimum balance",
+    "reset": "Reset filters"
+  },
+  "form": {
+    "title": {
+      "view": "Credit Hour Tracking Details",
+      "edit": "Edit Credit Hour Tracking"
+    },
+    "fields": {
+      "teacher": "Teacher",
+      "academicYear": "Academic Year",
+      "assignmentsCount": "Assignments Count",
+      "creditHoursAllocated": "Credit Hours Allocated",
+      "creditBalance": "Credit Balance",
+      "notes": "Notes",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "placeholders": {
+      "notes": "Enter notes about this credit hour tracking entry..."
+    },
+    "editNotes": "Edit Notes",
+    "noNotes": "No notes available"
+  },
+  "actions": {
+    "view": "View Details",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "delete": {
+    "title": "Delete Credit Hour Tracking Entry",
+    "message": "Are you sure you want to delete this credit hour tracking entry? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "notifications": {
+    "updateSuccess": "Credit hour tracking entry updated successfully",
+    "deleteSuccess": "Credit hour tracking entry deleted successfully"
+  },
+  "errors": {
+    "loadFailed": "Failed to load credit hour tracking entries",
+    "updateFailed": "Failed to update credit hour tracking entry",
+    "deleteFailed": "Failed to delete credit hour tracking entry"
+  }
+}

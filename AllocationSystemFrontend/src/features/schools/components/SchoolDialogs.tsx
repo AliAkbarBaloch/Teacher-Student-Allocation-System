@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -20,10 +21,11 @@ import { ViewDialog } from "@/components/common/ViewDialog";
 import { DeleteConfirmationDialog } from "@/components/common/DeleteConfirmationDialog";
 import { SchoolForm } from "./SchoolForm";
 import { SchoolLocationMap } from "./SchoolLocationMap";
-import { SchoolStatusBadge } from "./SchoolStatusBadge";
 import type { School, CreateSchoolRequest, UpdateSchoolRequest } from "../types/school.types";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { ReadOnlyField } from "@/components/form/view/ReadOnlyField";
+import { Badge } from "@/components/ui/badge";
 
 interface SchoolDialogsProps {
   // Dialog states
@@ -92,12 +94,14 @@ export function SchoolDialogs({
             <DialogTitle>{t("form.title.create")}</DialogTitle>
             <DialogDescription>{t("form.description")}</DialogDescription>
           </DialogHeader>
-          <SchoolForm
-            mode="create"
-            onSubmit={onCreateSubmit}
-            onCancel={() => setIsCreateDialogOpen(false)}
-            isSubmitting={isSubmitting}
-          />
+          <DialogBody>
+            <SchoolForm
+              mode="create"
+              onSubmit={onCreateSubmit}
+              onCancel={() => setIsCreateDialogOpen(false)}
+              isSubmitting={isSubmitting}
+            />
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -108,21 +112,23 @@ export function SchoolDialogs({
             <DialogTitle>{t("form.title.edit")}</DialogTitle>
             <DialogDescription>{t("form.description")}</DialogDescription>
           </DialogHeader>
-          {formLoading ? (
-            <div className="flex min-h-[200px] items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            selectedSchool && (
-              <SchoolForm
-                mode="edit"
-                school={selectedSchool}
-                onSubmit={onUpdateSubmit}
-                onCancel={() => setIsEditDialogOpen(false)}
-                isSubmitting={isSubmitting}
-              />
-            )
-          )}
+          <DialogBody>
+            {formLoading ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              selectedSchool && (
+                <SchoolForm
+                  mode="edit"
+                  school={selectedSchool}
+                  onSubmit={onUpdateSubmit}
+                  onCancel={() => setIsEditDialogOpen(false)}
+                  isSubmitting={isSubmitting}
+                />
+              )
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
 
@@ -143,100 +149,87 @@ export function SchoolDialogs({
         editLabel={tCommon("actions.edit")}
         closeLabel={tCommon("actions.close")}
         renderCustomContent={(school) => (
-          <div className="grid gap-4">
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolName")}</p>
-              <p className="text-base">{school.schoolName}</p>
-            </div>
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.schoolType")}</p>
-              <p>{t(`typeLabels.${school.schoolType}`)}</p>
-            </div>
-            <div className="grid gap-1">
-              <p className="text-sm font-medium text-muted-foreground">{t("form.fields.zoneNumber")}</p>
-              <p>{school.zoneNumber}</p>
-            </div>
-            {school.address && (
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.address")}</p>
-                <p className="whitespace-pre-line">{school.address}</p>
-              </div>
-            )}
-            {school.transportAccessibility && (
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {t("form.fields.transportAccessibility")}
-                </p>
-                <p className="whitespace-pre-line">{school.transportAccessibility}</p>
-              </div>
-            )}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {school.latitude && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.latitude")}</p>
-                  <p>{school.latitude}</p>
-                </div>
-              )}
-              {school.longitude && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("form.fields.longitude")}</p>
-                  <p>{school.longitude}</p>
-                </div>
-              )}
-              {school.distanceFromCenter && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.distanceFromCenter")}
-                  </p>
-                  <p>{school.distanceFromCenter}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("form.fields.isActive")}</p>
-                <SchoolStatusBadge isActive={school.isActive} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {school.contactEmail && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.contactEmail")}
-                  </p>
-                  <a
-                    href={`mailto:${school.contactEmail}`}
-                    className="text-primary underline-offset-2 hover:underline"
-                  >
-                    {school.contactEmail}
-                  </a>
-                </div>
-              )}
-              {school.contactPhone && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {t("form.fields.contactPhone")}
-                  </p>
-                  <a
-                    href={`tel:${school.contactPhone}`}
-                    className="text-primary underline-offset-2 hover:underline"
-                  >
-                    {school.contactPhone}
-                  </a>
-                </div>
-              )}
-            </div>
-            {/* Location Map - at the bottom */}
-            {(school.latitude || school.longitude) && (
-              <div className="grid gap-1">
-                <p className="text-sm font-medium text-muted-foreground">Location Map</p>
-                <SchoolLocationMap
-                  latitude={school.latitude}
-                  longitude={school.longitude}
-                  schoolName={school.schoolName}
-                  className="w-full"
+          <DialogBody>
+            <div className="grid gap-4">
+              <ReadOnlyField
+                label={t("form.fields.schoolName")}
+                value={school.schoolName}
+              />
+              <ReadOnlyField
+                label={t("form.fields.schoolType")}
+                value={t(`typeLabels.${school.schoolType}`)}
+              />
+              <ReadOnlyField
+                label={t("form.fields.zoneNumber")}
+                value={school.zoneNumber}
+              />
+              {school.address && (
+                <ReadOnlyField
+                  label={t("form.fields.address")}
+                  value={school.address}
                 />
-              </div>
-            )}
-          </div>
+              )}
+              {school.transportAccessibility && (
+                <ReadOnlyField
+                  label={t("form.fields.transportAccessibility")}
+                  value={school.transportAccessibility}
+                />
+              )}
+              <ReadOnlyField
+                label={t("form.fields.latitude")}
+                value={school.latitude ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.longitude")}
+                value={school.longitude ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.distanceFromCenter")}
+                value={school.distanceFromCenter ?? "—"}
+              />
+              <ReadOnlyField
+                label={t("form.fields.isActive")}
+                value={<Badge variant={school.isActive ? "success" : "secondary"} className="rounded-sm">{school.isActive ? t("status.active") : t("status.inactive")}</Badge>}
+              />
+              <ReadOnlyField
+                label={t("form.fields.contactEmail")}
+                value={
+                  school.contactEmail ? (
+                    <a
+                      href={`mailto:${school.contactEmail}`}
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      {school.contactEmail}
+                    </a>
+                  ) : "—"
+                }
+              />
+              <ReadOnlyField
+                label={t("form.fields.contactPhone")}
+                value={
+                  school.contactPhone ? (
+                    <a
+                      href={`tel:${school.contactPhone}`}
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      {school.contactPhone}
+                    </a>
+                  ) : "—"
+                }
+              />
+              {(school.latitude || school.longitude) && (
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium text-muted-foreground">Location Map</p>
+                  <SchoolLocationMap
+                    latitude={school.latitude}
+                    longitude={school.longitude}
+                    schoolName={school.schoolName}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+          </DialogBody>
         )}
       />
 

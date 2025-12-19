@@ -12,7 +12,6 @@ export function useSubjectCategoriesColumnConfig(): ColumnConfig[] {
       fieldType: "text",
       fieldRequired: true,
       fieldPlaceholder: t("form.placeholders.title"),
-      width: "25%",
     },
     {
       field: "createdAt",
@@ -21,7 +20,6 @@ export function useSubjectCategoriesColumnConfig(): ColumnConfig[] {
       enableSorting: true,
       fieldType: "date",
       fieldReadOnly: true,
-      width: "25%",
     },
     {
       field: "updatedAt",
@@ -30,7 +28,6 @@ export function useSubjectCategoriesColumnConfig(): ColumnConfig[] {
       enableSorting: true,
       fieldType: "date",
       fieldReadOnly: true,
-      width: "25%",
     },
   ];
 }

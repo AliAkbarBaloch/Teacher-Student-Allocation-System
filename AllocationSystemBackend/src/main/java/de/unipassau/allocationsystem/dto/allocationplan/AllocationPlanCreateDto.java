@@ -30,9 +30,6 @@ public class AllocationPlanCreateDto {
     @NotNull(message = "Status is required")
     private PlanStatus status;
 
-    @NotNull(message = "Creator user ID is required")
-    private Long createdByUserId;
-
     private Boolean isCurrent = false;
 
     @Size(max = 5000, message = "Notes must not exceed 5000 characters")

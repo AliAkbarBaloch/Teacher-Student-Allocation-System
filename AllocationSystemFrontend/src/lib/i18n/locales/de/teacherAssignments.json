@@ -1,0 +1,95 @@
+{
+  "title": "Lehrerzuweisungen",
+  "subtitle": "Verwalten Sie Datensätze und Konfigurationen für Lehrerzuweisungen",
+  "table": {
+    "planId": "Plan-ID",
+    "teacherId": "Lehrer-ID",
+    "internshipTypeId": "Praktikumstyp-ID",
+    "subjectId": "Fach-ID",
+    "studentGroupSize": "Gruppengröße",
+    "assignmentStatus": "Zuweisungsstatus",
+    "isManualOverride": "Manuelle Überschreibung",
+    "notes": "Notizen",
+    "assignedAt": "Zugewiesen am",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am",
+    "actions": "Aktionen",
+    "emptyMessage": "Keine Lehrerzuweisungen gefunden.",
+    "searchPlaceholder": "Lehrerzuweisungen suchen...",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "form": {
+    "title": {
+      "create": "Lehrerzuweisung erstellen",
+      "edit": "Lehrerzuweisung bearbeiten",
+      "view": "Details zur Lehrerzuweisung"
+    },
+    "fields": {
+      "planId": "Plan-ID",
+      "teacherId": "Lehrer-ID",
+      "internshipTypeId": "Praktikumstyp-ID",
+      "subjectId": "Fach-ID",
+      "studentGroupSize": "Gruppengröße",
+      "assignmentStatus": "Zuweisungsstatus",
+      "isManualOverride": "Manuelle Überschreibung",
+      "notes": "Notizen",
+      "assignedAt": "Zugewiesen am",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "placeholders": {
+      "planId": "Plan-ID eingeben",
+      "teacherId": "Lehrer-ID eingeben",
+      "internshipTypeId": "Praktikumstyp-ID eingeben",
+      "subjectId": "Fach-ID eingeben",
+      "studentGroupSize": "Gruppengröße eingeben",
+      "assignmentStatus": "Zuweisungsstatus auswählen",
+      "notes": "Notizen eingeben (optional)"
+    },
+    "errors": {
+      "planRequired": "Plan-ID ist erforderlich",
+      "teacherRequired": "Lehrer-ID ist erforderlich",
+      "internshipTypeRequired": "Praktikumstyp-ID ist erforderlich",
+      "subjectRequired": "Fach-ID ist erforderlich",
+      "groupSizeMin": "Die Gruppengröße muss mindestens 1 sein",
+      "statusRequired": "Der Zuweisungsstatus ist erforderlich",
+      "notesMaxLength": "Notizen dürfen 5000 Zeichen nicht überschreiten"
+    },
+    "status": {
+      "planned": "Geplant",
+      "confirmed": "Bestätigt",
+      "cancelled": "Abgesagt",
+      "on_hold": "Zurückgestellt"
+    },
+    "actions": {
+      "create": "Lehrerzuweisung erstellen",
+      "update": "Lehrerzuweisung aktualisieren",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "close": "Schließen"
+    }
+  },
+  "actions": {
+    "create": "Lehrerzuweisung erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "view": "Anzeigen"
+  },
+  "delete": {
+    "title": "Lehrerzuweisung löschen",
+    "message": "Möchten Sie diese Lehrerzuweisung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "cancel": "Abbrechen",
+    "success": "Lehrerzuweisung erfolgreich gelöscht",
+    "error": "Löschen der Lehrerzuweisung fehlgeschlagen"
+  },
+  "create": {
+    "success": "Lehrerzuweisung erfolgreich erstellt",
+    "error": "Erstellen der Lehrerzuweisung fehlgeschlagen"
+  },
+  "update": {
+    "success": "Lehrerzuweisung erfolgreich aktualisiert",
+    "error": "Aktualisierung der Lehrerzuweisung fehlgeschlagen"
+  }
+}

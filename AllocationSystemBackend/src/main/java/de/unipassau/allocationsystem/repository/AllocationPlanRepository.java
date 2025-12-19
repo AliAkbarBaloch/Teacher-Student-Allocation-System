@@ -83,10 +83,6 @@ public interface AllocationPlanRepository extends JpaRepository<AllocationPlan, 
            "WHERE ap.academicYear.id = :yearId AND ap.id <> :excludeId")
     void unsetCurrentForYearExcept(@Param("yearId") Long yearId, @Param("excludeId") Long excludeId);
 
-    /**
-     * Find all allocation plans created by a specific user.
-     */
-    List<AllocationPlan> findByCreatedByUserId(Long userId);
 
     /**
      * Find allocation plans by academic year ID with optional filters.
@@ -101,4 +97,35 @@ public interface AllocationPlanRepository extends JpaRepository<AllocationPlan, 
         @Param("status") PlanStatus status,
         @Param("isCurrent") Boolean isCurrent
     );
+
+    /**
+     * Find allocation plan by ID with eagerly fetched academic year.
+     * Used for report generation to avoid lazy loading issues.
+     */
+    @Query("SELECT ap FROM AllocationPlan ap " +
+           "LEFT JOIN FETCH ap.academicYear " +
+           "WHERE ap.id = :planId")
+    Optional<AllocationPlan> findByIdWithAcademicYear(@Param("planId") Long planId);
+
+    /**
+     * Find the latest allocation plan based on priority:
+     * 1. Current plan (isCurrent = true)
+     * 2. Most recent approved plan
+     * 3. Most recent plan (including DRAFT) - fallback
+     * Used for displaying the default/latest report.
+     */
+    @Query("SELECT ap FROM AllocationPlan ap " +
+           "LEFT JOIN FETCH ap.academicYear " +
+           "WHERE ap.isCurrent = true " +
+           "OR ap.status = 'APPROVED' " +
+           "ORDER BY ap.isCurrent DESC, CASE WHEN ap.status = 'APPROVED' THEN 1 ELSE 0 END DESC, ap.createdAt DESC")
+    List<AllocationPlan> findLatestPlan();
+    
+    /**
+     * Alternative: Find the most recent plan regardless of status (for reports)
+     */
+    @Query("SELECT ap FROM AllocationPlan ap " +
+           "LEFT JOIN FETCH ap.academicYear " +
+           "ORDER BY ap.createdAt DESC, ap.id DESC")
+    List<AllocationPlan> findMostRecentPlan();
 }
