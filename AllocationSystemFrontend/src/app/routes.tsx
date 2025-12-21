@@ -5,31 +5,32 @@ import { ROUTES } from "../config/routes";
 import App from "./App";
 
 // Pages
+import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
+import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
+import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
 import SchoolsPage from "@/pages/base-data/SchoolsPage";
 import SubjectCategoriesPage from "@/pages/base-data/SubjectCategoriesPage";
 import SubjectsPage from "@/pages/base-data/SubjectsPage";
+import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
 import TeacherAvailabilityPage from "@/pages/base-data/TeacherAvailabilityPage";
+import TeacherDetailPage from "@/pages/base-data/TeacherDetailPage";
 import TeachersPage from "@/pages/base-data/TeachersPage";
 import TeacherSubjectsPage from "@/pages/base-data/TeacherSubjectsPage";
 import ZoneConstraintPage from "@/pages/base-data/ZoneConstraintPage";
 import HomePage from "@/pages/home/HomePage";
 import TeacherFormPage from "@/pages/public/TeacherFormPage";
+import AllocationReportPage from "@/pages/reports/AllocationReportPage";
 import RolesPage from "@/pages/roles/RolesPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import TeacherSubmissionsPage from "@/pages/teacher-management/TeacherSubmissionsPage";
-import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
-import TeacherAssignmentPage from "@/pages/base-data/TeacherAssignmentPage";
-import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
-import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTrackingPage";
-import AllocationReportPage from "@/pages/reports/AllocationReportPage";
-import TeacherDetailPage from "@/pages/base-data/TeacherDetailPage";
 
 import InternshipDemandPerYearPage from "@/pages/internship-demand/InternshipDemandPerYearPage";
+import TeacherReportPage from "@/pages/reports/TeacherReportPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
@@ -187,7 +188,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ROUTES.reports.teacherReports,
-        element: withSuspense(<div>Teacher Reports</div>),
+        element: withSuspense(<TeacherReportPage />),
       },
       {
         path: ROUTES.reports.schoolReports,
