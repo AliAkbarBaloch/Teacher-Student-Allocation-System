@@ -1,4 +1,4 @@
-package de.unipassau.allocationsystem.service;
+package de.unipassau.allocationsystem.service.report;
 
 import de.unipassau.allocationsystem.dto.report.school.SchoolMetricsDto;
 import de.unipassau.allocationsystem.dto.report.school.SchoolProfileDto;

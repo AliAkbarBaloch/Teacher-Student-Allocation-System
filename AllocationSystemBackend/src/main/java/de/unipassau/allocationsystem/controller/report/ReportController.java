@@ -1,9 +1,9 @@
-package de.unipassau.allocationsystem.controller;
+package de.unipassau.allocationsystem.controller.report;
 
 import de.unipassau.allocationsystem.dto.report.school.SchoolStatusReportDto;
 import de.unipassau.allocationsystem.dto.report.teacher.TeacherStatusReportDto;
-import de.unipassau.allocationsystem.service.SchoolReportService;
-import de.unipassau.allocationsystem.service.TeacherReportService;
+import de.unipassau.allocationsystem.service.report.SchoolReportService;
+import de.unipassau.allocationsystem.service.report.TeacherReportService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
