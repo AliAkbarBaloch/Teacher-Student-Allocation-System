@@ -1,6 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.report.*;
+import de.unipassau.allocationsystem.dto.report.allocation.*;
 import de.unipassau.allocationsystem.entity.*;
 import de.unipassau.allocationsystem.repository.*;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
