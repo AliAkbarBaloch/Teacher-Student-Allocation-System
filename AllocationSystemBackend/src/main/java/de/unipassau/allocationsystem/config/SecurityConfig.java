@@ -1,9 +1,7 @@
 package de.unipassau.allocationsystem.config;
 
-import de.unipassau.allocationsystem.security.JwtAuthenticationEntryPoint;
-import de.unipassau.allocationsystem.security.JwtAuthenticationFilter;
-import de.unipassau.allocationsystem.service.CustomUserDetailsService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +17,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import de.unipassau.allocationsystem.security.JwtAuthenticationEntryPoint;
+import de.unipassau.allocationsystem.security.JwtAuthenticationFilter;
+import de.unipassau.allocationsystem.service.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Configures Spring Security for the allocation system application.
@@ -95,6 +96,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(patterns).permitAll()
+                        .requestMatchers("/api/meta/**").permitAll()   
                         .requestMatchers("/api/**", "/reports/**").authenticated()
                         .anyRequest().permitAll()
                 )

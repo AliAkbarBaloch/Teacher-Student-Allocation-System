@@ -15,6 +15,15 @@ export default defineConfig({
   optimizeDeps: {
     include: ['leaflet', 'react-leaflet'],
   },
+  server:{
+    proxy:{
+      "/api":{
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

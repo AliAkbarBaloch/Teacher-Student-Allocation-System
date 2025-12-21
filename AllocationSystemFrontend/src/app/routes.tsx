@@ -29,6 +29,8 @@ import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTracki
 import AllocationReportPage from "@/pages/reports/AllocationReportPage";
 import TeacherDetailPage from "@/pages/base-data/TeacherDetailPage";
 
+import InternshipDemandPerYearPage from "@/pages/internship-demand/InternshipDemandPerYearPage";
+
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
     fallback={
@@ -155,7 +157,7 @@ export const router = createBrowserRouter([
       // Internship Demand
       {
         path: ROUTES.internshipDemand.demandPerYear,
-        element: withSuspense(<AllocationReportPage />),
+        element: withSuspense(<InternshipDemandPerYearPage />),
       },
       // Allocation Planning
       {
