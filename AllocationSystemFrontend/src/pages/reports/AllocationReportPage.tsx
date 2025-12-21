@@ -1,33 +1,39 @@
 // Example usage in a page wrapper
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { apiClient } from "@/lib/api-client";
-import { toast } from "sonner";
 import AllocationReportView, {
   type AllocationReportData,
   type ApiResponse,
 } from "@/features/reports/components/AllocationReportView";
+import useAllocationPlans from "@/hooks/entities/useAllocationPlans";
+import { apiClient } from "@/lib/api-client";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const API_BASE_URL = "http://localhost:8080/api";
 
 export default function AllocationReportPage() {
-  const { planId } = useParams<{ planId: string }>();
+  const { data: allocationPlans, isLoading: isAllocationPlanLoading } = useAllocationPlans();
+  const [selectedPlan, setSelectedPlan] = useState<string | undefined>(undefined);
+
   const [data, setData] = useState<AllocationReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Set default plan when allocation plans are loaded
+  useEffect(() => {
+    if (!selectedPlan && allocationPlans && allocationPlans.length > 0) {
+      setSelectedPlan(String(allocationPlans[0].id));
+    }
+  }, [selectedPlan, allocationPlans]);
 
   useEffect(() => {
     const fetchReport = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Use specific planId from URL, or fetch latest current/approved plan
-        const endpoint = planId
-          ? `/reports/allocation/${planId}`
+        const endpoint = selectedPlan
+          ? `/reports/allocation/${selectedPlan}`
           : `/reports/allocation/latest`;
-        const res = await apiClient.get<ApiResponse<AllocationReportData>>(
-          endpoint
-        );
+        const res = await apiClient.get<ApiResponse<AllocationReportData>>(endpoint);
         setData(res.data);
       } catch (err) {
         console.log(err);
@@ -36,8 +42,12 @@ export default function AllocationReportPage() {
         setLoading(false);
       }
     };
-    fetchReport();
-  }, [planId]);
+    if (selectedPlan) fetchReport();
+  }, [selectedPlan]);
+
+  const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPlan(e.target.value);
+  };
 
   const handleExportExcel = async () => {
     if (!data) {
@@ -46,9 +56,7 @@ export default function AllocationReportPage() {
     }
 
     try {
-      // Use planId from URL or data, or default to 1
-      const id = planId || "1";
-
+      const id = selectedPlan || "1";
       const token = localStorage.getItem("auth_token");
       if (!token) {
         toast.error("Authentication required. Please log in.");
@@ -94,11 +102,31 @@ export default function AllocationReportPage() {
     }
   };
 
-  if (loading) return <div>Loading report...</div>;
+  if (loading || isAllocationPlanLoading || !allocationPlans) return <div>Loading report...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto py-6">
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Allocation Report</h1>
+        </div>
+        <div>
+          <label htmlFor="allocationPlan" className="mr-2 font-medium">Allocation Plan:</label>
+          <select
+            id="allocationPlan"
+            value={selectedPlan}
+            onChange={handlePlanChange}
+            className="border rounded px-2 py-1"
+          >
+            {allocationPlans.map((record) => (
+              <option key={record.id} value={record.id}>
+                { record.planName } ({record.planVersion}) {record.status}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       {data && (
         <AllocationReportView data={data} onExport={handleExportExcel} />
       )}

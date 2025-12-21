@@ -119,7 +119,7 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-3xl font-bold tracking-tight">{header.planName}</h1>
             <Badge variant="outline" className="text-base px-3">
-              v{header.planVersion}
+              V {header.planVersion}
             </Badge>
             <StatusBadge status={header.status} />
           </div>
@@ -132,7 +132,7 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
           <Download className="mr-2 h-4 w-4" /> Export Excel
         </Button>
       </div>
-
+      
       {/* 2. CRITICAL ALERTS (If any) */}
       {(utilizationAnalysis.unassignedTeachers.length > 0 || budgetSummary.overBudget) && (
         <Card className="border-destructive/50 bg-destructive/5">
