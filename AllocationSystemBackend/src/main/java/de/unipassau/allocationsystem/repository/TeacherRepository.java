@@ -77,4 +77,15 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>, JpaSpec
 
     // OR: multiple statuses (e.g., ACTIVE and FLEXIBLE)
     List<Teacher> findAllByEmploymentStatusIn(Collection<EmploymentStatus> statuses);
+
+    // Fetch teachers with School and Qualifications in one go
+    @Query("SELECT DISTINCT t FROM Teacher t " +
+            "JOIN FETCH t.school s " +
+            "LEFT JOIN FETCH t.qualifications q " +
+            "LEFT JOIN FETCH q.subject sub")
+    List<Teacher> findAllWithDetails();
+
+    // Standard count methods for metrics
+    long countByIsPartTimeTrue();
+    long countByIsPartTimeFalse();
 }

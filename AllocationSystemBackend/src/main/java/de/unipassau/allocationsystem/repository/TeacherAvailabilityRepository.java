@@ -80,4 +80,6 @@ public interface TeacherAvailabilityRepository extends JpaRepository<TeacherAvai
      * @return Count of entries
      */
     long countByTeacherIdAndAcademicYearId(Long teacherId, Long yearId);
+
+    List<TeacherAvailability> findByAcademicYearId(Long academicYearId);
 }
