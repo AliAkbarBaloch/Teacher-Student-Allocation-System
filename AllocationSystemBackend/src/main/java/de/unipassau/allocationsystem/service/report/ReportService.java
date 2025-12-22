@@ -92,4 +92,69 @@ public class ReportService {
                 .remaining(allocated - used)
                 .build();
     }
+
+    // ==========================================
+    // 2. Subject Bottleneck Report
+    // ==========================================
+    @Transactional(readOnly = true)
+    public List<SubjectBottleneckDto> generateBottleneckReport(Long planId) {
+        AllocationPlan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Plan not found"));
+
+        List<InternshipDemand> demands = demandRepository.findByAcademicYearId(plan.getAcademicYear().getId());
+
+        // Fetch all teachers active in this year
+        List<Teacher> allTeachers = teacherRepository.findAll();
+        // Note: In a real large DB, optimize this fetching. Here we fetch all to filter in memory for complex logic.
+
+        List<SubjectBottleneckDto> report = new ArrayList<>();
+
+        for (InternshipDemand demand : demands) {
+            // Only subject-specific internships matter for bottlenecks (ZSP, SFP)
+            // Block internships (PDP) usually don't have strict subject requirements in allocation
+            if (!demand.getInternshipType().getIsSubjectSpecific()) {
+                continue;
+            }
+
+            // 1. Calculate Available Teachers for this subject
+            long availableCount = allTeachers.stream()
+                    .filter(t -> t.getEmploymentStatus() == Teacher.EmploymentStatus.ACTIVE)
+                    // Check if qualified
+                    .filter(t -> t.getQualifications().stream()
+                            .anyMatch(q -> q.getSubject().getId().equals(demand.getSubject().getId())))
+                    // Check if available this year (not marked "nicht")
+                    .filter(t -> t.getAvailabilities().stream()
+                            .noneMatch(a -> a.getAcademicYear().getId().equals(plan.getAcademicYear().getId())
+                                    && a.getStatus() == TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE))
+                    .count();
+
+            // 2. Calculate Actual Assignments in this plan
+            // (This requires a repository method to count assignments by subject and plan)
+            // Simulating count for brevity:
+            long assignedCount = assignmentRepository.findByAllocationPlanId(planId).stream()
+                    .filter(ta -> ta.getSubject().getId().equals(demand.getSubject().getId()))
+                    .count();
+
+            int gap = (int) availableCount - demand.getRequiredTeachers();
+
+            String status = "BALANCED";
+            if (gap < 0) status = "CRITICAL_SHORTAGE";
+            else if (gap < 5) status = "SHORTAGE"; // Low buffer
+            else if (gap > 10) status = "SURPLUS";
+
+            report.add(SubjectBottleneckDto.builder()
+                    .subjectName(demand.getSubject().getSubjectTitle())
+                    .schoolType(demand.getSchoolType().name())
+                    .requiredTeacherCount(demand.getRequiredTeachers())
+                    .availableTeacherCount((int) availableCount)
+                    .actuallyAssignedCount((int) assignedCount)
+                    .gap(gap)
+                    .status(status)
+                    .build());
+        }
+
+        // Sort by most critical first
+        report.sort(Comparator.comparingInt(SubjectBottleneckDto::getGap));
+        return report;
+    }
 }
