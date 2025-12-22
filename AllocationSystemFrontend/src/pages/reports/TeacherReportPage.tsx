@@ -4,14 +4,16 @@ import useAcademicYears from "@/hooks/entities/useAcademicYears";
 import { apiClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/services/api/BaseApiService";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function TeacherReportPage() {
+  const { t } = useTranslation("reportTeachers");
+
   const { data: academicYears, isLoading: isAcademicYearLoading } = useAcademicYears();
   const [selectedYear, setSelectedYear] = useState<string | undefined>(undefined);
   const [data, setData] = useState<TeacherStatusReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
 
   // Set default year when academic years are loaded
   useEffect(() => {
@@ -31,13 +33,13 @@ export default function TeacherReportPage() {
         setData(res.data);
       } catch (err) {
         console.error(err);
-        setError("Failed to load report data.");
+        setError(t("errorLoading"));
       } finally {
         setLoading(false);
       }
     };
     fetchReport();
-  }, [selectedYear]);
+  }, [selectedYear, t]);
 
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedYear(e.target.value);
@@ -52,6 +54,7 @@ export default function TeacherReportPage() {
           ))}
         </div>
         <Skeleton className="h-[300px] w-full" />
+        <div className="text-muted-foreground">{t("loading")}</div>
       </div>
     );
   }
@@ -62,13 +65,13 @@ export default function TeacherReportPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Teacher Workforce Analytics</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">
-            Overview of teacher availability, qualifications, and employment status.
+            {t("subtitle")}
           </p>
         </div>
         <div>
-          <label htmlFor="academicYear" className="mr-2 font-medium">Academic Year:</label>
+          <label htmlFor="academicYear" className="mr-2 font-medium">{t("academicYearLabel")}</label>
           <select
             id="academicYear"
             value={selectedYear}
@@ -77,7 +80,7 @@ export default function TeacherReportPage() {
           >
             {academicYears.map((record) => (
               <option key={record.id} value={record.id}>
-                { record.yearName }
+                {record.yearName}
               </option>
             ))}
           </select>

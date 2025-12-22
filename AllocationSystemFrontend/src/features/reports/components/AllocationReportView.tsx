@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
 import { ScrollArea } from "../../../components/ui/scroll-area";
+import { useTranslation } from 'react-i18next';
 
 
 // --- Types based on your JSON ---
@@ -71,6 +72,7 @@ interface AllocationReportViewProps {
 // --- Helper Components ---
 
 const StatusBadge = ({ status }: { status: string }) => {
+  const { t } = useTranslation("reportAllocations");
   const styles = {
     CONFIRMED: "bg-green-100 text-green-800 hover:bg-green-100 border-green-200",
     PLANNED: "bg-blue-100 text-blue-800 hover:bg-blue-100 border-blue-200",
@@ -78,12 +80,14 @@ const StatusBadge = ({ status }: { status: string }) => {
   };
   return (
     <Badge className={styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800"}>
-      {status}
+      {t(`status.${status}`, status)}
     </Badge>
   );
 };
 
 export default function AllocationReportView({ data, onExport }: AllocationReportViewProps) {
+  const { t } = useTranslation("reportAllocations");
+
   const { header, budgetSummary, assignments, utilizationAnalysis } = data;
 
   // Chart Data Preparation
@@ -113,17 +117,20 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-3xl font-bold tracking-tight">{header.planName}</h1>
             <Badge variant="outline" className="text-base px-3">
-              V {header.planVersion}
+              {t("header.version", { version: header.planVersion })}
             </Badge>
             <StatusBadge status={header.status} />
           </div>
           <p className="text-muted-foreground flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Generated: {new Date(header.generatedAt).toLocaleString()} | Academic Year: {header.academicYear}
+            {t("header.generated", {
+              date: new Date(header.generatedAt).toLocaleString(),
+              year: header.academicYear
+            })}
           </p>
         </div>
         <Button onClick={onExport} className="w-full md:w-auto">
-          <Download className="mr-2 h-4 w-4" /> Export Excel
+          <Download className="mr-2 h-4 w-4" /> {t("exportExcel")}
         </Button>
       </div>
       
@@ -132,19 +139,25 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
         <Card className="border-destructive/50 bg-destructive/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-destructive flex items-center gap-2 text-lg">
-              <AlertTriangle className="h-5 w-5" /> Attention Required
+              <AlertTriangle className="h-5 w-5" /> {t("attentionRequired")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="list-disc list-inside text-sm space-y-1 text-destructive-foreground">
               {budgetSummary.overBudget && (
-                <li>Budget exceeded by {Math.abs(budgetSummary.remainingHours)} hours.</li>
+                <li>
+                  {t("budgetExceeded", { hours: Math.abs(budgetSummary.remainingHours) })}
+                </li>
               )}
               {utilizationAnalysis.unassignedTeachers.length > 0 && (
-                <li>{utilizationAnalysis.unassignedTeachers.length} teachers are currently unassigned (0 assignments).</li>
+                <li>
+                  {t("unassignedTeachers", { count: utilizationAnalysis.unassignedTeachers.length })}
+                </li>
               )}
               {utilizationAnalysis.overUtilizedTeachers.length > 0 && (
-                <li>{utilizationAnalysis.overUtilizedTeachers.length} teachers are overloaded ({'>'}2 assignments).</li>
+                <li>
+                  {t("overloadedTeachers", { count: utilizationAnalysis.overUtilizedTeachers.length })}
+                </li>
               )}
             </ul>
           </CardContent>
@@ -157,8 +170,10 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
         {/* Budget Circle */}
         <Card className="flex flex-col">
           <CardHeader className="pb-0">
-            <CardTitle className="text-lg font-medium">Credit Hour Budget</CardTitle>
-            <CardDescription>Total Allocated: {budgetSummary.totalBudgetHours}h</CardDescription>
+            <CardTitle className="text-lg font-medium">{t("budget.title")}</CardTitle>
+            <CardDescription>
+              {t("budget.description", { hours: budgetSummary.totalBudgetHours })}
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 min-h-[200px] relative">
             <ResponsiveContainer width="100%" height={200}>
@@ -192,8 +207,8 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
         {/* School Type Split */}
         <Card>
           <CardHeader className="pb-0">
-            <CardTitle className="text-lg font-medium">School Type Distribution</CardTitle>
-            <CardDescription>Elementary vs. Middle School hours</CardDescription>
+            <CardTitle className="text-lg font-medium">{t("schoolType.title")}</CardTitle>
+            <CardDescription>{t("schoolType.description")}</CardDescription>
           </CardHeader>
           <CardContent className="min-h-[200px]">
              <ResponsiveContainer width="100%" height={200}>
@@ -215,8 +230,8 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
         {/* Teacher Status Summary */}
         <Card>
           <CardHeader className="pb-0">
-            <CardTitle className="text-lg font-medium">Teacher Utilization</CardTitle>
-            <CardDescription>Efficiency of assignments</CardDescription>
+            <CardTitle className="text-lg font-medium">{t("teacherUtilization.title")}</CardTitle>
+            <CardDescription>{t("teacherUtilization.description")}</CardDescription>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <ResponsiveContainer width="100%" height={200}>
@@ -238,24 +253,31 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
 
       {/* 4. DETAILED TABS */}
       <Tabs defaultValue="assignments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-          <TabsTrigger value="assignments">All Assignments</TabsTrigger>
-          <TabsTrigger value="gaps" className="relative">
-             Gaps & Issues
-             {utilizationAnalysis.unassignedTeachers.length > 0 && (
-                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
-             )}
+        <TabsList className="grid w-full grid-cols-3 lg:w-[500px] gap-2">
+          <TabsTrigger value="assignments" className="flex items-center gap-2 px-4 py-2">
+            <Users className="w-4 h-4" />
+            {t("tabs.assignments")}
           </TabsTrigger>
-          <TabsTrigger value="perfect">Perfect Matches</TabsTrigger>
+          <TabsTrigger value="gaps" className="relative flex items-center gap-2 px-4 py-2">
+            <AlertTriangle className="w-4 h-4" />
+            {t("tabs.gaps")}
+            {utilizationAnalysis.unassignedTeachers.length > 0 && (
+              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="perfect" className="flex items-center gap-2 px-4 py-2">
+            <CheckCircle2 className="w-4 h-4" />
+            {t("tabs.perfect")}
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab 1: All Assignments Table */}
         <TabsContent value="assignments" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Assignment List</CardTitle>
+              <CardTitle>{t("detailedAssignmentList.title")}</CardTitle>
               <CardDescription>
-                Showing all {assignments.length} confirmed allocations for {header.academicYear}.
+                {t("detailedAssignmentList.description", { count: assignments.length, year: header.academicYear })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -311,9 +333,9 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
             <Card className="border-l-4 border-l-destructive">
               <CardHeader>
                 <CardTitle className="text-destructive flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5" /> Unassigned Teachers ({utilizationAnalysis.unassignedTeachers.length})
+                  <AlertCircle className="h-5 w-5" /> {t("gaps.unassignedTitle", { count: utilizationAnalysis.unassignedTeachers.length })}
                 </CardTitle>
-                <CardDescription>These teachers have 0 assignments but are active.</CardDescription>
+                <CardDescription>{t("gaps.unassignedDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px]">
@@ -328,7 +350,7 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
                   {utilizationAnalysis.unassignedTeachers.length === 0 && (
                     <div className="text-center py-10 text-muted-foreground">
                       <CheckCircle2 className="h-10 w-10 mx-auto text-green-500 mb-2" />
-                      No unassigned teachers found.
+                      {t("noUnassignedTeachers")}
                     </div>
                   )}
                 </ScrollArea>
@@ -339,34 +361,37 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
             <Card className="border-l-4 border-l-yellow-500">
                <CardHeader>
                 <CardTitle className="text-yellow-600 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" /> Improper Utilization
+                  <AlertTriangle className="h-5 w-5" /> {t("improperUtilization.title")}
                 </CardTitle>
-                <CardDescription>Teachers with 1 assignment (Under) or &gt;2 (Over).</CardDescription>
+                <CardDescription>{t("improperUtilization.description")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px]">
                    <div className="space-y-4">
                       {/* Over Utilized */}
-                      {utilizationAnalysis.overUtilizedTeachers.map(t => (
-                        <div key={t.teacherId} className="p-3 bg-blue-50 rounded-md border border-blue-100">
-                           <div className="flex justify-between">
-                              <span className="font-semibold text-sm">{t.teacherName}</span>
-                              <Badge variant="destructive">Overloaded ({t.assignmentCount})</Badge>
-                           </div>
-                           <div className="text-xs text-muted-foreground mt-1">{t.schoolName}</div>
+                      {utilizationAnalysis.overUtilizedTeachers.map(teacher => (
+                        <div key={teacher.teacherId} className="p-3 bg-blue-50 rounded-md border border-blue-100">
+                          <div className="flex justify-between">
+                            <span className="font-semibold text-sm">{teacher.teacherName}</span>
+                            <Badge variant="destructive">
+                              {t("overloaded", { count: teacher.assignmentCount })}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">{teacher.schoolName}</div>
                         </div>
                       ))}
-
                       {/* Under Utilized */}
-                      {utilizationAnalysis.underUtilizedTeachers.map(t => (
-                        <div key={t.teacherId} className="p-3 bg-yellow-50 rounded-md border border-yellow-100">
-                           <div className="flex justify-between">
-                              <span className="font-semibold text-sm">{t.teacherName}</span>
-                              <Badge variant="outline" className="border-yellow-500 text-yellow-700">Underutilized ({t.assignmentCount})</Badge>
-                           </div>
-                           <div className="text-xs text-muted-foreground mt-1">{t.schoolName}</div>
+                      {utilizationAnalysis.underUtilizedTeachers.map(teacher => (
+                      <div key={teacher.teacherId} className="p-3 bg-yellow-50 rounded-md border border-yellow-100">
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-sm">{teacher.teacherName}</span>
+                          <Badge variant="outline" className="border-yellow-500 text-yellow-700">
+                            {t("underutilized", { count: teacher.assignmentCount })}
+                          </Badge>
                         </div>
-                      ))}
+                        <div className="text-xs text-muted-foreground mt-1">{teacher.schoolName}</div>
+                      </div>
+                    ))}
                    </div>
                 </ScrollArea>
               </CardContent>
@@ -379,19 +404,21 @@ export default function AllocationReportView({ data, onExport }: AllocationRepor
            <Card className="border-l-4 border-l-green-500">
               <CardHeader>
                 <CardTitle className="text-green-700 flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5" /> Perfectly Utilized
+                  <CheckCircle2 className="h-5 w-5" /> {t("perfectMatches.title")}
                 </CardTitle>
-                <CardDescription>Teachers with exactly 2 assignments (1 Credit Hour).</CardDescription>
+                <CardDescription>{t("perfectMatches.description")}</CardDescription>
               </CardHeader>
               <CardContent>
                  <ScrollArea className="h-[500px]">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                       {utilizationAnalysis.perfectlyUtilizedTeachers.map(t => (
-                          <div key={t.teacherId} className="p-3 border rounded-md hover:bg-green-50/50 transition-colors">
-                             <div className="font-medium text-sm">{t.teacherName}</div>
-                             <div className="text-xs text-muted-foreground">{t.schoolName}</div>
+                       {utilizationAnalysis.perfectlyUtilizedTeachers.map(teacher => (
+                          <div key={teacher.teacherId} className="p-3 border rounded-md hover:bg-green-50/50 transition-colors">
+                             <div className="font-medium text-sm">{teacher.teacherName}</div>
+                             <div className="text-xs text-muted-foreground">{teacher.schoolName}</div>
                              <div className="mt-2">
-                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">2 Assignments</Badge>
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                  {t("twoAssignments")}
+                                </Badge>
                              </div>
                           </div>
                        ))}

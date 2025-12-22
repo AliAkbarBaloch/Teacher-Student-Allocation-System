@@ -31,6 +31,7 @@ import {
     Tooltip as RechartsTooltip, ResponsiveContainer,
     XAxis, YAxis
 } from 'recharts';
+import { useTranslation } from "react-i18next";
 
 // --- Types based on your Java DTOs ---
 export interface TeacherStatusReportData {
@@ -67,28 +68,22 @@ interface TeacherStatusReportViewProps {
 // --- Helper Components ---
 
 const StatusBadge = ({ status }: { status: string }) => {
+  const { t } = useTranslation("reportTeachers");
   const styles = {
     ACTIVE: "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100",
     ON_LEAVE: "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100",
     INACTIVE_THIS_YEAR: "bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-100",
     ARCHIVED: "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/10",
   };
-  
-  const labels = {
-    ACTIVE: "Active",
-    ON_LEAVE: "On Leave",
-    INACTIVE_THIS_YEAR: "Inactive (Year)",
-    ARCHIVED: "Archived"
-  };
-
   return (
     <Badge variant="outline" className={styles[status as keyof typeof styles] || styles.ACTIVE}>
-      {labels[status as keyof typeof labels] || status}
+      {t(`status.${status}`, status)}
     </Badge>
   );
 };
 
 export default function TeacherStatusReportView({ data }: TeacherStatusReportViewProps) {
+  const { t } = useTranslation("reportTeachers");
   const { metrics, profiles } = data;
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -121,42 +116,42 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("metrics.totalTeachers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.totalTeachers}</div>
-            <p className="text-xs text-muted-foreground">Registered in system</p>
+            <p className="text-xs text-muted-foreground">{t("metrics.registered")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Pool</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("metrics.activePool")}</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.activeCount}</div>
             <p className="text-xs text-muted-foreground">
-              {((metrics.activeCount / metrics.totalTeachers) * 100).toFixed(0)}% availability rate
+              {t("metrics.availabilityRate", { rate: ((metrics.activeCount / metrics.totalTeachers) * 100).toFixed(0) })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Workforce Type</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("metrics.workforceType")}</CardTitle>
             <Briefcase className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-end">
               <div>
                 <div className="text-2xl font-bold">{metrics.fullTimeCount}</div>
-                <p className="text-xs text-muted-foreground">Full-time</p>
+                <p className="text-xs text-muted-foreground">{t("metrics.fullTime")}</p>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-muted-foreground">{metrics.partTimeCount}</div>
-                <p className="text-xs text-muted-foreground">Part-time</p>
+                <p className="text-xs text-muted-foreground">{t("metrics.partTime")}</p>
               </div>
             </div>
           </CardContent>
@@ -164,13 +159,13 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unavailable</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("metrics.unavailable")}</CardTitle>
             <AlertCircle className="h-4 w-4 text-amber-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.onLeaveCount + metrics.inactiveCount}</div>
             <p className="text-xs text-muted-foreground">
-              {metrics.onLeaveCount} On Leave, {metrics.inactiveCount} Inactive
+              {t("metrics.onLeaveInactive", { onLeave: metrics.onLeaveCount, inactive: metrics.inactiveCount })}
             </p>
           </CardContent>
         </Card>
@@ -181,8 +176,8 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
         {/* 2. SUBJECT DISTRIBUTION CHART (Left 2/3) */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Subject Qualification Coverage</CardTitle>
-            <CardDescription>Number of teachers qualified per subject area</CardDescription>
+            <CardTitle>{t("subjectCoverage.title")}</CardTitle>
+            <CardDescription>{t("subjectCoverage.description")}</CardDescription>
           </CardHeader>
           <CardContent className="pl-0">
             <ResponsiveContainer width="100%" height={300}>
@@ -202,8 +197,8 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
               </BarChart>
             </ResponsiveContainer>
             <div className="flex items-center gap-2 justify-center mt-2 text-xs text-muted-foreground">
-               <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div> Healthy Supply</span>
-               <span className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500 rounded-sm"></div> Critical Shortage (&lt;5)</span>
+               <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded-sm"></div> {t("subjectCoverage.healthy")}</span>
+               <span className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500 rounded-sm"></div> {t("subjectCoverage.critical")}</span>
             </div>
           </CardContent>
         </Card>
@@ -211,16 +206,16 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
         {/* 3. QUICK FILTERS & SUMMARY (Right 1/3) */}
         <Card>
           <CardHeader>
-            <CardTitle>Directory Filters</CardTitle>
-            <CardDescription>Narrow down the teacher list</CardDescription>
+            <CardTitle>{t("filters.title")}</CardTitle>
+            <CardDescription>{t("filters.description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
+              <label className="text-sm font-medium">{t("filters.searchLabel")}</label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Name, School, or Subject..." 
+                  placeholder={t("filters.searchPlaceholder")}
                   className="pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -229,16 +224,16 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Employment Status</label>
+              <label className="text-sm font-medium">{t("filters.statusLabel")}</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
+                  <SelectValue placeholder={t("filters.allStatuses")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="ACTIVE">Active Only</SelectItem>
-                  <SelectItem value="ON_LEAVE">On Leave</SelectItem>
-                  <SelectItem value="INACTIVE_THIS_YEAR">Inactive (This Year)</SelectItem>
+                  <SelectItem value="ALL">{t("filters.allStatuses")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("filters.activeOnly")}</SelectItem>
+                  <SelectItem value="ON_LEAVE">{t("filters.onLeave")}</SelectItem>
+                  <SelectItem value="INACTIVE_THIS_YEAR">{t("filters.inactiveThisYear")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -247,12 +242,12 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
             
             <div className="bg-muted/50 p-4 rounded-lg">
               <h4 className="font-semibold mb-2 text-sm flex items-center gap-2">
-                <Filter className="h-4 w-4" /> Current View Stats
+                <Filter className="h-4 w-4" /> {t("filters.currentViewStats")}
               </h4>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Showing:</span>
-                  <span className="font-medium">{filteredProfiles.length} teachers</span>
+                  <span className="text-muted-foreground">{t("filters.showing")}</span>
+                  <span className="font-medium">{t("filters.teachers", { count: filteredProfiles.length })}</span>
                 </div>
               </div>
             </div>
@@ -263,8 +258,8 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
       {/* 4. DETAILED TEACHER LIST */}
       <Card>
         <CardHeader>
-          <CardTitle>Teacher Directory</CardTitle>
-          <CardDescription>Detailed profiles and availability status for the selected academic year.</CardDescription>
+          <CardTitle>{t("directory.title")}</CardTitle>
+          <CardDescription>{t("directory.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[600px] pr-4">
@@ -313,12 +308,12 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
                           )}
                         </>
                       ) : (
-                        <span className="text-sm text-muted-foreground italic">No subjects listed</span>
+                        <span className="text-sm text-muted-foreground italic">{t("directory.noSubjects")}</span>
                       )}
                     </div>
                     {teacher.workingHours && (
                        <p className="text-xs text-muted-foreground mt-2">
-                         Contract: {teacher.workingHours} hrs/week
+                         {t("directory.contract", { hours: teacher.workingHours })}
                        </p>
                     )}
                   </div>
@@ -338,8 +333,8 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
                         {teacher.availabilityStatusForYear === 'NOT_AVAILABLE' && <XCircle className="h-3 w-3"/>}
                         
                         <span className="font-medium">
-                           {teacher.availabilityStatusForYear === 'PREFERRED' ? 'Preferred' : 
-                            teacher.availabilityStatusForYear === 'AVAILABLE' ? 'Available' : 'Unavailable'}
+                           {teacher.availabilityStatusForYear === 'PREFERRED' ? t("directory.preferred") : 
+                            teacher.availabilityStatusForYear === 'AVAILABLE' ? t("directory.available") : t("directory.unavailable")}
                         </span>
                       </div>
                     )}
@@ -353,12 +348,12 @@ export default function TeacherStatusReportView({ data }: TeacherStatusReportVie
               )) : (
                 <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
                   <GraduationCap className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                  <p>No teachers found matching your criteria.</p>
+                  <p>{t("directory.noTeachers")}</p>
                   <button 
                     onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); }}
                     className="text-sm text-primary hover:underline mt-2"
                   >
-                    Clear filters
+                    {t("directory.clearFilters")}
                   </button>
                 </div>
               )}

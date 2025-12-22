@@ -1,0 +1,76 @@
+{
+  "title": "Plan Analytics Report",
+  "subtitle": "Plan Analytics Report",
+  "allocationPlanLabel": "Allocation Plan:",
+  "loading": "Loading analytics data...",
+  "errorLoading": "Failed to load analytics data.",
+  "noAnalyticsData": "No analytics data available.",
+  "metrics": {
+    "totalBudget": "Total Budget",
+    "usedRemaining": "{{used}} used, {{remaining}} remaining",
+    "totalStudents": "Total Students",
+    "teachersAssigned": "{{count}} teachers assigned",
+    "fulfillment": "Fulfillment",
+    "filled": "{{assigned}}/{{required}} filled",
+    "compliance": "Compliance",
+    "compliant": "Compliant",
+    "warning": "Warning",
+    "withinBudget": "Within budget"
+  },
+  "tabs": {
+    "health": "Plan Health & Budget",
+    "bottlenecks": "Subject Bottlenecks",
+    "utilization": "Teacher Utilization"
+  },
+  "health": {
+    "used": "Used",
+    "remaining": "Remaining",
+    "elementary": "Elementary",
+    "middleSchool": "Middle School",
+    "complianceWarningTitle": "Budget Compliance Warning",
+    "totalBudget": "Total Budget",
+    "utilized": "Utilized",
+    "budgetSplitAnalysis": "Budget Split Analysis",
+    "limit": "Limit",
+    "demandFulfillment": "Demand Fulfillment",
+    "ofRequiredFilled": "of required positions filled",
+    "teachersAssigned": "Teachers Assigned:",
+    "teachersRequired": "Teachers Required:",
+    "studentsCovered": "Students Covered:"
+  },
+  "bottlenecks": {
+    "top10SupplyGaps": "Top 10 Supply Gaps",
+    "availableSupply": "Available Supply",
+    "requiredDemand": "Required Demand",
+    "criticalShortages": "Critical Shortages",
+    "gap": "{{gap}} Gap",
+    "needsHas": "{{schoolType}} • Needs {{required}} / Has {{available}}",
+    "suggestion": "Suggestion: Increase group size per teacher.",
+    "noCriticalShortages": "No critical shortages found!"
+  },
+  "utilization": {
+    "unusedTeachers": "Unused Teachers",
+    "underUtilized": "Under-Utilized (1 Assign)",
+    "overUtilized": "Over-Utilized (>2 Assign)",
+    "detailsTitle": "Teacher Utilization Details",
+    "detailsSubtitle": "Monitor efficiency and credit balance",
+    "filterStatus": "Filter Status",
+    "filter": {
+      "all": "All Teachers",
+      "unused": "Unused",
+      "under": "Under Utilized",
+      "optimal": "Optimal",
+      "over": "Over Utilized"
+    },
+    "assignments": "Assignments",
+    "creditBalance": "Credit Balance",
+    "hrs": "hrs",
+    "status": {
+      "UNUSED": "Unused",
+      "UNDER_UTILIZED": "Under Utilized",
+      "OPTIMAL": "Optimal",
+      "OVER_UTILIZED": "Over Utilized"
+    },
+    "noTeachersMatch": "No teachers match this filter."
+  }
+}
