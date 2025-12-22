@@ -25,6 +25,7 @@ import enPlanChangeLogs from "./locales/en/planChangeLogs.json";
 import enCreditHourTracking from "./locales/en/creditHourTracking.json";
 import enReportAllocations from "./locales/en/reportAllocations.json";
 import enReportPlanAnalytics from "./locales/en/reportPlanAnalytics.json";
+import enReportTeachers from "./locales/en/reportTeachers.json";
 
 import deCommon from "./locales/de/common.json";
 import deAuth from "./locales/de/auth.json";
@@ -48,6 +49,7 @@ import dePlanChangeLogs from "./locales/de/planChangeLogs.json";
 import deCreditHourTracking from "./locales/de/creditHourTracking.json";
 import deReportAllocations from "./locales/de/reportAllocations.json";
 import deReportPlanAnalytics from "./locales/de/reportPlanAnalytics.json";
+import deReportTeachers from "./locales/de/reportTeachers.json";
 
 // Language metadata configuration
 export const languages = [
@@ -87,6 +89,7 @@ export const resources = {
         creditHourTracking: enCreditHourTracking,
         reportAllocations: enReportAllocations,
         reportPlanAnalytics: enReportPlanAnalytics,
+        reportTeachers: enReportTeachers,
     },
     de: {
         common: deCommon,
@@ -111,6 +114,7 @@ export const resources = {
         creditHourTracking: deCreditHourTracking,
         reportAllocations: deReportAllocations,
         reportPlanAnalytics: deReportPlanAnalytics,
+        reportTeachers: deReportTeachers,
     }
 } as const;
 
@@ -136,7 +140,7 @@ i18n
             "internshipTypes", "subjects", "subjectCategories", 
             "teacherSubmissions", "zoneConstraints", "teacherAssignments", 
             "planChangeLogs", "creditHourTracking",
-            "reportAllocations", "reportPlanAnalytics"
+            "reportAllocations", "reportPlanAnalytics", "reportTeachers"
         ], // list of namespaces we use 
         detection:{ // how to detect language 
             order:["querystring", "localStorage","navigator","htmlTag"],

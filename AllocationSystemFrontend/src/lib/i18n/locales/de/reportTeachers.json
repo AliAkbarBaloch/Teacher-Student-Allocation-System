@@ -1,0 +1,55 @@
+{
+  "title": "Analyse der Lehrkräftebelegschaft",
+  "subtitle": "Überblick über Verfügbarkeit, Qualifikationen und Beschäftigungsstatus der Lehrkräfte.",
+  "academicYearLabel": "Schuljahr:",
+  "loading": "Lehrkräftebericht wird geladen...",
+  "errorLoading": "Berichtsdaten konnten nicht geladen werden.",
+  "metrics": {
+    "totalTeachers": "Gesamtzahl Lehrkräfte",
+    "registered": "Im System registriert",
+    "activePool": "Aktiver Pool",
+    "availabilityRate": "{{rate}}% Verfügbarkeitsrate",
+    "workforceType": "Belegschaftstyp",
+    "fullTime": "Vollzeit",
+    "partTime": "Teilzeit",
+    "unavailable": "Nicht verfügbar",
+    "onLeaveInactive": "{{onLeave}} im Urlaub, {{inactive}} inaktiv"
+  },
+  "subjectCoverage": {
+    "title": "Abdeckung der Fachqualifikationen",
+    "description": "Anzahl der pro Fachgebiet qualifizierten Lehrkräfte",
+    "healthy": "Ausreichendes Angebot",
+    "critical": "Kritischer Mangel (<5)"
+  },
+  "filters": {
+    "title": "Verzeichnisfilter",
+    "description": "Lehrkräfte-Liste eingrenzen",
+    "searchLabel": "Suchen",
+    "searchPlaceholder": "Name, Schule oder Fach...",
+    "statusLabel": "Beschäftigungsstatus",
+    "allStatuses": "Alle Status",
+    "activeOnly": "Nur Aktive",
+    "onLeave": "Im Urlaub",
+    "inactiveThisYear": "Inaktiv (dieses Jahr)",
+    "currentViewStats": "Statistik der aktuellen Ansicht",
+    "showing": "Angezeigt:",
+    "teachers": "{{count}} Lehrkräfte"
+  },
+  "directory": {
+    "title": "Lehrkräfteverzeichnis",
+    "description": "Detaillierte Profile und Verfügbarkeitsstatus für das gewählte Schuljahr.",
+    "noSubjects": "Keine Fächer aufgeführt",
+    "contract": "Vertrag: {{hours}} Std./Woche",
+    "preferred": "Bevorzugt",
+    "available": "Verfügbar",
+    "unavailable": "Nicht verfügbar",
+    "noTeachers": "Keine Lehrkräfte gefunden, die Ihren Kriterien entsprechen.",
+    "clearFilters": "Filter zurücksetzen"
+  },
+  "status": {
+    "ACTIVE": "Aktiv",
+    "ON_LEAVE": "Im Urlaub",
+    "INACTIVE_THIS_YEAR": "Inaktiv (Jahr)",
+    "ARCHIVED": "Archiviert"
+  }
+}
