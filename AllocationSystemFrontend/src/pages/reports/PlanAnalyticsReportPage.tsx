@@ -5,8 +5,11 @@ import { apiClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/services/api/BaseApiService";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function PlanAnalyticsReportPage() {
+  const { t } = useTranslation("reportPlanAnalytics");
+
   const { data: allocationPlans, isLoading: isAllocationPlanLoading } = useAllocationPlans();
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>(undefined);
 
@@ -57,25 +60,26 @@ export default function PlanAnalyticsReportPage() {
       <div className="container mx-auto py-8">
         <Skeleton className="h-12 w-1/3 mb-4" />
         <Skeleton className="h-[500px] w-full" />
+        <div className="mt-4 text-muted-foreground">{t("loading")}</div>
       </div>
     );
   }
 
   if (isError) {
-    return <div className="p-8 text-red-500">Failed to load analytics data.</div>;
+    return <div className="p-8 text-red-500">{t("errorLoading")}</div>;
   }
 
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Plan Analytics Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">
-            Plan Analytics Report
+            {t("subtitle")}
           </p>
         </div>
         <div>
-          <label htmlFor="allocationPlan" className="mr-2 font-medium">Allocation Plan:</label>
+          <label htmlFor="allocationPlan" className="mr-2 font-medium">{t("allocationPlanLabel")}</label>
           <select
             id="allocationPlan"
             value={selectedPlan}

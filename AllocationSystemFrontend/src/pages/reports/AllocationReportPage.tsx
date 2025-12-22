@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export const API_BASE_URL = "http://localhost:8080/api";
 
 export default function AllocationReportPage() {
-  const { t } = useTranslation("reportAllocations");
+  const { t } = useTranslation("reportPlanAnalytics");
 
   const { data: allocationPlans, isLoading: isAllocationPlanLoading } = useAllocationPlans();
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>(undefined);
