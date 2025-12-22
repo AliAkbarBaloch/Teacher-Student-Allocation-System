@@ -157,4 +157,54 @@ public class ReportService {
         report.sort(Comparator.comparingInt(SubjectBottleneckDto::getGap));
         return report;
     }
+
+    // ==========================================
+    // 3. Teacher Utilization Report
+    // ==========================================
+    @Transactional(readOnly = true)
+    public List<TeacherUtilizationReportDto> generateUtilizationReport(Long planId) {
+        AllocationPlan plan = planRepository.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Plan not found"));
+
+        List<Teacher> allTeachers = teacherRepository.findAll();
+        List<TeacherAssignment> assignments = assignmentRepository.findByAllocationPlanId(planId);
+
+        // Group assignments by Teacher
+        Map<Long, Long> assignmentCounts = assignments.stream()
+                .collect(Collectors.groupingBy(ta -> ta.getTeacher().getId(), Collectors.counting()));
+
+        // Fetch Credit Tracking for this year
+        List<CreditHourTracking> creditTrackings = creditTrackingRepository.findByAcademicYearId(plan.getAcademicYear().getId());
+        Map<Long, Double> balanceMap = creditTrackings.stream()
+                .collect(Collectors.toMap(ct -> ct.getTeacher().getId(), CreditHourTracking::getCreditBalance));
+
+        List<TeacherUtilizationReportDto> report = new ArrayList<>();
+
+        for (Teacher teacher : allTeachers) {
+            // Skip archived teachers
+            if(teacher.getEmploymentStatus() == Teacher.EmploymentStatus.ARCHIVED) continue;
+
+            int count = assignmentCounts.getOrDefault(teacher.getId(), 0L).intValue();
+            double balance = balanceMap.getOrDefault(teacher.getId(), 0.0);
+
+            String status = "OPTIMAL";
+            if (count == 0) status = "UNUSED";
+            else if (count == 1) status = "UNDER_UTILIZED"; // Need 2 for 1 hour
+            else if (count > 2) status = "OVER_UTILIZED";
+
+            report.add(TeacherUtilizationReportDto.builder()
+                    .teacherId(teacher.getId())
+                    .teacherName(teacher.getLastName() + ", " + teacher.getFirstName())
+                    .schoolName(teacher.getSchool().getSchoolName())
+                    .assignmentsInCurrentPlan(count)
+                    .currentCreditBalance(balance)
+                    .utilizationStatus(status)
+                    .isUnused(count == 0)
+                    .build());
+        }
+
+        // Sort: Unused first, then Over-utilized
+        report.sort(Comparator.comparing(TeacherUtilizationReportDto::getUtilizationStatus));
+        return report;
+    }
 }
