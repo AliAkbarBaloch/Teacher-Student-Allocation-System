@@ -6,11 +6,14 @@ import useAllocationPlans from "@/hooks/entities/useAllocationPlans";
 import { apiClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/services/api/BaseApiService";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const API_BASE_URL = "http://localhost:8080/api";
 
 export default function AllocationReportPage() {
+  const { t } = useTranslation("reportAllocations");
+
   const { data: allocationPlans, isLoading: isAllocationPlanLoading } = useAllocationPlans();
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>(undefined);
 
@@ -37,7 +40,7 @@ export default function AllocationReportPage() {
         setData(res.data);
       } catch (err) {
         console.log(err);
-        setError("Error loading report.");
+        setError(t("errorLoadingReport"));
       } finally {
         setLoading(false);
       }
@@ -51,7 +54,7 @@ export default function AllocationReportPage() {
 
   const handleExportExcel = async () => {
     if (!data) {
-      toast.error("No report data available to export");
+      toast.error(t("noDataToExport"));
       return;
     }
 
@@ -59,7 +62,7 @@ export default function AllocationReportPage() {
       const id = selectedPlan || "1";
       const token = localStorage.getItem("auth_token");
       if (!token) {
-        toast.error("Authentication required. Please log in.");
+        toast.error(t("authRequired"));
         return;
       }
 
@@ -74,7 +77,7 @@ export default function AllocationReportPage() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Excel export error:", errorText);
+        console.error(t("excelExportError", { error: errorText }));
         throw new Error(
           `Failed to download report: ${response.status} ${response.statusText}`
         );
@@ -92,9 +95,9 @@ export default function AllocationReportPage() {
       a.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success("Excel report downloaded successfully");
+      toast.success(t("exportSuccess"));
     } catch (err) {
-      console.error("Error downloading Excel report:", err);
+      console.error(t("exportError"), err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to download Excel report";
       setError(errorMessage);
@@ -102,17 +105,17 @@ export default function AllocationReportPage() {
     }
   };
 
-  if (loading || isAllocationPlanLoading || !allocationPlans) return <div>Loading report...</div>;
+  if (loading || isAllocationPlanLoading || !allocationPlans) return <div>{t("loading")}</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto py-6">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Allocation Report</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
         </div>
         <div>
-          <label htmlFor="allocationPlan" className="mr-2 font-medium">Allocation Plan:</label>
+          <label htmlFor="allocationPlan" className="mr-2 font-medium">{t("allocationPlanLabel")}</label>
           <select
             id="allocationPlan"
             value={selectedPlan}

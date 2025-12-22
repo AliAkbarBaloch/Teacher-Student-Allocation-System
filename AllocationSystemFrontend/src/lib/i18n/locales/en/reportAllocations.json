@@ -1,0 +1,68 @@
+{
+  "title": "Allocation Report",
+  "allocationPlanLabel": "Allocation Plan:",
+  "loading": "Loading report...",
+  "errorLoading": "Error loading report.",
+  "exportExcel": "Export Excel",
+  "exportSuccess": "Excel report downloaded successfully",
+  "exportError": "Failed to download Excel report",
+  "noDataToExport": "No report data available to export",
+  "authRequired": "Authentication required. Please log in.",
+  "header": {
+    "version": "V {{version}}",
+    "generated": "Generated: {{date}} | Academic Year: {{year}}"
+  },
+  "status": {
+    "CONFIRMED": "Confirmed",
+    "PLANNED": "Planned",
+    "DRAFT": "Draft"
+  },
+  "attentionRequired": "Attention Required",
+  "budgetExceeded": "Budget exceeded by {{hours}} hours.",
+  "unassignedTeachers": "{{count}} teachers are currently unassigned (0 assignments).",
+  "overloadedTeachers": "{{count}} teachers are overloaded (>2 assignments).",
+  "budget": {
+    "title": "Credit Hour Budget",
+    "description": "Total Allocated: {{hours}}h",
+    "used": "Used"
+  },
+  "schoolType": {
+    "title": "School Type Distribution",
+    "description": "Elementary vs. Middle School hours"
+  },
+  "teacherUtilization": {
+    "title": "Teacher Utilization",
+    "description": "Efficiency of assignments"
+  },
+  "tabs": {
+    "assignments": "All Assignments",
+    "gaps": "Gaps & Issues",
+    "perfect": "Perfect Matches"
+  },
+  "detailedAssignmentList": {
+    "title": "Detailed Assignment List",
+    "description": "Showing all {{count}} confirmed allocations for {{year}}."
+  },
+  "gaps": {
+    "unassignedTitle": "Unassigned Teachers ({{count}})",
+    "unassignedDescription": "These teachers have 0 assignments but are active.",
+    "underOverTitle": "Under/Over Utilized",
+    "underOverDescription": "Teachers with less than 2 or more than 2 assignments."
+  },
+  "perfectMatches": {
+    "title": "Perfectly Utilized",
+    "description": "Teachers with exactly 2 assignments (1 Credit Hour)."
+  },
+  "noUnassignedTeachers": "No unassigned teachers found.",
+  "improperUtilization": {
+    "title": "Improper Utilization",
+    "description": "Teachers with 1 assignment (Under) or >2 (Over)."
+  },
+  "overloaded": "Overloaded ({{count}})",
+  "underutilized": "Underutilized ({{count}})",
+  "twoAssignments": "2 Assignments",
+  "groupSize": "Group Size: {{size}}",
+  "errorLoadingReport": "Error loading report.",
+  "excelExportError": "Excel export error: {{error}}",
+  "failedToDownloadReport": "Failed to download report: {{status}} {{statusText}}"
+}

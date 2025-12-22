@@ -1,0 +1,68 @@
+{
+  "title": "Zuweisungsbericht",
+  "allocationPlanLabel": "Zuweisungsplan:",
+  "loading": "Bericht wird geladen...",
+  "errorLoading": "Fehler beim Laden des Berichts.",
+  "exportExcel": "Excel exportieren",
+  "exportSuccess": "Excel-Bericht erfolgreich heruntergeladen",
+  "exportError": "Fehler beim Herunterladen des Excel-Berichts",
+  "noDataToExport": "Keine Berichts­daten zum Exportieren verfügbar",
+  "authRequired": "Authentifizierung erforderlich. Bitte melden Sie sich an.",
+  "header": {
+    "version": "V {{version}}",
+    "generated": "Erstellt: {{date}} | Schuljahr: {{year}}"
+  },
+  "status": {
+    "CONFIRMED": "Bestätigt",
+    "PLANNED": "Geplant",
+    "DRAFT": "Entwurf"
+  },
+  "attentionRequired": "Handlungsbedarf",
+  "budgetExceeded": "Budget um {{hours}} Stunden überschritten.",
+  "unassignedTeachers": "{{count}} Lehrkräfte sind derzeit nicht zugewiesen (0 Zuweisungen).",
+  "overloadedTeachers": "{{count}} Lehrkräfte sind überlastet (>2 Zuweisungen).",
+  "budget": {
+    "title": "Creditstunden-Budget",
+    "description": "Gesamt zugewiesen: {{hours}}h",
+    "used": "Genutzt"
+  },
+  "schoolType": {
+    "title": "Verteilung nach Schultyp",
+    "description": "Stunden Grundschule vs. Mittelschule"
+  },
+  "teacherUtilization": {
+    "title": "Lehrkräfte-Auslastung",
+    "description": "Effizienz der Zuweisungen"
+  },
+  "tabs": {
+    "assignments": "Alle Zuweisungen",
+    "gaps": "Lücken & Probleme",
+    "perfect": "Perfekte Zuordnung"
+  },
+  "detailedAssignmentList": {
+    "title": "Detaillierte Zuweisungsliste",
+    "description": "Alle {{count}} bestätigten Zuweisungen für {{year}} anzeigen."
+  },
+  "gaps": {
+    "unassignedTitle": "Nicht zugewiesene Lehrkräfte ({{count}})",
+    "unassignedDescription": "Diese Lehrkräfte haben 0 Zuweisungen, sind aber aktiv.",
+    "underOverTitle": "Unter-/Überausgelastet",
+    "underOverDescription": "Lehrkräfte mit weniger als 2 oder mehr als 2 Zuweisungen."
+  },
+  "perfectMatches": {
+    "title": "Perfekt ausgelastet",
+    "description": "Lehrkräfte mit genau 2 Zuweisungen (1 Creditstunde)."
+  },
+  "noUnassignedTeachers": "Keine nicht zugewiesenen Lehrkräfte gefunden.",
+  "improperUtilization": {
+    "title": "Unangemessene Auslastung",
+    "description": "Lehrkräfte mit 1 Zuweisung (Unter) oder >2 (Über)."
+  },
+  "overloaded": "Überlastet ({{count}})",
+  "underutilized": "Unterausgelastet ({{count}})",
+  "twoAssignments": "2 Zuweisungen",
+  "groupSize": "Gruppengröße: {{size}}",
+  "errorLoadingReport": "Fehler beim Laden des Berichts.",
+  "excelExportError": "Fehler beim Excel-Export: {{error}}",
+  "failedToDownloadReport": "Fehler beim Herunterladen des Berichts: {{status}} {{statusText}}"
+}
