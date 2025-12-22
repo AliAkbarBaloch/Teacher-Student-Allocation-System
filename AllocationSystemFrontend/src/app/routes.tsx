@@ -186,7 +186,7 @@ export const router = createBrowserRouter([
       // Reports
       {
         path: ROUTES.reports.allocationReports,
-        element: withSuspense(<div>Allocation Reports</div>),
+        element: withSuspense(<AllocationReportPage />),
       },
       {
         path: ROUTES.reports.planAnalyticReport,
