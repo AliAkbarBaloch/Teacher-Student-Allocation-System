@@ -1,10 +1,10 @@
 // Example usage in a page wrapper
 import AllocationReportView, {
   type AllocationReportData,
-  type ApiResponse,
 } from "@/features/reports/components/AllocationReportView";
 import useAllocationPlans from "@/hooks/entities/useAllocationPlans";
 import { apiClient } from "@/lib/api-client";
+import type { ApiResponse } from "@/services/api/BaseApiService";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
