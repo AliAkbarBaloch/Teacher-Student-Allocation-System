@@ -25,6 +25,7 @@ import {
     ResponsiveContainer,
     XAxis, YAxis
 } from 'recharts';
+import { useTranslation } from "react-i18next";
 
 // --- Types ---
 export interface SchoolStatusReportData {
@@ -58,6 +59,7 @@ interface SchoolStatusReportViewProps {
 const COLORS = ['#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
 
 export default function SchoolStatusReportView({ data }: SchoolStatusReportViewProps) {
+  const { t } = useTranslation("reportSchools");
   const { metrics, profiles } = data;
   const [searchTerm, setSearchTerm] = useState("");
   const [zoneFilter, setZoneFilter] = useState<string>("ALL");
@@ -69,14 +71,14 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
 
   const zoneData = useMemo(() => 
     Object.entries(metrics.schoolsByZone)
-      .map(([name, value]) => ({ name: `Zone ${name}`, value }))
+      .map(([name, value]) => ({ name: t("zoneWithNumber", { number: name }), value }))
       .sort((a, b) => a.name.localeCompare(b.name)), 
-  [metrics.schoolsByZone]);
+  [metrics.schoolsByZone, t]);
 
   const accessibilityData = useMemo(() => 
     Object.entries(metrics.schoolsByAccessibility)
-    .map(([name, value]) => ({ name: name || "None", value })), 
-  [metrics.schoolsByAccessibility]);
+    .map(([name, value]) => ({ name: name || t("none"), value })), 
+  [metrics.schoolsByAccessibility, t]);
 
   // Filtering
   const filteredProfiles = useMemo(() => {
@@ -94,36 +96,36 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-primary">Total Schools</CardTitle>
+            <CardTitle className="text-sm font-medium text-primary">{t("totalSchools")}</CardTitle>
             <School className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{metrics.totalSchools}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {metrics.activeSchools} Active / {metrics.inactiveSchools} Inactive
+              {t("activeInactive", { active: metrics.activeSchools, inactive: metrics.inactiveSchools })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Zone Distribution</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("zoneDistribution")}</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{Object.keys(metrics.schoolsByZone).length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Active geographic zones</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("activeZones")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Transport Access</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("transportAccess")}</CardTitle>
             <Bus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.schoolsByAccessibility['4a'] || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Schools within 30 min (Type 4a)</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("schoolsWithin30min")}</p>
           </CardContent>
         </Card>
       </div>
@@ -133,7 +135,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
         {/* School Types Pie */}
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle className="text-sm">School Types</CardTitle>
+            <CardTitle className="text-sm">{t("schoolTypes")}</CardTitle>
           </CardHeader>
           <CardContent className="h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -161,7 +163,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
         {/* Zones Bar */}
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle className="text-sm">Zone Distribution</CardTitle>
+            <CardTitle className="text-sm">{t("zoneDistribution")}</CardTitle>
           </CardHeader>
           <CardContent className="h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -179,7 +181,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
         {/* Accessibility Bar */}
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle className="text-sm">Transport Accessibility</CardTitle>
+            <CardTitle className="text-sm">{t("transportAccessibility")}</CardTitle>
           </CardHeader>
           <CardContent className="h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -200,14 +202,14 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>School Directory</CardTitle>
-              <CardDescription>Teacher capacity and location details</CardDescription>
+              <CardTitle>{t("schoolDirectory")}</CardTitle>
+              <CardDescription>{t("teacherCapacityAndLocation")}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative w-40 md:w-60">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Search schools..." 
+                  placeholder={t("searchSchools")}
                   className="pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -217,13 +219,13 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                 <SelectTrigger className="w-[130px]">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4" />
-                    <SelectValue placeholder="Zone" />
+                    <SelectValue placeholder={t("zone")} />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Zones</SelectItem>
+                  <SelectItem value="ALL">{t("allZones")}</SelectItem>
                   {[...Array(6)].map((_, i) => (
-                    <SelectItem key={i+1} value={(i+1).toString()}>Zone {i+1}</SelectItem>
+                    <SelectItem key={i+1} value={(i+1).toString()}>{t("zoneWithNumber", { number: i+1 })}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -245,7 +247,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                       <div>
                         <div className="font-medium flex items-center gap-2">
                           {school.schoolName}
-                          {!school.isActive && <Badge variant="secondary" className="text-[10px]">Inactive</Badge>}
+                          {!school.isActive && <Badge variant="secondary" className="text-[10px]">{t("inactive")}</Badge>}
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-[10px] font-normal">{school.schoolType}</Badge>
@@ -256,16 +258,16 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                     {/* Middle: Location Info */}
                     <div className="flex items-center gap-6 mb-3 md:mb-0 md:w-1/3">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-muted-foreground font-semibold">Zone</span>
+                        <span className="text-[10px] uppercase text-muted-foreground font-semibold">{t("zone")}</span>
                         <span className="text-sm font-medium flex items-center gap-1">
                            <MapPin className="h-3 w-3 text-muted-foreground" /> {school.zoneNumber}
                         </span>
                       </div>
                       <div className="flex flex-col">
-                         <span className="text-[10px] uppercase text-muted-foreground font-semibold">Access</span>
+                         <span className="text-[10px] uppercase text-muted-foreground font-semibold">{t("access")}</span>
                          <span className="text-sm font-medium flex items-center gap-1">
                             <Bus className="h-3 w-3 text-muted-foreground" /> 
-                            {school.transportAccessibility || "N/A"}
+                            {school.transportAccessibility || t("na")}
                          </span>
                       </div>
                     </div>
@@ -273,11 +275,11 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                     {/* Right: Teacher Capacity */}
                     <div className="flex items-center justify-end md:w-1/3 gap-4">
                       <div className="text-right">
-                         <span className="text-[10px] uppercase text-muted-foreground font-semibold block">Teachers</span>
+                         <span className="text-[10px] uppercase text-muted-foreground font-semibold block">{t("teachers")}</span>
                          <div className="flex items-center gap-2 justify-end">
                             <Users className="h-4 w-4 text-muted-foreground" />
                             <span className="font-bold text-lg">{school.activeTeachers}</span>
-                            <span className="text-xs text-muted-foreground">/ {school.totalTeachers} active</span>
+                            <span className="text-xs text-muted-foreground">{t("ofTotalActive", { total: school.totalTeachers })}</span>
                          </div>
                       </div>
                       <div className="h-8 w-1 bg-slate-200 mx-2 hidden md:block"></div>
@@ -294,7 +296,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                 
                 {filteredProfiles.length === 0 && (
                   <div className="text-center py-10 text-muted-foreground">
-                    No schools match your search filters.
+                    {t("noSchoolsMatch")}
                   </div>
                 )}
               </div>

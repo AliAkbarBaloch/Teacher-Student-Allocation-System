@@ -6,8 +6,11 @@ import { apiClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/services/api/BaseApiService";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function SchoolReportPage() {
+  const { t } = useTranslation("reportSchools");
+  
   // Fetch data using React Query
   const { 
     data, 
@@ -48,6 +51,7 @@ export default function SchoolReportPage() {
         </div>
         {/* List Skeleton */}
         <Skeleton className="h-[400px] w-full rounded-lg" />
+        <div className="text-muted-foreground">{t("loading")}</div>
       </div>
     );
   }
@@ -62,13 +66,13 @@ export default function SchoolReportPage() {
               <AlertCircle className="h-6 w-6" />
             </div>
             <h2 className="text-xl font-semibold text-destructive">
-              Failed to load school report
+              {t("errorTitle")}
             </h2>
             <p className="text-muted-foreground">
-              {(error as Error)?.message || "An unexpected error occurred while fetching the data."}
+              {(error as Error)?.message || t("errorMessage")}
             </p>
             <Button onClick={() => refetch()} variant="outline" className="mt-4">
-              <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+              <RefreshCw className="mr-2 h-4 w-4" /> {t("tryAgain")}
             </Button>
           </CardContent>
         </Card>
@@ -83,16 +87,16 @@ export default function SchoolReportPage() {
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            School Network Overview
+            {t("title")}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Analytics on school distribution, zoning, transport accessibility, and teacher capacity.
+            {t("subtitle")}
           </p>
         </div>
         
         <div className="flex gap-2">
            <Button variant="outline" size="sm" onClick={() => refetch()}>
-             <RefreshCw className="mr-2 h-4 w-4" /> Refresh Data
+             <RefreshCw className="mr-2 h-4 w-4" /> {t("refresh")}
            </Button>
         </div>
       </div>
