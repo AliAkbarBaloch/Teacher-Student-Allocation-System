@@ -1,7 +1,7 @@
-package de.unipassau.allocationsystem.controller;
+package de.unipassau.allocationsystem.controller.report;
 
 import de.unipassau.allocationsystem.dto.report.allocation.AllocationReportDto;
-import de.unipassau.allocationsystem.service.AllocationReportService;
+import de.unipassau.allocationsystem.service.report.AllocationReportService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

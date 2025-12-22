@@ -32,6 +32,7 @@ import TeacherSubmissionsPage from "@/pages/teacher-management/TeacherSubmission
 import InternshipDemandPerYearPage from "@/pages/internship-demand/InternshipDemandPerYearPage";
 import TeacherReportPage from "@/pages/reports/TeacherReportPage";
 import SchoolReportPage from "@/pages/reports/SchoolReportPage";
+import PlanAnalyticsReportPage from "@/pages/reports/PlanAnalyticsReportPage";
 
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
@@ -186,6 +187,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.reports.allocationReports,
         element: withSuspense(<div>Allocation Reports</div>),
+      },
+      {
+        path: ROUTES.reports.planAnalyticReport,
+        element: withSuspense(<PlanAnalyticsReportPage />),
       },
       {
         path: ROUTES.reports.teacherReports,

@@ -35,6 +35,7 @@ export const ROUTES = {
   },
   reports: {
     allocationReports: "/reports/allocation-reports",
+    planAnalyticReport: "/reports/plan-analytic-reports",
     teacherReports: "/reports/teacher-reports",
     schoolReports: "/reports/school-reports",
     auditReports: "/reports/audit-reports",

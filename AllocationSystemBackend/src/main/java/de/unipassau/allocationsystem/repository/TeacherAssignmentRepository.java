@@ -42,4 +42,14 @@ public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssign
             "JOIN FETCH ta.subject sub " +
             "WHERE ta.allocationPlan.id = :planId")
     List<TeacherAssignment> findAllByPlanIdWithDetails(@Param("planId") Long planId);
+
+    // Count assignments for a specific plan, grouped by school type
+    @Query("SELECT s.schoolType, COUNT(ta) FROM TeacherAssignment ta " +
+            "JOIN ta.teacher t JOIN t.school s " +
+            "WHERE ta.allocationPlan.id = :planId " +
+            "GROUP BY s.schoolType")
+    List<Object[]> countAssignmentsBySchoolType(@Param("planId") Long planId);
+
+    // Get all assignments for a plan
+    List<TeacherAssignment> findByAllocationPlanId(Long planId);
 }
