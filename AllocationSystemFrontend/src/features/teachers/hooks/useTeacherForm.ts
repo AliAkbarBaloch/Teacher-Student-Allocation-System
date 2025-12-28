@@ -24,7 +24,7 @@ type FormState = {
   workingHoursPerWeek: string;
   employmentStatus: EmploymentStatus | "";
   usageCycle: UsageCycle | "";
-  subjectIds: [];
+  subjectIds: number[];
 };
 
 const createDefaultState = (): FormState => ({
@@ -41,6 +41,7 @@ const createDefaultState = (): FormState => ({
 
 });
 
+// When editing a teacher 
 const mapTeacherToFormState = (teacher: Teacher): FormState => ({
   schoolId: teacher.schoolId ? String(teacher.schoolId) : "",
   firstName: teacher.firstName ?? "",
@@ -51,6 +52,10 @@ const mapTeacherToFormState = (teacher: Teacher): FormState => ({
   workingHoursPerWeek: teacher.workingHoursPerWeek != null ? String(teacher.workingHoursPerWeek) : "", // <-- Add this line
   employmentStatus: teacher.employmentStatus ?? "",
   usageCycle: teacher.usageCycle ?? "",
+  // .map - go through subjects and extract only ids as an array. 
+  // ? - only do map if teacher.subject exists
+  // ?? - nullish coalesing. if the left side is null, use the right side 
+  subjectIds: teacher.subjects?.map((s) => s.id) ?? [],
 });
 
 type BaseTeacherFormOptions = {
@@ -197,6 +202,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     };
     const employmentStatus = formState.employmentStatus as EmploymentStatus;
 
+    //Payload is sent to backend 
     const payload: CreateTeacherRequest = {
       schoolId: Number(formState.schoolId),
       firstName: formState.firstName.trim(),
@@ -205,6 +211,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       isPartTime: formState.isPartTime,
       workingHoursPerWeek: formState.isPartTime && String(formState.workingHoursPerWeek).trim() ? Number(formState.workingHoursPerWeek) : null,
       employmentStatus,
+      subjectIds: formState.subjectIds,
     };
 
     // Only include optional fields if they have values
@@ -248,6 +255,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
             employmentStatus: basePayload.employmentStatus,
             usageCycle: basePayload.usageCycle,
             workingHoursPerWeek: basePayload.workingHoursPerWeek,
+            subjectIds: basePayload.subjectIds,
           };
           await onSubmit(updatePayload);
         } else {
