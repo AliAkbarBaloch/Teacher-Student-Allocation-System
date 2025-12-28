@@ -2240,42 +2240,677 @@ VALUES
     (453, 114, 1, 1, 'PREFERRED', TRUE, 1, 'Zone 3: Block preferred', NOW()),
     (454, 114, 1, 2, 'PREFERRED', TRUE, 2, 'Zone 3: Block preferred', NOW()),
     (455, 114, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
-    (456, 114, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW());
+    (456, 114, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- =========================================================================
+    -- NEW GENERATED DATA (Teacher IDs 115-210)
+    -- =========================================================================
+
+    -- T115 (Zone 3, Middle, Full-Time) - Block Only
+    (457, 115, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (458, 115, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (459, 115, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (460, 115, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T116 (Zone 3, Middle, Part-Time) - Block Only
+    (461, 116, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (462, 116, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (463, 116, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (464, 116, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T117 (Zone 3, Middle, Full-Time) - Block Only
+    (465, 117, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (466, 117, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (467, 117, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (468, 117, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T118 (Zone 3, Middle, Full-Time) - Block Only
+    (469, 118, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (470, 118, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (471, 118, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (472, 118, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T119 (Zone 3, Middle, Full-Time) - Block Only
+    (473, 119, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (474, 119, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (475, 119, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (476, 119, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T120 (Zone 3, Middle, Part-Time) - Block Only
+    (477, 120, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (478, 120, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (479, 120, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (480, 120, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T121 (Zone 3, Middle, Full-Time) - Block Only
+    (481, 121, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (482, 121, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (483, 121, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (484, 121, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T122 (Zone 3, Primary, Full-Time) - Block Only
+    (485, 122, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (486, 122, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (487, 122, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (488, 122, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T123 (Zone 3, Primary, Full-Time) - Block Only
+    (489, 123, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (490, 123, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (491, 123, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (492, 123, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T124 (Zone 3, Primary, Part-Time) - Block Only
+    (493, 124, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (494, 124, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (495, 124, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (496, 124, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T125 (Zone 3, Primary, Full-Time) - Block Only
+    (497, 125, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (498, 125, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (499, 125, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (500, 125, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T126 (Zone 3, Primary, Full-Time) - Block Only
+    (501, 126, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (502, 126, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (503, 126, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (504, 126, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T127 (Zone 3, Primary, Part-Time) - Block Only
+    (505, 127, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (506, 127, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (507, 127, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (508, 127, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T128 (Zone 3, Primary, Full-Time) - Block Only
+    (509, 128, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (510, 128, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (511, 128, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (512, 128, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T129 (Zone 3, Primary, Full-Time) - Block Only
+    (513, 129, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (514, 129, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (515, 129, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (516, 129, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T130 (Zone 3, Primary, Full-Time) - Block Only
+    (517, 130, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (518, 130, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (519, 130, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (520, 130, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T131 (Zone 3, Primary, Part-Time) - Block Only
+    (521, 131, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (522, 131, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (523, 131, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (524, 131, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T132 (Zone 3, Primary, Full-Time) - Block Only
+    (525, 132, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (526, 132, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (527, 132, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (528, 132, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T133 (Zone 3, Primary, Full-Time) - Block Only
+    (529, 133, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (530, 133, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (531, 133, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (532, 133, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T134 (Zone 3, Primary, Full-Time) - Block Only
+    (533, 134, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (534, 134, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (535, 134, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (536, 134, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T135 (Zone 3, Primary, Part-Time) - Block Only
+    (537, 135, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (538, 135, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (539, 135, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (540, 135, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T136 (Zone 3, Primary, Full-Time) - Block Only
+    (541, 136, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (542, 136, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (543, 136, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (544, 136, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T137 (Zone 3, Primary, Full-Time) - Block Only
+    (545, 137, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (546, 137, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (547, 137, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (548, 137, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T138 (Zone 3, Primary, Full-Time) - Block Only
+    (549, 138, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (550, 138, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (551, 138, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (552, 138, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T139 (Zone 3, Primary, Full-Time) - Block Only
+    (553, 139, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (554, 139, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (555, 139, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (556, 139, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T140 (Zone 3, Primary, Part-Time) - Block Only
+    (557, 140, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (558, 140, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (559, 140, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (560, 140, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T141 (Zone 3, Primary, Full-Time) - Block Only
+    (561, 141, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (562, 141, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (563, 141, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (564, 141, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T142 (Zone 3, Primary, Full-Time) - Block Only
+    (565, 142, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (566, 142, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (567, 142, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (568, 142, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T143 (Zone 3, Primary, Full-Time) - Block Only
+    (569, 143, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (570, 143, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (571, 143, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (572, 143, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T144 (Zone 3, Primary, Part-Time) - Block Only
+    (573, 144, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (574, 144, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (575, 144, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (576, 144, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T145 (Zone 3, Primary, Full-Time) - Block Only
+    (577, 145, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (578, 145, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (579, 145, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (580, 145, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T146 (Zone 3, Primary, Full-Time) - Block Only
+    (581, 146, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (582, 146, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (583, 146, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (584, 146, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T147 (Zone 3, Primary, Full-Time) - Block Only
+    (585, 147, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (586, 147, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (587, 147, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (588, 147, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T148 (Zone 3, Primary, Part-Time) - Block Only
+    (589, 148, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (590, 148, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (591, 148, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (592, 148, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T149 (Zone 3, Primary, Full-Time) - Block Only
+    (593, 149, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (594, 149, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (595, 149, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (596, 149, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T150 (Zone 3, Primary, Full-Time) - Block Only
+    (597, 150, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (598, 150, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (599, 150, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (600, 150, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T151 (Zone 3, Primary, Full-Time) - Block Only
+    (601, 151, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (602, 151, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (603, 151, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (604, 151, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T152 (Zone 3, Primary, Full-Time) - Block Only
+    (605, 152, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (606, 152, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (607, 152, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (608, 152, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T153 (Zone 3, Primary, Part-Time) - Block Only
+    (609, 153, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (610, 153, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (611, 153, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (612, 153, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T154 (Zone 3, Primary, Full-Time) - Block Only
+    (613, 154, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (614, 154, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (615, 154, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (616, 154, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T155 (Zone 3, Primary, Full-Time) - Block Only
+    (617, 155, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (618, 155, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (619, 155, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (620, 155, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T156 (Zone 3, Primary, Full-Time) - Block Only
+    (621, 156, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (622, 156, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (623, 156, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (624, 156, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T157 (Zone 3, Primary, Part-Time) - Block Only
+    (625, 157, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (626, 157, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (627, 157, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (628, 157, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T158 (Zone 3, Primary, Full-Time) - Block Only
+    (629, 158, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (630, 158, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (631, 158, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (632, 158, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T159 (Zone 3, Primary, Full-Time) - Block Only
+    (633, 159, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (634, 159, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (635, 159, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (636, 159, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T160 (Zone 3, Primary, Full-Time) - Block Only
+    (637, 160, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (638, 160, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (639, 160, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (640, 160, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T161 (Zone 3, Primary, Part-Time) - Block Only
+    (641, 161, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (642, 161, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (643, 161, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (644, 161, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T162 (Zone 3, Primary, Full-Time) - Block Only
+    (645, 162, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (646, 162, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (647, 162, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (648, 162, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T163 (Zone 3, Primary, Full-Time) - Block Only
+    (649, 163, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (650, 163, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (651, 163, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (652, 163, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T164 (Zone 3, Primary, Full-Time) - Block Only
+    (653, 164, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (654, 164, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (655, 164, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (656, 164, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T165 (Zone 3, Primary, Part-Time) - Block Only
+    (657, 165, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (658, 165, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (659, 165, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (660, 165, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T166 (Zone 3, Primary, Full-Time) - Block Only
+    (661, 166, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (662, 166, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (663, 166, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (664, 166, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T167 (Zone 3, Primary, Full-Time) - Block Only
+    (665, 167, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (666, 167, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (667, 167, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (668, 167, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T168 (Zone 3, Primary, Full-Time) - Block Only
+    (669, 168, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (670, 168, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (671, 168, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (672, 168, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T169 (Zone 3, Primary, Part-Time) - Block Only
+    (673, 169, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (674, 169, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (675, 169, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (676, 169, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T170 (Zone 3, Primary, Full-Time) - Block Only
+    (677, 170, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (678, 170, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (679, 170, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (680, 170, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T171 (Zone 3, Primary, Full-Time) - Block Only
+    (681, 171, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (682, 171, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (683, 171, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (684, 171, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T172 (Zone 3, Primary, Full-Time) - Block Only
+    (685, 172, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (686, 172, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (687, 172, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (688, 172, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T173 (Zone 3, Primary, Part-Time) - Block Only
+    (689, 173, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (690, 173, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (691, 173, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (692, 173, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T174 (Zone 3, Primary, Full-Time) - Block Only
+    (693, 174, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (694, 174, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (695, 174, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (696, 174, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T175 (Zone 3, Primary, Full-Time) - Block Only
+    (697, 175, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (698, 175, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (699, 175, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (700, 175, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T176 (Zone 3, Primary, Full-Time) - Block Only
+    (701, 176, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (702, 176, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (703, 176, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (704, 176, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- T177 (Zone 3, Primary, Part-Time) - Block Only
+    (705, 177, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 3: Block preferred', NOW()),
+    (706, 177, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 3: Block preferred', NOW()),
+    (707, 177, 1, 3, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+    (708, 177, 1, 4, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 3 constraint', NOW()),
+
+    -- =========================================================================
+    -- ZONE 2 FILLERS (Teachers 178-201, 206-207) - Flexible Availability
+    -- =========================================================================
+
+    -- T178 (Zone 2, Primary, Full-Time)
+    (709, 178, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (710, 178, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (711, 178, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (712, 178, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T179 (Zone 2, Primary, Full-Time)
+    (713, 179, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (714, 179, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (715, 179, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (716, 179, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T180 (Zone 2, Primary, Full-Time)
+    (717, 180, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (718, 180, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (719, 180, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (720, 180, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T181 (Zone 2, Primary, Part-Time) - Prefer Wednesday, but can be flexible
+    (721, 181, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (722, 181, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (723, 181, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (724, 181, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T182 (Zone 2, Primary, Full-Time)
+    (725, 182, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (726, 182, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (727, 182, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (728, 182, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T183 (Zone 2, Primary, Full-Time)
+    (729, 183, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (730, 183, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (731, 183, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (732, 183, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T184 (Zone 2, Primary, Full-Time)
+    (733, 184, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (734, 184, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (735, 184, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (736, 184, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T185 (Zone 2, Primary, Part-Time)
+    (737, 185, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (738, 185, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (739, 185, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (740, 185, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T186 (Zone 2, Primary, Full-Time)
+    (741, 186, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (742, 186, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (743, 186, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (744, 186, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T187 (Zone 2, Primary, Full-Time)
+    (745, 187, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (746, 187, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (747, 187, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (748, 187, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T188 (Zone 2, Primary, Full-Time)
+    (749, 188, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (750, 188, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (751, 188, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (752, 188, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T189 (Zone 2, Primary, Part-Time)
+    (753, 189, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (754, 189, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (755, 189, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (756, 189, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T190 (Zone 2, Primary, Full-Time)
+    (757, 190, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (758, 190, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (759, 190, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (760, 190, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T191 (Zone 2, Primary, Full-Time)
+    (761, 191, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (762, 191, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (763, 191, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (764, 191, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T192 (Zone 2, Primary, Full-Time)
+    (765, 192, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (766, 192, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (767, 192, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (768, 192, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T193 (Zone 2, Primary, Part-Time)
+    (769, 193, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (770, 193, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (771, 193, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (772, 193, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T194 (Zone 2, Primary, Full-Time)
+    (773, 194, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (774, 194, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (775, 194, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (776, 194, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T195 (Zone 2, Primary, Full-Time)
+    (777, 195, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (778, 195, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (779, 195, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (780, 195, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T196 (Zone 2, Primary, Full-Time)
+    (781, 196, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (782, 196, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (783, 196, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (784, 196, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T197 (Zone 2, Primary, Part-Time)
+    (785, 197, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (786, 197, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (787, 197, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (788, 197, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T198 (Zone 2, Primary, Full-Time)
+    (789, 198, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (790, 198, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (791, 198, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (792, 198, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T199 (Zone 2, Primary, Full-Time)
+    (793, 199, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (794, 199, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (795, 199, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (796, 199, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T200 (Zone 2, Primary, Full-Time)
+    (797, 200, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (798, 200, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (799, 200, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (800, 200, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T201 (Zone 2, Primary, Part-Time)
+    (801, 201, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (802, 201, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (803, 201, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (804, 201, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- =========================================================================
+    -- ZONE 1 FILLERS (Teachers 202-205, 208-210) - Wednesday Preferred
+    -- =========================================================================
+
+    -- T202 (Zone 1, Primary, Full-Time)
+    (805, 202, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (806, 202, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (807, 202, 1, 3, 'PREFERRED', TRUE, 1, 'Zone 1 preference for Wednesday', NOW()),
+    (808, 202, 1, 4, 'AVAILABLE', TRUE, 2, 'Zone 1 preference for Wednesday', NOW()),
+
+    -- T203 (Zone 1, Primary, Full-Time)
+    (809, 203, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (810, 203, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (811, 203, 1, 3, 'PREFERRED', TRUE, 1, 'Zone 1 preference for Wednesday', NOW()),
+    (812, 203, 1, 4, 'AVAILABLE', TRUE, 2, 'Zone 1 preference for Wednesday', NOW()),
+
+    -- T204 (Zone 1, Primary, Full-Time)
+    (813, 204, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (814, 204, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (815, 204, 1, 3, 'PREFERRED', TRUE, 1, 'Zone 1 preference for Wednesday', NOW()),
+    (816, 204, 1, 4, 'AVAILABLE', TRUE, 2, 'Zone 1 preference for Wednesday', NOW()),
+
+    -- T205 (Zone 1, Primary, Part-Time)
+    (817, 205, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1/Part-time constraint', NOW()),
+    (818, 205, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1/Part-time constraint', NOW()),
+    (819, 205, 1, 3, 'PREFERRED', TRUE, 1, 'Part-time preference for Wednesday', NOW()),
+    (820, 205, 1, 4, 'PREFERRED', TRUE, 2, 'Part-time preference for Wednesday', NOW()),
+
+    -- T206 (Zone 2, Primary, Full-Time) - Büchlberg (Flexible)
+    (821, 206, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (822, 206, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (823, 206, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (824, 206, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T207 (Zone 2, Primary, Full-Time) - Büchlberg (Flexible)
+    (825, 207, 1, 1, 'AVAILABLE', TRUE, 1, 'Zone 2: Flexible', NOW()),
+    (826, 207, 1, 2, 'AVAILABLE', TRUE, 2, 'Zone 2: Flexible', NOW()),
+    (827, 207, 1, 3, 'AVAILABLE', TRUE, 3, 'Zone 2: Flexible', NOW()),
+    (828, 207, 1, 4, 'AVAILABLE', TRUE, 4, 'Zone 2: Flexible', NOW()),
+
+    -- T208 (Zone 1, Primary, Full-Time) - Hutthurm
+    (829, 208, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (830, 208, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (831, 208, 1, 3, 'PREFERRED', TRUE, 1, 'Zone 1 preference for Wednesday', NOW()),
+    (832, 208, 1, 4, 'AVAILABLE', TRUE, 2, 'Zone 1 preference for Wednesday', NOW()),
+
+    -- T209 (Zone 1, Primary, Part-Time) - Hutthurm
+    (833, 209, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1/Part-time constraint', NOW()),
+    (834, 209, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1/Part-time constraint', NOW()),
+    (835, 209, 1, 3, 'PREFERRED', TRUE, 1, 'Part-time preference for Wednesday', NOW()),
+    (836, 209, 1, 4, 'PREFERRED', TRUE, 2, 'Part-time preference for Wednesday', NOW()),
+
+    -- T210 (Zone 1, Primary, Full-Time) - Fürstenzell
+    (837, 210, 1, 1, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (838, 210, 1, 2, 'NOT_AVAILABLE', FALSE, NULL, 'Zone 1 constraint', NOW()),
+    (839, 210, 1, 3, 'PREFERRED', TRUE, 1, 'Zone 1 preference for Wednesday', NOW()),
+    (840, 210, 1, 4, 'AVAILABLE', TRUE, 2, 'Zone 1 preference for Wednesday', NOW());
 
 -- 10. INTERNSHIP_DEMANDS
 -- High priority: SFP German in Primary schools
 INSERT INTO internship_demands (id, academic_year_id, internship_type_id, school_type, subject_id, required_teachers, student_count, is_forecasted, created_at, updated_at)
 VALUES
-    (1, 1, 4, 'Primary', 1, 10, 40, TRUE, NOW(), NOW()),    -- D (German Primary, SFP, Forecasted)
-    (2, 1, 4, 'Middle', 3, 5, 20, TRUE, NOW(), NOW()),      -- E (English Middle, SFP, Forecasted)
-    (3, 1, 1, 'Primary', 1, 15, 30, FALSE, NOW(), NOW()),   -- D (German Primary, PDP1, Not Forecasted)
-    (4, 1, 4, 'Primary', 23, 5, 20, TRUE, NOW(), NOW()),    -- E (English Primary, SFP, Forecasted)
-    (5, 1, 4, 'Primary', 12, 7, 28, TRUE, NOW(), NOW()),    -- HSU (Home and Subject Matter Lessons, SFP, Forecasted)
-    (6, 1, 4, 'Primary', 2, 6, 24, TRUE, NOW(), NOW()),     -- MA (Mathematics Primary, SFP, Forecasted)
-    (7, 1, 4, 'Primary', 4, 4, 16, TRUE, NOW(), NOW()),     -- KRel (Catholic Religion, SFP, Forecasted)
-    (8, 1, 4, 'Middle', 10, 2, 8, TRUE, NOW(), NOW()),      -- GE (History Middle, SFP, Forecasted)
-    (9, 1, 4, 'Middle', 22, 2, 8, TRUE, NOW(), NOW()),      -- MA (Mathematics Middle, SFP, Forecasted)
-    (10, 1, 4, 'Middle', 21, 1, 4, TRUE, NOW(), NOW()),     -- D (German Middle, SFP, Forecasted)
+    -- SFP (Summer, Forecasted) - Priority 1
+    (1, 1, 4, 'Primary', 1, 10, 40, TRUE, NOW(), NOW()),    -- German
+    (2, 1, 4, 'Middle', 3, 5, 20, TRUE, NOW(), NOW()),      -- English
+    (3, 1, 1, 'Primary', 1, 15, 30, FALSE, NOW(), NOW()),   -- PDP1 German (Filler)
+    (4, 1, 4, 'Primary', 23, 5, 20, TRUE, NOW(), NOW()),    -- English
+    (5, 1, 4, 'Primary', 12, 7, 28, TRUE, NOW(), NOW()),    -- HSU
+    (6, 1, 4, 'Primary', 2, 6, 24, TRUE, NOW(), NOW()),     -- Math
+    (7, 1, 4, 'Primary', 4, 4, 16, TRUE, NOW(), NOW()),     -- Religion
+    (8, 1, 4, 'Middle', 10, 2, 8, TRUE, NOW(), NOW()),      -- History
+    (9, 1, 4, 'Middle', 22, 2, 8, TRUE, NOW(), NOW()),      -- Math
+    (10, 1, 4, 'Middle', 21, 1, 4, TRUE, NOW(), NOW()),     -- German
 
-    -- ZSP Demands (Internship Type ID 3, Fixed/Known = FALSE) - Priority 2 (40 Primary / 10 Middle)
-    (11, 1, 3, 'Primary', 1, 8, 32, FALSE, NOW(), NOW()),   -- D (German Primary, ZSP, Not Forecasted)
-    (12, 1, 3, 'Middle', 3, 3, 12, FALSE, NOW(), NOW()),    -- E (English Middle, ZSP, Not Forecasted)
-    (13, 1, 3, 'Primary', 23, 4, 16, FALSE, NOW(), NOW()),  -- E (English Primary, ZSP, Not Forecasted)
-    (14, 1, 3, 'Primary', 12, 8, 32, FALSE, NOW(), NOW()),  -- HSU (Home and Subject Matter Lessons, ZSP, Not Forecasted)
-    (15, 1, 3, 'Primary', 2, 7, 28, FALSE, NOW(), NOW()),   -- MA (Mathematics Primary, ZSP, Not Forecasted)
-    (16, 1, 3, 'Primary', 7, 4, 16, FALSE, NOW(), NOW()),   -- SP (Sport Primary, ZSP, Not Forecasted)
-    (17, 1, 3, 'Primary', 4, 3, 12, FALSE, NOW(), NOW()),   -- KRel (Catholic Religion, ZSP, Not Forecasted)
-    (18, 1, 3, 'Middle', 8, 2, 8, FALSE, NOW(), NOW()),     -- SK (Social Studies Middle, ZSP, Not Forecasted)
-    (19, 1, 3, 'Middle', 15, 2, 8, FALSE, NOW(), NOW()),    -- PCB (Physics-Chemistry-Biology, ZSP, Not Forecasted)
-    (20, 1, 3, 'Middle', 21, 2, 8, FALSE, NOW(), NOW()),    -- D (German Middle, ZSP, Not Forecasted)
+    -- ZSP (Winter, Fixed) - Priority 2
+    (11, 1, 3, 'Primary', 1, 8, 32, FALSE, NOW(), NOW()),   -- German
+    (12, 1, 3, 'Middle', 3, 3, 12, FALSE, NOW(), NOW()),    -- English
+    (13, 1, 3, 'Primary', 23, 4, 16, FALSE, NOW(), NOW()),  -- English
+    (14, 1, 3, 'Primary', 12, 8, 32, FALSE, NOW(), NOW()),  -- HSU
+    (15, 1, 3, 'Primary', 2, 7, 28, FALSE, NOW(), NOW()),   -- Math
+    (16, 1, 3, 'Primary', 7, 4, 16, FALSE, NOW(), NOW()),   -- Sport
+    (17, 1, 3, 'Primary', 4, 3, 12, FALSE, NOW(), NOW()),   -- Religion
+    (18, 1, 3, 'Middle', 8, 2, 8, FALSE, NOW(), NOW()),     -- Social Studies
+    (19, 1, 3, 'Middle', 15, 2, 8, FALSE, NOW(), NOW()),    -- PCB
+    (20, 1, 3, 'Middle', 21, 2, 8, FALSE, NOW(), NOW()),    -- German
 
-    -- PDP 1 Demands (Internship Type ID 1, Fixed/Known = FALSE) - Priority 3 (40 Primary / 10 Middle)
-    (21, 1, 1, 'Primary', 1, 40, 80, FALSE, NOW(), NOW()),  -- D (German Primary, PDP1, Not Forecasted)
-    (22, 1, 1, 'Middle', 3, 10, 20, FALSE, NOW(), NOW()),   -- E (English Middle, PDP1, Not Forecasted)
+    -- PDP 1 (Winter, Block) - Priority 3
+    (21, 1, 1, 'Primary', 1, 40, 80, FALSE, NOW(), NOW()),  -- German (General PDP Load)
+    (22, 1, 1, 'Middle', 3, 10, 20, FALSE, NOW(), NOW()),   -- English (General PDP Load)
 
-    -- PDP 2 Demands (Internship Type ID 2, Forecasted = TRUE) - Priority 3 (49 Primary / 11 Middle)
-    (23, 1, 2, 'Primary', 1, 49, 98, TRUE, NOW(), NOW()),   -- D (German Primary, PDP2, Forecasted)
-    (24, 1, 2, 'Middle', 3, 11, 22, TRUE, NOW(), NOW());    -- E (English Middle, PDP2, Forecasted)
+    -- PDP 2 (Summer, Block) - Priority 3
+    (23, 1, 2, 'Primary', 1, 49, 98, TRUE, NOW(), NOW()),   -- German (General PDP Load)
+    (24, 1, 2, 'Middle', 3, 11, 22, TRUE, NOW(), NOW()),    -- English (General PDP Load)
+
+    -- =========================================================================
+    -- 2. ADDITIONAL DEMAND (To reach ~420 Assignments total)
+    -- =========================================================================
+
+    -- SFP ADDITIONS (Summer) - Arts, Special, Vocational
+    -- Need ~60 more slots here to utilize Zone 1/2 teachers in Summer
+    (25, 1, 4, 'Primary', 19, 5, 20, TRUE, NOW(), NOW()),   -- DaZ (German as Second Language)
+    (26, 1, 4, 'Primary', 20, 4, 16, TRUE, NOW(), NOW()),   -- SSE (Language Support)
+    (27, 1, 4, 'Primary', 5, 6, 24, TRUE, NOW(), NOW()),    -- Music
+    (28, 1, 4, 4, 6, 6, 24, TRUE, NOW(), NOW()),            -- Art (KE)
+    (29, 1, 4, 'Primary', 7, 8, 32, TRUE, NOW(), NOW()),    -- Sport
+    (30, 1, 4, 'Middle', 17, 4, 16, TRUE, NOW(), NOW()),    -- GSE
+    (31, 1, 4, 'Middle', 15, 4, 16, TRUE, NOW(), NOW()),    -- PCB
+    (32, 1, 4, 'Middle', 16, 4, 16, TRUE, NOW(), NOW()),    -- IT
+    (33, 1, 4, 'Middle', 13, 3, 12, TRUE, NOW(), NOW()),    -- AL (Work)
+    (34, 1, 4, 'Primary', 1, 12, 48, TRUE, NOW(), NOW()),   -- German (Extra Volume for large schools)
+
+    -- ZSP ADDITIONS (Winter) - Arts, Special, Vocational
+    -- Need ~60 more slots here to utilize Zone 1/2 teachers in Winter
+    (35, 1, 3, 'Primary', 19, 6, 24, FALSE, NOW(), NOW()),  -- DaZ
+    (36, 1, 3, 'Primary', 20, 4, 16, FALSE, NOW(), NOW()),  -- SSE
+    (37, 1, 3, 'Primary', 5, 6, 24, FALSE, NOW(), NOW()),   -- Music
+    (38, 1, 3, 'Primary', 6, 6, 24, FALSE, NOW(), NOW()),   -- Art
+    (39, 1, 3, 'Middle', 11, 4, 16, FALSE, NOW(), NOW()),   -- Geography
+    (40, 1, 3, 'Middle', 9, 3, 12, FALSE, NOW(), NOW()),    -- Politics (PuG)
+    (41, 1, 3, 'Middle', 14, 3, 12, FALSE, NOW(), NOW()),   -- WiB (Economy)
+    (42, 1, 3, 'Middle', 13, 3, 12, FALSE, NOW(), NOW()),   -- AL
+    (43, 1, 3, 'Primary', 2, 12, 48, FALSE, NOW(), NOW()),  -- Math (Extra Volume)
+
+    -- PDP 1 ADDITIONS (Winter, Block) - For Zone 3 Teachers
+    -- Increasing volume to ensure Zone 3 teachers have assignments
+    (44, 1, 1, 'Primary', 2, 25, 50, FALSE, NOW(), NOW()),  -- Math (General PDP Load)
+    (45, 1, 1, 'Primary', 12, 15, 30, FALSE, NOW(), NOW()), -- HSU (General PDP Load)
+    (46, 1, 1, 'Middle', 22, 8, 16, FALSE, NOW(), NOW()),   -- Math (General PDP Load)
+    (47, 1, 1, 'Middle', 21, 5, 10, FALSE, NOW(), NOW()),   -- German (General PDP Load)
+
+    -- PDP 2 ADDITIONS (Summer, Block) - For Zone 3 Teachers
+    -- Increasing volume to ensure Zone 3 teachers have assignments
+    (48, 1, 2, 'Primary', 2, 30, 60, TRUE, NOW(), NOW()),   -- Math (General PDP Load)
+    (49, 1, 2, 'Primary', 12, 20, 40, TRUE, NOW(), NOW()),  -- HSU (General PDP Load)
+    (50, 1, 2, 'Middle', 22, 10, 20, TRUE, NOW(), NOW()),   -- Math (General PDP Load)
+    (51, 1, 2, 'Middle', 15, 5, 10, TRUE, NOW(), NOW()),    -- PCB (General PDP Load)
+    
+    -- Extra Buffer for Flexibility
+    (52, 1, 4, 'Primary', 25, 4, 16, TRUE, NOW(), NOW());   -- GU (Art/Environment)
 
 -- 11. ALLOCATION_PLAN
 -- A draft plan created by the Admin.
@@ -2287,6 +2922,7 @@ VALUES
 -- The result of the allocation logic. Hans matches strict subject constraint for ZSP.
 INSERT INTO TEACHER_ASSIGNMENTS (id, plan_id, teacher_id, internship_type_id, subject_id, student_group_size, assignment_status, is_manual_override, notes, assigned_at, created_at)
 VALUES
+    -- User's Original Examples
     -- User's Original Examples
     (1, 1, 1, 4, 1, 4, 'CONFIRMED', FALSE, 'Auto-matched based on subject D (SFP)', NOW(), NOW()),
     (2, 1, 1, 3, 2, 4, 'CONFIRMED', FALSE, 'Auto-matched based on subject MA (ZSP)', NOW(), NOW()), -- T1: D+MA (Complete)
@@ -2557,46 +3193,399 @@ VALUES
     (199, 1, 114, 1, 3, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1 (Teacher with -1 balance)', NOW(), NOW()),
     (200, 1, 114, 2, 3, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()), -- T114 Complete
 
-    -- T87-T98 (Zone 1/2, Full/Part-Time) - Fulfill remaining ZSP/SFP slots, then use PDP as needed.
-    -- T87 (Zone 1, Part-Time, MIDDLE)
+    -- T87-T98 (Zone 1/2, Full/Part-Time) - Fulfill remaining ZSP/SFP slots
     (201, 1, 87, 3, 3, 4, 'CONFIRMED', FALSE, 'Auto-matched E (ZSP)', NOW(), NOW()),
     (202, 1, 87, 4, 10, 4, 'CONFIRMED', FALSE, 'Auto-matched GE (SFP)', NOW(), NOW()), -- T87 Complete
-    -- T88 (Zone 1, Full-Time, PRIMARY)
     (203, 1, 88, 3, 12, 4, 'CONFIRMED', FALSE, 'Auto-matched HSU (ZSP)', NOW(), NOW()),
     (204, 1, 88, 4, 1, 4, 'CONFIRMED', FALSE, 'Auto-matched D (SFP)', NOW(), NOW()), -- T88 Complete
-    -- T89 (Zone 1, Full-Time, PRIMARY)
     (205, 1, 89, 3, 2, 4, 'CONFIRMED', FALSE, 'Auto-matched MA (ZSP)', NOW(), NOW()),
     (206, 1, 89, 4, 12, 4, 'CONFIRMED', FALSE, 'Auto-matched HSU (SFP)', NOW(), NOW()), -- T89 Complete
-    -- T90 (Zone 1, Full-Time, PRIMARY)
     (207, 1, 90, 3, 23, 4, 'CONFIRMED', FALSE, 'Auto-matched E (ZSP)', NOW(), NOW()),
     (208, 1, 90, 4, 5, 4, 'CONFIRMED', FALSE, 'Auto-matched MU (SFP)', NOW(), NOW()), -- T90 Complete
-    -- T91 (Zone 1, Part-Time, PRIMARY)
     (209, 1, 91, 3, 1, 4, 'CONFIRMED', FALSE, 'Auto-matched D (ZSP)', NOW(), NOW()),
     (210, 1, 91, 4, 7, 4, 'CONFIRMED', FALSE, 'Auto-matched SP (SFP)', NOW(), NOW()), -- T91 Complete
-    -- T92 (Zone 2, Full-Time, MIDDLE)
     (211, 1, 92, 3, 22, 4, 'CONFIRMED', FALSE, 'Auto-matched MA (ZSP)', NOW(), NOW()),
     (212, 1, 92, 4, 3, 4, 'CONFIRMED', FALSE, 'Auto-matched E (SFP)', NOW(), NOW()), -- T92 Complete
-    -- T93 (Zone 2, Full-Time, PRIMARY)
     (213, 1, 93, 3, 1, 4, 'CONFIRMED', FALSE, 'Auto-matched D (ZSP)', NOW(), NOW()),
     (214, 1, 93, 4, 12, 4, 'CONFIRMED', FALSE, 'Auto-matched HSU (SFP)', NOW(), NOW()), -- T93 Complete
-    -- T94 (Zone 2, Full-Time, PRIMARY)
     (215, 1, 94, 3, 23, 4, 'CONFIRMED', FALSE, 'Auto-matched E (ZSP)', NOW(), NOW()),
     (216, 1, 94, 4, 7, 4, 'CONFIRMED', FALSE, 'Auto-matched SP (SFP)', NOW(), NOW()), -- T94 Complete
-    -- T95 (Zone 2, Part-Time, PRIMARY)
     (217, 1, 95, 3, 12, 4, 'CONFIRMED', FALSE, 'Auto-matched HSU (ZSP)', NOW(), NOW()),
     (218, 1, 95, 4, 2, 4, 'CONFIRMED', FALSE, 'Auto-matched MA (SFP)', NOW(), NOW()), -- T95 Complete
-    -- T96 (Zone 2, Full-Time, PRIMARY)
     (219, 1, 96, 3, 2, 4, 'CONFIRMED', FALSE, 'Auto-matched MA (ZSP)', NOW(), NOW()),
     (220, 1, 96, 4, 1, 4, 'CONFIRMED', FALSE, 'Auto-matched D (SFP)', NOW(), NOW()), -- T96 Complete
-    -- T97 (Zone 2, Full-Time, PRIMARY)
     (221, 1, 97, 3, 23, 4, 'CONFIRMED', FALSE, 'Auto-matched E (ZSP)', NOW(), NOW()),
     (222, 1, 97, 4, 6, 4, 'CONFIRMED', FALSE, 'Auto-matched KE (SFP)', NOW(), NOW()), -- T97 Complete
-    -- T98 (Zone 2, Part-Time, PRIMARY)
     (223, 1, 98, 3, 12, 4, 'CONFIRMED', FALSE, 'Auto-matched HSU (ZSP)', NOW(), NOW()),
-    (224, 1, 98, 4, 4, 4, 'CONFIRMED', FALSE, 'Auto-matched KRel (SFP)', NOW(), NOW()); -- T98 Complete
+    (224, 1, 98, 4, 4, 4, 'CONFIRMED', FALSE, 'Auto-matched KRel (SFP)', NOW(), NOW()), -- T98 Complete
+
+    -- =========================================================================
+    -- NEW ALLOCATIONS (Assignments 225-420 for Teachers 115-210)
+    -- =========================================================================
+
+    -- Zone 3 Teachers (Remote) -> Strict Block Internships (PDP 1 + PDP 2)
+    -- Teachers 115-177 (63 Teachers * 2 Assignments = 126 records)
+    (225, 1, 115, 1, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (226, 1, 115, 2, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (227, 1, 116, 1, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (228, 1, 116, 2, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (229, 1, 117, 1, 3, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (230, 1, 117, 2, 3, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (231, 1, 118, 1, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (232, 1, 118, 2, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (233, 1, 119, 1, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (234, 1, 119, 2, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (235, 1, 120, 1, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (236, 1, 120, 2, 21, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (237, 1, 121, 1, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (238, 1, 121, 2, 22, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (239, 1, 122, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (240, 1, 122, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (241, 1, 123, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (242, 1, 123, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (243, 1, 124, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (244, 1, 124, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (245, 1, 125, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (246, 1, 125, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (247, 1, 126, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (248, 1, 126, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (249, 1, 127, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (250, 1, 127, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (251, 1, 128, 1, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (252, 1, 128, 2, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (253, 1, 129, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (254, 1, 129, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (255, 1, 130, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (256, 1, 130, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (257, 1, 131, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (258, 1, 131, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (259, 1, 132, 1, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (260, 1, 132, 2, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (261, 1, 133, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (262, 1, 133, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (263, 1, 134, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (264, 1, 134, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (265, 1, 135, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (266, 1, 135, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (267, 1, 136, 1, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (268, 1, 136, 2, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (269, 1, 137, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (270, 1, 137, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (271, 1, 138, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (272, 1, 138, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (273, 1, 139, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (274, 1, 139, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (275, 1, 140, 1, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (276, 1, 140, 2, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (277, 1, 141, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (278, 1, 141, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (279, 1, 142, 1, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (280, 1, 142, 2, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (281, 1, 143, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (282, 1, 143, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (283, 1, 144, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (284, 1, 144, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (285, 1, 145, 1, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (286, 1, 145, 2, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (287, 1, 146, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (288, 1, 146, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (289, 1, 147, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (290, 1, 147, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (291, 1, 148, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (292, 1, 148, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (293, 1, 149, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (294, 1, 149, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (295, 1, 150, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (296, 1, 150, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (297, 1, 151, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (298, 1, 151, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (299, 1, 152, 1, 24, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (300, 1, 152, 2, 24, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (301, 1, 153, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (302, 1, 153, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (303, 1, 154, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (304, 1, 154, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (305, 1, 155, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (306, 1, 155, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (307, 1, 156, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (308, 1, 156, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (309, 1, 157, 1, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (310, 1, 157, 2, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (311, 1, 158, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (312, 1, 158, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (313, 1, 159, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (314, 1, 159, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (315, 1, 160, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (316, 1, 160, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (317, 1, 161, 1, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (318, 1, 161, 2, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (319, 1, 162, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (320, 1, 162, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (321, 1, 163, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (322, 1, 163, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (323, 1, 164, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (324, 1, 164, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (325, 1, 165, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (326, 1, 165, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (327, 1, 166, 1, 6, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (328, 1, 166, 2, 6, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (329, 1, 167, 1, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (330, 1, 167, 2, 12, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (331, 1, 168, 1, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (332, 1, 168, 2, 20, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (333, 1, 169, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (334, 1, 169, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (335, 1, 170, 1, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (336, 1, 170, 2, 4, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (337, 1, 171, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (338, 1, 171, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (339, 1, 172, 1, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (340, 1, 172, 2, 23, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (341, 1, 173, 1, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (342, 1, 173, 2, 7, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (343, 1, 174, 1, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (344, 1, 174, 2, 2, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (345, 1, 175, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (346, 1, 175, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (347, 1, 176, 1, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (348, 1, 176, 2, 1, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+    (349, 1, 177, 1, 5, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 1', NOW(), NOW()), (350, 1, 177, 2, 5, 2, 'CONFIRMED', FALSE, 'Zone 3: PDP 2', NOW(), NOW()),
+
+    -- Zone 2/Filler Teachers (178-201) -> Flexible SFP/ZSP Assignments (Fill missing subjects)
+    (351, 1, 178, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (352, 1, 178, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (353, 1, 179, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (354, 1, 179, 4, 4, 4, 'CONFIRMED', FALSE, 'Filler KRel (SFP)', NOW(), NOW()),
+    (355, 1, 180, 3, 7, 4, 'CONFIRMED', FALSE, 'Filler SP (ZSP)', NOW(), NOW()),
+    (356, 1, 180, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (357, 1, 181, 3, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (ZSP)', NOW(), NOW()),
+    (358, 1, 181, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (359, 1, 182, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (360, 1, 182, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (361, 1, 183, 3, 6, 4, 'CONFIRMED', FALSE, 'Filler KE (ZSP)', NOW(), NOW()),
+    (362, 1, 183, 4, 23, 4, 'CONFIRMED', FALSE, 'Filler E (SFP)', NOW(), NOW()),
+    (363, 1, 184, 3, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (ZSP)', NOW(), NOW()),
+    (364, 1, 184, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+    (365, 1, 185, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (366, 1, 185, 4, 23, 4, 'CONFIRMED', FALSE, 'Filler E (SFP)', NOW(), NOW()),
+    (367, 1, 186, 3, 5, 4, 'CONFIRMED', FALSE, 'Filler MU (ZSP)', NOW(), NOW()),
+    (368, 1, 186, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (369, 1, 187, 3, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (ZSP)', NOW(), NOW()),
+    (370, 1, 187, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (371, 1, 188, 3, 7, 4, 'CONFIRMED', FALSE, 'Filler SP (ZSP)', NOW(), NOW()),
+    (372, 1, 188, 4, 23, 4, 'CONFIRMED', FALSE, 'Filler E (SFP)', NOW(), NOW()),
+    (373, 1, 189, 3, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (ZSP)', NOW(), NOW()),
+    (374, 1, 189, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (375, 1, 190, 3, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (ZSP)', NOW(), NOW()),
+    (376, 1, 190, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+    (377, 1, 191, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (378, 1, 191, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (379, 1, 192, 3, 4, 4, 'CONFIRMED', FALSE, 'Filler KRel (ZSP)', NOW(), NOW()),
+    (380, 1, 192, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (381, 1, 193, 3, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (ZSP)', NOW(), NOW()),
+    (382, 1, 193, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (383, 1, 194, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (384, 1, 194, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (385, 1, 195, 3, 6, 4, 'CONFIRMED', FALSE, 'Filler KE (ZSP)', NOW(), NOW()),
+    (386, 1, 195, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (387, 1, 196, 3, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (ZSP)', NOW(), NOW()),
+    (388, 1, 196, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+    (389, 1, 197, 3, 7, 4, 'CONFIRMED', FALSE, 'Filler SP (ZSP)', NOW(), NOW()),
+    (390, 1, 197, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (391, 1, 198, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (392, 1, 198, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (393, 1, 199, 3, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (ZSP)', NOW(), NOW()),
+    (394, 1, 199, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (395, 1, 200, 3, 4, 4, 'CONFIRMED', FALSE, 'Filler KRel (ZSP)', NOW(), NOW()),
+    (396, 1, 200, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (397, 1, 201, 3, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (ZSP)', NOW(), NOW()),
+    (398, 1, 201, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+
+    -- Zone 1/Close Fillers (Teachers 202-210) - Strictly ZSP/SFP
+    (399, 1, 202, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (400, 1, 202, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW()),
+    (401, 1, 203, 3, 5, 4, 'CONFIRMED', FALSE, 'Filler MU (ZSP)', NOW(), NOW()),
+    (402, 1, 203, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (403, 1, 204, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (404, 1, 204, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+    (405, 1, 205, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (406, 1, 205, 4, 7, 4, 'CONFIRMED', FALSE, 'Filler SP (SFP)', NOW(), NOW()),
+    (407, 1, 206, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (408, 1, 206, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (409, 1, 207, 3, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (ZSP)', NOW(), NOW()),
+    (410, 1, 207, 4, 23, 4, 'CONFIRMED', FALSE, 'Filler E (SFP)', NOW(), NOW()),
+    (411, 1, 208, 3, 4, 4, 'CONFIRMED', FALSE, 'Filler KRel (ZSP)', NOW(), NOW()),
+    (412, 1, 208, 4, 12, 4, 'CONFIRMED', FALSE, 'Filler HSU (SFP)', NOW(), NOW()),
+    (413, 1, 209, 3, 1, 4, 'CONFIRMED', FALSE, 'Filler D (ZSP)', NOW(), NOW()),
+    (414, 1, 209, 4, 2, 4, 'CONFIRMED', FALSE, 'Filler MA (SFP)', NOW(), NOW()),
+    (415, 1, 210, 3, 23, 4, 'CONFIRMED', FALSE, 'Filler E (ZSP)', NOW(), NOW()),
+    (416, 1, 210, 4, 1, 4, 'CONFIRMED', FALSE, 'Filler D (SFP)', NOW(), NOW());
 
 -- 13. CREDIT_HOUR_TRACKING
 -- Hans has 2 assignments, so he earns 1.0 credit hour (Reduction hour).
 INSERT INTO CREDIT_HOUR_TRACKING (id, teacher_id, academic_year_id, assignments_count, credit_hours_allocated, credit_balance, notes, created_at)
 VALUES
-(1, 1, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW());
+    (1, 1, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (2, 2, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (3, 3, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (4, 4, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (5, 5, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (6, 6, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (7, 7, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (8, 8, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (9, 9, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (10, 10, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (11, 11, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (12, 12, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (13, 13, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (14, 14, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (15, 15, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (16, 16, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (17, 17, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (18, 18, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (19, 19, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (20, 20, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (21, 21, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (22, 22, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (23, 23, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (24, 24, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (25, 25, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (26, 26, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (27, 27, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (28, 28, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (29, 29, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (30, 30, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (31, 31, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (32, 32, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (33, 33, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (34, 34, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (35, 35, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (36, 36, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (37, 37, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (38, 38, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (39, 39, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (40, 40, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (41, 41, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (42, 42, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (43, 43, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (44, 44, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (45, 45, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (46, 46, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (47, 47, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (48, 48, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (49, 49, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (50, 50, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (51, 51, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (52, 52, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (53, 53, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (54, 54, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (55, 55, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (56, 56, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (57, 57, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (58, 58, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (59, 59, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (60, 60, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (61, 61, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (62, 62, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (63, 63, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (64, 64, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (65, 65, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (66, 66, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (67, 67, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (68, 68, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (69, 69, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (70, 70, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (71, 71, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (72, 72, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (73, 73, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (74, 74, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (75, 75, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (76, 76, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (77, 77, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (78, 78, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (79, 79, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (80, 80, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (81, 81, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (82, 82, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (83, 83, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (84, 84, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (85, 85, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (86, 86, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (87, 87, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (88, 88, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (89, 89, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (90, 90, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (91, 91, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (92, 92, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (93, 93, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (94, 94, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (95, 95, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (96, 96, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (97, 97, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (98, 98, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (99, 99, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (100, 100, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (101, 101, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (102, 102, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (103, 103, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (104, 104, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (105, 105, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (106, 106, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (107, 107, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (108, 108, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (109, 109, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (110, 110, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (111, 111, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+
+    -- =========================================================================
+    -- EXCEPTIONS (Inactive / Debt)
+    -- =========================================================================
+    
+    -- T112 (Inactive)
+    (112, 112, 1, 0, 0.0, 0.0, 'Teacher inactive for current year', NOW()),
+    
+    -- T113 (Inactive)
+    (113, 113, 1, 0, 0.0, 0.0, 'Teacher inactive for current year', NOW()),
+    
+    -- T114 (Active but has previous debt of -1.0)
+    -- Met quota (2 assignments) for this year. Debt remains in "Teachers" table logic unless cleared.
+    (114, 114, 1, 2, 1.0, 0.0, 'Standard allocation met (Previous debt remains)', NOW()),
+
+    -- =========================================================================
+    -- NEW GENERATED TEACHERS (IDs 115-210)
+    -- Standard Load: 2 Assignments = 1.0 Credit Hour
+    -- =========================================================================
+    (115, 115, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (116, 116, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (117, 117, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (118, 118, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (119, 119, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (120, 120, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (121, 121, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (122, 122, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (123, 123, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (124, 124, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (125, 125, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (126, 126, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (127, 127, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (128, 128, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (129, 129, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (130, 130, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (131, 131, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (132, 132, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (133, 133, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (134, 134, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (135, 135, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (136, 136, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (137, 137, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (138, 138, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (139, 139, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (140, 140, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (141, 141, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (142, 142, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (143, 143, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (144, 144, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (145, 145, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (146, 146, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (147, 147, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (148, 148, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (149, 149, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (150, 150, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (151, 151, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (152, 152, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (153, 153, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (154, 154, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (155, 155, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (156, 156, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (157, 157, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (158, 158, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (159, 159, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (160, 160, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (161, 161, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (162, 162, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (163, 163, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (164, 164, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (165, 165, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (166, 166, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (167, 167, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (168, 168, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (169, 169, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (170, 170, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (171, 171, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (172, 172, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (173, 173, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (174, 174, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (175, 175, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (176, 176, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (177, 177, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (178, 178, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (179, 179, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (180, 180, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (181, 181, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (182, 182, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (183, 183, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (184, 184, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (185, 185, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (186, 186, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (187, 187, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (188, 188, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (189, 189, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (190, 190, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (191, 191, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (192, 192, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (193, 193, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (194, 194, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (195, 195, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (196, 196, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (197, 197, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (198, 198, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (199, 199, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (200, 200, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (201, 201, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (202, 202, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (203, 203, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (204, 204, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (205, 205, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (206, 206, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (207, 207, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (208, 208, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (209, 209, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW()),
+    (210, 210, 1, 2, 1.0, 0.0, 'Standard allocation met', NOW());
