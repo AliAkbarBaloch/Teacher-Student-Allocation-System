@@ -14,6 +14,9 @@ import type {
 } from "../types/teacher.types";
 import { isApiError } from "../types/teacher.types";
 
+import type { Subject } from "@/features/subjects/types/subject.types";
+import { SubjectService } from "@/features/subjects/services/subjectService";
+
 type FormState = {
   schoolId: string;
   firstName: string;
@@ -88,6 +91,10 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     return createDefaultState();
   }, [isEditMode, teacher]);
 
+  //
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+
   const [formState, setFormState] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<TeacherFormErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -112,6 +119,42 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       refreshSchools();
     }
   }, [mode, refreshSchools]);
+
+  //run once 
+  useEffect(() => {
+
+    //assume the component is currently on the screen 
+    let mounted = true; 
+
+    //
+    async function loadSubjects(){
+
+      setSubjectsLoading(true);
+      try{
+        //wait until backend sends me all subjects, store result in res 
+        const res = await SubjectService.getAll();
+        //only update state if this screen is still open 
+        if (mounted) setSubjects(res);
+      } catch (e) {
+        console.error("Failed to load subjects", e);
+        if (mounted) setSubjects([]);
+      } finally {
+        //loading is done 
+        if (mounted) setSubjectsLoading(false);
+      }
+    }
+
+    //start the loading 
+    loadSubjects();
+
+    //called when the component is removed from the screen 
+    return () => {
+
+      mounted = false; 
+      
+    };
+
+  }, []);
 
   const employmentStatusOptions = useMemo(() => {
     return EMPLOYMENT_STATUS_OPTIONS.map((status) => ({
@@ -304,6 +347,8 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     handleSubmit,
     internalSubmitting,
     isEditMode,
+    subjects,
+    subjectsLoading,
   };
 }
 
