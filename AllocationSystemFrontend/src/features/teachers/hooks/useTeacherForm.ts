@@ -24,6 +24,7 @@ type FormState = {
   workingHoursPerWeek: string;
   employmentStatus: EmploymentStatus | "";
   usageCycle: UsageCycle | "";
+  subjectIds: [];
 };
 
 const createDefaultState = (): FormState => ({
@@ -36,6 +37,8 @@ const createDefaultState = (): FormState => ({
   workingHoursPerWeek: "",
   employmentStatus: "",
   usageCycle: "",
+  subjectIds: [],
+
 });
 
 const mapTeacherToFormState = (teacher: Teacher): FormState => ({
@@ -124,9 +127,9 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   }, [errors]);
-
+  // when a form changes, update the form state 
   const handleInputChange = useCallback(
-    (field: keyof FormState, value: string | boolean | number) => {
+    (field: keyof FormState, value: string | boolean | number | number[]) => {
       let newValue = value;
       if (field === "workingHoursPerWeek" && typeof value === "number") {
         newValue = String(value);

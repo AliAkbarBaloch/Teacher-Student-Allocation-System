@@ -1,3 +1,5 @@
+import type { Subject } from "@/features/subjects/types/subject.types";
+
 export type EmploymentStatus =
   | "ACTIVE"
   | "INACTIVE_THIS_YEAR"
@@ -24,6 +26,7 @@ export interface Teacher {
   usageCycle?: UsageCycle | null;
   createdAt?: string;
   updatedAt?: string;
+  subjects?: Subject[];
 }
 
 export interface PaginatedTeacherResponse {
@@ -52,11 +55,12 @@ export interface CreateTeacherRequest {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
+  phone?: string | null;
   isPartTime: boolean;
   workingHoursPerWeek?: number | null;
   employmentStatus: EmploymentStatus;
   usageCycle?: UsageCycle;
+  subjectIds: number[];
 }
 
 export interface UpdateTeacherRequest {
@@ -64,11 +68,12 @@ export interface UpdateTeacherRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
-  phone?: string;
+  phone?: string | null;
   isPartTime?: boolean;
   workingHoursPerWeek?: number | null;
   employmentStatus?: EmploymentStatus;
   usageCycle?: UsageCycle;
+  subjectIds: number[];
 }
 
 export interface TeacherStatusUpdateRequest {
