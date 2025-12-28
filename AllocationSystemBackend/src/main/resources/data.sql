@@ -482,8 +482,6 @@ VALUES
     (4, 1, 3, 3, 'AVAILABLE', NOW(), NOW()), -- Peter (Middle) teaches English (Middle)
     (5, 1, 4, 1, 'AVAILABLE', NOW(), NOW()), -- Julia (Primary) teaches German (Primary)
 
-    -- Generated Assignments (IDs 6-425)
-
     -- Teacher 1 (GS Innstadt, PRIMARY)
     (6, 1, 1, 12, 'AVAILABLE', NOW(), NOW()), -- HSU
     (7, 1, 1, 23, 'AVAILABLE', NOW(), NOW()), -- English (Primary)
@@ -1131,7 +1129,431 @@ VALUES
     -- Teacher 114 (Ulrich Schramm, MS Viechtach, MIDDLE) - ACTIVE, with Debt
     (424, 1, 114, 21, 'AVAILABLE', NOW(), NOW()),
     (425, 1, 114, 3, 'AVAILABLE', NOW(), NOW()),
-    (426, 1, 114, 8, 'AVAILABLE', NOW(), NOW());
+    (426, 1, 114, 8, 'AVAILABLE', NOW(), NOW()),
+
+    -- =========================================================================
+    -- NEW GENERATED DATA (Teacher IDs 115-210, Assignment IDs 427-649)
+    -- =========================================================================
+    
+    -- Teacher 115 (Martin Gruber, MS Regen) - German/History
+    (427, 1, 115, 21, 'AVAILABLE', NOW(), NOW()), -- German (MS)
+    (428, 1, 115, 10, 'AVAILABLE', NOW(), NOW()), -- History
+    (429, 1, 115, 8, 'AVAILABLE', NOW(), NOW()),  -- Social Studies
+
+    -- Teacher 116 (Renate Bichler, MS Zwiesel) - Math/PCB
+    (430, 1, 116, 22, 'AVAILABLE', NOW(), NOW()), -- Math (MS)
+    (431, 1, 116, 15, 'AVAILABLE', NOW(), NOW()), -- PCB
+    (432, 1, 116, 16, 'AVAILABLE', NOW(), NOW()), -- IT
+
+    -- Teacher 117 (Joachim Eder, MS Osterhofen) - English/Geography
+    (433, 1, 117, 3, 'AVAILABLE', NOW(), NOW()),  -- English (MS)
+    (434, 1, 117, 11, 'AVAILABLE', NOW(), NOW()), -- Geography
+    (435, 1, 117, 17, 'AVAILABLE', NOW(), NOW()), -- GSE
+
+    -- Teacher 118 (Cornelia Stark, MS Landau) - German/English
+    (436, 1, 118, 21, 'AVAILABLE', NOW(), NOW()), -- German (MS)
+    (437, 1, 118, 3, 'AVAILABLE', NOW(), NOW()),  -- English (MS)
+
+    -- Teacher 119 (Dieter Schwarz, MS Dingolfing) - Math/Work
+    (438, 1, 119, 22, 'AVAILABLE', NOW(), NOW()), -- Math (MS)
+    (439, 1, 119, 13, 'AVAILABLE', NOW(), NOW()), -- AL (Work)
+
+    -- Teacher 120 (Brigitte Lang, MS Vilsbiburg) - German/Politics
+    (440, 1, 120, 21, 'AVAILABLE', NOW(), NOW()), -- German (MS)
+    (441, 1, 120, 9, 'AVAILABLE', NOW(), NOW()),  -- PuG
+
+    -- Teacher 121 (Horst Winkler, MS Eggenfelden) - Math/Physics
+    (442, 1, 121, 22, 'AVAILABLE', NOW(), NOW()), -- Math (MS)
+    (443, 1, 121, 15, 'AVAILABLE', NOW(), NOW()), -- PCB
+
+    -- Teacher 122 (Monika Fuchs, GS Regen-N) - Standard Class Teacher
+    (444, 1, 122, 1, 'AVAILABLE', NOW(), NOW()),  -- German
+    (445, 1, 122, 2, 'AVAILABLE', NOW(), NOW()),  -- Math
+    (446, 1, 122, 12, 'AVAILABLE', NOW(), NOW()), -- HSU
+
+    -- Teacher 123 (Peter Graf, GS Regen-N) - English Focus
+    (447, 1, 123, 23, 'AVAILABLE', NOW(), NOW()), -- English (Primary)
+    (448, 1, 123, 12, 'AVAILABLE', NOW(), NOW()), -- HSU
+    (449, 1, 123, 7, 'AVAILABLE', NOW(), NOW()),  -- Sport
+
+    -- Teacher 124 (Julia Hofer, GS Kirchdorf) - Religion Focus
+    (450, 1, 124, 1, 'AVAILABLE', NOW(), NOW()),  -- German
+    (451, 1, 124, 4, 'AVAILABLE', NOW(), NOW()),  -- Catholic Religion
+    (452, 1, 124, 6, 'AVAILABLE', NOW(), NOW()),  -- Art
+
+    -- Teacher 125 (Karin Moos, GS Kirchdorf) - Math Focus
+    (453, 1, 125, 2, 'AVAILABLE', NOW(), NOW()),  -- Math
+    (454, 1, 125, 12, 'AVAILABLE', NOW(), NOW()), -- HSU
+    (455, 1, 125, 5, 'AVAILABLE', NOW(), NOW()),  -- Music
+
+    -- Teacher 126 (Stefan Rieger, GS Eichendorf)
+    (456, 1, 126, 1, 'AVAILABLE', NOW(), NOW()),
+    (457, 1, 126, 2, 'AVAILABLE', NOW(), NOW()),
+    (458, 1, 126, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 127 (Andrea Wolf, GS Eichendorf)
+    (459, 1, 127, 23, 'AVAILABLE', NOW(), NOW()),
+    (460, 1, 127, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 128 (Thomas Binder, GS Eichendorf)
+    (461, 1, 128, 1, 'AVAILABLE', NOW(), NOW()),
+    (462, 1, 128, 20, 'AVAILABLE', NOW(), NOW()), -- SSE
+
+    -- Teacher 129 (Sabine Eich, GS Frontenhausen)
+    (463, 1, 129, 2, 'AVAILABLE', NOW(), NOW()),
+    (464, 1, 129, 12, 'AVAILABLE', NOW(), NOW()),
+    (465, 1, 129, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 130 (Markus Kurz, GS Frontenhausen)
+    (466, 1, 130, 1, 'AVAILABLE', NOW(), NOW()),
+    (467, 1, 130, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 131 (Bettina Schenk, GS Wallersdorf)
+    (468, 1, 131, 23, 'AVAILABLE', NOW(), NOW()),
+    (469, 1, 131, 1, 'AVAILABLE', NOW(), NOW()),
+    (470, 1, 131, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 132 (Christian Mayr, GS Wallersdorf)
+    (471, 1, 132, 2, 'AVAILABLE', NOW(), NOW()),
+    (472, 1, 132, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 133 (Daniela Hauser, GS Pilsting)
+    (473, 1, 133, 1, 'AVAILABLE', NOW(), NOW()),
+    (474, 1, 133, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 134 (Erich Brandt, GS Pilsting)
+    (475, 1, 134, 12, 'AVAILABLE', NOW(), NOW()),
+    (476, 1, 134, 2, 'AVAILABLE', NOW(), NOW()),
+    (477, 1, 134, 24, 'AVAILABLE', NOW(), NOW()), -- SPAD
+
+    -- Teacher 135 (Florian Huber, GS Reisbach)
+    (478, 1, 135, 1, 'AVAILABLE', NOW(), NOW()),
+    (479, 1, 135, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 136 (Gabriele Wirt, GS Reisbach)
+    (480, 1, 136, 12, 'AVAILABLE', NOW(), NOW()),
+    (481, 1, 136, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 137 (Hannes Koch, GS Reisbach)
+    (482, 1, 137, 1, 'AVAILABLE', NOW(), NOW()),
+    (483, 1, 137, 2, 'AVAILABLE', NOW(), NOW()),
+    (484, 1, 137, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 138 (Ingrid Bauer, GS Mengkofen)
+    (485, 1, 138, 2, 'AVAILABLE', NOW(), NOW()),
+    (486, 1, 138, 12, 'AVAILABLE', NOW(), NOW()),
+    (487, 1, 138, 6, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 139 (Jürgen Weiss, GS Mengkofen)
+    (488, 1, 139, 1, 'AVAILABLE', NOW(), NOW()),
+    (489, 1, 139, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 140 (Katja Diem, GS Geiselhöring)
+    (490, 1, 140, 12, 'AVAILABLE', NOW(), NOW()),
+    (491, 1, 140, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 141 (Lothar Frank, GS Geiselhöring)
+    (492, 1, 141, 1, 'AVAILABLE', NOW(), NOW()),
+    (493, 1, 141, 2, 'AVAILABLE', NOW(), NOW()),
+    (494, 1, 141, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 142 (Manuela Götz, GS Geiselhöring)
+    (495, 1, 142, 23, 'AVAILABLE', NOW(), NOW()),
+    (496, 1, 142, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 143 (Norbert Hess, GS Mallersdorf)
+    (497, 1, 143, 1, 'AVAILABLE', NOW(), NOW()),
+    (498, 1, 143, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 144 (Oliver Jung, GS Mallersdorf)
+    (499, 1, 144, 2, 'AVAILABLE', NOW(), NOW()),
+    (500, 1, 144, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 145 (Petra Kraft, GS Rottenburg)
+    (501, 1, 145, 1, 'AVAILABLE', NOW(), NOW()),
+    (502, 1, 145, 12, 'AVAILABLE', NOW(), NOW()),
+    (503, 1, 145, 20, 'AVAILABLE', NOW(), NOW()), -- SSE
+
+    -- Teacher 146 (Quirin Lutz, GS Rottenburg)
+    (504, 1, 146, 1, 'AVAILABLE', NOW(), NOW()),
+    (505, 1, 146, 2, 'AVAILABLE', NOW(), NOW()),
+    (506, 1, 146, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 147 (Ralf Moser, GS Ergoldsbach)
+    (507, 1, 147, 23, 'AVAILABLE', NOW(), NOW()),
+    (508, 1, 147, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 148 (Sandra Noll, GS Ergoldsbach)
+    (509, 1, 148, 1, 'AVAILABLE', NOW(), NOW()),
+    (510, 1, 148, 2, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 149 (Tobias Ott, GS Ergoldsbach)
+    (511, 1, 149, 12, 'AVAILABLE', NOW(), NOW()),
+    (512, 1, 149, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 150 (Ursula Pohl, GS Neufahrn)
+    (513, 1, 150, 1, 'AVAILABLE', NOW(), NOW()),
+    (514, 1, 150, 2, 'AVAILABLE', NOW(), NOW()),
+    (515, 1, 150, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 151 (Viktor Quast, GS Neufahrn)
+    (516, 1, 151, 23, 'AVAILABLE', NOW(), NOW()),
+    (517, 1, 151, 6, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 152 (Walter Raab, GS Bayerbach)
+    (518, 1, 152, 1, 'AVAILABLE', NOW(), NOW()),
+    (519, 1, 152, 12, 'AVAILABLE', NOW(), NOW()),
+    (520, 1, 152, 24, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 153 (Xaver Senn, GS Bayerbach)
+    (521, 1, 153, 2, 'AVAILABLE', NOW(), NOW()),
+    (522, 1, 153, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 154 (Yvonne Thal, GS Ruhstorf)
+    (523, 1, 154, 1, 'AVAILABLE', NOW(), NOW()),
+    (524, 1, 154, 2, 'AVAILABLE', NOW(), NOW()),
+    (525, 1, 154, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 155 (Zeno Uhl, GS Ruhstorf)
+    (526, 1, 155, 23, 'AVAILABLE', NOW(), NOW()),
+    (527, 1, 155, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 156 (Anna Vogt, GS Ruhstorf)
+    (528, 1, 156, 1, 'AVAILABLE', NOW(), NOW()),
+    (529, 1, 156, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 157 (Bernd Wahl, GS Rotthalmünster)
+    (530, 1, 157, 12, 'AVAILABLE', NOW(), NOW()),
+    (531, 1, 157, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 158 (Clara Zahn, GS Rotthalmünster)
+    (532, 1, 158, 1, 'AVAILABLE', NOW(), NOW()),
+    (533, 1, 158, 2, 'AVAILABLE', NOW(), NOW()),
+    (534, 1, 158, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 159 (David Alt, GS Kößlarn)
+    (535, 1, 159, 23, 'AVAILABLE', NOW(), NOW()),
+    (536, 1, 159, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 160 (Eva Berg, GS Kößlarn)
+    (537, 1, 160, 1, 'AVAILABLE', NOW(), NOW()),
+    (538, 1, 160, 2, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 161 (Franz Cohr, GS Tann)
+    (539, 1, 161, 12, 'AVAILABLE', NOW(), NOW()),
+    (540, 1, 161, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 162 (Gabi Dorn, GS Tann)
+    (541, 1, 162, 1, 'AVAILABLE', NOW(), NOW()),
+    (542, 1, 162, 2, 'AVAILABLE', NOW(), NOW()),
+    (543, 1, 162, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 163 (Hans Eber, GS Wurmannsquick)
+    (544, 1, 163, 1, 'AVAILABLE', NOW(), NOW()),
+    (545, 1, 163, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 164 (Ines Funk, GS Wurmannsquick)
+    (546, 1, 164, 12, 'AVAILABLE', NOW(), NOW()),
+    (547, 1, 164, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 165 (Jakob Gast, GS Zeilarn)
+    (548, 1, 165, 1, 'AVAILABLE', NOW(), NOW()),
+    (549, 1, 165, 2, 'AVAILABLE', NOW(), NOW()),
+    (550, 1, 165, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 166 (Klara Heim, GS Zeilarn)
+    (551, 1, 166, 23, 'AVAILABLE', NOW(), NOW()),
+    (552, 1, 166, 6, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 167 (Lukas Immer, GS Gangkofen)
+    (553, 1, 167, 12, 'AVAILABLE', NOW(), NOW()),
+    (554, 1, 167, 1, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 168 (Maria Jost, GS Gangkofen)
+    (555, 1, 168, 2, 'AVAILABLE', NOW(), NOW()),
+    (556, 1, 168, 12, 'AVAILABLE', NOW(), NOW()),
+    (557, 1, 168, 20, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 169 (Nils Karp, GS Gangkofen)
+    (558, 1, 169, 1, 'AVAILABLE', NOW(), NOW()),
+    (559, 1, 169, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 170 (Olga Link, GS Massing)
+    (560, 1, 170, 12, 'AVAILABLE', NOW(), NOW()),
+    (561, 1, 170, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 171 (Paul Mertz, GS Massing)
+    (562, 1, 171, 1, 'AVAILABLE', NOW(), NOW()),
+    (563, 1, 171, 2, 'AVAILABLE', NOW(), NOW()),
+    (564, 1, 171, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 172 (Quinn Noack, GS Kirchham)
+    (565, 1, 172, 23, 'AVAILABLE', NOW(), NOW()),
+    (566, 1, 172, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 173 (Rita Opitz, GS Kirchham)
+    (567, 1, 173, 1, 'AVAILABLE', NOW(), NOW()),
+    (568, 1, 173, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 174 (Simon Patz, GS Malching)
+    (569, 1, 174, 12, 'AVAILABLE', NOW(), NOW()),
+    (570, 1, 174, 2, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 175 (Tina Quade, GS Malching)
+    (571, 1, 175, 1, 'AVAILABLE', NOW(), NOW()),
+    (572, 1, 175, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 176 (Udo Ranz, GS Ering)
+    (573, 1, 176, 1, 'AVAILABLE', NOW(), NOW()),
+    (574, 1, 176, 2, 'AVAILABLE', NOW(), NOW()),
+    (575, 1, 176, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 177 (Vera Salm, GS Ering)
+    (576, 1, 177, 12, 'AVAILABLE', NOW(), NOW()),
+    (577, 1, 177, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- =========================================================================
+    -- FILLER TEACHERS FOR ZONE 2 (IDs 178-210)
+    -- Needed to reach 210 count (GS Tittling, Vilshofen, etc.)
+    -- =========================================================================
+
+    -- Teacher 178 (Willi Thiel, GS Tittling)
+    (578, 1, 178, 1, 'AVAILABLE', NOW(), NOW()),
+    (579, 1, 178, 2, 'AVAILABLE', NOW(), NOW()),
+    (580, 1, 178, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 179 (Xenia Ulrich, GS Tittling)
+    (581, 1, 179, 23, 'AVAILABLE', NOW(), NOW()),
+    (582, 1, 179, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 180 (Yannik Vogel, GS Vilshofen-S)
+    (583, 1, 180, 12, 'AVAILABLE', NOW(), NOW()),
+    (584, 1, 180, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 181 (Zara Weber, GS Vilshofen-S)
+    (585, 1, 181, 1, 'AVAILABLE', NOW(), NOW()),
+    (586, 1, 181, 2, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 182 (Adam Xander, GS Schöllnach)
+    (587, 1, 182, 1, 'AVAILABLE', NOW(), NOW()),
+    (588, 1, 182, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 183 (Bea Yilmaz, GS Schöllnach)
+    (589, 1, 183, 23, 'AVAILABLE', NOW(), NOW()),
+    (590, 1, 183, 6, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 184 (Carl Zeller, GS Aidenbach)
+    (591, 1, 184, 2, 'AVAILABLE', NOW(), NOW()),
+    (592, 1, 184, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 185 (Dora Arnold, GS Aidenbach)
+    (593, 1, 185, 1, 'AVAILABLE', NOW(), NOW()),
+    (594, 1, 185, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 186 (Emil Bach, GS Osterhofen)
+    (595, 1, 186, 12, 'AVAILABLE', NOW(), NOW()),
+    (596, 1, 186, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 187 (Fay Busch, GS Osterhofen)
+    (597, 1, 187, 1, 'AVAILABLE', NOW(), NOW()),
+    (598, 1, 187, 2, 'AVAILABLE', NOW(), NOW()),
+    (599, 1, 187, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 188 (Gero Christ, GS Waldkirchen)
+    (600, 1, 188, 23, 'AVAILABLE', NOW(), NOW()),
+    (601, 1, 188, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 189 (Hana Diehl, GS Waldkirchen)
+    (602, 1, 189, 1, 'AVAILABLE', NOW(), NOW()),
+    (603, 1, 189, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 190 (Ivan Ebert, GS Deggendorf-M)
+    (604, 1, 190, 2, 'AVAILABLE', NOW(), NOW()),
+    (605, 1, 190, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 191 (Jana Fiedler, GS Deggendorf-M)
+    (606, 1, 191, 1, 'AVAILABLE', NOW(), NOW()),
+    (607, 1, 191, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 192 (Kai Geier, GS Bad Griesbach)
+    (608, 1, 192, 12, 'AVAILABLE', NOW(), NOW()),
+    (609, 1, 192, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 193 (Lara Hein, GS Bad Griesbach)
+    (610, 1, 193, 1, 'AVAILABLE', NOW(), NOW()),
+    (611, 1, 193, 2, 'AVAILABLE', NOW(), NOW()),
+    (612, 1, 193, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 194 (Milo Ilg, GS Fürstenstein)
+    (613, 1, 194, 23, 'AVAILABLE', NOW(), NOW()),
+    (614, 1, 194, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 195 (Nora Jahn, GS Fürstenstein)
+    (615, 1, 195, 1, 'AVAILABLE', NOW(), NOW()),
+    (616, 1, 195, 6, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 196 (Ole Keil, GS Röhrnbach)
+    (617, 1, 196, 2, 'AVAILABLE', NOW(), NOW()),
+    (618, 1, 196, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 197 (Pia Lenz, GS Röhrnbach)
+    (619, 1, 197, 1, 'AVAILABLE', NOW(), NOW()),
+    (620, 1, 197, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 198 (Rico Mai, GS Kellberg)
+    (621, 1, 198, 12, 'AVAILABLE', NOW(), NOW()),
+    (622, 1, 198, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 199 (Sina Neubauer, GS Kellberg)
+    (623, 1, 199, 1, 'AVAILABLE', NOW(), NOW()),
+    (624, 1, 199, 2, 'AVAILABLE', NOW(), NOW()),
+    (625, 1, 199, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 200 (Tim Ochs, GS Witzmannsberg)
+    (626, 1, 200, 1, 'AVAILABLE', NOW(), NOW()),
+    (627, 1, 200, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 201 (Uta Paul, GS Witzmannsberg)
+    (628, 1, 201, 2, 'AVAILABLE', NOW(), NOW()),
+    (629, 1, 201, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 202 (Vito Reimann, GS Tiefenbach)
+    (630, 1, 202, 23, 'AVAILABLE', NOW(), NOW()),
+    (631, 1, 202, 1, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 203 (Wanda Sauter, GS Tiefenbach)
+    (632, 1, 203, 12, 'AVAILABLE', NOW(), NOW()),
+    (633, 1, 203, 5, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 204 (Xaver Tietz, GS Salzweg)
+    (634, 1, 204, 1, 'AVAILABLE', NOW(), NOW()),
+    (635, 1, 204, 2, 'AVAILABLE', NOW(), NOW()),
+    (636, 1, 204, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 205 (Yara Unger, GS Salzweg)
+    (637, 1, 205, 23, 'AVAILABLE', NOW(), NOW()),
+    (638, 1, 205, 7, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 206 (Zack Vogt, GS Büchlberg)
+    (639, 1, 206, 1, 'AVAILABLE', NOW(), NOW()),
+    (640, 1, 206, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 207 (Alya Wenz, GS Büchlberg)
+    (641, 1, 207, 2, 'AVAILABLE', NOW(), NOW()),
+    (642, 1, 207, 23, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 208 (Bodo Zink, GS Hutthurm)
+    (643, 1, 208, 12, 'AVAILABLE', NOW(), NOW()),
+    (644, 1, 208, 4, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 209 (Cora Adam, GS Hutthurm)
+    (645, 1, 209, 1, 'AVAILABLE', NOW(), NOW()),
+    (646, 1, 209, 2, 'AVAILABLE', NOW(), NOW()),
+    (647, 1, 209, 12, 'AVAILABLE', NOW(), NOW()),
+
+    -- Teacher 210 (Dino Beck, GS Fürstenzell)
+    (648, 1, 210, 23, 'AVAILABLE', NOW(), NOW()),
+    (649, 1, 210, 1, 'AVAILABLE', NOW(), NOW());
 
 -- 9. TEACHER_AVAILABILITY
 INSERT INTO TEACHER_AVAILABILITY (id, teacher_id, academic_year_id, internship_type_id, status, is_available, preference_rank, notes, created_at)
