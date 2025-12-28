@@ -160,7 +160,59 @@ VALUES
     (50, 'Grundschule Arnstorf', 'PRIMARY', 3, 'Arnstorf Marktstr 1', 48.5100, 12.8700, 41.0, 'None', 'gs.arnstorf@schule.de', '+49 8723 9600', TRUE, NOW(), NOW()),
     (51, 'Grundschule Mainburg', 'PRIMARY', 3, 'Mainburg Zentrum', 48.6800, 11.8300, 99.0, 'None', 'gs.mainburg@schule.de', '+49 8751 90011', TRUE, NOW(), NOW()),
     (52, 'Grundschule Simbach bei Landau', 'PRIMARY', 3, 'Simbach Hauptstr 1', 48.6300, 12.5800, 60.0, 'None', 'gs.simbach.l@schule.de', '+49 9954 90050', TRUE, NOW(), NOW()),
-    (53, 'Grundschule Bad Kötzting', 'PRIMARY', 3, 'Bad Kötzting Kurstr', 49.1700, 12.8700, 80.0, 'None', 'gs.badkoetzting@schule.de', '+49 9941 90011', TRUE, NOW(), NOW());
+    (53, 'Grundschule Bad Kötzting', 'PRIMARY', 3, 'Bad Kötzting Kurstr', 49.1700, 12.8700, 80.0, 'None', 'gs.badkoetzting@schule.de', '+49 9941 90011', TRUE, NOW(), NOW()),
+    
+    (54, 'Grundschule Regen-Nord', 'PRIMARY', 3, 'Regen Nordstr', 48.9700, 13.1200, 59.0, 'None', 'gs.regen.n@schule.de', NULL, TRUE, NOW(), NOW()),
+    (55, 'Grundschule Kirchdorf', 'PRIMARY', 3, 'Kirchdorf am Inn', 48.2400, 12.9800, 65.0, 'None', 'gs.kirchdorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (56, 'Grundschule Eichendorf', 'PRIMARY', 3, 'Eichendorf Markt', 48.6300, 12.8500, 45.0, 'None', 'gs.eichendorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (57, 'Grundschule Frontenhausen', 'PRIMARY', 3, 'Frontenhausen', 48.5500, 12.5200, 60.0, 'None', 'gs.frontenhausen@schule.de', NULL, TRUE, NOW(), NOW()),
+    (58, 'Grundschule Wallersdorf', 'PRIMARY', 3, 'Wallersdorf', 48.7300, 12.7500, 48.0, 'None', 'gs.wallersdorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (59, 'Grundschule Pilsting', 'PRIMARY', 3, 'Pilsting', 48.7000, 12.6500, 50.0, 'None', 'gs.pilsting@schule.de', NULL, TRUE, NOW(), NOW()),
+    (60, 'Grundschule Reisbach', 'PRIMARY', 3, 'Reisbach', 48.5700, 12.6300, 55.0, 'None', 'gs.reisbach@schule.de', NULL, TRUE, NOW(), NOW()),
+    (61, 'Grundschule Mengkofen', 'PRIMARY', 3, 'Mengkofen', 48.7200, 12.4300, 70.0, 'None', 'gs.mengkofen@schule.de', NULL, TRUE, NOW(), NOW()),
+    (62, 'Grundschule Geiselhöring', 'PRIMARY', 3, 'Geiselhöring', 48.8300, 12.4000, 75.0, 'None', 'gs.geiselhoering@schule.de', NULL, TRUE, NOW(), NOW()),
+    (63, 'Grundschule Mallersdorf', 'PRIMARY', 3, 'Mallersdorf', 48.7700, 12.1800, 85.0, 'None', 'gs.mallersdorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (64, 'Grundschule Rottenburg', 'PRIMARY', 3, 'Rottenburg', 48.7000, 12.0200, 95.0, 'None', 'gs.rottenburg@schule.de', NULL, TRUE, NOW(), NOW()),
+    (65, 'Grundschule Ergoldsbach', 'PRIMARY', 3, 'Ergoldsbach', 48.6800, 12.2000, 80.0, 'None', 'gs.ergoldsbach@schule.de', NULL, TRUE, NOW(), NOW()),
+    (66, 'Grundschule Neufahrn', 'PRIMARY', 3, 'Neufahrn NB', 48.7300, 12.1800, 82.0, 'None', 'gs.neufahrn@schule.de', NULL, TRUE, NOW(), NOW()),
+    (67, 'Grundschule Bayerbach', 'PRIMARY', 3, 'Bayerbach', 48.7000, 13.1500, 40.0, 'None', 'gs.bayerbach@schule.de', NULL, TRUE, NOW(), NOW()),
+    (68, 'Grundschule Ruhstorf', 'PRIMARY', 3, 'Ruhstorf', 48.4300, 13.3300, 38.0, 'None', 'gs.ruhstorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (69, 'Grundschule Rotthalmünster', 'PRIMARY', 3, 'Rotthalmünster', 48.3500, 13.2000, 45.0, 'None', 'gs.rotthal@schule.de', NULL, TRUE, NOW(), NOW()),
+    (70, 'Grundschule Kößlarn', 'PRIMARY', 3, 'Kößlarn', 48.3700, 13.1200, 48.0, 'None', 'gs.koesslarn@schule.de', NULL, TRUE, NOW(), NOW()),
+    (71, 'Grundschule Tann', 'PRIMARY', 3, 'Tann', 48.3200, 12.8800, 55.0, 'None', 'gs.tann@schule.de', NULL, TRUE, NOW(), NOW()),
+    (72, 'Grundschule Wurmannsquick', 'PRIMARY', 3, 'Wurmannsquick', 48.3500, 12.7800, 60.0, 'None', 'gs.wurmannsquick@schule.de', NULL, TRUE, NOW(), NOW()),
+    (73, 'Grundschule Zeilarn', 'PRIMARY', 3, 'Zeilarn', 48.3000, 12.8300, 62.0, 'None', 'gs.zeilarn@schule.de', NULL, TRUE, NOW(), NOW()),
+    (74, 'Grundschule Gangkofen', 'PRIMARY', 3, 'Gangkofen', 48.4300, 12.5700, 65.0, 'None', 'gs.gangkofen@schule.de', NULL, TRUE, NOW(), NOW()),
+    (75, 'Grundschule Massing', 'PRIMARY', 3, 'Massing', 48.4000, 12.6000, 63.0, 'None', 'gs.massing@schule.de', NULL, TRUE, NOW(), NOW()),
+
+    -- ZONE 3 MIDDLE (Remote areas)
+    (76, 'Mittelschule Regen', 'MIDDLE', 3, 'Regen', 48.9600, 13.1300, 58.0, 'None', 'ms.regen@schule.de', NULL, TRUE, NOW(), NOW()),
+    (77, 'Mittelschule Zwiesel', 'MIDDLE', 3, 'Zwiesel', 49.0200, 13.2300, 52.0, 'None', 'ms.zwiesel@schule.de', NULL, TRUE, NOW(), NOW()),
+    (78, 'Mittelschule Osterhofen', 'MIDDLE', 3, 'Osterhofen', 48.6500, 12.9800, 39.5, 'None', 'ms.osterhofen@schule.de', NULL, TRUE, NOW(), NOW()),
+    (79, 'Mittelschule Landau', 'MIDDLE', 3, 'Landau Isar', 48.6700, 12.7000, 52.0, 'None', 'ms.landau@schule.de', NULL, TRUE, NOW(), NOW()),
+    (80, 'Mittelschule Dingolfing', 'MIDDLE', 3, 'Dingolfing', 48.6300, 12.5000, 70.0, 'None', 'ms.dingolfing@schule.de', NULL, TRUE, NOW(), NOW()),
+    (81, 'Mittelschule Vilsbiburg', 'MIDDLE', 3, 'Vilsbiburg', 48.4500, 12.3500, 80.0, 'None', 'ms.vilsbiburg@schule.de', NULL, TRUE, NOW(), NOW()),
+    (82, 'Mittelschule Eggenfelden', 'MIDDLE', 3, 'Eggenfelden', 48.4000, 12.7600, 60.0, 'None', 'ms.eggenfelden@schule.de', NULL, TRUE, NOW(), NOW()),
+    (83, 'Mittelschule Simbach', 'MIDDLE', 3, 'Simbach Inn', 48.2700, 13.0300, 62.0, 'None', 'ms.simbach@schule.de', NULL, TRUE, NOW(), NOW()),
+    (84, 'Mittelschule Pocking', 'MIDDLE', 3, 'Pocking', 48.3800, 13.3100, 40.0, 'None', 'ms.pocking@schule.de', NULL, TRUE, NOW(), NOW()),
+    (85, 'Mittelschule Bad Griesbach', 'MIDDLE', 3, 'Bad Griesbach', 48.4200, 13.2000, 25.0, 'None', 'ms.badgriesbach@schule.de', NULL, TRUE, NOW(), NOW()),
+
+    -- ZONE 1/2 FILLERS (To balance availability)
+    (86, 'Grundschule Tiefenbach', 'PRIMARY', 1, 'Tiefenbach', 48.6200, 13.4000, 8.0, '4a', 'gs.tiefenbach@schule.de', NULL, TRUE, NOW(), NOW()),
+    (87, 'Grundschule Salzweg', 'PRIMARY', 1, 'Salzweg', 48.6000, 13.4800, 5.0, '4a', 'gs.salzweg@schule.de', NULL, TRUE, NOW(), NOW()),
+    (88, 'Grundschule Büchlberg', 'PRIMARY', 2, 'Büchlberg', 48.6700, 13.5000, 15.0, '4b', 'gs.buechlberg@schule.de', NULL, TRUE, NOW(), NOW()),
+    (89, 'Grundschule Hutthurm', 'PRIMARY', 1, 'Hutthurm', 48.6600, 13.4700, 12.0, '4a', 'gs.hutthurm@schule.de', NULL, TRUE, NOW(), NOW()),
+    (90, 'Grundschule Fürstenzell', 'PRIMARY', 1, 'Fürstenzell', 48.5200, 13.3500, 12.0, '4a', 'gs.fuerstenzell@schule.de', NULL, TRUE, NOW(), NOW()),
+    (91, 'Mittelschule Fürstenzell', 'MIDDLE', 1, 'Fürstenzell', 48.5200, 13.3500, 12.0, '4a', 'ms.fuerstenzell@schule.de', NULL, TRUE, NOW(), NOW()),
+    (92, 'Grundschule Ruhstorf 2', 'PRIMARY', 2, 'Ruhstorf', 48.4300, 13.3300, 20.0, '4b', 'gs.ruhstorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (93, 'Mittelschule Ruhstorf', 'MIDDLE', 2, 'Ruhstorf', 48.4300, 13.3300, 20.0, '4b', 'ms.ruhstorf@schule.de', NULL, TRUE, NOW(), NOW()),
+    (94, 'Grundschule Neuburg am Inn', 'PRIMARY', 1, 'Neuburg', 48.5000, 13.4500, 10.0, '4a', 'gs.neuburg@schule.de', NULL, TRUE, NOW(), NOW()),
+    (95, 'Grundschule Neuhaus am Inn', 'PRIMARY', 1, 'Neuhaus', 48.4600, 13.4200, 14.0, '4a', 'gs.neuhaus@schule.de', NULL, TRUE, NOW(), NOW()),
+    (96, 'Mittelschule Rotthalmünster', 'MIDDLE', 2, 'Rotthalmünster', 48.3500, 13.2000, 30.0, '4b', 'ms.rotthal@schule.de', NULL, TRUE, NOW(), NOW()),
+    (97, 'Grundschule Kirchham', 'PRIMARY', 3, 'Kirchham', 48.3500, 13.2700, 42.0, 'None', 'gs.kirchham@schule.de', NULL, TRUE, NOW(), NOW()),
+    (98, 'Grundschule Malching', 'PRIMARY', 3, 'Malching', 48.3000, 13.1800, 45.0, 'None', 'gs.malching@schule.de', NULL, TRUE, NOW(), NOW()),
+    (99, 'Grundschule Ering', 'PRIMARY', 3, 'Ering', 48.3000, 13.1500, 48.0, 'None', 'gs.ering@schule.de', NULL, TRUE, NOW(), NOW()),
+    (100, 'Mittelschule Tann', 'MIDDLE', 3, 'Tann', 48.3200, 12.8800, 55.0, 'None', 'ms.tann@schule.de', NULL, TRUE, NOW(), NOW());
 
 -- 7. TEACHER
 -- Creating supervisors. Note usage_cycle for HSU rotation.
@@ -298,7 +350,127 @@ VALUES
     -- Teachers with specific status (INACTIVE) or balance (CREDIT/DEBT)
     (112, 1, 'Hanna', 'Reischl', 'hanna.reischl@gs-innstadt-inactive.de', '+49 851 123458', FALSE, 'INACTIVE_THIS_YEAR', 'FLEXIBLE', 0, NOW(), NOW()),
     (113, 22, 'Stefan', 'Kager', 'stefan.kager@ms-bogen-inactive.de', '+49 9422 9662', FALSE, 'INACTIVE_THIS_YEAR', 'GRADES_5_TO_9', 0, NOW(), NOW()),
-    (114, 30, 'Ulrich', 'Schramm', 'ulrich.schramm@ms-viechtach.de', '+49 9942 9404', TRUE, 'ACTIVE', 'GRADES_5_TO_9', -1, NOW(), NOW()); -- Teacher with a debt of 1 credit hour
+    (114, 30, 'Ulrich', 'Schramm', 'ulrich.schramm@ms-viechtach.de', '+49 9942 9404', TRUE, 'ACTIVE', 'GRADES_5_TO_9', -1, NOW(), NOW()),
+    -- =========================================================================
+    -- GROUP 1: MISSING MIDDLE SCHOOL TEACHERS (Target: Reach 41 Total)
+    -- Assigned to new Zone 3 MS Schools (IDs 76-85)
+    -- =========================================================================
+    (115, 76, 'Martin', 'Gruber', 'martin.gruber@ms-regen.de', '+49 9921 55501', FALSE, 'ACTIVE', 'GRADES_5_TO_9', 0, NOW(), NOW()),
+    (116, 77, 'Renate', 'Bichler', 'renate.bichler@ms-zwiesel.de', '+49 9922 55502', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (117, 78, 'Joachim', 'Eder', 'joachim.eder@ms-osterhofen.de', '+49 9932 55503', FALSE, 'ACTIVE', 'GRADES_5_TO_9', 0, NOW(), NOW()),
+    (118, 79, 'Cornelia', 'Stark', 'cornelia.stark@ms-landau.de', NULL, FALSE, 'ACTIVE', 'GRADES_5_TO_9', 0, NOW(), NOW()),
+    (119, 80, 'Dieter', 'Schwarz', 'dieter.schwarz@ms-dingolfing.de', '+49 8731 55504', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (120, 81, 'Brigitte', 'Lang', 'brigitte.lang@ms-vilsbiburg.de', NULL, TRUE, 'ACTIVE', 'GRADES_5_TO_9', 0, NOW(), NOW()),
+    (121, 82, 'Horst', 'Winkler', 'horst.winkler@ms-eggenfelden.de', '+49 8721 55505', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+
+    -- =========================================================================
+    -- GROUP 2: PRIMARY TEACHERS - REGEN / DEGGENDORF AREA (Zone 3)
+    -- Assigned to Schools 54-60
+    -- =========================================================================
+    (122, 54, 'Monika', 'Fuchs', 'monika.fuchs@gs-regen-n.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (123, 54, 'Peter', 'Graf', 'peter.graf@gs-regen-n.de', '+49 9921 6601', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (124, 55, 'Julia', 'Hofer', 'julia.hofer@gs-kirchdorf.de', NULL, TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (125, 55, 'Karin', 'Moos', 'karin.moos@gs-kirchdorf.de', '+49 8571 6602', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (126, 56, 'Stefan', 'Rieger', 'stefan.rieger@gs-eichendorf.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (127, 56, 'Andrea', 'Wolf', 'andrea.wolf@gs-eichendorf.de', '+49 9952 6603', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (128, 56, 'Thomas', 'Binder', 'thomas.binder@gs-eichendorf.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (129, 57, 'Sabine', 'Eich', 'sabine.eich@gs-frontenhausen.de', '+49 8732 6604', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (130, 57, 'Markus', 'Kurz', 'markus.kurz@gs-frontenhausen.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (131, 58, 'Bettina', 'Schenk', 'bettina.schenk@gs-wallersdorf.de', '+49 9933 6605', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (132, 58, 'Christian', 'Mayr', 'christian.mayr@gs-wallersdorf.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (133, 59, 'Daniela', 'Hauser', 'daniela.hauser@gs-pilsting.de', '+49 9953 6606', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (134, 59, 'Erich', 'Brandt', 'erich.brandt@gs-pilsting.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (135, 60, 'Florian', 'Huber', 'florian.huber@gs-reisbach.de', '+49 8734 6607', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (136, 60, 'Gabriele', 'Wirt', 'gabriele.wirt@gs-reisbach.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (137, 60, 'Hannes', 'Koch', 'hannes.koch@gs-reisbach.de', '+49 8734 6608', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+
+    -- =========================================================================
+    -- GROUP 3: PRIMARY TEACHERS - STRAUBING / LANDSHUT REMOTE (Zone 3)
+    -- Assigned to Schools 61-66
+    -- =========================================================================
+    (138, 61, 'Ingrid', 'Bauer', 'ingrid.bauer@gs-mengkofen.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (139, 61, 'Jürgen', 'Weiss', 'juergen.weiss@gs-mengkofen.de', '+49 8733 7701', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (140, 62, 'Katja', 'Diem', 'katja.diem@gs-geiselhoering.de', NULL, TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (141, 62, 'Lothar', 'Frank', 'lothar.frank@gs-geiselhoering.de', '+49 9423 7702', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (142, 62, 'Manuela', 'Götz', 'manuela.goetz@gs-geiselhoering.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (143, 63, 'Norbert', 'Hess', 'norbert.hess@gs-mallersdorf.de', '+49 8772 7703', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (144, 63, 'Oliver', 'Jung', 'oliver.jung@gs-mallersdorf.de', NULL, TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (145, 64, 'Petra', 'Kraft', 'petra.kraft@gs-rottenburg.de', '+49 8781 7704', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (146, 64, 'Quirin', 'Lutz', 'quirin.lutz@gs-rottenburg.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (147, 65, 'Ralf', 'Moser', 'ralf.moser@gs-ergoldsbach.de', '+49 8771 7705', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (148, 65, 'Sandra', 'Noll', 'sandra.noll@gs-ergoldsbach.de', NULL, TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (149, 65, 'Tobias', 'Ott', 'tobias.ott@gs-ergoldsbach.de', '+49 8771 7706', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (150, 66, 'Ursula', 'Pohl', 'ursula.pohl@gs-neufahrn.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (151, 66, 'Viktor', 'Quast', 'viktor.quast@gs-neufahrn.de', '+49 8773 7707', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+
+    -- =========================================================================
+    -- GROUP 4: PRIMARY TEACHERS - ROTTAL-INN / PASSAU REMOTE (Zone 3)
+    -- Assigned to Schools 67-75 & 97-100
+    -- =========================================================================
+    (152, 67, 'Walter', 'Raab', 'walter.raab@gs-bayerbach.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (153, 67, 'Xaver', 'Senn', 'xaver.senn@gs-bayerbach.de', '+49 8532 8801', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (154, 68, 'Yvonne', 'Thal', 'yvonne.thal@gs-ruhstorf.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (155, 68, 'Zeno', 'Uhl', 'zeno.uhl@gs-ruhstorf.de', '+49 8531 8802', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (156, 68, 'Anna', 'Vogt', 'anna.vogt@gs-ruhstorf.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (157, 69, 'Bernd', 'Wahl', 'bernd.wahl@gs-rotthal.de', '+49 8533 8803', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (158, 69, 'Clara', 'Zahn', 'clara.zahn@gs-rotthal.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (159, 70, 'David', 'Alt', 'david.alt@gs-koesslarn.de', '+49 8536 8804', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (160, 70, 'Eva', 'Berg', 'eva.berg@gs-koesslarn.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (161, 71, 'Franz', 'Cohr', 'franz.cohr@gs-tann.de', '+49 8572 8805', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (162, 71, 'Gabi', 'Dorn', 'gabi.dorn@gs-tann.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (163, 72, 'Hans', 'Eber', 'hans.eber@gs-wurmannsquick.de', '+49 8725 8806', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (164, 72, 'Ines', 'Funk', 'ines.funk@gs-wurmannsquick.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (165, 73, 'Jakob', 'Gast', 'jakob.gast@gs-zeilarn.de', '+49 8572 8807', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (166, 73, 'Klara', 'Heim', 'klara.heim@gs-zeilarn.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (167, 74, 'Lukas', 'Immer', 'lukas.immer@gs-gangkofen.de', '+49 8722 8808', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (168, 74, 'Maria', 'Jost', 'maria.jost@gs-gangkofen.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (169, 74, 'Nils', 'Karp', 'nils.karp@gs-gangkofen.de', '+49 8722 8809', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (170, 75, 'Olga', 'Link', 'olga.link@gs-massing.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (171, 75, 'Paul', 'Mertz', 'paul.mertz@gs-massing.de', '+49 8724 8810', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (172, 97, 'Quinn', 'Noack', 'quinn.noack@gs-kirchham.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (173, 97, 'Rita', 'Opitz', 'rita.opitz@gs-kirchham.de', '+49 8533 9901', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (174, 98, 'Simon', 'Patz', 'simon.patz@gs-malching.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (175, 98, 'Tina', 'Quade', 'tina.quade@gs-malching.de', '+49 8573 9902', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (176, 99, 'Udo', 'Ranz', 'udo.ranz@gs-ering.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (177, 99, 'Vera', 'Salm', 'vera.salm@gs-ering.de', '+49 8573 9903', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+
+    -- =========================================================================
+    -- GROUP 5: PRIMARY FILLERS - ZONE 2 (To reach exactly 169 Primary)
+    -- Assigned to existing Zone 2 schools to ensure we hit the 210 total
+    -- =========================================================================
+    (178, 14, 'Willi', 'Thiel', 'willi.thiel@gs-tittling.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (179, 14, 'Xenia', 'Ulrich', 'xenia.ulrich@gs-tittling.de', '+49 8504 5511', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (180, 16, 'Yannik', 'Vogel', 'yannik.vogel@gs-vilshofen-s.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (181, 16, 'Zara', 'Weber', 'zara.weber@gs-vilshofen-s.de', '+49 8541 5512', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (182, 17, 'Adam', 'Xander', 'adam.xander@gs-schoellnach.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (183, 17, 'Bea', 'Yilmaz', 'bea.yilmaz@gs-schoellnach.de', '+49 9903 5513', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (184, 19, 'Carl', 'Zeller', 'carl.zeller@gs-aidenbach.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (185, 19, 'Dora', 'Arnold', 'dora.arnold@gs-aidenbach.de', '+49 8543 5514', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (186, 20, 'Emil', 'Bach', 'emil.bach@gs-osterhofen.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (187, 20, 'Fay', 'Busch', 'fay.busch@gs-osterhofen.de', '+49 9932 5515', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (188, 21, 'Gero', 'Christ', 'gero.christ@gs-waldkirchen.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (189, 21, 'Hana', 'Diehl', 'hana.diehl@gs-waldkirchen.de', '+49 8581 5516', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (190, 23, 'Ivan', 'Ebert', 'ivan.ebert@gs-deggendorf-m.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (191, 23, 'Jana', 'Fiedler', 'jana.fiedler@gs-deggendorf-m.de', '+49 991 5517', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (192, 24, 'Kai', 'Geier', 'kai.geier@gs-badgriesbach.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (193, 24, 'Lara', 'Hein', 'lara.hein@gs-badgriesbach.de', '+49 8532 5518', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (194, 25, 'Milo', 'Ilg', 'milo.ilg@gs-fuerstenstein.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (195, 25, 'Nora', 'Jahn', 'nora.jahn@gs-fuerstenstein.de', '+49 8504 5519', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (196, 26, 'Ole', 'Keil', 'ole.keil@gs-roehrnbach.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (197, 26, 'Pia', 'Lenz', 'pia.lenz@gs-roehrnbach.de', '+49 8582 5520', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (198, 27, 'Rico', 'Mai', 'rico.mai@gs-kellberg.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (199, 27, 'Sina', 'Neubauer', 'sina.neubauer@gs-kellberg.de', '+49 8503 5521', FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (200, 28, 'Tim', 'Ochs', 'tim.ochs@gs-witzmannsberg.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (201, 28, 'Uta', 'Paul', 'uta.paul@gs-witzmannsberg.de', '+49 8504 5522', TRUE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (202, 86, 'Vito', 'Reimann', 'vito.reimann@gs-tiefenbach.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (203, 86, 'Wanda', 'Sauter', 'wanda.sauter@gs-tiefenbach.de', '+49 8509 5523', FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (204, 87, 'Xaver', 'Tietz', 'xaver.tietz@gs-salzweg.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (205, 87, 'Yara', 'Unger', 'yara.unger@gs-salzweg.de', '+49 851 5524', TRUE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (206, 88, 'Zack', 'Vogt', 'zack.vogt@gs-buechlberg.de', NULL, FALSE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (207, 88, 'Alya', 'Wenz', 'alya.wenz@gs-buechlberg.de', '+49 8505 5525', FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW()),
+    (208, 89, 'Bodo', 'Zink', 'bodo.zink@gs-hutthurm.de', NULL, FALSE, 'ACTIVE', 'FLEXIBLE', 0, NOW(), NOW()),
+    (209, 89, 'Cora', 'Adam', 'cora.adam@gs-hutthurm.de', '+49 8505 5526', TRUE, 'ACTIVE', 'GRADES_1_2', 0, NOW(), NOW()),
+    (210, 90, 'Dino', 'Beck', 'dino.beck@gs-fuerstenzell.de', NULL, FALSE, 'ACTIVE', 'GRADES_3_4', 0, NOW(), NOW());
 
 -- 8. TEACHER_SUBJECT
 INSERT INTO TEACHER_SUBJECTS (id, year_id, teacher_id, subject_id, availability_status, created_at, updated_at)
