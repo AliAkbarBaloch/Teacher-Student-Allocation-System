@@ -72,7 +72,8 @@
       "employmentStatus": "Employment Status",
       "usageCycle": "Usage Cycle",
       "isActive": "Active",
-      "workingHoursPerWeek": "Working Hours Per Week"
+      "workingHoursPerWeek": "Working Hours Per Week",
+      "subjects": "Subjects"
     },
     "placeholders": {
       "school": "Select school",

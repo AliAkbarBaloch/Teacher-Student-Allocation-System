@@ -20,6 +20,7 @@ import { CheckboxField } from "@/components/form/fields/CheckboxField";
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
 import { NumberField } from "@/components/form/fields/NumberField";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type BaseTeacherFormProps = {
   onCancel: () => void;
@@ -286,9 +287,9 @@ export function TeacherForm(props: TeacherFormProps) {
         {/* Subjects */}
 
         <div className="space-y-2 md:col-span-2">
-
+          {/* title for subjects checkboxes */}
           <label className="text-sm font-medium">
-            {t("form.field.subjects")}
+            {t("form.fields.subjects")}
           </label>
 
           {/*conditional rendering*/}
@@ -301,6 +302,7 @@ export function TeacherForm(props: TeacherFormProps) {
           //else if subjects exists - show checkboxes
           ) : subjects.length ? ( 
             <div className="grid grid-cols-2 gap-3">
+
               {/*for every subject we recieved from the backend draw checkbox*/}
               {subjects.map((subject) => {
 
@@ -312,13 +314,12 @@ export function TeacherForm(props: TeacherFormProps) {
                     key = {subject.id}
                     className="flex items-center gap-2 rounded-md border px-3 py-2"
                   >
-
-                  <CheckboxField
-                    id = {`subject-${subject.id}`}
-                    label = {subject.subjectTitle}
+                  <Checkbox
                     checked = {checked}
-                    onCheckedChange={
-                      (value) => {
+                    disabled = {isDisabled}
+                    id = {`subject-${subject.id}`}
+                    
+                    onCheckedChange={(value) => {
                         const nextIds = value
                         //check - add the subject to checked 
                         ? [...formState.subjectIds, subject.id]
@@ -327,9 +328,15 @@ export function TeacherForm(props: TeacherFormProps) {
                         //update the form state
                         handleInputChange("subjectIds", nextIds);
                       }}
-                      disabled={isDisabled}
                     />
-                  </div>
+                  <label
+                  htmlFor = {`subject-${subject.id}`}
+                  className = "text-sm cursor-pointer select-none"
+                  >
+                    {subject.subjectTitle}
+                  </label>
+
+                </div>
                 );
               }
               )}
