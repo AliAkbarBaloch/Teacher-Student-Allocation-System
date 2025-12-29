@@ -1,10 +1,7 @@
 package de.unipassau.allocationsystem.controller.report;
 
-import de.unipassau.allocationsystem.dto.report.allocation.health.AllocationHealthReportDto;
 import de.unipassau.allocationsystem.dto.report.school.SchoolStatusReportDto;
-import de.unipassau.allocationsystem.dto.report.subject.SubjectBottleneckDto;
 import de.unipassau.allocationsystem.dto.report.teacher.TeacherStatusReportDto;
-import de.unipassau.allocationsystem.dto.report.teacher.TeacherUtilizationReportDto;
 import de.unipassau.allocationsystem.service.report.ReportService;
 import de.unipassau.allocationsystem.service.report.SchoolReportService;
 import de.unipassau.allocationsystem.service.report.TeacherReportService;
@@ -14,8 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/reports")

@@ -110,11 +110,11 @@ public class ReportService {
         List<SubjectBottleneckDto> report = new ArrayList<>();
 
         for (InternshipDemand demand : demands) {
-            // Only subject-specific internships matter for bottlenecks (ZSP, SFP)
-            // Block internships (PDP) usually don't have strict subject requirements in allocation
-            if (!demand.getInternshipType().getIsSubjectSpecific()) {
-                continue;
-            }
+                        // Only subject-specific internships matter for bottlenecks (ZSP, SFP)
+                        // Block internships (PDP) usually don't have strict subject requirements in allocation
+                        if (!demand.getInternshipType().getIsSubjectSpecific()) {
+                                continue;
+                        }
 
             // 1. Calculate Available Teachers for this subject
             long availableCount = allTeachers.stream()
@@ -137,10 +137,14 @@ public class ReportService {
 
             int gap = (int) availableCount - demand.getRequiredTeachers();
 
-            String status = "BALANCED";
-            if (gap < 0) status = "CRITICAL_SHORTAGE";
-            else if (gap < 5) status = "SHORTAGE"; // Low buffer
-            else if (gap > 10) status = "SURPLUS";
+                String status = "BALANCED";
+                if (gap < 0) {
+                        status = "CRITICAL_SHORTAGE";
+                } else if (gap < 5) {
+                        status = "SHORTAGE"; // Low buffer
+                } else if (gap > 10) {
+                        status = "SURPLUS";
+                }
 
             report.add(SubjectBottleneckDto.builder()
                     .subjectName(demand.getSubject().getSubjectTitle())
@@ -181,16 +185,23 @@ public class ReportService {
         List<TeacherUtilizationReportDto> report = new ArrayList<>();
 
         for (Teacher teacher : allTeachers) {
-            // Skip archived teachers
-            if(teacher.getEmploymentStatus() == Teacher.EmploymentStatus.ARCHIVED) continue;
+
+                        // Skip archived teachers
+                        if (teacher.getEmploymentStatus() == Teacher.EmploymentStatus.ARCHIVED) {
+                                continue;
+                        }
 
             int count = assignmentCounts.getOrDefault(teacher.getId(), 0L).intValue();
             double balance = balanceMap.getOrDefault(teacher.getId(), 0.0);
 
             String status = "OPTIMAL";
-            if (count == 0) status = "UNUSED";
-            else if (count == 1) status = "UNDER_UTILIZED"; // Need 2 for 1 hour
-            else if (count > 2) status = "OVER_UTILIZED";
+                        if (count == 0) {
+                                status = "UNUSED";
+                        } else if (count == 1) {
+                                status = "UNDER_UTILIZED"; // Need 2 for 1 hour
+                        } else if (count > 2) {
+                                status = "OVER_UTILIZED";
+                        }
 
             report.add(TeacherUtilizationReportDto.builder()
                     .teacherId(teacher.getId())
