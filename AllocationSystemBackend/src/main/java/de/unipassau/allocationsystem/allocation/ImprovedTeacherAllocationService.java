@@ -30,7 +30,9 @@ public class ImprovedTeacherAllocationService {
         log.info("=== Starting Allocation for Year ID: {} ===", academicYearId);
 
         AcademicYear year = entityManager.find(AcademicYear.class, academicYearId);
-        if (year == null) throw new IllegalArgumentException("Year not found: " + academicYearId);
+        if (year == null) {
+            throw new IllegalArgumentException("Year not found: " + academicYearId);
+        }
 
         AllocationContext ctx = buildContext(academicYearId, params);
         AllocationPlan plan = createDraftPlan(year);
@@ -82,14 +84,22 @@ public class ImprovedTeacherAllocationService {
 
                 // Strategy: Try Zone-Preferred types first
                 if (zone == 3) {
-                    if (tryForceAssign(plan, ctx, t, pdp1)) assigned = true;
-                    else if (tryForceAssign(plan, ctx, t, pdp2)) assigned = true;
+                    if (tryForceAssign(plan, ctx, t, pdp1)) {
+                        assigned = true;
+                    } else if (tryForceAssign(plan, ctx, t, pdp2)) {
+                        assigned = true;
+                    }
                 } else {
                     // Zone 1/2
-                    if (tryForceAssign(plan, ctx, t, zsp)) assigned = true;
-                    else if (tryForceAssign(plan, ctx, t, sfp)) assigned = true;
-                    else if (tryForceAssign(plan, ctx, t, pdp1)) assigned = true;
-                    else if (tryForceAssign(plan, ctx, t, pdp2)) assigned = true;
+                    if (tryForceAssign(plan, ctx, t, zsp)) {
+                        assigned = true;
+                    } else if (tryForceAssign(plan, ctx, t, sfp)) {
+                        assigned = true;
+                    }  else if (tryForceAssign(plan, ctx, t, pdp1)) {
+                        assigned = true;
+                    }  else if (tryForceAssign(plan, ctx, t, pdp2)) {
+                        assigned = true;
+                    }
                 }
 
                 if (!assigned) {
@@ -103,16 +113,24 @@ public class ImprovedTeacherAllocationService {
     }
 
     private boolean tryForceAssign(AllocationPlan plan, AllocationContext ctx, Teacher t, InternshipType type) {
-        if (type == null) return false;
+        if (type == null) {
+            return false;
+        }
 
         // 1. Check Hard Constraints
-        if (!AllocationHelper.isTeacherInAllowedZone(t, type, ctx.zoneConstraints)) return false;
-        if (!AllocationHelper.canTeacherBeAssignedToInternship(t, type, ctx.assignedTypes, ctx.combinationRules)) return false;
+        if (!AllocationHelper.isTeacherInAllowedZone(t, type, ctx.zoneConstraints)) {
+            return false;
+        }
+        if (!AllocationHelper.canTeacherBeAssignedToInternship(t, type, ctx.assignedTypes, ctx.combinationRules)) {
+            return false;
+        }
 
         // 2. Pick a Subject (CRITICAL FIX: Don't pick one they already have for this type!)
         Subject subject = findBestSubjectForSurplus(ctx, t, type);
 
-        if (subject == null) return false; // No valid unique subject found
+        if (subject == null) {
+            return false; // No valid unique subject found
+        }
 
         // 3. Create Assignment
         createAssignment(plan, ctx, t, type, subject, "Forced Surplus Allocation");
@@ -170,7 +188,9 @@ public class ImprovedTeacherAllocationService {
 
     private void allocateByPriority(AllocationPlan plan, AllocationContext ctx, String typeCode) {
         InternshipType type = ctx.getInternshipType(typeCode);
-        if (type == null) return;
+        if (type == null) {
+            return;
+        }
         List<InternshipDemand> typeDemands = ctx.getDemandsByType(type.getId());
 
         if (ctx.params.isPrioritizeScarcity()) {
@@ -189,7 +209,9 @@ public class ImprovedTeacherAllocationService {
 
         int assigned = 0;
         for (Teacher teacher : candidates) {
-            if (assigned >= required) break;
+            if (assigned >= required) {
+                break;
+            }
             // Check for duplicate specific assignment before proceeding
             if (!ctx.hasAssignment(teacher, demand.getInternshipType(), demand.getSubject())) {
                 createAssignment(plan, ctx, teacher, demand.getInternshipType(), demand.getSubject(), "Demand Match");
@@ -202,7 +224,9 @@ public class ImprovedTeacherAllocationService {
         return ctx.teachers.stream()
                 .filter(t -> !ctx.isTeacherFullyBooked(t))
                 .filter(t -> {
-                    if (!demand.getInternshipType().getIsSubjectSpecific()) return true;
+                    if (!demand.getInternshipType().getIsSubjectSpecific()) {
+                        return true;
+                    }
                     return AllocationHelper.isTeacherQualifiedForSubject(t, demand.getSubject(), ctx.teacherSubjects);
                 })
                 .filter(t -> !AllocationHelper.isTeacherExcludedFromSubject(t, demand.getSubject(), ctx.exclusions))
@@ -214,11 +238,18 @@ public class ImprovedTeacherAllocationService {
 
     private int scoreTeacher(Teacher t, InternshipDemand d, AllocationContext ctx) {
         int score = 0;
-        if (AllocationHelper.hasMainSubjectQualification(t, d.getSubject(), ctx.qualifications)) score += 10;
+        if (AllocationHelper.hasMainSubjectQualification(t, d.getSubject(), ctx.qualifications)) {
+            score += 10;
+        }
+
         boolean isWednesday = d.getInternshipType().getInternshipCode().equals("ZSP") ||
                 d.getInternshipType().getInternshipCode().equals("SFP");
-        if (isWednesday && t.getSchool().getZoneNumber() == 1) score += 5;
-        if (ctx.getAssignmentCount(t) == 0) score += 50;
+        if (isWednesday && t.getSchool().getZoneNumber() == 1) {
+            score += 5;
+        }
+        if (ctx.getAssignmentCount(t) == 0) {
+            score += 50;
+        }
         return score;
     }
 
@@ -284,7 +315,7 @@ public class ImprovedTeacherAllocationService {
         ctx.fallbackSubjects.put("PRIMARY", allSubjects.stream().filter(s -> "Primary".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
         ctx.fallbackSubjects.put("MIDDLE", allSubjects.stream().filter(s -> "Middle".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
 
-        for(Teacher t : ctx.teachers) {
+        for (Teacher t : ctx.teachers) {
             ctx.currentAssignmentCount.put(t.getId(), 0);
             ctx.assignedTypes.put(t, new ArrayList<>());
             // Initialize empty set for unique key tracking
@@ -297,28 +328,30 @@ public class ImprovedTeacherAllocationService {
     // INNER CLASS: AllocationContext
     // ============================================================================================
     private static class AllocationContext {
-        AllocationParameters params;
-        List<Teacher> teachers;
-        List<InternshipDemand> demands;
+        private AllocationParameters params;
+        private List<Teacher> teachers;
+        private List<InternshipDemand> demands;
 
-        Map<Long, List<TeacherQualification>> qualifications;
-        Map<Long, List<TeacherSubjectExclusion>> exclusions;
-        Map<Long, List<TeacherAvailability>> availabilities;
-        Map<Long, List<TeacherSubject>> teacherSubjects;
-        List<InternshipType> internshipTypes;
-        Map<Integer, List<ZoneConstraint>> zoneConstraints;
-        Map<Long, List<InternshipCombinationRule>> combinationRules;
-        Map<String, Subject> fallbackSubjects = new HashMap<>();
+        private Map<Long, List<TeacherQualification>> qualifications;
+        private Map<Long, List<TeacherSubjectExclusion>> exclusions;
+        private Map<Long, List<TeacherAvailability>> availabilities;
+        private Map<Long, List<TeacherSubject>> teacherSubjects;
+        private List<InternshipType> internshipTypes;
+        private Map<Integer, List<ZoneConstraint>> zoneConstraints;
+        private Map<Long, List<InternshipCombinationRule>> combinationRules;
+        private Map<String, Subject> fallbackSubjects = new HashMap<>();
 
-        Map<Long, Integer> currentAssignmentCount = new HashMap<>();
-        Map<Teacher, List<InternshipType>> assignedTypes = new HashMap<>();
+        private Map<Long, Integer> currentAssignmentCount = new HashMap<>();
+        private Map<Teacher, List<InternshipType>> assignedTypes = new HashMap<>();
         // NEW: Track unique keys (TypeID-SubjectID) to prevent duplicate constraint violation
-        Map<Long, Set<String>> uniqueAssignments = new HashMap<>();
+        private Map<Long, Set<String>> uniqueAssignments = new HashMap<>();
 
-        Map<Long, Integer> subjectCandidateCount = new HashMap<>();
-        int totalAssignmentsCreated = 0;
+        private Map<Long, Integer> subjectCandidateCount = new HashMap<>();
+        private int totalAssignmentsCreated = 0;
 
-        public AllocationContext(AllocationParameters params) { this.params = params; }
+        AllocationContext(AllocationParameters params) {
+            this.params = params;
+        }
 
         public InternshipType getInternshipType(String code) {
             return internshipTypes.stream().filter(t -> t.getInternshipCode().equals(code)).findFirst().orElse(null);
@@ -379,7 +412,10 @@ public class ImprovedTeacherAllocationService {
     @Transactional
     public void activateAllocationPlan(Long planId) {
         AllocationPlan plan = entityManager.find(AllocationPlan.class, planId);
-        if (plan == null) throw new IllegalArgumentException("Plan not found");
+        if (plan == null) {
+            throw new IllegalArgumentException("Plan not found");
+        }
+
         AcademicYear year = plan.getAcademicYear();
 
         entityManager.createQuery("UPDATE AllocationPlan p SET p.isCurrent = false, p.status = 'ARCHIVED' WHERE p.academicYear.id = :yearId AND p.id != :planId")

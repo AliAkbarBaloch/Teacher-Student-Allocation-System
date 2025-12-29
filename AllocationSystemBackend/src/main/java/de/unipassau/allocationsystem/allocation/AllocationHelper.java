@@ -19,7 +19,9 @@ public class AllocationHelper {
 
     // HARD CONSTRAINT: Teacher must be in a Zone compatible with the internship type
     public static boolean isTeacherInAllowedZone(Teacher teacher, InternshipType internshipType, Map<Integer, List<ZoneConstraint>> zoneConstraints) {
-        if (teacher == null || teacher.getSchool() == null) return false;
+        if (teacher == null || teacher.getSchool() == null) {
+            return false;
+        }
         int zone = teacher.getSchool().getZoneNumber();
         return zoneConstraints.getOrDefault(zone, Collections.emptyList()).stream()
                 .anyMatch(c -> c.getInternshipType().getId().equals(internshipType.getId()) && Boolean.TRUE.equals(c.getIsAllowed()));

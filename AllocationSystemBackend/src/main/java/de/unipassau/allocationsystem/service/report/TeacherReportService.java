@@ -100,7 +100,9 @@ public class TeacherReportService {
                 // Collect preferences if any
                 long preferredCount = yearAvailabilities.stream()
                         .filter(a -> a.getStatus() == TeacherAvailability.AvailabilityStatus.PREFERRED).count();
-                if (preferredCount > 0) yearStatus = "PREFERRED";
+                if (preferredCount > 0) {
+                    yearStatus = "PREFERRED";
+                }
             } else {
                 yearStatus = "NOT_AVAILABLE";
             }

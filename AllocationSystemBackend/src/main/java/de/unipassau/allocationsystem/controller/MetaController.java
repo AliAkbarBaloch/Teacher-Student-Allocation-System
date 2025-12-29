@@ -15,7 +15,7 @@ import de.unipassau.allocationsystem.entity.School.SchoolType;
 public class MetaController {
 
     @GetMapping("/school-type")
-    public List<Map<String, String>> schoolTypes(){
+    public List<Map<String, String>> schoolTypes() {
 
         System.out.println("MetaController.schoolTypes HIT");
 
@@ -26,9 +26,9 @@ public class MetaController {
             ))
             .toList();
     }
-    private String toLabel(SchoolType v)
-    {
-        return switch(v){
+
+    private String toLabel(SchoolType v)  {
+        return switch (v) {
             case PRIMARY -> "Primary";
             case MIDDLE -> "Middle";
             case SECONDARY -> "Secondary";
