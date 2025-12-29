@@ -71,7 +71,7 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle Input Changes
-  const handleParamChange = (key: keyof AllocationRunParams, value: any) => {
+  const handleParamChange = (key: keyof AllocationRunParams, value: string|number|boolean) => {
     setParams((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -106,9 +106,13 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
       } else {
         toast.error("Allocation failed without error exception.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Allocation Error", error);
-      const msg = error?.response?.data?.message || "Failed to generate allocation plan.";
+      let msg = "Failed to generate allocation plan.";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const errObj = error as { response?: { data?: { message?: string } } };
+        msg = errObj.response?.data?.message || msg;
+      }
       toast.error(msg);
     } finally {
       setIsSubmitting(false);
