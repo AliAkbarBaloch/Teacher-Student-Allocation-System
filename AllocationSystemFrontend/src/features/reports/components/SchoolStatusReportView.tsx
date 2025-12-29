@@ -149,7 +149,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {typeData.map((entry, index) => (
+                  {typeData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

@@ -8,7 +8,6 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAcademicYears from "@/hooks/entities/useAcademicYears"; // Your existing hook
 import { apiClient } from "@/lib/api-client";
-import type { ApiResponse } from "@/services/api/BaseApiService";
 import { AlertCircle, Play, Settings2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
