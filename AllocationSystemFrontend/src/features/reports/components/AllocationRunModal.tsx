@@ -1,9 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Assuming you have shadcn/ui or similar
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"; // Assuming you have shadcn/ui or similar
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAcademicYears from "@/hooks/entities/useAcademicYears"; // Your existing hook
@@ -62,20 +75,30 @@ const DEFAULT_PARAMS: AllocationRunParams = {
   weightZonePreference: 5,
 };
 
-export default function AllocationRunModal({ isOpen, onClose, onSuccess }: AllocationRunModalProps) {
+export default function AllocationRunModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AllocationRunModalProps) {
   const { t } = useTranslation("allocation");
   const { data: academicYears, isLoading: isYearsLoading } = useAcademicYears();
-  
+
   const [selectedYearId, setSelectedYearId] = useState<string>("");
   const [params, setParams] = useState<AllocationRunParams>(DEFAULT_PARAMS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle Input Changes
-  const handleParamChange = (key: keyof AllocationRunParams, value: string|number|boolean) => {
+  const handleParamChange = (
+    key: keyof AllocationRunParams,
+    value: string | number | boolean
+  ) => {
     setParams((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleNumberChange = (key: keyof AllocationRunParams, value: string) => {
+  const handleNumberChange = (
+    key: keyof AllocationRunParams,
+    value: string
+  ) => {
     const num = parseInt(value);
     if (!isNaN(num)) {
       setParams((prev) => ({ ...prev, [key]: num }));
@@ -98,8 +121,10 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
 
       if (response.success) {
         toast.success(response.success);
-        toast.info(`Created Plan: ${response.data.planName} (${response.data.planVersion})`);
-        
+        toast.info(
+          `Created Plan: ${response.data.planName} (${response.data.planVersion})`
+        );
+
         // Callback to parent to refresh data
         onSuccess(response.data.planId);
         onClose();
@@ -122,7 +147,6 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
-        
         {/* Header */}
         <DialogHeader className="p-6 pb-2 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl">
@@ -130,20 +154,29 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
             {t("Generate Allocation Plan")}
           </DialogTitle>
           <DialogDescription>
-            {t("Configure algorithm parameters and select a year to generate a new draft.")}
+            {t(
+              "Configure algorithm parameters and select a year to generate a new draft."
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Form Content */}
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-6">
-            
             {/* 1. Academic Year Selection */}
             <div className="space-y-2">
-              <Label className="text-base font-semibold">{t("Academic Year")}</Label>
+              <Label className="text-base font-semibold">
+                {t("Academic Year")}
+              </Label>
               <Select value={selectedYearId} onValueChange={setSelectedYearId}>
                 <SelectTrigger>
-                  <SelectValue placeholder={isYearsLoading ? t("Loading...") : t("Select Academic Year")} />
+                  <SelectValue
+                    placeholder={
+                      isYearsLoading
+                        ? t("Loading...")
+                        : t("Select Academic Year")
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {academicYears?.map((year) => (
@@ -158,136 +191,196 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
             {/* 2. Configuration Tabs */}
             <Tabs defaultValue="settings" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="settings">{t("General Settings")}</TabsTrigger>
-                <TabsTrigger value="constraints">{t("Constraints")}</TabsTrigger>
-                <TabsTrigger value="weights">{t("Weights & Strategy")}</TabsTrigger>
+                <TabsTrigger value="settings">
+                  {t("General Settings")}
+                </TabsTrigger>
+                <TabsTrigger value="constraints">
+                  {t("Constraints")}
+                </TabsTrigger>
+                <TabsTrigger value="weights">
+                  {t("Weights & Strategy")}
+                </TabsTrigger>
               </TabsList>
 
               {/* General Settings */}
-              <TabsContent value="settings" className="space-y-4 border rounded-md p-4 mt-2">
+              <TabsContent
+                value="settings"
+                className="space-y-4 border rounded-md p-4 mt-2"
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>{t("Plan Version Name")}</Label>
-                    <Input 
-                      value={params.planVersion} 
-                      onChange={(e) => handleParamChange("planVersion", e.target.value)} 
+                    <Input
+                      value={params.planVersion}
+                      onChange={(e) =>
+                        handleParamChange("planVersion", e.target.value)
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between space-x-2 border p-3 rounded-md">
-                    <Label htmlFor="isCurrent" className="cursor-pointer">{t("Set as Active Plan")}</Label>
-                    <Switch 
-                      id="isCurrent" 
-                      checked={params.isCurrent} 
-                      onCheckedChange={(c) => handleParamChange("isCurrent", c)} 
+                    <Label htmlFor="isCurrent" className="cursor-pointer">
+                      {t("Set as Active Plan")}
+                    </Label>
+                    <Switch
+                      id="isCurrent"
+                      checked={params.isCurrent}
+                      onCheckedChange={(c: boolean) =>
+                        handleParamChange("isCurrent", c)
+                      }
                     />
                   </div>
                 </div>
               </TabsContent>
 
               {/* Constraints */}
-              <TabsContent value="constraints" className="space-y-4 border rounded-md p-4 mt-2">
+              <TabsContent
+                value="constraints"
+                className="space-y-4 border rounded-md p-4 mt-2"
+              >
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label>{t("Std. Assignments / Teacher")}</Label>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      value={params.standardAssignmentsPerTeacher} 
-                      onChange={(e) => handleNumberChange("standardAssignmentsPerTeacher", e.target.value)} 
+                    <Input
+                      type="number"
+                      min={1}
+                      value={params.standardAssignmentsPerTeacher}
+                      onChange={(e) =>
+                        handleNumberChange(
+                          "standardAssignmentsPerTeacher",
+                          e.target.value
+                        )
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>{t("Max Assignments (Emergency)")}</Label>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      value={params.maxAssignmentsPerTeacher} 
-                      onChange={(e) => handleNumberChange("maxAssignmentsPerTeacher", e.target.value)} 
+                    <Input
+                      type="number"
+                      min={1}
+                      value={params.maxAssignmentsPerTeacher}
+                      onChange={(e) =>
+                        handleNumberChange(
+                          "maxAssignmentsPerTeacher",
+                          e.target.value
+                        )
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>{t("Max Group Size (Wednesday)")}</Label>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      value={params.maxGroupSizeWednesday} 
-                      onChange={(e) => handleNumberChange("maxGroupSizeWednesday", e.target.value)} 
+                    <Input
+                      type="number"
+                      min={1}
+                      value={params.maxGroupSizeWednesday}
+                      onChange={(e) =>
+                        handleNumberChange(
+                          "maxGroupSizeWednesday",
+                          e.target.value
+                        )
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>{t("Max Group Size (Block)")}</Label>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      value={params.maxGroupSizeBlock} 
-                      onChange={(e) => handleNumberChange("maxGroupSizeBlock", e.target.value)} 
+                    <Input
+                      type="number"
+                      min={1}
+                      value={params.maxGroupSizeBlock}
+                      onChange={(e) =>
+                        handleNumberChange("maxGroupSizeBlock", e.target.value)
+                      }
                     />
                   </div>
                 </div>
               </TabsContent>
 
               {/* Weights & Strategy */}
-              <TabsContent value="weights" className="space-y-4 border rounded-md p-4 mt-2">
+              <TabsContent
+                value="weights"
+                className="space-y-4 border rounded-md p-4 mt-2"
+              >
                 <div className="space-y-4">
-                   {/* Switches */}
+                  {/* Switches */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label>{t("Prioritize Scarcity")}</Label>
-                        <p className="text-xs text-muted-foreground">{t("Fill subjects with few teachers first")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("Fill subjects with few teachers first")}
+                        </p>
                       </div>
-                      <Switch 
-                        checked={params.prioritizeScarcity} 
-                        onCheckedChange={(c: boolean) => handleParamChange("prioritizeScarcity", c)} 
+                      <Switch
+                        checked={params.prioritizeScarcity}
+                        onCheckedChange={(c: boolean) =>
+                          handleParamChange("prioritizeScarcity", c)
+                        }
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                       <div className="space-y-0.5">
+                      <div className="space-y-0.5">
                         <Label>{t("Force Surplus Usage")}</Label>
-                        <p className="text-xs text-muted-foreground">{t("Assign unused teachers to PDP/Support")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("Assign unused teachers to PDP/Support")}
+                        </p>
                       </div>
-                      <Switch 
-                        checked={params.forceUtilizationOfSurplus} 
-                        onCheckedChange={(c: boolean) => handleParamChange("forceUtilizationOfSurplus", c)} 
+                      <Switch
+                        checked={params.forceUtilizationOfSurplus}
+                        onCheckedChange={(c: boolean) =>
+                          handleParamChange("forceUtilizationOfSurplus", c)
+                        }
                       />
                     </div>
-                     <div className="flex items-center justify-between">
-                       <div className="space-y-0.5">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
                         <Label>{t("Allow Size Expansion")}</Label>
-                        <p className="text-xs text-muted-foreground">{t("Slightly exceed group limits if needed")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("Slightly exceed group limits if needed")}
+                        </p>
                       </div>
-                      <Switch 
-                        checked={params.allowGroupSizeExpansion} 
-                        onCheckedChange={(c: boolean) => handleParamChange("allowGroupSizeExpansion", c)} 
+                      <Switch
+                        checked={params.allowGroupSizeExpansion}
+                        onCheckedChange={(c: boolean) =>
+                          handleParamChange("allowGroupSizeExpansion", c)
+                        }
                       />
                     </div>
                   </div>
-                  
+
                   <div className="h-px bg-border my-2" />
 
                   {/* Weight Inputs */}
                   <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
+                    <div className="space-y-2">
                       <Label>{t("Weight: Main Subject Match")}</Label>
-                      <Input 
-                        type="number" 
-                        value={params.weightMainSubject} 
-                        onChange={(e) => handleNumberChange("weightMainSubject", e.target.value)} 
+                      <Input
+                        type="number"
+                        value={params.weightMainSubject}
+                        onChange={(e) =>
+                          handleNumberChange(
+                            "weightMainSubject",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>{t("Weight: Zone Preference")}</Label>
-                      <Input 
-                        type="number" 
-                        value={params.weightZonePreference} 
-                        onChange={(e) => handleNumberChange("weightZonePreference", e.target.value)} 
+                      <Input
+                        type="number"
+                        value={params.weightZonePreference}
+                        onChange={(e) =>
+                          handleNumberChange(
+                            "weightZonePreference",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
                   </div>
                 </div>
               </TabsContent>
             </Tabs>
-            
+
             {/* Warning if no year selected */}
             {!selectedYearId && (
               <div className="flex items-center gap-2 p-3 text-sm text-amber-800 bg-amber-50 rounded-md border border-amber-200">
@@ -295,7 +388,6 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
                 {t("You must select an academic year to proceed.")}
               </div>
             )}
-
           </div>
         </ScrollArea>
 
@@ -304,14 +396,15 @@ export default function AllocationRunModal({ isOpen, onClose, onSuccess }: Alloc
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             {t("Cancel")}
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={!selectedYearId || isSubmitting}
             className="min-w-[140px]"
           >
             {isSubmitting ? (
               <>
-                <span className="animate-spin mr-2">⏳</span> {t("Processing...")}
+                <span className="animate-spin mr-2">⏳</span>{" "}
+                {t("Processing...")}
               </>
             ) : (
               <>
