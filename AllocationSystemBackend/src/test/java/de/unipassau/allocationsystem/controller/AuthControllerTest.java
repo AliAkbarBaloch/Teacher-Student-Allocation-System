@@ -258,8 +258,10 @@ class AuthControllerTest {
 
     @Test
     void testLogoutWithoutAuthentication() throws Exception {
+        // Logout endpoint allows anonymous access as per security configuration
         mockMvc.perform(post("/api/auth/logout"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Logout successful"));
     }
 
     // ==================== FORGOT PASSWORD TESTS ====================
