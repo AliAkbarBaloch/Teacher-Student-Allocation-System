@@ -1,0 +1,76 @@
+{
+  "title": "Plan-Analysebericht",
+  "subtitle": "Plan-Analysebericht",
+  "allocationPlanLabel": "Zuweisungsplan:",
+  "loading": "Analysedaten werden geladen...",
+  "errorLoading": "Analysedaten konnten nicht geladen werden.",
+  "noAnalyticsData": "Keine Analysedaten verfügbar.",
+  "metrics": {
+    "totalBudget": "Gesamtbudget",
+    "usedRemaining": "{{used}} verwendet, {{remaining}} verbleibend",
+    "totalStudents": "Gesamtschülerzahl",
+    "teachersAssigned": "{{count}} Lehrkräfte zugewiesen",
+    "fulfillment": "Erfüllungsgrad",
+    "filled": "{{assigned}}/{{required}} besetzt",
+    "compliance": "Konformität",
+    "compliant": "Konform",
+    "warning": "Warnung",
+    "withinBudget": "Im Budget"
+  },
+  "tabs": {
+    "health": "Planstatus & Budget",
+    "bottlenecks": "Engpässe nach Fach",
+    "utilization": "Lehrkräfte-Auslastung"
+  },
+  "health": {
+    "used": "Verwendet",
+    "remaining": "Verbleibend",
+    "elementary": "Grundschule",
+    "middleSchool": "Mittelschule",
+    "complianceWarningTitle": "Warnung zur Budgetkonformität",
+    "totalBudget": "Gesamtbudget",
+    "utilized": "Ausgelastet",
+    "budgetSplitAnalysis": "Analyse der Budgetaufteilung",
+    "limit": "Limit",
+    "demandFulfillment": "Bedarfserfüllung",
+    "ofRequiredFilled": "von benötigten Stellen besetzt",
+    "teachersAssigned": "Zugeordnete Lehrkräfte:",
+    "teachersRequired": "Benötigte Lehrkräfte:",
+    "studentsCovered": "Abgedeckte Schüler:"
+  },
+  "bottlenecks": {
+    "top10SupplyGaps": "Top 10 Angebotslücken",
+    "availableSupply": "Verfügbares Angebot",
+    "requiredDemand": "Erforderlicher Bedarf",
+    "criticalShortages": "Kritische Engpässe",
+    "gap": "{{gap}} Lücke",
+    "needsHas": "{{schoolType}} • Benötigt {{required}} / Hat {{available}}",
+    "suggestion": "Vorschlag: Gruppengröße pro Lehrkraft erhöhen.",
+    "noCriticalShortages": "Keine kritischen Engpässe gefunden!"
+  },
+  "utilization": {
+    "unusedTeachers": "Unbenutzte Lehrkräfte",
+    "underUtilized": "Unterausgelastet (1 Zuweisung)",
+    "overUtilized": "Überausgelastet (>2 Zuweisungen)",
+    "detailsTitle": "Details zur Auslastung der Lehrkräfte",
+    "detailsSubtitle": "Effizienz und Credit-Balance überwachen",
+    "filterStatus": "Filterstatus",
+    "filter": {
+      "all": "Alle Lehrkräfte",
+      "unused": "Unbenutzt",
+      "under": "Unterausgelastet",
+      "optimal": "Optimal",
+      "over": "Überausgelastet"
+    },
+    "assignments": "Zuweisungen",
+    "creditBalance": "Credit-Balance",
+    "hrs": "Std.",
+    "status": {
+      "UNUSED": "Unbenutzt",
+      "UNDER_UTILIZED": "Unterausgelastet",
+      "OPTIMAL": "Optimal",
+      "OVER_UTILIZED": "Überausgelastet"
+    },
+    "noTeachersMatch": "Keine Lehrkräfte entsprechen diesem Filter."
+  }
+}

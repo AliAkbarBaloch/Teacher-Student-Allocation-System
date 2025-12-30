@@ -481,14 +481,14 @@
 			]
 		},
 		{
-			"name": "internship-types",
+			"name": "subjects",
 			"item": [
 				{
 					"name": "getAll",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/internship-types"
+						"url": "http://localhost:8080/api/subjects"
 					},
 					"response": []
 				},
@@ -497,7 +497,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/internship-types/paginate"
+						"url": "http://localhost:8080/api/subjects/paginate"
 					},
 					"response": []
 				},
@@ -506,7 +506,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/internship-types/sort-fields"
+						"url": "http://localhost:8080/api/subjects/sort-fields"
 					},
 					"response": []
 				},
@@ -515,7 +515,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/api/internship-types/1"
+						"url": "http://localhost:8080/api/subjects/1"
 					},
 					"response": []
 				},
@@ -526,14 +526,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"timing\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": \"1\",\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 0\r\n}",
+							"raw": "{\r\n  \"subjectCode\": \"MATH101\",\r\n  \"subjectTitle\": \"Calculus I\",\r\n  \"subjectCategoryId\": 5,\r\n  \"schoolType\": \"High School\",\r\n  \"isActive\": true\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/api/internship-types"
+						"url": "http://localhost:8080/api/subjects"
 					},
 					"response": []
 				},
@@ -544,14 +544,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"Winter\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": 3,\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 2\r\n}",
+							"raw": "{\r\n  \"subjectCode\": \"PHY102\",\r\n  \"subjectTitle\": \"Physics II\",\r\n  \"subjectCategoryId\": 8,\r\n  \"schoolType\": \"Middle School\",\r\n  \"isActive\": false\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/api/internship-types/5"
+						"url": "http://localhost:8080/api/subjects/21"
 					},
 					"response": []
 				},
@@ -560,7 +560,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/api/internship-types/5"
+						"url": "http://localhost:8080/api/subjects/7"
 					},
 					"response": []
 				}
@@ -737,12 +737,551 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "teacher-subjects",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-subjects"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-subjects/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-subjects/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-subjects/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"academicYearId\": 1,\r\n  \"teacherId\": 1,\r\n  \"subjectId\": 4,\r\n  \"gradeLevelFrom\": 5,\r\n  \"gradeLevelTo\": 7,\r\n  \"notes\": \"Prefers morning classes\",\r\n  \"availabilityStatus\": \"AVAILABLE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teacher-subjects"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"availabilityStatus\": \"Busy\",\r\n  \"gradeLevelFrom\": 6,\r\n  \"gradeLevelTo\": 10,\r\n  \"notes\": \"Will be available after exams\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teacher-subjects/6"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-subjects/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "teacher-availability",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-availability"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-availability/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-availability/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-availability/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teacherId\": 1,\r\n  \"academicYearId\": 1,\r\n  \"internshipTypeId\": 2,\r\n  \"status\": \"PREFERRED\",\r\n  \"isAvailable\": true,\r\n  \"preferenceRank\": 1,\r\n  \"notes\": \"Prefers summer internships\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teacher-availability"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teacherId\": 1,\r\n  \"academicYearId\": 1,\r\n  \"internshipTypeId\": 2,\r\n  \"status\": \"AVAILABLE\",\r\n  \"preferenceRank\": 1,\r\n  \"notes\": \"Prefers summer internships\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/teacher-availability/5"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/teacher-availability/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "internship-types",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"timing\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": \"1\",\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-types"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"internshipCode\": \"Code\",\r\n  \"fullName\": \"FullName\",\r\n  \"timing\": \"Winter\",\r\n  \"periodType\": \"periodType\",\r\n  \"semester\": 3,\r\n  \"isSubjectSpecific\": true,\r\n  \"priorityOrder\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-types/5"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-types/5"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "internship-demand",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-demands"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-demands/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-demands/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-demands/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"academicYearId\": 1,\r\n  \"internshipTypeId\": 4,\r\n  \"schoolType\": \"PRIMARY\",\r\n  \"subjectId\": 12,\r\n  \"requiredTeachers\": 3,\r\n  \"studentCount\": 85,\r\n  \"isForecasted\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-demands"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"academicYearId\": 1,\r\n  \"internshipTypeId\": 4,\r\n  \"schoolType\": \"PRIMARY\",\r\n  \"subjectId\": 12,\r\n  \"requiredTeachers\": 3,\r\n  \"studentCount\": 85,\r\n  \"isForecasted\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/internship-demands/5"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/internship-demands/5"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "credit-hour-tracking",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/credit-hour-tracking"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/credit-hour-tracking/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/credit-hour-tracking/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/credit-hour-tracking/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teacherId\": 1,\r\n  \"academicYearId\": 1,\r\n  \"assignmentsCount\": 5,\r\n  \"creditHoursAllocated\": 120.5,\r\n  \"creditBalance\": 15.0,\r\n  \"notes\": \"Includes extra classes and special project hours.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/credit-hour-tracking"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teacherId\": 1,\r\n  \"academicYearId\": 1,\r\n  \"assignmentsCount\": 5,\r\n  \"creditHoursAllocated\": 120.5,\r\n  \"creditBalance\": 15.0,\r\n  \"notes\": \"Includes extra classes and special project hours.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/credit-hour-tracking/6"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/credit-hour-tracking/7"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "zone-constraints",
+			"item": [
+				{
+					"name": "getAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/zone-constraints"
+					},
+					"response": []
+				},
+				{
+					"name": "get_paginate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/zone-constraints/paginate"
+					},
+					"response": []
+				},
+				{
+					"name": "get_sort_fields",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/zone-constraints/sort-fields"
+					},
+					"response": []
+				},
+				{
+					"name": "get_by_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/api/zone-constraints/1"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"zoneNumber\": 2,\r\n  \"internshipTypeId\": 4,\r\n  \"isAllowed\": true,\r\n  \"description\": \"Zone 2 is suitable for science and engineering internships.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/zone-constraints"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"zoneNumber\": 2,\r\n  \"internshipTypeId\": 4,\r\n  \"isAllowed\": true,\r\n  \"description\": \"Zone 2 is suitable for science and engineering internships.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/zone-constraints/7"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/api/zone-constraints/7"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "allocation",
+			"item": [
+				{
+					"name": "allocation-run-improved",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isCurrent\": true,\r\n  \"planVersion\": \"1.0-Optimized\",\r\n  \"prioritizeScarcity\": true,\r\n  \"forceUtilizationOfSurplus\": true,\r\n  \"allowGroupSizeExpansion\": true,\r\n  \"standardAssignmentsPerTeacher\": 2,\r\n  \"maxAssignmentsPerTeacher\": 3,\r\n  \"maxGroupSizeWednesday\": 4,\r\n  \"maxGroupSizeBlock\": 2,\r\n  \"weightMainSubject\": 10,\r\n  \"weightZonePreference\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/api/allocation/run-improved/1"
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {
 		"type": "bearer",
 		"bearer": {
-			"token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDYzNDU4OSwiZXhwIjoxNzY0NzIwOTg5fQ.6SUMC9r09XZ8cMErDjISv4ln17AhaIpMmLO1qa9vnsWbqLIUp0S86xbcPdmp9OHm"
+			"token": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlhdCI6MTc2Njk2MjU3OCwiZXhwIjoxNzY3MDQ4OTc4fQ.C_t-heQRoZYH9k-xzeaORG6Gf6L8luE8_aX07o_tvMQsG-oYGcRUVdxbT8Rh7XFB"
 		}
 	},
 	"event": [

@@ -1,0 +1,55 @@
+{
+  "title": "Teacher Workforce Analytics",
+  "subtitle": "Overview of teacher availability, qualifications, and employment status.",
+  "academicYearLabel": "Academic Year:",
+  "loading": "Loading teacher report...",
+  "errorLoading": "Failed to load report data.",
+  "metrics": {
+    "totalTeachers": "Total Teachers",
+    "registered": "Registered in system",
+    "activePool": "Active Pool",
+    "availabilityRate": "{{rate}}% availability rate",
+    "workforceType": "Workforce Type",
+    "fullTime": "Full-time",
+    "partTime": "Part-time",
+    "unavailable": "Unavailable",
+    "onLeaveInactive": "{{onLeave}} On Leave, {{inactive}} Inactive"
+  },
+  "subjectCoverage": {
+    "title": "Subject Qualification Coverage",
+    "description": "Number of teachers qualified per subject area",
+    "healthy": "Healthy Supply",
+    "critical": "Critical Shortage (<5)"
+  },
+  "filters": {
+    "title": "Directory Filters",
+    "description": "Narrow down the teacher list",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Name, School, or Subject...",
+    "statusLabel": "Employment Status",
+    "allStatuses": "All Statuses",
+    "activeOnly": "Active Only",
+    "onLeave": "On Leave",
+    "inactiveThisYear": "Inactive (This Year)",
+    "currentViewStats": "Current View Stats",
+    "showing": "Showing:",
+    "teachers": "{{count}} teachers"
+  },
+  "directory": {
+    "title": "Teacher Directory",
+    "description": "Detailed profiles and availability status for the selected academic year.",
+    "noSubjects": "No subjects listed",
+    "contract": "Contract: {{hours}} hrs/week",
+    "preferred": "Preferred",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "noTeachers": "No teachers found matching your criteria.",
+    "clearFilters": "Clear filters"
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "ON_LEAVE": "On Leave",
+    "INACTIVE_THIS_YEAR": "Inactive (Year)",
+    "ARCHIVED": "Archived"
+  }
+}

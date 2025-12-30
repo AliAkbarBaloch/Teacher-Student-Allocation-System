@@ -1,4 +1,4 @@
-package de.unipassau.allocationsystem.dto.report;
+package de.unipassau.allocationsystem.dto.report.allocation;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,9 +1,11 @@
 package de.unipassau.allocationsystem.repository;
 
+import de.unipassau.allocationsystem.dto.report.school.SchoolProfileDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -54,4 +56,16 @@ public interface SchoolRepository extends JpaRepository<School, Long>, JpaSpecif
      * Check if school name exists excluding specific id (for update validation).
      */
     boolean existsBySchoolNameAndIdNot(String schoolName, Long id);
+
+    @Query("SELECT new de.unipassau.allocationsystem.dto.report.school.SchoolProfileDto(" +
+            "s.id, " +
+            "s.schoolName, " +
+            "s.schoolType, " + // This passes the ENUM
+            "s.zoneNumber, " +
+            "s.transportAccessibility, " +
+            "s.isActive, " +
+            "(SELECT COUNT(t) FROM Teacher t WHERE t.school = s), " + // This returns LONG
+            "(SELECT COUNT(t) FROM Teacher t WHERE t.school = s AND t.employmentStatus = 'ACTIVE')" + // This returns LONG
+            ") FROM School s")
+    List<SchoolProfileDto> findAllSchoolProfiles();
 }

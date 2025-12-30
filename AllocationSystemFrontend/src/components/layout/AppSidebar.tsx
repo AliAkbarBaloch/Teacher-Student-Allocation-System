@@ -166,6 +166,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               url: ROUTES.reports.allocationReports,
             },
             {
+              title: t("navigation.reportsPlanAnalyticReport"),
+              url: ROUTES.reports.planAnalyticReport,
+            },
+            {
               title: t("navigation.reportsTeacherReports"),
               url: ROUTES.reports.teacherReports,
             },

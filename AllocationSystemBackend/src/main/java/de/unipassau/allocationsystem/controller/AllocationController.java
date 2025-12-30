@@ -1,9 +1,13 @@
 package de.unipassau.allocationsystem.controller;
 
+import de.unipassau.allocationsystem.allocation.ImprovedTeacherAllocationService;
 import de.unipassau.allocationsystem.allocation.TeacherAllocationService;
+import de.unipassau.allocationsystem.dto.allocation.AllocationParameters;
+import de.unipassau.allocationsystem.dto.allocation.AllocationRequestDto;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +24,13 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/allocation")
+@RequestMapping("/allocation")
 @RequiredArgsConstructor
 @Tag(name = "Allocation Execution", description = "Endpoints to trigger and manage teacher allocation process")
 public class AllocationController {
 
     private final TeacherAllocationService teacherAllocationService;
+    private final ImprovedTeacherAllocationService improvedTeacherAllocationService;
 
     /**
      * Triggers the allocation process for a specific academic year.
@@ -73,6 +78,86 @@ public class AllocationController {
             "Allocation process completed successfully. Plan created with ID: " + allocationPlan.getId(),
             responseData
         );
+    }
+
+    /**
+     * Triggers the improved allocation process with customizable parameters.
+     * * @param academicYearId The ID of the academic year to allocate
+     * @param requestDto Configuration for the algorithm (optional, defaults will be used)
+     * @return ResponseEntity containing the created AllocationPlan details
+     */
+    @Operation(
+            summary = "Run Improved Allocation Process",
+            description = "Executes the bottleneck-aware allocation algorithm. " +
+                    "Accepts parameters for scarcity handling, surplus utilization, and optimization weights."
+    )
+    @PostMapping("/run-improved/{academicYearId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> runImprovedAllocation(
+            @Parameter(description = "ID of the Academic Year")
+            @PathVariable Long academicYearId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Algorithm parameters and settings")
+            @RequestBody(required = false) AllocationRequestDto requestDto) {
+
+        // 1. Handle Null Request
+        if (requestDto == null) {
+            requestDto = new AllocationRequestDto(); // Use defaults
+        }
+
+        log.info("Allocation triggered for Year ID: {}. Scarcity: {}, Surplus: {}",
+                academicYearId, requestDto.getPrioritizeScarcity(), requestDto.getForceUtilizationOfSurplus());
+
+        // 2. Map DTO to Domain Parameters
+        AllocationParameters params = AllocationParameters.builder()
+                // Strategy
+                .prioritizeScarcity(requestDto.getPrioritizeScarcity() != null ? requestDto.getPrioritizeScarcity() : true)
+                .forceUtilizationOfSurplus(requestDto.getForceUtilizationOfSurplus() != null ? requestDto.getForceUtilizationOfSurplus() : true)
+                .allowGroupSizeExpansion(requestDto.getAllowGroupSizeExpansion() != null ? requestDto.getAllowGroupSizeExpansion() : true)
+
+                // Limits
+                .standardAssignmentsPerTeacher(requestDto.getStandardAssignmentsPerTeacher() != null ? requestDto.getStandardAssignmentsPerTeacher() : 2)
+                .maxAssignmentsPerTeacher(requestDto.getMaxAssignmentsPerTeacher() != null ? requestDto.getMaxAssignmentsPerTeacher() : 3)
+                .maxGroupSizeWednesday(requestDto.getMaxGroupSizeWednesday() != null ? requestDto.getMaxGroupSizeWednesday() : 4)
+                .maxGroupSizeBlock(requestDto.getMaxGroupSizeBlock() != null ? requestDto.getMaxGroupSizeBlock() : 2)
+
+                // Weights
+                .weightMainSubject(requestDto.getWeightMainSubject() != null ? requestDto.getWeightMainSubject() : 10)
+                .weightZonePreference(requestDto.getWeightZonePreference() != null ? requestDto.getWeightZonePreference() : 5)
+                .build();
+
+        // 3. Execute Algorithm
+        // Note: The improved service generates its own version number internally for consistency
+        AllocationPlan allocationPlan = improvedTeacherAllocationService.performAllocation(academicYearId, params);
+
+        // 4. Update metadata if passed (isCurrent/PlanVersion)
+        // Since the service logic is strictly business logic, we can update specific user metadata here if needed
+        // (Optional: Implement separate service method to update plan metadata if required)
+
+        // 5. Construct Response
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("planId", allocationPlan.getId());
+        responseData.put("planName", allocationPlan.getPlanName());
+        responseData.put("planVersion", allocationPlan.getPlanVersion());
+        responseData.put("status", allocationPlan.getStatus().name());
+        responseData.put("academicYear", allocationPlan.getAcademicYear().getYearName());
+        responseData.put("algorithmSettings", params); // Return settings used for verification
+
+        return ResponseHandler.success(
+                "Allocation completed successfully. Plan created.",
+                responseData
+        );
+    }
+
+    @Operation(
+            summary = "Activate/Approve Allocation Plan",
+            description = "Promotes a Draft plan to APPROVED status. This updates the official Credit Hour Tracking table."
+    )
+    @PostMapping("/activate/{planId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> activatePlan(@PathVariable Long planId) {
+        log.info("Activating plan ID: {}", planId);
+        improvedTeacherAllocationService.activateAllocationPlan(planId);
+        return ResponseHandler.success("Plan activated successfully. Official records updated.", Map.of("planId", planId));
     }
 
     /**
