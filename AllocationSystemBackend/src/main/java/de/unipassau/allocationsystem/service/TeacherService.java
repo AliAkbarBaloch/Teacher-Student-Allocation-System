@@ -1,17 +1,9 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.repository.SubjectRepository;
-import de.unipassau.allocationsystem.entity.Subject;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import de.unipassau.allocationsystem.entity.Teacher;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,33 +17,34 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.dto.teacher.BulkImportResponseDto;
+import de.unipassau.allocationsystem.dto.teacher.ImportResultRowDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherMapper;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
-import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.ExcelParser;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
-import de.unipassau.allocationsystem.dto.teacher.BulkImportResponseDto;
-import de.unipassau.allocationsystem.dto.teacher.ImportResultRowDto;
-import org.springframework.web.multipart.MultipartFile;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
