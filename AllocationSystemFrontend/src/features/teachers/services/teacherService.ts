@@ -42,10 +42,10 @@ export class TeacherService {
   }
 
   static async getById(id: number): Promise<Teacher> {
-    const response = await apiClient.get<ApiResponse<Teacher>>(
-      `/teachers/${id}`
+    const teacher = await apiClient.get<Teacher>(
+      `/teachers/${id}?includeRelations=true`
     );
-    return response.data;
+    return teacher;
   }
 
   static async create(payload: CreateTeacherRequest): Promise<Teacher> {
