@@ -1,5 +1,15 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.repository.SubjectRepository;
+import de.unipassau.allocationsystem.entity.Subject;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +59,8 @@ import java.io.IOException;
 @Transactional
 public class TeacherService implements CrudService<TeacherResponseDto, Long> {
 
+    private final SubjectRepository subjectRepository;
+
     private final TeacherRepository teacherRepository;
     private final SchoolRepository schoolRepository;
     private final TeacherMapper teacherMapper;
@@ -62,6 +74,23 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         private final Teacher teacher;
         private final int rowNumber;
     }
+
+    // Helper method to load subjects 
+    private Set<Subject> resolveSubjects(List<Long> subjectIds){
+        //if frontend sends nothing - no subjects 
+        if(subjectIds == null || subjectIds.isEmpty()){
+            return Set.of();
+        }
+        //load subjects from DB using IDs
+        Set<Subject> subjects = new HashSet<>(subjectRepository.findAllById(subjectIds));
+        //if some ids do not exist - throw an error 
+        if (subjects.size() != subjectIds.size()) {
+            throw new ResourceNotFoundException("One or more subjects not found");
+        }
+        //return subject objects 
+        return subjects;
+    }
+
 
     @Override
     public List<Map<String, String>> getSortFields() {
@@ -187,7 +216,12 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
                 .orElseThrow(() -> new ResourceNotFoundException("School not found with ID: " + createDto.getSchoolId()));
         Teacher teacher = teacherMapper.toEntityCreate(createDto);
         teacher.setSchool(school);
+
+        //attach subjects 
+        teacher.setSubjects(resolveSubjects(createDto.getSubjectIds()));
+
         Teacher saved = teacherRepository.save(teacher);
+        
         return teacherMapper.toResponseDto(saved);
     }
 
@@ -224,6 +258,11 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
             teacher.setSchool(newSchool);
         }
         teacherMapper.updateEntityFromDto(updateDto, teacher);
+
+        if (updateDto.getSubjectIds() != null) {
+            teacher.setSubjects(resolveSubjects(updateDto.getSubjectIds()));
+        }
+
         Teacher updated = teacherRepository.save(teacher);
         return teacherMapper.toResponseDto(updated);
     }
