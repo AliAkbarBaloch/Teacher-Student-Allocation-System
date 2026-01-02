@@ -29,7 +29,7 @@ export default function TeachersPage() {
   const {
     teachers,
     selectedTeacher,
-    setSelectedTeacher,
+    //setSelectedTeacher,
     error,
     loading,
     formLoading,

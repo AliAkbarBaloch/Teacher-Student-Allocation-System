@@ -142,7 +142,7 @@ export function TeacherDialogs({
               <ReadOnlyField label={t("form.fields.usageCycle")} value={teacher.usageCycle ? t(`${teacher.usageCycle}`) : "-"} />
 
               <ReadOnlyField
-                label = {t("form.fileds.subjects")}
+                label = {t("form.fields.subjects")}
                 value = {
                   teacher.subjects?.length
                   ? teacher.subjects?.map((s) => s.subjectTitle).join(", ")
