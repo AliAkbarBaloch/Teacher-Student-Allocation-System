@@ -56,8 +56,8 @@ export default function TeachersPage() {
     setDeleteTarget,
   } = useTeachersPage();
 
-  const handleOpenView = (teacher: Teacher) => {
-    setSelectedTeacher(teacher);
+  const handleOpenView = async (teacher: Teacher) => {
+    await fetchTeacherDetails(teacher.id);
     dialogs.view.setIsOpen(true);
   };
 

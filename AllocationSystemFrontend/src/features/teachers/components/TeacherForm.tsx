@@ -100,6 +100,7 @@ export function TeacherForm(props: TeacherFormProps) {
     return { generalError, fieldErrors };
   }, [errors, generalError]);
 
+
   // Debug: Log errors when they change
   useEffect(() => {
     if (generalError || Object.keys(errors).length > 0) {

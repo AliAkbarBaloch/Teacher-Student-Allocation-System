@@ -140,6 +140,16 @@ export function TeacherDialogs({
               <ReadOnlyField label={t("form.fields.isPartTime")} value={teacher.isPartTime ? t("table.yes") : t("table.no")} />
               <ReadOnlyField label={t("form.fields.workingHoursPerWeek")} value={teacher.workingHoursPerWeek} />
               <ReadOnlyField label={t("form.fields.usageCycle")} value={teacher.usageCycle ? t(`${teacher.usageCycle}`) : "-"} />
+
+              <ReadOnlyField
+                label = {t("form.fileds.subjects")}
+                value = {
+                  teacher.subjects?.length
+                  ? teacher.subjects?.map((s) => s.subjectTitle).join(", ")
+                  : "-"
+                }
+              />
+
             </div>
           </DialogBody>
         )}
