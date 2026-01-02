@@ -139,7 +139,14 @@ export function TeacherDialogs({
               <ReadOnlyField label={t("form.fields.employmentStatus")} value={t(`${teacher.employmentStatus}`)} />
               <ReadOnlyField label={t("form.fields.isPartTime")} value={teacher.isPartTime ? t("table.yes") : t("table.no")} />
               <ReadOnlyField label={t("form.fields.workingHoursPerWeek")} value={teacher.workingHoursPerWeek} />
-              <ReadOnlyField label={t("form.fields.usageCycle")} value={teacher.usageCycle ? t(`${teacher.usageCycle}`) : "-"} />
+              <ReadOnlyField 
+                label={t("form.fields.usageCycle")} 
+                value={
+                  teacher.usageCycle 
+                  ? t(`form.usageCycle.${teacher.usageCycle}`, {defaultValue: teacher.usageCycle}) 
+                  : "-"
+                } 
+              />
 
               <ReadOnlyField
                 label = {t("form.fields.subjects")}
