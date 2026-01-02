@@ -348,9 +348,10 @@ export function TeacherForm(props: TeacherFormProps) {
           )
         }
       </div>
+    </div>
 
-      {!readOnly && (
-        <div className="flex justify-end gap-2">
+    {!readOnly && (
+        <div className="flex w-full justify-end gap-2">
           <CancelButton onClick={onCancel} disabled={isDisabled}>
             {tCommon("actions.cancel")}
           </CancelButton>
@@ -364,7 +365,6 @@ export function TeacherForm(props: TeacherFormProps) {
           />
         </div>
       )}
-      </div>
     </form>
   );
 }
