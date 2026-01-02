@@ -20,7 +20,9 @@ import { CheckboxField } from "@/components/form/fields/CheckboxField";
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
 import { NumberField } from "@/components/form/fields/NumberField";
-import { Checkbox } from "@/components/ui/checkbox";
+
+
+import { TeacherSubjectsField } from "./TeacherSubjectsFiled";
 
 type BaseTeacherFormProps = {
   onCancel: () => void;
@@ -285,69 +287,14 @@ export function TeacherForm(props: TeacherFormProps) {
           />
         )}
 
-        {/* Subjects */}
+        <TeacherSubjectsField
+          subjects={subjects}
+          subjectsLoading={subjectsLoading}
+          selectedSubjectIds={formState.subjectIds}
+          disabled={isDisabled}
+          onChange={(nextIds) => handleInputChange("subjectIds", nextIds)}
+        />
 
-        <div className="space-y-2 md:col-span-2">
-          {/* title for subjects checkboxes */}
-          <label className="text-sm font-medium">
-            {t("form.fields.subjects")}
-          </label>
-
-          {/*conditional rendering*/}
-
-          {/*if subjects are still loading show Loading subjects*/}
-          {subjectsLoading ? (
-            <p className="text-sm text-muted-foreground">
-              {t("form.loadingSubjects", {defaultValue: "Loading subjects..."})}
-            </p>  
-          //else if subjects exists - show checkboxes
-          ) : subjects.length ? ( 
-            <div className="grid grid-cols-2 gap-3">
-
-              {/*for every subject we recieved from the backend draw checkbox*/}
-              {subjects.map((subject) => {
-
-                //is this subject already checked 
-                const checked = formState.subjectIds.includes(subject.id);
-
-                return (
-                  <div 
-                    key = {subject.id}
-                    className="flex items-center gap-2 rounded-md border px-3 py-2"
-                  >
-                  <Checkbox
-                    checked = {checked}
-                    disabled = {isDisabled}
-                    id = {`subject-${subject.id}`}
-                    
-                    onCheckedChange={(value) => {
-                        const nextIds = value
-                        //check - add the subject to checked 
-                        ? [...formState.subjectIds, subject.id]
-                        // uncheck - delete 
-                        : formState.subjectIds.filter((id) => id !== subject.id);
-                        //update the form state
-                        handleInputChange("subjectIds", nextIds);
-                      }}
-                    />
-                  <label
-                  htmlFor = {`subject-${subject.id}`}
-                  className = "text-sm cursor-pointer select-none"
-                  >
-                    {subject.subjectTitle}
-                  </label>
-
-                </div>
-                );
-              }
-              )}
-          </div>
-          //else = no subjects at all - show "no data"
-          ) : (
-            <p className="text-sm text-muted-foreground">{t("table.noData")}</p>
-          )
-        }
-      </div>
     </div>
 
     {!readOnly && (
