@@ -21,6 +21,9 @@ import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
 import { NumberField } from "@/components/form/fields/NumberField";
 
+
+import { TeacherSubjectsField } from "./TeacherSubjectsFiled";
+
 type BaseTeacherFormProps = {
   onCancel: () => void;
   isSubmitting?: boolean;
@@ -64,6 +67,8 @@ export function TeacherForm(props: TeacherFormProps) {
     usageCycleOptions,
     schools,
     loadingSchools,
+    subjects, 
+    subjectsLoading,
     handleInputChange,
     handleSubmit,
     internalSubmitting,
@@ -96,6 +101,7 @@ export function TeacherForm(props: TeacherFormProps) {
       .map(([field, message]) => ({ field, message: message as string }));
     return { generalError, fieldErrors };
   }, [errors, generalError]);
+
 
   // Debug: Log errors when they change
   useEffect(() => {
@@ -280,10 +286,19 @@ export function TeacherForm(props: TeacherFormProps) {
             disabled={isDisabled}
           />
         )}
-      </div>
 
-      {!readOnly && (
-        <div className="flex justify-end gap-2">
+        <TeacherSubjectsField
+          subjects={subjects}
+          subjectsLoading={subjectsLoading}
+          selectedSubjectIds={formState.subjectIds}
+          disabled={isDisabled}
+          onChange={(nextIds) => handleInputChange("subjectIds", nextIds)}
+        />
+
+    </div>
+
+    {!readOnly && (
+        <div className="flex w-full justify-end gap-2">
           <CancelButton onClick={onCancel} disabled={isDisabled}>
             {tCommon("actions.cancel")}
           </CancelButton>

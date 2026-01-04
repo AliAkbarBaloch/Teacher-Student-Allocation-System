@@ -1,13 +1,15 @@
 package de.unipassau.allocationsystem.dto.teacher;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import de.unipassau.allocationsystem.dto.subject.SubjectSimpleDto;
 import de.unipassau.allocationsystem.entity.Teacher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 /**
  * DTO for teacher response data.
@@ -32,4 +34,7 @@ public class TeacherResponseDto {
     private Integer creditHourBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<SubjectSimpleDto> subjects; 
 }
+

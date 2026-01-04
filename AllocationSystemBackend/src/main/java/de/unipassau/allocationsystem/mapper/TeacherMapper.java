@@ -1,14 +1,17 @@
 package de.unipassau.allocationsystem.mapper;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+import de.unipassau.allocationsystem.dto.subject.SubjectSimpleDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Mapper for converting between Teacher entity and DTOs.
@@ -82,6 +85,17 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
                 .creditHourBalance(teacher.getCreditHourBalance())
                 .createdAt(teacher.getCreatedAt())
                 .updatedAt(teacher.getUpdatedAt())
+                //subjects 
+                .subjects(
+                    teacher.getSubjects() == null
+                    ? Collections.emptyList()
+                    : teacher.getSubjects().stream()
+                        .map(subject -> new SubjectSimpleDto(
+                            subject.getId(),
+                            subject.getSubjectTitle()
+                        ))
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 
