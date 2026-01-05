@@ -69,9 +69,9 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
     }
 
     // Helper method to load subjects 
-    private Set<Subject> resolveSubjects(List<Long> subjectIds){
+    private Set<Subject> resolveSubjects(List<Long> subjectIds) {
         //if frontend sends nothing - no subjects 
-        if(subjectIds == null || subjectIds.isEmpty()){
+        if (subjectIds == null || subjectIds.isEmpty()) {
             return Set.of();
         }
         //load subjects from DB using IDs

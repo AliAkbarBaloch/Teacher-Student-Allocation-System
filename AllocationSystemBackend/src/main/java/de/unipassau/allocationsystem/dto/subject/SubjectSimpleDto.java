@@ -17,8 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubjectSimpleDto
-{
+public class SubjectSimpleDto {
     private Long id; 
     private String subjectTitle; 
 }
