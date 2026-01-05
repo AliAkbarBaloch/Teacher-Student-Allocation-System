@@ -85,6 +85,8 @@ import { fetchSubjects, type Subject } from "@/features/subjects/api";
 import { fetchInternshipTypes, type InternshipType } from "@/features/internship-types/api";
 import { fetchSchoolTypes } from "@/features/meta/api";
 
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+
 
 // TODO, wire with real auth system. now it is like evryone is admin
 const useIsAdmin = () => true;
@@ -663,25 +665,28 @@ const InternshipDemandPerYearPage: React.FC = () => {
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-1">
 
-                                <Label htmlFor="form-academicYear">Academic year *</Label>
-                                <select
-                                    id="form-academicYear"
-                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    value={(form as any).academicYearId ?? ""}
-                                    onChange={(e) =>
+                                <Label>Academic year *</Label>
+                                <Select
+                                    value = {String(form.academicYearId || "")}
+                                    onValueChange={(value) =>
                                         updateFormField(
-                                            "academicYearId" as any,
-                                            e.target.value ? Number(e.target.value) : ""
+                                            "academicYearId",
+                                            Number(value)
                                         )
                                     }
                                 >
-                                    <option value="">Select academic year</option>
-                                    {academicYears.map((y) => (
-                                        <option key={y.id} value={y.id}>
-                                            {y.yearName}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select academic year" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {academicYears.map((y) => (
+                                            <SelectItem key={y.id} value={String(y.id)}>
+                                                {y.yearName}
+                                            </SelectItem>                                            
+                                        ))}
+                                    </SelectContent>
+                                </Select>
 
                                 {formErrors.academicYearId && (
                                     <p className="text-xs text-destructive">
@@ -692,23 +697,31 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <Label htmlFor="form-internshipType">Internship type *</Label>
-                                <select
-                                    id="form-internshipType"
-                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    value={form.internshipTypeId ?? ""}
-                                    onChange={(e) => updateFormField("internshipTypeId", e.target.value ? Number(e.target.value) : "")
+                                <Label>Internship type *</Label>
+                                <Select
+                                    value = {String(form.internshipTypeId || "")}
+                                    onValueChange={(value) => 
+                                        updateFormField("internshipTypeId", Number(value))
                                     }
                                 >
-                                    <option value="">Select internship type
-                                    </option>
-                                    {internshipTypes.map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.fullName ?? t.internshipCode ?? `Type #${t.id}`}
-                                        </option>
-                                    ))
-                                    }
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder = "Select internship type" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+
+                                        {internshipTypes.map((t) => (
+                                            <SelectItem key={t.id} value={String(t.id)}>
+
+                                                {t.fullName ?? t.internshipCode ?? `Type #${t.id}`}
+
+                                            </SelectItem>
+                                        )
+                                        )}
+
+                                    </SelectContent>
+
+                                </Select>
 
                                 {formErrors.internshipTypeId && (
                                     <p className="text-xs text-destructive">
@@ -718,21 +731,24 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <Label htmlFor="form-schoolType">School type *</Label>
-                                <select
-                                    id="form-schoolType"
-                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    value={form.schoolType}
-                                    onChange={(e) => updateFormField("schoolType", e.target.value)}
+                                <Label>School type *</Label>
+                                <Select
+                                    value={form.schoolType || ""}
+                                    onValueChange={(value) => updateFormField("schoolType", value)}
                                 >
-                                    <option value="">Select school type</option>
-                                    {schoolTypes.map((st) => (
-                                        <option key={st.value} value={st.value}>
-                                            {st.label}
-                                        </option>
-                                    ))}
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select school type"/>
+                                    </SelectTrigger>
 
-                                </select>
+                                    <SelectContent>
+                                        {schoolTypes.map((st) => (
+                                            <SelectItem key={st.value} value={st.value}>
+                                                {st.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                
+                                </Select>
 
                                 {formErrors.schoolType && (
                                     <p className="text-xs text-destructive">
@@ -742,25 +758,27 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <Label htmlFor="form-subject">Subject *</Label>
-                                <select
-                                    id="form-subject"
-                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    value={(form as any).subjectId ?? ""}
-                                    onChange={(e) =>
-                                        updateFormField(
-                                            "subjectId" as any,
-                                            e.target.value ? Number(e.target.value) : ""
-                                        )
+                                <Label>Subject *</Label>
+
+                                <Select
+                                    value={form.subjectId ? String(form.subjectId) : ""}
+                                    onValueChange={(value) => 
+                                        updateFormField("subjectId", Number(value))
                                     }
                                 >
-                                    <option value="">Select subject</option>
-                                    {subjects.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.subjectTitle}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select subject"/>
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {subjects.map((s) => (
+                                            <SelectItem key={s.id} value={String(s.id)}>
+                                                {s.subjectTitle}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                
+                                </Select>
 
                                 {formErrors.subjectId && (
                                     <p className="text-xs text-destructive">{formErrors.subjectId}</p>
