@@ -12,8 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 //Card - box, CardHeader, CardTitle, CardContent - parts of that box
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-// text/number field 
-import { Input } from "@/components/ui/input";
+
 // Label - text label for inputs 
 import { Label } from "@/components/ui/label";
 //Chechbox input 
@@ -72,7 +71,8 @@ import {
 
 import type {
     // what one row looks like 
-    InternshipDemandDto as InternshipDemand,
+    InternshipDemandDto,
+    InternshipDemand,
     // what the filter look like 
     DemandFilter,
     // what the form values look like 
@@ -80,13 +80,26 @@ import type {
     CreateInternshipDemandRequest,
 } from "@/features/internship-demand/types";
 
-import { fetchAcademicYears, type AcademicYear } from "@/features/academic-years/api";
-import { fetchSubjects, type Subject } from "@/features/subjects/api";
-import { fetchInternshipTypes, type InternshipType } from "@/features/internship-types/api";
+import { fetchAcademicYears } from "@/features/academic-years/api";
+import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
+
+import { fetchSubjects } from "@/features/subjects/api";
+import type { Subject } from "@/features/subjects/types/subject.types";
+
+import { fetchInternshipTypes } from "@/features/internship-types/api";
+import type { InternshipType } from "@/features/internship-types/types/internshipType.types";
+
+
+
 import { fetchSchoolTypes } from "@/features/meta/api";
 
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+
+import { InternshipDemandFilters } from "@/features/internship-demand/components/InternshipDemandFilters";
+import { Input } from "@/components/ui/input";
+import type { SchoolType } from "@/features/schools/types/school.types";
+import { mapInternshipDemandDto, mapInternshipDemandList } from "@/features/internship-demand/mappers/internshipDemand.mapper";
 
 // TODO, wire with real auth system. now it is like evryone is admin
 const useIsAdmin = () => true;
@@ -113,7 +126,6 @@ const InternshipDemandPerYearPage: React.FC = () => {
         {
             academicYearId: "",
             internshipTypeId: "",
-            schoolType: "",
             subjectId: "",
             onlyForecasted: false,
         });
@@ -155,9 +167,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
         return data.map((row) => ({
             ...row,
             subject: subjectById.get(row.subjectId) ?? "",
-            }));
-        }, [data, subjectById]);
-    
+        }));
+    }, [data, subjectById]);
+
 
     const internshipTypeById = useMemo(() => {
         const map = new Map<number, string>();
@@ -240,7 +252,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             console.log("internship demands response", list);
 
             //update data with new list 
-            setData(Array.isArray(list) ? list : []);
+            setData(mapInternshipDemandList(Array.isArray(list) ? list : []));
 
         } catch (e: any) {
             //if somethng goes wrongs set an error message 
@@ -408,7 +420,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             academicYearId: (row as any).academicYearId,
             subjectId: (row as any).subjectId,
             internshipTypeId: (row as any).internshipTypeId,
-            schoolType: row.schoolType,
+            schoolType: row.schoolType ,
             requiredTeachers: row.requiredTeachers,
             studentCount: row.studentCount,
             isForecasted: (row as any).isForecasted,
@@ -487,7 +499,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             academicYearId: Number(form.academicYearId),
             subjectId: Number(form.subjectId),
             internshipTypeId: Number(form.internshipTypeId),
-            schoolType: form.schoolType,
+            schoolType: form.schoolType as SchoolType,
             requiredTeachers: Number(form.requiredTeachers),
             studentCount: Number(form.studentCount),
             isForecasted: Boolean(form.isForecasted),
@@ -554,76 +566,25 @@ const InternshipDemandPerYearPage: React.FC = () => {
                 <CardHeader>
                     <CardTitle className="text-base">Filters</CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-5">
-                    <div className="space-y-1">
-                        <Label htmlFor="filter-year">Year *</Label>
-                        <Input
-                            id="filter-year"
-                            type="number"
-                            value={filters.academicYearId ?? ""}
-                            onChange={(e) =>
-                                setFilters((f) => ({
-                                    ...f,
-                                    academicYearId: e.target.value ? Number(e.target.value) : "",
-                                }))
-                            }
-                            min={2000}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="filter-internshipType">Internship type</Label>
-                        <Input
-                            id="filter-internshipType"
-                            value={filters.internshipTypeId || ""}
-                            onChange={(e) =>
-                                setFilters((f) => ({
-                                    ...f, 
-                                    internshipTypeId: e.target.value ? Number(e.target.value) : "", 
-                                }))
-                            }
-                            
-                            placeholder="All"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="filter-schoolType">School type</Label>
-                        <Input
-                            id="filter-schoolType"
-                            value={filters.schoolType || ""}
-                            onChange={(e) =>
-                                setFilters((f) => ({ ...f, schoolType: e.target.value }))
-                            }
-                            placeholder="All"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="filter-subject">Subject</Label>
-                        <Input
-                            value={filters.subjectId ?? ""}
-                            onChange={(e) =>
-                                setFilters((f) => ({
-                                    ...f,
-                                    subjectId: e.target.value ? Number(e.target.value) : "",
-                                }))
-                            }
-                            placeholder="All"
-                        />
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <Checkbox
-                            id="filter-onlyForecasted"
-                            checked={filters.onlyForecasted}
-                            onCheckedChange={(checked) =>
-                                setFilters((f) => ({
-                                    ...f,
-                                    onlyForecasted: Boolean(checked),
-                                }))
-                            }
-                        />
-                        <Label htmlFor="filter-onlyForecasted" className="text-xs">
-                            Show only forecasted
-                        </Label>
-                    </div>
+                <CardContent>
+                    <InternshipDemandFilters
+                        filters={filters}
+                        onChange={setFilters}
+                        academicYears={academicYears}
+                        internshipTypes={internshipTypes}
+                        subjects={subjects}
+                        disabled={loading}
+                        onReset={() =>
+                            setFilters((f) => ({
+                                ...f,
+                                internshipTypeId: "",
+                                subjectId: "",
+                                schoolType: undefined,
+                                onlyForecasted: false,
+                                // keep academicYearId so loadData still works
+                            }))
+                        }
+                    />
                 </CardContent>
             </Card>
 
@@ -667,7 +628,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
                                 <Label>Academic year *</Label>
                                 <Select
-                                    value = {String(form.academicYearId || "")}
+                                    value={String(form.academicYearId || "")}
                                     onValueChange={(value) =>
                                         updateFormField(
                                             "academicYearId",
@@ -683,7 +644,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                                         {academicYears.map((y) => (
                                             <SelectItem key={y.id} value={String(y.id)}>
                                                 {y.yearName}
-                                            </SelectItem>                                            
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -699,13 +660,13 @@ const InternshipDemandPerYearPage: React.FC = () => {
                             <div className="space-y-1">
                                 <Label>Internship type *</Label>
                                 <Select
-                                    value = {String(form.internshipTypeId || "")}
-                                    onValueChange={(value) => 
+                                    value={String(form.internshipTypeId || "")}
+                                    onValueChange={(value) =>
                                         updateFormField("internshipTypeId", Number(value))
                                     }
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder = "Select internship type" />
+                                        <SelectValue placeholder="Select internship type" />
                                     </SelectTrigger>
 
                                     <SelectContent>
@@ -737,7 +698,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                                     onValueChange={(value) => updateFormField("schoolType", value)}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select school type"/>
+                                        <SelectValue placeholder="Select school type" />
                                     </SelectTrigger>
 
                                     <SelectContent>
@@ -747,7 +708,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
-                                
+
                                 </Select>
 
                                 {formErrors.schoolType && (
@@ -762,12 +723,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
                                 <Select
                                     value={form.subjectId ? String(form.subjectId) : ""}
-                                    onValueChange={(value) => 
+                                    onValueChange={(value) =>
                                         updateFormField("subjectId", Number(value))
                                     }
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select subject"/>
+                                        <SelectValue placeholder="Select subject" />
                                     </SelectTrigger>
 
                                     <SelectContent>
@@ -777,7 +738,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
-                                
+
                                 </Select>
 
                                 {formErrors.subjectId && (

@@ -1,4 +1,6 @@
-// What backend returns for a row (DTO)
+import type { SchoolType } from "@/features/schools/types/school.types";
+
+// Backend 
 export interface InternshipDemandDto {
     id: number;
     academicYearId: number;
@@ -11,12 +13,26 @@ export interface InternshipDemandDto {
     updatedAt: string;
 }
 
+// Frontend 
+
+export interface InternshipDemand {
+    id: number;
+    academicYearId: number;
+    subjectId: number;
+    internshipTypeId: number;
+    schoolType: SchoolType;
+    requiredTeachers: number;
+    studentCount: number;
+    isForecasted: boolean;
+    updatedAt: string;
+}
+
 // What we send to backend
 export type CreateInternshipDemandRequest = {
     academicYearId: number;
     internshipTypeId: number;
     subjectId: number;
-    schoolType: string;
+    schoolType: SchoolType;
     requiredTeachers: number;
     studentCount: number;
     isForecasted: boolean;
@@ -28,7 +44,7 @@ export interface DemandFormState {
     academicYearId: number | "";
     internshipTypeId: number | "";
     subjectId: number | ""; 
-    schoolType: string;
+    schoolType: SchoolType | "";
     requiredTeachers: number | "";
     studentCount: number | "";
     isForecasted: boolean;
@@ -39,7 +55,7 @@ export interface DemandFormState {
 export interface DemandFilter {
     academicYearId: number | "";
     internshipTypeId?: number | "";
-    schoolType?: string;
+    schoolType?: SchoolType;
     subjectId?: number | "";
     onlyForecasted?: boolean;
 }

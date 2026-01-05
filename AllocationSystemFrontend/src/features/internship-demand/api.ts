@@ -7,6 +7,8 @@ import type {
     CreateInternshipDemandRequest,
 } from "./types.ts";
 
+import { mapInternshipDemandList } from "./mappers/internshipDemand.mapper.ts";
+
 //Base path for the backend endpoints 
 
 //const BASE_URL = INTERNSHIP_DEMAND_BASE_URL;
@@ -112,15 +114,31 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
 
     const json = await handleResponse(res);
 
-    //normalize to array 
-    if (Array.isArray(json)) return json; 
+    
+    let list: InternshipDemand[] = [];
 
-    if (json && Array.isArray((json as any).content)) return (json as any).content;
-    if (json && Array.isArray((json as any).items)) return (json as any).items;
-    if (json && Array.isArray((json as any).data)) return (json as any).data;
+    //already a list (array) - use directly 
+    if (Array.isArray(json)) {
+        list = json;
+    }
+    //does the response have a content property that is an array 
+    else if (json && Array.isArray((json as any).content)) {
+        list = (json as any).content;
+    }
+    //does the response have an item property that is an array 
+    else if (json && Array.isArray((json as any).items)) {
+        list = (json as any).items;
+    }
+    //does the response have data property that is an array 
+    else if (json && Array.isArray((json as any).data)) {
+        list = (json as any).data;
+    }
+    else {
+        list = [];
+    }
 
-    //fallback 
-    return [];
+    //validate / convert schoolType here 
+    return mapInternshipDemandList(list);
 
 }
 
