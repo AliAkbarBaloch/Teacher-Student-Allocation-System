@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { INTERNSHIP_DEMAND_BASE_URL } from "@/config.ts";
+import { INTERNSHIP_DEMAND_LIST_URL } from "@/config.ts";
+import {INTERNSHIP_DEMAND_CRUD_URL } from "@/config.ts";
 import type {
     InternshipDemandDto,
     InternshipDemand,
@@ -100,7 +101,7 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     // Together → /api/internship-demand?year=2025&subject=Math.
 
 
-    const url = `${INTERNSHIP_DEMAND_BASE_URL}${buildQuery(filter)}`;
+    const url = `${INTERNSHIP_DEMAND_LIST_URL}${buildQuery(filter)}`;
 
     console.log("Fetch internship demand ", url);
 
@@ -115,30 +116,17 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     const json = await handleResponse(res);
 
 
-    let list: InternshipDemandDto[] = [];
+    // IMPORTANT: list-filter returns ResponseHandler.success + Page
+    const list =
+    Array.isArray(json) ? json :
+    Array.isArray((json as any)?.content) ? (json as any).content :
+    Array.isArray((json as any)?.data?.content) ? (json as any).data.content :
+    Array.isArray((json as any)?.data?.items) ? (json as any).data.items :
+    [];
 
-    //already a list (array) - use directly 
-    if (Array.isArray(json)) {
-        list = json;
-    }
-    //does the response have a content property that is an array 
-    else if (json && Array.isArray((json as any).content)) {
-        list = (json as any).content;
-    }
-    //does the response have an item property that is an array 
-    else if (json && Array.isArray((json as any).items)) {
-        list = (json as any).items;
-    }
-    //does the response have data property that is an array 
-    else if (json && Array.isArray((json as any).data)) {
-        list = (json as any).data;
-    }
-    else if (json && (json as any).data && Array.isArray((json as any).data.content)) {
-        list = (json as any).data.content;
-    }
-    else {
-        list = [];
-    }
+
+    console.log("FETCH URL", url);
+    console.log("EXTRACTED rows", list.length);
 
     //validate / convert schoolType here 
     return mapInternshipDemandList(list);
@@ -158,7 +146,7 @@ export async function createInternshipDemand(payload: CreateInternshipDemandRequ
     // headers: tells backend we are sending JSON 
     // credentials - send cookies 
     // body - convert the payload object into JSON string 
-    const res = await fetch(INTERNSHIP_DEMAND_BASE_URL,
+    const res = await fetch(INTERNSHIP_DEMAND_CRUD_URL,
         {
             method: "POST",
             headers: {
@@ -183,7 +171,7 @@ export async function updateInternshipDemand(
 ): Promise<InternshipDemand> {
     // calls eg /internship-demand/123 
     // PUT - HTTP verb for "update/replace"
-    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`,
+    const res = await fetch(`${INTERNSHIP_DEMAND_CRUD_URL}/${id}`,
         {
             method: "PUT",
             headers: {
@@ -203,7 +191,7 @@ export async function updateInternshipDemand(
 export async function deleteInternshipDemand(id: string): Promise<void> {
 
     // no body, just the method and cookies 
-    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`,
+    const res = await fetch(`${INTERNSHIP_DEMAND_CRUD_URL}/${id}`,
         {
             method: "DELETE",
             headers: {

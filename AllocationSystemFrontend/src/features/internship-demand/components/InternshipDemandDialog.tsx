@@ -198,7 +198,7 @@ export function InternshipDemandDialog({
                                     id="form-requiredTeachers"
                                     type="number"
                                     min={0}
-                                    value={form.requiredTeachers}
+                                    value={form.requiredTeachers === "" ? "" : String(form.requiredTeachers)}
                                     onChange={(e) =>
                                         onChangeField(
                                             "requiredTeachers",

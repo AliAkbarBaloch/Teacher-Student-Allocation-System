@@ -8,3 +8,7 @@ if(!API_BASE_URL) {
 
 export const INTERNSHIP_DEMAND_BASE_URL = `${API_BASE_URL}/internship-demands/list-filter`;
 
+export const INTERNSHIP_DEMAND_CRUD_URL = `${API_BASE_URL}/internship-demands`;
+
+export const INTERNSHIP_DEMAND_LIST_URL = `${API_BASE_URL}/internship-demands/list-filter`;
+

@@ -528,6 +528,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
             }
 
             setDialogOpen(false);
+
+            console.log("Reloading after save with filters:", filters);
             await loadData();
         } catch (err: any) {
             setBackendError(err?.message || "Failed to save internship demand");
