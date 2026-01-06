@@ -103,6 +103,9 @@ import { Input } from "@/components/ui/input";
 import type { SchoolType } from "@/features/schools/types/school.types";
 import { mapInternshipDemandDto, mapInternshipDemandList } from "@/features/internship-demand/mappers/internshipDemand.mapper";
 
+import { SCHOOL_TYPE_VALUES } from "@/features/schools/types/school.types";
+
+
 // TODO, wire with real auth system. now it is like evryone is admin
 const useIsAdmin = () => true;
 
@@ -326,11 +329,16 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
     //School types 
 
+
     useEffect(() => {
-        fetchSchoolTypes()
-            .then((res) => { console.log("schoolTypes:", res); setSchoolTypes(res); })
-            .catch((e) => console.error("fetchSchoolTypes failed", e));
+        setSchoolTypes(
+            SCHOOL_TYPE_VALUES.map((t) => ({
+                value: t,
+                label: t === "PRIMARY" ? "Primary school" : "Middle school",
+            }))
+        );
     }, []);
+
 
 
     //Dialog state - Create/Edit popup

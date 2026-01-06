@@ -12,12 +12,9 @@ export function isSchoolType(value: string): value is SchoolType {
 }
 
 //mapper : DTO => safe frontend object 
-export function mapInternshipDemandDto(dto: InternshipDemandDto) : InternshipDemand {
+export function mapInternshipDemandDto(dto: InternshipDemandDto) : InternshipDemand | null {
     if (!isSchoolType(dto.schoolType)) {
-        throw new Error(
-            `Invalid schoolType recieved from backend: ${dto.schoolType}`
-
-        );
+        return null;
     }
 
     return {
@@ -28,5 +25,7 @@ export function mapInternshipDemandDto(dto: InternshipDemandDto) : InternshipDem
 }
 //mapper for lists 
 export function mapInternshipDemandList(dtos: InternshipDemandDto[]) : InternshipDemand[] {
-    return dtos.map(mapInternshipDemandDto);
+    return dtos
+        .map(mapInternshipDemandDto)
+        .filter((x): x is InternshipDemand => x !== null);
 }
