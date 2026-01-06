@@ -53,9 +53,9 @@ export interface DemandFormState {
 // Filters can stay how you want; but if backend filters by year,
 // you may want academicYearId instead of year later.
 export interface DemandFilter {
-    academicYearId: number | "";
-    internshipTypeId?: number | "";
+    academicYearId?: number;
+    internshipTypeId?: number;
     schoolType?: SchoolType;
-    subjectId?: number | "";
+    subjectId?: number;
     onlyForecasted?: boolean;
 }

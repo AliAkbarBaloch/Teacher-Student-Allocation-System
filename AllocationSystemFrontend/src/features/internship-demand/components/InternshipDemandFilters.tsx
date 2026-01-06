@@ -63,8 +63,8 @@ export function InternshipDemandFilters({
 
     //  use "all" sentinel
     const yearSelectValue = filters.academicYearId ? String(filters.academicYearId) : "";
-    const internshipTypeSelectValue = filters.internshipTypeId ? String(filters.internshipTypeId) : "all";
-    const subjectSelectValue = filters.subjectId ? String(filters.subjectId) : "all";
+    const internshipTypeSelectValue = filters.internshipTypeId !== null ? String(filters.internshipTypeId) : "all";
+    const subjectSelectValue = filters.subjectId !== null ? String(filters.subjectId) : "all";
     const schoolTypeSelectValue = filters.schoolType ?? "all";
 
     //  show Reset only when something besides year is active
@@ -137,7 +137,7 @@ export function InternshipDemandFilters({
                         value={internshipTypeSelectValue}
                         onValueChange={(value) => {
                             if (value === "all") {
-                                onChange({ ...filters, internshipTypeId: "" });
+                                onChange({ ...filters, internshipTypeId: undefined });
                                 return;
                             }
                             onChange({ ...filters, internshipTypeId: Number(value) });
@@ -197,7 +197,7 @@ export function InternshipDemandFilters({
                         value={subjectSelectValue}
                         onValueChange={(value) => {
                             if (value === "all") {
-                                onChange({ ...filters, subjectId: "" });
+                                onChange({ ...filters, subjectId: undefined });
                                 return;
                             }
                             onChange({ ...filters, subjectId: Number(value) });

@@ -6,5 +6,5 @@ if(!API_BASE_URL) {
     console.warn("VITE_API_BASE_URL is not set");
 }
 
-export const INTERNSHIP_DEMAND_BASE_URL = `${API_BASE_URL}/internship-demands`;
+export const INTERNSHIP_DEMAND_BASE_URL = `${API_BASE_URL}/internship-demands/list-filter`;
 

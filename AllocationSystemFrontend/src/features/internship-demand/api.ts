@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { INTERNSHIP_DEMAND_BASE_URL} from "@/config.ts";
+import { INTERNSHIP_DEMAND_BASE_URL } from "@/config.ts";
 import type {
-    InternshipDemandDto as InternshipDemand, 
-    DemandFilter, 
+    InternshipDemandDto,
+    InternshipDemand,
+    DemandFilter,
     CreateInternshipDemandRequest,
 } from "./types.ts";
 
@@ -15,50 +16,47 @@ import { mapInternshipDemandList } from "./mappers/internshipDemand.mapper.ts";
 
 function getAuthHeader(): HeadersInit {
     const token = localStorage.getItem("auth_token");
-    return token ? {Authorization: `Bearer ${token}` } : {};
+    return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 //turn filter object into a query string like 
 //?year=2025&subject=Math 
-function buildQuery(filter: DemandFilter)
-{
-    // URLSearchParams build-in browser helper to build query strings 
+
+function buildQuery(filter: DemandFilter) {
+
     const params = new URLSearchParams();
 
-    // year is not an empty string and year is not null or undefined 
-    if (filter.academicYearId !== "" && filter.academicYearId != null )
-    {
-        // add a parameter year with the value converted to string 
-        params.set("academicYearId", String(filter.academicYearId));
+    // academic year is REQUIRED for this endpoint
+    if (filter.academicYearId == null) {
+        return "";
+    }
+    params.set("academic_year_id", String(filter.academicYearId));
+
+    if (filter.subjectId != null) {
+        params.set("subject_id", String(filter.subjectId));
+    }
+    if (filter.internshipTypeId != null) {
+        params.set("internship_type_id", String(filter.internshipTypeId));
+    }
+    if (filter.schoolType != null) {
+        params.set("school_type", filter.schoolType);
+    }
+    if (filter.onlyForecasted) {
+        params.set("is_forecasted", "true");
     }
 
-    if (filter.subjectId !== "" && filter.subjectId != null )
-    {
-        params.set("subjectId", String(filter.subjectId));
-    }
-        
-    if (filter.internshipTypeId) params.set("internshipTypeId", String(filter.internshipTypeId));
-    
-    if (filter.schoolType) params.set("schoolType", filter.schoolType);
-
-    if(filter.onlyForecasted) params.set("onlyForecasted", "true");
-
-    //turns all parameters in one string 
     const qs = params.toString();
-
-    // if qs is not empty - the string "?year2025&subject=Math" or empty string 
     return qs ? `?${qs}` : "";
 
 }
 
+
 // Helper function to handle backend responses and throw errors 
 // async - this function uses await and returns a Promise 
 // res : Response - parameter res in an HTTP Response object (from fetch)
-async function handleResponse(res: Response)
-{
+async function handleResponse(res: Response) {
     // 200-299 - success 
-    if (res.ok) 
-    {
+    if (res.ok) {
         if (res.status === 204) return null; // No content 
         return res.json(); // json parses the response body as JSON and returns the data 
     }
@@ -68,8 +66,7 @@ async function handleResponse(res: Response)
     // error message 
     let msg = "Result failed";
 
-    try 
-    {
+    try {
         //try to read the error body as JSON 
         const body = await res.json();
         //if body has message field, use this field as error text 
@@ -77,8 +74,7 @@ async function handleResponse(res: Response)
         msg = (body as any).message || JSON.stringify(body);
 
     }
-    catch 
-    {
+    catch {
         //try to read body as raw text instead 
         msg = await res.text();
 
@@ -94,8 +90,7 @@ async function handleResponse(res: Response)
 // async function fetchInternshipDemand - defines an asynchronous function 
 // input - filter : DemandFilter - an object describing filter options 
 // output - eventually gives you a list (array) of InternshipDemand objects.
-export async function fetchInternshipDemand(filter: DemandFilter): Promise<InternshipDemand[]>
-{
+export async function fetchInternshipDemand(filter: DemandFilter): Promise<InternshipDemand[]> {
 
     // fetch - is a build in browser function to make HTTP requests 
     // URL being called: 
@@ -104,18 +99,23 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     // ${buildQuery(filter)} → something like "?year=2025&subject=Math" or ""
     // Together → /api/internship-demand?year=2025&subject=Math.
 
+
+    const url = `${INTERNSHIP_DEMAND_BASE_URL}${buildQuery(filter)}`;
+
+    console.log("Fetch internship demand ", url);
+
     // call the backend URL with the selected filters, and include cookies 
     // await means wait until the response comes back and store it in res 
-    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}${buildQuery(filter)}`, {
-        headers:{
-        ...getAuthHeader(), 
+    const res = await fetch(url, {
+        headers: {
+            ...getAuthHeader(),
         },
-        });
+    });
 
     const json = await handleResponse(res);
 
-    
-    let list: InternshipDemand[] = [];
+
+    let list: InternshipDemandDto[] = [];
 
     //already a list (array) - use directly 
     if (Array.isArray(json)) {
@@ -133,6 +133,9 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
     else if (json && Array.isArray((json as any).data)) {
         list = (json as any).data;
     }
+    else if (json && (json as any).data && Array.isArray((json as any).data.content)) {
+        list = (json as any).data.content;
+    }
     else {
         list = [];
     }
@@ -147,8 +150,7 @@ export async function fetchInternshipDemand(filter: DemandFilter): Promise<Inter
 // Create a new internship demand entry 
 // input payload : CreateDemandPayload 
 // return - one intershipDemand object (the created row as the backend sends it back)
-export async function createInternshipDemand(payload: CreateInternshipDemandRequest): Promise <InternshipDemand>
-{
+export async function createInternshipDemand(payload: CreateInternshipDemandRequest): Promise<InternshipDemand> {
 
     //call fetch with 
     // URL = BASE_URL = /internship-demand 
@@ -156,11 +158,11 @@ export async function createInternshipDemand(payload: CreateInternshipDemandRequ
     // headers: tells backend we are sending JSON 
     // credentials - send cookies 
     // body - convert the payload object into JSON string 
-    const res = await fetch(INTERNSHIP_DEMAND_BASE_URL, 
+    const res = await fetch(INTERNSHIP_DEMAND_BASE_URL,
         {
             method: "POST",
             headers: {
-                "Content-Type" : "application/json",
+                "Content-Type": "application/json",
                 ...getAuthHeader(),
             },
             body: JSON.stringify(payload),
@@ -177,20 +179,19 @@ export async function createInternshipDemand(payload: CreateInternshipDemandRequ
 // return - updated Intershipdemand from backend 
 export async function updateInternshipDemand(
     id: string,
-    payload: Partial <CreateInternshipDemandRequest>
-): Promise<InternshipDemand>
-{
+    payload: Partial<CreateInternshipDemandRequest>
+): Promise<InternshipDemand> {
     // calls eg /internship-demand/123 
     // PUT - HTTP verb for "update/replace"
-    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`, 
+    const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`,
         {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            ...getAuthHeader(),
-        },
-        body: JSON.stringify(payload),
-    }
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeader(),
+            },
+            body: JSON.stringify(payload),
+        }
     );
     return handleResponse(res);
 
@@ -199,7 +200,7 @@ export async function updateInternshipDemand(
 // delete an internship demand entry 
 // id - record id 
 // no data retutned - just success or error 
-export async function deleteInternshipDemand(id: string) : Promise<void> {
+export async function deleteInternshipDemand(id: string): Promise<void> {
 
     // no body, just the method and cookies 
     const res = await fetch(`${INTERNSHIP_DEMAND_BASE_URL}/${id}`,

@@ -127,13 +127,15 @@ const InternshipDemandPerYearPage: React.FC = () => {
     // filters - current filters,
     //  setFilters - function to change them. 
     // Initial filter values year, other fileds are empty, onlyForecasted = false  
-    const [filters, setFilters] = useState<DemandFilter>(
-        {
-            academicYearId: "",
-            internshipTypeId: "",
-            subjectId: "",
-            onlyForecasted: false,
-        });
+
+    const [filters, setFilters] = useState<DemandFilter>({
+        academicYearId: undefined,
+        internshipTypeId: undefined,
+        subjectId: undefined,
+        schoolType: undefined,
+        onlyForecasted: false,
+    });
+
 
     const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
 
@@ -257,7 +259,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             console.log("internship demands response", list);
 
             //update data with new list 
-            setData(mapInternshipDemandList(Array.isArray(list) ? list : []));
+            setData(Array.isArray(list) ? list : []);
 
         } catch (e: any) {
             //if somethng goes wrongs set an error message 
@@ -400,7 +402,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         // year = filtered year if set, or current year.
 
         setForm({
-            academicYearId: "",
+            academicYearId: filters.academicYearId || "",
             subjectId: "",
             internshipTypeId: "",
             schoolType: "",
@@ -584,8 +586,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
                     onReset={() =>
                         setFilters((f) => ({
                             ...f,
-                            internshipTypeId: "",
-                            subjectId: "",
+                            internshipTypeId: undefined,
+                            subjectId: undefined,
                             schoolType: undefined,
                             onlyForecasted: false,
                             // keep academicYearId so loadData still works
