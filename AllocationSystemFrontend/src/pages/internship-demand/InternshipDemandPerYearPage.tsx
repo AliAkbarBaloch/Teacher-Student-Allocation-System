@@ -20,17 +20,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 //small pill label for status 
 import { Badge } from "@/components/ui/badge";
 
-//components for a popup window 
+//
+
 import {
-    // Wrapper for the model 
     Dialog,
-    // Main box inside the modal 
+    DialogBody,
     DialogContent,
-    // sections of the modal 
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+
+import { InternshipDemandDialog } from "@/features/internship-demand/components/InternshipDemandDialog";
 
 //components for a confirmation popup 
 import {
@@ -420,7 +422,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
             academicYearId: (row as any).academicYearId,
             subjectId: (row as any).subjectId,
             internshipTypeId: (row as any).internshipTypeId,
-            schoolType: row.schoolType ,
+            schoolType: row.schoolType,
             requiredTeachers: row.requiredTeachers,
             studentCount: row.studentCount,
             isForecasted: (row as any).isForecasted,
@@ -563,29 +565,26 @@ const InternshipDemandPerYearPage: React.FC = () => {
             </div>
             {/* Filters */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">Filters</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <InternshipDemandFilters
-                        filters={filters}
-                        onChange={setFilters}
-                        academicYears={academicYears}
-                        internshipTypes={internshipTypes}
-                        subjects={subjects}
-                        disabled={loading}
-                        onReset={() =>
-                            setFilters((f) => ({
-                                ...f,
-                                internshipTypeId: "",
-                                subjectId: "",
-                                schoolType: undefined,
-                                onlyForecasted: false,
-                                // keep academicYearId so loadData still works
-                            }))
-                        }
-                    />
-                </CardContent>
+
+                <InternshipDemandFilters
+                    filters={filters}
+                    onChange={setFilters}
+                    academicYears={academicYears}
+                    internshipTypes={internshipTypes}
+                    subjects={subjects}
+                    disabled={loading}
+                    onReset={() =>
+                        setFilters((f) => ({
+                            ...f,
+                            internshipTypeId: "",
+                            subjectId: "",
+                            schoolType: undefined,
+                            onlyForecasted: false,
+                            // keep academicYearId so loadData still works
+                        }))
+                    }
+                />
+
             </Card>
 
             {/* DataTable */}
@@ -614,228 +613,24 @@ const InternshipDemandPerYearPage: React.FC = () => {
             </Card>
 
             {/* Create/Edit Dialog */}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>
-                            {editing ? "Edit internship demand" : "Create internship demand"}
-                        </DialogTitle>
-                    </DialogHeader>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-1">
-
-                                <Label>Academic year *</Label>
-                                <Select
-                                    value={String(form.academicYearId || "")}
-                                    onValueChange={(value) =>
-                                        updateFormField(
-                                            "academicYearId",
-                                            Number(value)
-                                        )
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select academic year" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {academicYears.map((y) => (
-                                            <SelectItem key={y.id} value={String(y.id)}>
-                                                {y.yearName}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                {formErrors.academicYearId && (
-                                    <p className="text-xs text-destructive">
-                                        {formErrors.academicYearId}
-                                    </p>
-                                )}
-
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label>Internship type *</Label>
-                                <Select
-                                    value={String(form.internshipTypeId || "")}
-                                    onValueChange={(value) =>
-                                        updateFormField("internshipTypeId", Number(value))
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select internship type" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-
-                                        {internshipTypes.map((t) => (
-                                            <SelectItem key={t.id} value={String(t.id)}>
-
-                                                {t.fullName ?? t.internshipCode ?? `Type #${t.id}`}
-
-                                            </SelectItem>
-                                        )
-                                        )}
-
-                                    </SelectContent>
-
-                                </Select>
-
-                                {formErrors.internshipTypeId && (
-                                    <p className="text-xs text-destructive">
-                                        {formErrors.internshipTypeId}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label>School type *</Label>
-                                <Select
-                                    value={form.schoolType || ""}
-                                    onValueChange={(value) => updateFormField("schoolType", value)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select school type" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {schoolTypes.map((st) => (
-                                            <SelectItem key={st.value} value={st.value}>
-                                                {st.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-
-                                </Select>
-
-                                {formErrors.schoolType && (
-                                    <p className="text-xs text-destructive">
-                                        {formErrors.schoolType}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label>Subject *</Label>
-
-                                <Select
-                                    value={form.subjectId ? String(form.subjectId) : ""}
-                                    onValueChange={(value) =>
-                                        updateFormField("subjectId", Number(value))
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select subject" />
-                                    </SelectTrigger>
-
-                                    <SelectContent>
-                                        {subjects.map((s) => (
-                                            <SelectItem key={s.id} value={String(s.id)}>
-                                                {s.subjectTitle}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-
-                                </Select>
-
-                                {formErrors.subjectId && (
-                                    <p className="text-xs text-destructive">{formErrors.subjectId}</p>
-                                )}
-                            </div>
-
-                        </div>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="space-y-1">
-                                <Label htmlFor="form-requiredTeachers">
-                                    Required teachers *
-                                </Label>
-                                <Input
-                                    id="form-requiredTeachers"
-                                    type="number"
-                                    min={0}
-                                    value={form.requiredTeachers}
-                                    onChange={(e) =>
-                                        updateFormField(
-                                            "requiredTeachers",
-                                            e.target.value === "" ? "" : Number(e.target.value)
-                                        )
-                                    }
-                                />
-                                {formErrors.requiredTeachers && (
-                                    <p className="text-xs text-destructive">
-                                        {formErrors.requiredTeachers}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label htmlFor="form-studentCount">Student count *</Label>
-                                <Input
-                                    id="form-studentCount"
-                                    type="number"
-                                    min={0}
-                                    value={form.studentCount}
-                                    onChange={(e) =>
-                                        updateFormField(
-                                            "studentCount",
-                                            e.target.value === "" ? "" : Number(e.target.value)
-                                        )
-                                    }
-                                />
-                                {formErrors.studentCount && (
-                                    <p className="text-xs text-destructive">
-                                        {formErrors.studentCount}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Checkbox
-                                id="form-isForecasted"
-                                checked={form.isForecasted}
-                                onCheckedChange={(checked) =>
-                                    updateFormField("isForecasted", Boolean(checked))
-                                }
-                            />
-                            <Label htmlFor="form-forecasted" className="text-xs">
-                                Is forecasted
-                            </Label>
-                        </div>
-
-                        {duplicateExists && (
-                            <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                                An entry with the same year, internship type, school type and
-                                subject already exists. Saving may create a duplicate.
-                            </div>
-                        )}
-
-                        {backendError && (
-                            <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                                {backendError}
-                            </div>
-                        )}
-
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setDialogOpen(false)}
-                                disabled={submitting}
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={submitting}>
-                                {submitting ? "Saving…" : "Save"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <InternshipDemandDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                editing={!!editing}
+                form={form}
+                formErrors={formErrors}
+                submitting={submitting}
+                backendError={backendError}
+                duplicateExists={duplicateExists}
+                academicYears={academicYears}
+                internshipTypes={internshipTypes}
+                subjects={subjects}
+                schoolTypes={schoolTypes}
+                onChangeField={(field, value) => updateFormField(field as any, value)}
+                onSubmit={handleSubmit}
+                onCancel={() => setDialogOpen(false)}
+            />
 
             {/* Delete confirmation dialog */}
             <AlertDialog
