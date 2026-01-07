@@ -45,7 +45,7 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
 
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
-            "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
+                "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
         );
     }
 
@@ -56,7 +56,7 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     private Specification<InternshipDemand> buildSearchSpecification(String searchValue) {
         // Search across schoolType, internshipType.title, subject.subjectTitle
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"schoolType", "internshipType.title", "subject.subjectTitle"}, searchValue
+                new String[]{"schoolType", "internshipType.title", "subject.subjectTitle"}, searchValue
         );
     }
 
@@ -168,6 +168,12 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
             existing.setIsForecasted(update.getIsForecasted());
         }
         // Add other updatable fields here as needed
+        if (update.getRequiredTeachers() != null) {
+            existing.setRequiredTeachers(update.getRequiredTeachers());
+        }
+        if (update.getStudentCount() != null) {
+            existing.setStudentCount(update.getStudentCount());
+        }
 
         return repository.save(existing);
     }
