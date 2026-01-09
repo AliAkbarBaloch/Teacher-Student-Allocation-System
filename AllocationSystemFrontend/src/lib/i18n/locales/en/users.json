@@ -1,0 +1,33 @@
+{
+    "form": {
+        "fields": {
+            "fullName": "Full name",
+            "email": "Email",
+            "phoneNumber": "Phone number",
+            "role": "Role",
+            "enabled": "Enabled",
+            "password": "Password",
+            "confirmPassword": "Confirm password"
+        },
+        "placeholders": {
+            "fullName": "Enter full name",
+            "email": "Enter email address",
+            "phoneNumber": "Enter phone number",
+            "role": "Select a role",
+            "roleLoading": "Loading roles…",
+            "password": "Enter password",
+            "confirmPassword": "Re-enter password"
+        },
+        "errors": {
+            "fullNameRequired": "Full name is required",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Email format is invalid",
+            "roleRequired": "Role is required",
+            "roleInvalid": "Selected role is invalid",
+            "passwordRequired": "Password is required",
+            "passwordMinLength": "Password must be at least {{min}} characters",
+            "confirmPasswordRequired": "Please confirm the password",
+            "passwordsDoNotMatch": "Passwords do not match"
+        }
+    }
+}
