@@ -47,15 +47,28 @@ type FormErrors = Partial<Record<keyof FormData, string>>;
 
 //props. what the UserForm get from parent 
 
-interface UserFormProps {
-    user?: User | null; //If present -> edit mode, if null -> create mode 
-    roles: Role[]; //Role list for dropdown
-    onSubmit: (data: CreateUserRequest | UpdateUserRequest) => Promise<void>; //Function called when form is valid 
-    onCancel: () => void; //close dialog 
-    isLoading?: boolean; //Disable form when backend is busy 
-    error?: string | null; //Big API error
-    fieldErrors?: Partial<Record<keyof FormData, string>>; //API filed level errors 
-}
+type CreateUserFormProps = {
+    user: null;
+    roles: Role[];
+    onSubmit: (data: CreateUserRequest) => Promise<void>;
+    onCancel: () => void;
+    isLoading?: boolean;
+    error?: string | null;
+    fieldErrors?: Partial<Record<keyof FormData, string>>;
+};
+
+type EditUserFormProps = {
+    user: User;
+    roles: Role[];
+    onSubmit: (data: UpdateUserRequest) => Promise<void>;
+    onCancel: () => void;
+    isLoading?: boolean;
+    error?: string | null;
+    fieldErrors?: Partial<Record<keyof FormData, string>>;
+};
+
+export type UserFormProps = CreateUserFormProps | EditUserFormProps;
+
 
 //Constrains 
 
@@ -80,7 +93,9 @@ function toUserRoleEnum(roleTitle: string): UserRole | null {
 
 //the component 
 
-export function UserForm({
+export function UserForm(props: UserFormProps){
+    
+    const {
     user,
     roles,
     onSubmit,
@@ -88,7 +103,7 @@ export function UserForm({
     isLoading = false,
     error: externalError = null, // renames the prop error to externalError 
     fieldErrors,
-}: UserFormProps) {
+    } = props;  
 
     // translation hooks 
     //users.json 
@@ -97,7 +112,7 @@ export function UserForm({
     const { t: tCommon } = useTranslation("common");
 
     //if user exist - editing, overwise - creating 
-    const isEditMode = Boolean(user);
+    const isEditMode = user !== null; 
 
     //Form state. stores everything the user typed 
     const [formData, setFormData] = useState<FormData>({
@@ -113,7 +128,7 @@ export function UserForm({
     //default role logic. if roles exist, pick the firs one 
     //useMemo avoids recalculating unless role chnages 
     const firstRoleId = useMemo(() => {
-        return roles.length > 0 ? String(roles[0].id): "";
+        return roles.length > 0 ? String(roles[0].id) : "";
     }, [roles]);
 
     //stores validation errors.
@@ -139,7 +154,7 @@ export function UserForm({
                     confirmPassword: "",
                 }
             );
-        // creating a user - reset everything to blank  
+            // creating a user - reset everything to blank  
         } else {
             setFormData({
                 fullName: "",
@@ -166,9 +181,9 @@ export function UserForm({
     const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
 
         //copy previous state, replace only one property
-        setFormData((prev) => ({...prev, [key]: value}));
+        setFormData((prev) => ({ ...prev, [key]: value }));
         if (errors[key]) {
-            setErrors((prev) => ({ ...prev, [key]: undefined}));
+            setErrors((prev) => ({ ...prev, [key]: undefined }));
         }
     }
 
@@ -302,7 +317,7 @@ export function UserForm({
         externalError ||
         Object.values(errors).find((msg) => typeof msg === "string" && msg.length > 0) || null;
 
-    
+
     const disabled = isLoading || isSubmitting;
 
     //JSX 
