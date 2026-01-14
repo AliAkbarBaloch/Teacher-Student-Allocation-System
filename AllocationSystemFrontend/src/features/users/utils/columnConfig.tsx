@@ -17,11 +17,14 @@ export function useUsersColumnConfig(): ColumnConfig[] {
             field: "fullName",
             title: t("table.columns.fullName"),
             enableSorting: true,
-            
+
             format: (value: unknown, row?: unknown) => {
+
                 const user = row as User;
+
                 return (
                     <div className="min-w-0">
+                        //value = fullName 
                         <p className="font-medium truncate" title={String(value || "")}>
                             {String(value || "")}
                         </p>
@@ -39,6 +42,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
                 );
             },
         },
+        //column 2 - email 
         {
             field: "email",
             title: t("table.columns.email"),
@@ -58,6 +62,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
                 );
             },
         },
+        //column 3 - role 
         {
             field: "role",
             title: t("table.columns.role"),
@@ -70,6 +75,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
                 );
             },
         },
+        //column 4 - enabled 
         {
             field: "enabled",
             title: t("table.columns.enabled"),
@@ -83,11 +89,12 @@ export function useUsersColumnConfig(): ColumnConfig[] {
                 );
             },
         },
+        //column 5 - isActive 
         {
             field: "isActive",
             title: t("table.columns.isActive"),
             enableSorting: true,
-            format: (value: unknown, row?: unknown) => {
+            format: (_: unknown, row?: unknown) => {
                 // isActive is optional in your type, so be safe:
                 const user = row as User;
                 const active = typeof user.isActive === "boolean" ? user.isActive : true;
@@ -99,6 +106,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
                 );
             },
         },
+        //column accountStatus 
         {
             field: "accountStatus",
             title: t("table.columns.accountStatus"),

@@ -110,7 +110,6 @@ export function UserDialogs({
     roles,
     formLoading,
     statusTarget,
-    deleteTarget,
     resetTarget,
     onCreateSubmit,
     onUpdateSubmit,
