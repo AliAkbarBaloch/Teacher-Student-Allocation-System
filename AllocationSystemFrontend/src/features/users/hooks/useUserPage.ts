@@ -88,8 +88,7 @@ export function useUsersPage() {
     const [statusFilter, setStatusFilter] = useState<AccountStatus | undefined>(undefined);
     const [enabledFilter, setEnabledFilter] = useState<UsersFiltersState["enabled"]>("all");
 
-    // Build API params from UI filters
-    //
+    // Create one single filter object, but only rebuilds it when any dependency changes 
     const filters = useMemo<UsersFiltersState>(() => {
         return {
             search: debouncedSearch || undefined,
@@ -121,9 +120,7 @@ export function useUsersPage() {
         };
     }, [filters, pagination.page, pagination.pageSize]);
 
-    // -----------------------------
     // Load users
-    // -----------------------------
     const loadUsers = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -228,9 +225,8 @@ export function useUsersPage() {
         [t]
     );
 
-    // -----------------------------
     // Create user (optimistic)
-    // -----------------------------
+
     const handleCreateSubmit = useCallback(
         async (payload: CreateUserRequest) => {
             setIsSubmitting(true);
