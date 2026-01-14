@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -33,6 +32,7 @@ import type { Role } from "@/features/roles/types/role.types";
 import type { User, CreateUserRequest, UpdateUserRequest } from "../types/user.types";
 import { UserForm } from "./UserForm";
 import { Button } from "@/components/ui/button";
+import { filterFns } from "@tanstack/react-table";
 
 //props interface. what we get from UserPage. inputs 
 interface UserDialogsProps {
@@ -88,8 +88,9 @@ interface UserDialogsProps {
     // State
     isSubmitting: boolean;
 
-    // Translations
-    t: TFunction<"users">;
+    //form fileld errors (e.g., duplicate email)
+    fieldErrors?: Partial<Record<string, string>>;
+
 }
 
 //Component 
@@ -120,12 +121,14 @@ export function UserDialogs({
     onResetPassword,
     onResetTargetChange,
     isSubmitting,
-    t,
+    fieldErrors,
+
 }: UserDialogsProps) {
+
+    const { t } = useTranslation("users");
 
     const { t: tCommon } = useTranslation("common");
 
-    
     // Reset password local state
     
     const [newPassword, setNewPassword] = useState("");
@@ -188,6 +191,7 @@ export function UserDialogs({
                             onSubmit={onCreateSubmit}
                             onCancel={() => setIsCreateDialogOpen(false)}
                             isLoading={isSubmitting}
+                            fieldErrors={fieldErrors}
                         />
                     </DialogBody>
                 </DialogContent>
@@ -215,6 +219,7 @@ export function UserDialogs({
                                     onSubmit={onUpdateSubmit}
                                     onCancel={() => setIsEditDialogOpen(false)}
                                     isLoading={isSubmitting}
+                                    fieldErrors={fieldErrors}
                                 />
                             )
                         )}
@@ -300,7 +305,7 @@ export function UserDialogs({
 
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isSubmitting}>
-                            {t("actions.cancel")}
+                            {tCommon("actions.cancel")}
                         </AlertDialogCancel>
 
                         <AlertDialogAction
