@@ -187,7 +187,9 @@ export function UserDialogs({
                         <UserForm
                             user={null}
                             roles={roles}
-                            onSubmit={onCreateSubmit}
+                            onSubmit={async (payload) => {
+                                await onCreateSubmit(payload);
+                            }}
                             onCancel={() => setIsCreateDialogOpen(false)}
                             isLoading={isSubmitting}
                             fieldErrors={fieldErrors}
@@ -215,7 +217,11 @@ export function UserDialogs({
                                 <UserForm
                                     user={selectedUser}
                                     roles={roles}
-                                    onSubmit={onUpdateSubmit}
+                                    onSubmit={async (payload) => 
+                                        {
+                                            await onUpdateSubmit(payload);
+                                        }
+                                    }
                                     onCancel={() => setIsEditDialogOpen(false)}
                                     isLoading={isSubmitting}
                                     fieldErrors={fieldErrors}

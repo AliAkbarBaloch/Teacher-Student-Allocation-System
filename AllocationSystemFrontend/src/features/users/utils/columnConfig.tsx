@@ -24,7 +24,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
 
                 return (
                     <div className="min-w-0">
-                        //value = fullName 
+                        {/*value = fullName */}
                         <p className="font-medium truncate" title={String(value || "")}>
                             {String(value || "")}
                         </p>
@@ -97,7 +97,7 @@ export function useUsersColumnConfig(): ColumnConfig[] {
             format: (_: unknown, row?: unknown) => {
                 // isActive is optional in your type, so be safe:
                 const user = row as User;
-                const active = typeof user.isActive === "boolean" ? user.isActive : true;
+                const active = typeof user.isActive === "boolean" ? user.isActive : Boolean(user.enabled);
 
                 return (
                     <Badge variant={active ? "success" : "secondary"}>

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 
 type EnabledFilter = "all" | "true" | "false";
 
+//data + functions passed from parent 
 interface UsersFiltersProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -23,6 +24,7 @@ interface UsersFiltersProps {
   onReset: () => void;
 }
 
+//the component 
 export function UsersFilters({
   searchValue,
   onSearchChange,
@@ -33,10 +35,12 @@ export function UsersFilters({
   enabled,
   onEnabledChange,
   onReset,
+  //props 
 }: UsersFiltersProps) {
+  //translations  
   const { t } = useTranslation("users");
   const { t: tCommon } = useTranslation("common");
-
+  //UI
   return (
     <div className="rounded-lg border bg-background p-4">
       <div className="grid gap-4 md:grid-cols-4">

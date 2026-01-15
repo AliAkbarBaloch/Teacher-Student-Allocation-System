@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 
 import { useUsersPage } from "@/features/users/hooks/useUsersPage";
 import { UsersFilters } from "@/features/users/components/UsersFilters";
-import { UsersTable } from "@/features/users/components/UsersTable";
+import { DataTable } from "@/components/common/DataTable";
+import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
 import { UserDialogs } from "@/features/users/components/UserDialogs";
 import type { User } from "@/features/users/types/user.types";
+
 
 export default function UsersPage() {
     const {
@@ -83,7 +85,8 @@ export default function UsersPage() {
     };
 
     const openToggleActive = (user: User) => {
-        setStatusTarget({ user, nextState: !user.isActive });
+        const current = typeof user.isActive === "boolean" ? user.isActive : user.enabled;
+        setStatusTarget({ user, nextState: !current });
         setIsStatusOpen(true);
     };
 
@@ -103,6 +106,27 @@ export default function UsersPage() {
         await handleDelete(deleteTarget);
         setIsDeleteOpen(false);
     };
+
+    const columnConfig = useUsersColumnConfig();
+
+    const actions = {
+        onView: (row: User) => openView(row),
+        onEdit: (row: User) => openEdit(row),
+        onDelete: (row: User) => openDelete(row),
+
+        customActions: [
+            {
+                label: (u: User) => (u.isActive ? "Deactivate" : "Activate"),
+                onClick: (u: User) => openToggleActive(u),
+                separator: true,
+            },
+            {
+                label: "Reset password",
+                onClick: (u: User) => openResetPassword(u),
+            },
+        ],
+    };
+
 
     return (
         <div className="space-y-6 w-full min-w-0 max-w-full">
@@ -126,20 +150,27 @@ export default function UsersPage() {
                 onRoleChange={handleRoleFilterChange}
                 status={statusFilter}
                 onStatusChange={handleStatusFilterChange}
-                enabled={enabledFilter}
+                enabled={enabledFilter ?? "all"}
                 onEnabledChange={handleEnabledFilterChange}
                 onReset={handleResetFilters}
+
             />
 
             {/* Table */}
-            <UsersTable
-                users={users}
+
+            <DataTable<User>
+                data={users}
+                columnConfig={columnConfig}
                 loading={loading}
                 error={error}
-                onView={openView}
-                onEdit={openEdit}
-                onDelete={openDelete}
-                onToggleActive={openToggleActive}
+                searchKey="email"               // optional: toolbar search uses this field
+                searchPlaceholder="Search users..."
+                enableRowClick={true}
+                onRowClick={(row) => openView(row)}
+                enablePagination={false}    // because there is server pagination below
+                actions={actions}
+                actionsHeader="Actions"
+                disableInternalDialog={true} //the is custom UserDialog 
             />
 
             {/* Simple pagination (since no DataTable) */}
@@ -193,8 +224,8 @@ export default function UsersPage() {
                 setIsStatusDialogOpen={setIsStatusOpen}
                 isDeleteDialogOpen={isDeleteOpen}
                 setIsDeleteDialogOpen={setIsDeleteOpen}
-                isResetDialogOpen={isResetOpen}
-                setIsResetDialogOpen={setIsResetOpen}
+                isResetPasswordDialogOpen={isResetOpen}
+                setIsResetPasswordDialogOpen={setIsResetOpen}
                 selectedUser={selectedUser}
                 formLoading={formLoading}
                 statusTarget={statusTarget}
@@ -204,12 +235,11 @@ export default function UsersPage() {
                 onUpdateSubmit={handleUpdateSubmit}
                 onStatusChange={confirmStatusChange}
                 onDelete={confirmDelete}
-                onResetPassword={ (user, newPassword) => 
-                    handleResetPassword(user, {newPassword})
+                onResetPassword={(user, newPassword) =>
+                    handleResetPassword(user, { newPassword })
                 }
                 onOpenEdit={openEdit}
                 onStatusTargetChange={setStatusTarget}
-                onDeleteTargetChange={setDeleteTarget}
                 onResetTargetChange={setResetTarget}
                 isSubmitting={isSubmitting}
             />

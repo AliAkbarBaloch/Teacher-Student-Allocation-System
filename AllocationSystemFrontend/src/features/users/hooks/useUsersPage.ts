@@ -26,7 +26,7 @@ type UsersFiltersState = {
     search?: string;
     role?: UserRole;
     status?: AccountStatus;
-    enabled?: "all" | "true" | "false";
+    enabled: "all" | "true" | "false";
 };
 
 //user hook function 
