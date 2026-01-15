@@ -71,7 +71,8 @@
         "save": "Save",
         "saving": "Saving...",
         "close": "Close",
-        "confirm": "Confirm"
+        "confirm": "Confirm",
+        "reset": "Reset"
     },
     "dashboard": {
         "title": "Dashboard",

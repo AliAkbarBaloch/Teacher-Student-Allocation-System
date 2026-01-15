@@ -28,6 +28,14 @@
             "passwordMinLength": "Password must be at least {{min}} characters",
             "confirmPasswordRequired": "Please confirm the password",
             "passwordsDoNotMatch": "Passwords do not match"
+        },
+        "filters": {
+            "search": "Search",
+            "searchPlaceholder": "Search by name or email...",
+            "role": "Role",
+            "status": "Account status",
+            "enabled": "Enabled",
+            "all": "All"
         }
     }
 }

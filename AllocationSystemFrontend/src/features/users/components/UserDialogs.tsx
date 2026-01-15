@@ -32,7 +32,6 @@ import type { Role } from "@/features/roles/types/role.types";
 import type { User, CreateUserRequest, UpdateUserRequest } from "../types/user.types";
 import { UserForm } from "./UserForm";
 import { Button } from "@/components/ui/button";
-import { filterFns } from "@tanstack/react-table";
 
 //props interface. what we get from UserPage. inputs 
 interface UserDialogsProps {
