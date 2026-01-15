@@ -9,6 +9,7 @@ import { UserDialogs } from "@/features/users/components/UserDialogs";
 import type { User } from "@/features/users/types/user.types";
 
 
+
 export default function UsersPage() {
     const {
         users,
@@ -46,6 +47,7 @@ export default function UsersPage() {
         pagination,
         handlePageChange,
         handlePageSizeChange,
+        roles,
     } = useUsersPage();
 
     // dialog flags like Schools example
@@ -231,17 +233,24 @@ export default function UsersPage() {
                 statusTarget={statusTarget}
                 deleteTarget={deleteTarget}
                 resetTarget={resetTarget}
-                onCreateSubmit={handleCreateSubmit}
-                onUpdateSubmit={handleUpdateSubmit}
+                onCreateSubmit={async (payload) => {
+                    await handleCreateSubmit(payload);
+                }}
+                onUpdateSubmit={async (payload) => {
+                    await handleUpdateSubmit(payload);
+                }
+                }
                 onStatusChange={confirmStatusChange}
                 onDelete={confirmDelete}
-                onResetPassword={(user, newPassword) =>
-                    handleResetPassword(user, { newPassword })
-                }
+                onResetPassword={async (user, newPassword) => {
+                    await handleResetPassword(user, { newPassword });
+                }}
                 onOpenEdit={openEdit}
                 onStatusTargetChange={setStatusTarget}
                 onResetTargetChange={setResetTarget}
                 isSubmitting={isSubmitting}
+
+                roles = {roles}
             />
         </div>
     );

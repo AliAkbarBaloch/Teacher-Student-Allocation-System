@@ -19,6 +19,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/constants/pagination";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/app";
 
+import { RoleService } from "@/features/roles/services/roleService";
+import type { Role } from "@/features/roles/types/role.types";
+
 /*
 Filters state stored in the UI.
  */
@@ -39,7 +42,7 @@ export function useUsersPage() {
     //
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-    
+
     // UI state
     //
     const [loading, setLoading] = useState(false);
@@ -54,7 +57,7 @@ export function useUsersPage() {
     // For showing spinner next to search input like in Schools
     const [isSearchInputLoading, setIsSearchInputLoading] = useState(false);
 
-    
+
     // Dialog targets (for confirmation dialogs)
     const [statusTarget, setStatusTarget] = useState<{
         user: User | null;
@@ -66,6 +69,9 @@ export function useUsersPage() {
 
     //stores which user is about to have password reset 
     const [resetTarget, setResetTarget] = useState<User | null>(null);
+
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [rolesLoading, setRolesLoading] = useState(false);
 
     // -----------------------------
     // Pagination
@@ -119,6 +125,26 @@ export function useUsersPage() {
             sortDirection: "DESC",
         };
     }, [filters, pagination.page, pagination.pageSize]);
+
+    //Load roles 
+
+    const loadRoles = useCallback(async () => {
+        setRolesLoading(true);
+        try {
+            const all = await RoleService.getAll();
+            setRoles(all ?? []);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : t("errors.loadRoles");
+            toast.error(message);
+        } finally {
+            setRolesLoading(false);
+        }
+    }, [t]);
+
+    useEffect(() => {
+        loadRoles();
+    },[loadRoles]);
+
 
     // Load users
     const loadUsers = useCallback(async () => {
@@ -450,5 +476,10 @@ export function useUsersPage() {
         setDeleteTarget,
         resetTarget,
         setResetTarget,
+        
+        //roles 
+        roles, 
+        rolesLoading
+
     };
 }
