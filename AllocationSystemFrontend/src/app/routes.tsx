@@ -34,6 +34,8 @@ import TeacherReportPage from "@/pages/reports/TeacherReportPage";
 import SchoolReportPage from "@/pages/reports/SchoolReportPage";
 import PlanAnalyticsReportPage from "@/pages/reports/PlanAnalyticsReportPage";
 
+import UsersPage from "@/pages/users/UsersPage";
+
 const withSuspense = (node: React.ReactNode) => (
   <Suspense
     fallback={
@@ -208,6 +210,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.admin.roles,
         element: withSuspense(<RolesPage />),
+      },
+      {
+        path: ROUTES.admin.users,
+        element: withSuspense(<UsersPage />),
       },
     ],
   },
