@@ -10,7 +10,10 @@
         "de": "German"
     },
     "navigation": {
+        "users" : "Users",
+        "roles" : "Roles",
         "groups": {
+            "admin": "Admin",
             "overview": "Overview",
             "dataManagement": "Data Management",
             "planning": "Planning & Allocation",

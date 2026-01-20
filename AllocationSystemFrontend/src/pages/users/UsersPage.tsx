@@ -8,6 +8,8 @@ import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
 import { UserDialogs } from "@/features/users/components/UserDialogs";
 import type { User } from "@/features/users/types/user.types";
 
+import i18n from "@/lib/i18n";
+
 
 
 export default function UsersPage() {
@@ -59,6 +61,10 @@ export default function UsersPage() {
     const [isResetOpen, setIsResetOpen] = useState(false);
 
     const openCreate = () => {
+        console.log("LANG", i18n.language);
+        console.log("HAS users ns?", i18n.hasResourceBundle(i18n.language, "users"));
+        console.log("t(users:filters.search)", i18n.t("users:filters.search"));
+
         setSelectedUser(null);
         setIsCreateOpen(true);
     };
@@ -250,7 +256,7 @@ export default function UsersPage() {
                 onResetTargetChange={setResetTarget}
                 isSubmitting={isSubmitting}
 
-                roles = {roles}
+                roles={roles}
             />
         </div>
     );
