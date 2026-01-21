@@ -7,6 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for creating a new teacher assignment.
+ * Associates a teacher with a specific internship type and subject within an allocation plan.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

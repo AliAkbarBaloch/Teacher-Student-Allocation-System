@@ -23,6 +23,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link TeacherSubjectService}.
+ * <p>
+ * This test class validates teacher-subject association CRUD operations and duplicate detection.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class TeacherSubjectServiceTest {
 

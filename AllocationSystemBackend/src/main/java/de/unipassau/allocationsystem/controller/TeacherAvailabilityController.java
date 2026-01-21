@@ -16,12 +16,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing teacher availability.
+ * Provides CRUD operations for teacher availability entries.
+ */
 @RestController
 @RequestMapping("/teacher-availability")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class TeacherAvailabilityController {
     private final TeacherAvailabilityService teacherAvailabilityService;
     private final TeacherAvailabilityMapper teacherAvailabilityMapper;
 
+    /**
+     * Retrieves available fields for sorting teacher availability.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting teacher availability"
@@ -45,6 +62,13 @@ public class TeacherAvailabilityController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific teacher availability entry by its ID.
+     *
+     * @param id Availability ID
+     * @return Availability details
+     * @throws NoSuchElementException if availability not found
+     */
     @Operation(
             summary = "Get teacher availability by ID",
             description = "Retrieves a specific teacher availability by its ID"
@@ -66,6 +90,13 @@ public class TeacherAvailabilityController {
         return ResponseHandler.success("Teacher availability retrieved successfully", result);
     }
 
+    /**
+     * Retrieves teacher availability with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param searchValue Optional search term
+     * @return Paginated list of availability entries
+     */
     @Operation(
             summary = "Get paginated teacher availability",
             description = "Retrieves teacher availability with pagination, sorting, and optional search"
@@ -92,6 +123,11 @@ public class TeacherAvailabilityController {
         return ResponseHandler.success("Teacher availability retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all teacher availability entries without pagination.
+     *
+     * @return List of all availability entries
+     */
     @Operation(
             summary = "Get all teacher availability",
             description = "Retrieves all teacher availability entries without pagination"
@@ -110,6 +146,12 @@ public class TeacherAvailabilityController {
         return ResponseHandler.success("Teacher availability retrieved successfully", result);
     }
 
+    /**
+     * Creates a new teacher availability entry.
+     *
+     * @param dto Availability creation data
+     * @return Created availability
+     */
     @Operation(
             summary = "Create new teacher availability",
             description = "Creates a new teacher availability entry"
@@ -130,6 +172,13 @@ public class TeacherAvailabilityController {
         return ResponseHandler.created("Availability created successfully", teacherAvailabilityMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing teacher availability entry.
+     *
+     * @param id Availability ID
+     * @param dto Updated availability data
+     * @return Updated availability
+     */
     @Operation(
             summary = "Update teacher availability",
             description = "Updates an existing teacher availability entry"
@@ -151,6 +200,12 @@ public class TeacherAvailabilityController {
         return ResponseHandler.updated("Availability updated successfully", teacherAvailabilityMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a teacher availability entry by its ID.
+     *
+     * @param id Availability ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete teacher availability",
             description = "Deletes a teacher availability entry by its ID"

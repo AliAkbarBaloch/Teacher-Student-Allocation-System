@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * DTO for role response data.
+ * Includes all role details with timestamps.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

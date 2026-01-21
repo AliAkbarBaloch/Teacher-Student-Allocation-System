@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for creating a new internship type.
+ * Defines the characteristics and properties of an internship category.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

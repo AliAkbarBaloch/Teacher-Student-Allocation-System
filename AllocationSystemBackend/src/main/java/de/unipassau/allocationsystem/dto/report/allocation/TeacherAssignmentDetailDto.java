@@ -3,6 +3,10 @@ package de.unipassau.allocationsystem.dto.report.allocation;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for detailed teacher assignment information in reports.
+ * Includes teacher details, school location, internship type, and assignment status.
+ */
 @Data
 @Builder
 public class TeacherAssignmentDetailDto {

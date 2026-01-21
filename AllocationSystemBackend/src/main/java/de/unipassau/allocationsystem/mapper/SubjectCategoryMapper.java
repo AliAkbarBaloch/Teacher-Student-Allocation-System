@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between SubjectCategory entities and DTOs.
+ * Handles subject category creation, updates, and response transformations.
+ */
 public class SubjectCategoryMapper implements BaseMapper<SubjectCategory, SubjectCategoryCreateDto, SubjectCategoryUpdateDto, SubjectCategoryResponseDto> {
 
     @Override

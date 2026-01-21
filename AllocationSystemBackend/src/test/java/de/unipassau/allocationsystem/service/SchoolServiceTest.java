@@ -5,7 +5,6 @@ import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
-import de.unipassau.allocationsystem.utils.PaginationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

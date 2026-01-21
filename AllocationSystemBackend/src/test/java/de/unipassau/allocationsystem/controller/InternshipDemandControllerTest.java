@@ -1,7 +1,16 @@
 package de.unipassau.allocationsystem.controller;
 
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.SubjectCategory;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
+import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
+import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
+import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
+import de.unipassau.allocationsystem.repository.SubjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +31,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link InternshipDemandController}.
+ * <p>
+ * This test class validates CRUD operations, pagination, filtering, and aggregation
+ * for internship demand endpoints.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")

@@ -28,6 +28,10 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing permissions.
+ * Handles CRUD operations for permission entities.
+ */
 public class PermissionService implements CrudService<Permission, Long> {
 
     private final PermissionRepository permissionRepository;
@@ -37,6 +41,11 @@ public class PermissionService implements CrudService<Permission, Long> {
         return SortFieldUtils.getSortFields("id", "title", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -49,6 +58,12 @@ public class PermissionService implements CrudService<Permission, Long> {
     }
 
 
+    /**
+     * Checks if a permission with the given title exists.
+     * 
+     * @param title the permission title to check
+     * @return true if title exists, false otherwise
+     */
     public boolean titleExists(String title) {
         return permissionRepository.findByTitle(title).isPresent();
     }

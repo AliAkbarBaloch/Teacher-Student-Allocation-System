@@ -34,6 +34,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link TeacherFormSubmissionService}.
+ * <p>
+ * This test class validates form submission CRUD operations, status updates,
+ * filtering, pagination, and duplicate submission detection.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class TeacherFormSubmissionServiceTest {
 

@@ -5,6 +5,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Configuration properties for Cross-Origin Resource Sharing (CORS) settings.
+ * Binds properties with prefix "app.cors" from application configuration files.
+ */
 @Component
 @ConfigurationProperties(prefix = "app.cors")
 public class CorsProperties {

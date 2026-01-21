@@ -6,14 +6,32 @@ import org.springframework.data.domain.Sort;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utility class for handling pagination parameters and formatting responses.
+ */
 public class PaginationUtils {
 
+    /**
+     * Record holding pagination parameters.
+     * 
+     * @param page the page number (1-indexed)
+     * @param pageSize the number of items per page
+     * @param sortBy the field name to sort by
+     * @param sortOrder the sort direction (ASC or DESC)
+     */
     public record PaginationParams(int page, int pageSize, String sortBy, Sort.Direction sortOrder) {
     }
 
     private static final int MAX_PAGE_SIZE = 100;
     private static final int DEFAULT_PAGE_SIZE = 10;
 
+    /**
+     * Validates and normalizes pagination parameters from query params.
+     * Applies default values and constraints (max page size, min values).
+     * 
+     * @param queryParams the query parameters map
+     * @return validated pagination parameters
+     */
     public static PaginationParams validatePaginationParams(Map<String, String> queryParams) {
         int page = 1;
         int pageSize = DEFAULT_PAGE_SIZE;
@@ -53,6 +71,12 @@ public class PaginationUtils {
         return new PaginationParams(page, pageSize, sortBy, sortOrder);
     }
 
+    /**
+     * Formats a Spring Data Page object into a standard pagination response.
+     * 
+     * @param page the page object containing items and metadata
+     * @return map containing items, total counts, and pagination info
+     */
     public static Map<String, Object> formatPaginationResponse(Page<?> page) {
         Map<String, Object> result = new HashMap<>();
         result.put("items", page.getContent());

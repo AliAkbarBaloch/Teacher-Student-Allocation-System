@@ -18,6 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link PlanChangeLogService}.
+ * <p>
+ * This test class validates plan change log creation and querying functionality.
+ * </p>
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

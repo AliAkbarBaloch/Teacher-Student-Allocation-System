@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,7 +18,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import de.unipassau.allocationsystem.security.JwtAuthenticationEntryPoint;
 import de.unipassau.allocationsystem.security.JwtAuthenticationFilter;
-import de.unipassau.allocationsystem.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,19 +28,17 @@ import lombok.RequiredArgsConstructor;
  * <p>
  * Main responsibilities:
  * <ul>
- *   <li>Enables web and method-level security annotations via {@link EnableWebSecurity} and {@link EnableMethodSecurity}.</li>
- *   <li>Sets up the {@link CustomUserDetailsService} for loading user details from the database.</li>
- *   <li>Configures an {@link AuthenticationProvider} using BCrypt password encoding.</li>
- *   <li>Defines JWT authentication and exception handling using {@link JwtAuthenticationFilter} and {@link JwtAuthenticationEntryPoint}.</li>
+ *   <li>Enables web and method-level security annotations via EnableWebSecurity and EnableMethodSecurity.</li>
+ *   <li>Sets up the CustomUserDetailsService for loading user details from the database.</li>
+ *   <li>Configures an AuthenticationProvider using BCrypt password encoding.</li>
+ *   <li>Defines JWT authentication and exception handling using JwtAuthenticationFilter and JwtAuthenticationEntryPoint.</li>
  *   <li>Establishes CORS rules to control allowed origins, methods, and headers for cross-domain requests.</li>
  *   <li>Configures HTTP security policy:
- *     <ul>
- *       <li>Allows unauthenticated access to certain endpoints (authentication, public APIs, H2 console).</li>
- *       <li>Secures all other `/api/**` routes to require authentication.</li>
- *       <li>Permits all other routes for frontend SPA compatibility.</li>
- *       <li>Disables CSRF (for stateless JWT usage) and restricts frame options for H2 console access.</li>
- *       <li>Sets session creation policy to stateless, suitable for JWT authentication.</li>
- *     </ul>
+ *     - Allows unauthenticated access to certain endpoints (authentication, public APIs, H2 console).
+ *     - Secures all other /api/** routes to require authentication.
+ *     - Permits all other routes for frontend SPA compatibility.
+ *     - Disables CSRF (for stateless JWT usage) and restricts frame options for H2 console access.
+ *     - Sets session creation policy to stateless, suitable for JWT authentication.
  *   </li>
  * </ul>
  * <p>
@@ -61,11 +57,23 @@ public class SecurityConfig {
     @Value("${app.security.permit-all-url-patterns}")
     private String permitAllUrlPatterns;
 
+    /**
+     * Provides BCrypt password encoder for secure password hashing.
+     * 
+     * @return PasswordEncoder instance using BCrypt algorithm
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configures the authentication manager for processing authentication requests.
+     * 
+     * @param config Authentication configuration
+     * @return AuthenticationManager instance
+     * @throws Exception if configuration fails
+     */
     @Bean
     public org.springframework.security.authentication.AuthenticationManager authenticationManager(
             org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration config
@@ -73,6 +81,12 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Configures CORS settings for cross-origin requests.
+     * Allows specified origins, methods, and headers based on application properties.
+     * 
+     * @return CorsConfigurationSource with configured CORS rules
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -87,6 +101,14 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Configures the security filter chain for HTTP requests.
+     * Defines authorization rules, CORS, CSRF, session management, and JWT filter integration.
+     * 
+     * @param http HttpSecurity configuration object
+     * @return Configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] patterns = permitAllUrlPatterns.split(",");

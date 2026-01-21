@@ -17,11 +17,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing academic years.
+ * Provides CRUD operations and listing functionality for academic year entities.
+ */
 @RestController
 @RequestMapping("/academic-years")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class AcademicYearController {
     private final AcademicYearService academicYearService;
     private final AcademicYearMapper academicYearMapper;
 
+    /**
+     * Retrieves available fields for sorting academic years.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting academic years"
@@ -45,6 +62,13 @@ public class AcademicYearController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves an academic year by its ID.
+     * 
+     * @param id The ID of the academic year
+     * @return ResponseEntity containing the academic year details
+     * @throws ResourceNotFoundException if academic year not found
+     */
     @Operation(
             summary = "Get academic year by ID",
             description = "Retrieves a specific academic year by its ID"
@@ -66,6 +90,14 @@ public class AcademicYearController {
         return ResponseHandler.success("Academic year retrieved successfully", result);
     }
 
+    /**
+     * Retrieves academic years with pagination, sorting, and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param includeRelations Flag to include related entities
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated academic years
+     */
     @Operation(
             summary = "Get paginated academic years",
             description = "Retrieves academic years with pagination, sorting, and optional search"
@@ -85,6 +117,12 @@ public class AcademicYearController {
         return ResponseHandler.success("Academic years retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all academic years without pagination.
+     * 
+     * @param includeRelations Flag to include related entities
+     * @return ResponseEntity containing list of all academic years
+     */
     @Operation(
             summary = "Get all academic years",
             description = "Retrieves all academic years without pagination"
@@ -103,6 +141,12 @@ public class AcademicYearController {
         return ResponseHandler.success("Academic years retrieved successfully", result);
     }
 
+    /**
+     * Creates a new academic year.
+     * 
+     * @param dto Academic year creation data
+     * @return ResponseEntity containing the created academic year
+     */
     @Operation(
             summary = "Create new academic year",
             description = "Creates a new academic year with the provided details"
@@ -123,6 +167,13 @@ public class AcademicYearController {
         return ResponseHandler.created("Academic year created successfully", academicYearMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing academic year.
+     * 
+     * @param id The ID of the academic year to update
+     * @param dto Academic year update data
+     * @return ResponseEntity containing the updated academic year
+     */
     @Operation(
             summary = "Update academic year",
             description = "Updates an existing academic year with the provided details"
@@ -144,6 +195,12 @@ public class AcademicYearController {
         return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes an academic year by its ID.
+     * 
+     * @param id The ID of the academic year to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete academic year",
             description = "Deletes an academic year by its ID"

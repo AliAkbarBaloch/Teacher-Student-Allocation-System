@@ -1,8 +1,18 @@
 package de.unipassau.allocationsystem.service.report;
 
-import de.unipassau.allocationsystem.dto.report.allocation.*;
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.dto.report.allocation.AllocationReportDto;
+import de.unipassau.allocationsystem.dto.report.allocation.BudgetSummaryDto;
+import de.unipassau.allocationsystem.dto.report.allocation.ReportHeaderDto;
+import de.unipassau.allocationsystem.dto.report.allocation.TeacherAssignmentDetailDto;
+import de.unipassau.allocationsystem.dto.report.allocation.TeacherUtilizationDto;
+import de.unipassau.allocationsystem.dto.report.allocation.UtilizationAnalysisDto;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,18 +26,30 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Service for generating allocation reports.
+ * Provides report generation for allocation plans including budget analysis and utilization metrics.
+ */
 public class AllocationReportService {
 
     private final AllocationPlanRepository planRepository;
     private final TeacherAssignmentRepository assignmentRepository;
     private final TeacherRepository teacherRepository;
 
+    /**
+     * Generates allocation report for the most recently created plan.
+     * 
+     * @return allocation report DTO
+     * @throws ResourceNotFoundException if no plans exist
+     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReportForLatest() {
         // Get the most recently created plan (regardless of status)
@@ -54,6 +76,13 @@ public class AllocationReportService {
         return generateReportForPlan(plan);
     }
 
+    /**
+     * Generates allocation report for a specific plan.
+     * 
+     * @param planId the allocation plan ID
+     * @return allocation report DTO
+     * @throws ResourceNotFoundException if plan not found
+     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReport(Long planId) {
         // 1. Fetch Plan with eagerly loaded academic year
@@ -201,6 +230,13 @@ public class AllocationReportService {
                 .build();
     }
 
+    /**
+     * Generates allocation report in Excel format.
+     * 
+     * @param planId the allocation plan ID
+     * @return Excel file as byte array
+     * @throws IOException if Excel generation fails
+     */
     @Transactional(readOnly = true)
     public byte[] generateExcelReport(Long planId) throws IOException {
         AllocationReportDto data = generateReport(planId);

@@ -18,7 +18,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +44,11 @@ public class AllocationPlanController {
     private final AllocationPlanService allocationPlanService;
     private final AllocationPlanMapper allocationPlanMapper;
 
+    /**
+     * Retrieves available fields for sorting allocation plans.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get sort fields", description = "Retrieves available fields that can be used for sorting allocation plans")
     @ApiResponses(value = {
@@ -49,6 +61,12 @@ public class AllocationPlanController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves all allocation plans without pagination.
+     * 
+     * @param includeRelations Flag to include related entities
+     * @return ResponseEntity containing list of all allocation plans
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all allocation plans", description = "Retrieves all allocation plans without pagination")
     @ApiResponses(value = {

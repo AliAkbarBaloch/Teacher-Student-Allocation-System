@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for creating a new subject.
+ * Defines subject details including code, title, category, and applicable school type.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

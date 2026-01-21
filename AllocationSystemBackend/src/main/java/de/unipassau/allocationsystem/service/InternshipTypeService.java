@@ -27,6 +27,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing internship type records.
+ * Handles CRUD operations and validation for internship types.
+ */
 public class InternshipTypeService implements CrudService<InternshipType, Long> {
 
     private final InternshipTypeRepository internshipTypeRepository;
@@ -36,6 +40,11 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return SortFieldUtils.getSortFields("id", "internshipCode", "fullName", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -47,6 +56,12 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         );
     }
 
+    /**
+     * Checks if an internship type with the given code exists.
+     * 
+     * @param internshipCode the internship code to check
+     * @return true if internship code exists, false otherwise
+     */
     public boolean isRecordExist(String internshipCode) {
         return internshipTypeRepository.findByInternshipCode(internshipCode).isPresent();
     }

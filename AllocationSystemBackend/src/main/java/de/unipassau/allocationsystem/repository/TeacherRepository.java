@@ -72,20 +72,44 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long>, JpaSpec
     @Query("SELECT t.email FROM Teacher t WHERE t.email IN :emails")
     Set<String> findExistingEmails(@Param("emails") Set<String> emails);
 
-    // Single-status lookup (call with Teacher.EmploymentStatus.ACTIVE)
+    /**
+     * Find all teachers with a specific employment status.
+     * 
+     * @param employmentStatus the employment status
+     * @return list of teachers
+     */
     List<Teacher> findAllByEmploymentStatus(EmploymentStatus employmentStatus);
 
-    // OR: multiple statuses (e.g., ACTIVE and FLEXIBLE)
+    /**
+     * Find all teachers with any of the given employment statuses.
+     * 
+     * @param statuses collection of employment statuses
+     * @return list of teachers
+     */
     List<Teacher> findAllByEmploymentStatusIn(Collection<EmploymentStatus> statuses);
 
-    // Fetch teachers with School and Qualifications in one go
+    /**
+     * Fetch all teachers with school and qualifications eagerly loaded.
+     * 
+     * @return list of teachers with fetched relationships
+     */
     @Query("SELECT DISTINCT t FROM Teacher t " +
             "JOIN FETCH t.school s " +
             "LEFT JOIN FETCH t.qualifications q " +
             "LEFT JOIN FETCH q.subject sub")
     List<Teacher> findAllWithDetails();
 
-    // Standard count methods for metrics
+    /**
+     * Count part-time teachers.
+     * 
+     * @return count of part-time teachers
+     */
     long countByIsPartTimeTrue();
+    
+    /**
+     * Count full-time teachers.
+     * 
+     * @return count of full-time teachers
+     */
     long countByIsPartTimeFalse();
 }

@@ -7,7 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +31,14 @@ public class TestController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Resets a user's password without authentication (dev only).
+     * WARNING: This endpoint should never be enabled in production!
+     *
+     * @param email User's email
+     * @param newPassword New password to set
+     * @return Password reset result
+     */
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
         try {
@@ -90,6 +102,13 @@ public class TestController {
         }
     }
     
+    /**
+     * Checks if a user exists and returns their account details (dev only).
+     * WARNING: This endpoint should never be enabled in production!
+     *
+     * @param email User's email to check
+     * @return User account details if found
+     */
     @GetMapping("/check-user")
     public ResponseEntity<?> checkUser(@RequestParam String email) {
         if (email == null || email.trim().isEmpty()) {

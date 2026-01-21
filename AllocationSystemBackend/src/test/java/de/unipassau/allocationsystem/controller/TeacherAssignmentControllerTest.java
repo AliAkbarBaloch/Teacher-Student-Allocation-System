@@ -3,8 +3,23 @@ package de.unipassau.allocationsystem.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentCreateDto;
 import de.unipassau.allocationsystem.dto.teacherassignment.TeacherAssignmentUpdateDto;
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.SubjectCategory;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.User;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
+import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
+import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
+import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
+import de.unipassau.allocationsystem.repository.SubjectRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
+import de.unipassau.allocationsystem.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +36,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link TeacherAssignmentController}.
+ * <p>
+ * This test class validates CRUD operations and authorization for teacher assignment endpoints.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")

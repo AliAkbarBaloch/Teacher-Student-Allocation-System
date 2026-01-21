@@ -30,6 +30,10 @@ import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing school entities.
+ * Handles CRUD operations and status management for schools.
+ */
 public class SchoolService implements CrudService<School, Long> {
 
     private final SchoolRepository schoolRepository;
@@ -39,6 +43,11 @@ public class SchoolService implements CrudService<School, Long> {
         return SortFieldUtils.getSortFields("id", "schoolName", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         List<String> keys = new ArrayList<>();
         for (Map<String, String> field : getSortFields()) {
@@ -54,6 +63,12 @@ public class SchoolService implements CrudService<School, Long> {
         );
     }
 
+    /**
+     * Checks if a school with the given name exists.
+     * 
+     * @param schoolName the school name to check
+     * @return true if school name exists, false otherwise
+     */
     public boolean schoolNameExists(String schoolName) {
         return schoolRepository.findBySchoolName(schoolName).isPresent();
     }
@@ -229,6 +244,13 @@ public class SchoolService implements CrudService<School, Long> {
             captureNewValue = true
     )
     @Transactional
+    /**
+     * Updates the active status of a school.
+     * 
+     * @param id the school ID
+     * @param isActive the new active status
+     * @return updated school entity
+     */
     public School updateStatus(Long id, Boolean isActive) {
         School existing = schoolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("School not found with id: " + id));

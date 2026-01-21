@@ -17,11 +17,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing permissions.
+ * Provides CRUD operations for permission entities used in role-based access control.
+ */
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class PermissionController {
     private final PermissionService permissionService;
     private final PermissionMapper permissionMapper;
 
+    /**
+     * Retrieves available fields for sorting permissions.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting permissions"
@@ -45,6 +62,13 @@ public class PermissionController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific permission by its ID.
+     * 
+     * @param id The ID of the permission
+     * @return ResponseEntity containing the permission details
+     * @throws ResourceNotFoundException if permission not found
+     */
     @Operation(
             summary = "Get permission by ID",
             description = "Retrieves a specific permission by its ID"
@@ -67,6 +91,14 @@ public class PermissionController {
     }
 
 
+    /**
+     * Retrieves permissions with pagination and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param includeRelations Flag to include related entities
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated permissions
+     */
     @Operation(
             summary = "Get paginated permissions",
             description = "Retrieves permissions with pagination, sorting, and optional search"
@@ -86,6 +118,12 @@ public class PermissionController {
         return ResponseHandler.success("Permissions retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all permissions without pagination.
+     * 
+     * @param includeRelations Flag to include related entities
+     * @return ResponseEntity containing list of all permissions
+     */
     @Operation(
             summary = "Get all permissions",
             description = "Retrieves all permissions without pagination"
@@ -104,6 +142,12 @@ public class PermissionController {
         return ResponseHandler.success("Permissions retrieved successfully", result);
     }
 
+    /**
+     * Creates a new permission.
+     * 
+     * @param dto Permission creation data
+     * @return ResponseEntity containing the created permission
+     */
     @Operation(
             summary = "Create new permission",
             description = "Creates a new permission with the provided details"
@@ -124,6 +168,13 @@ public class PermissionController {
         return ResponseHandler.created("Permission created successfully", permissionMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing permission.
+     * 
+     * @param id The ID of the permission to update
+     * @param dto Permission update data
+     * @return ResponseEntity containing the updated permission
+     */
     @Operation(
             summary = "Update permission",
             description = "Updates an existing permission with the provided details"
@@ -145,6 +196,12 @@ public class PermissionController {
         return ResponseHandler.updated("Permission updated successfully", permissionMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a permission by its ID.
+     * 
+     * @param id The ID of the permission to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete permission",
             description = "Deletes a permission by its ID"

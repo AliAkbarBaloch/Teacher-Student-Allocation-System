@@ -20,7 +20,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -29,6 +38,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+/**
+ * REST controller for managing teachers.
+ * Provides CRUD operations and bulk import functionality for teacher entities.
+ */
 @RestController
 @RequestMapping("/teachers")
 @RequiredArgsConstructor
@@ -39,6 +52,11 @@ public class TeacherController {
     private final TeacherService teacherService;
     private final TeacherMapper teacherMapper;
 
+    /**
+     * Retrieves available fields for sorting teachers.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting teachers"
@@ -53,6 +71,13 @@ public class TeacherController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific teacher by its ID.
+     *
+     * @param id Teacher ID
+     * @return Teacher details
+     * @throws NoSuchElementException if teacher not found
+     */
     @Operation(
             summary = "Get teacher by ID",
             description = "Retrieves a specific teacher by its ID"
@@ -73,6 +98,14 @@ public class TeacherController {
         return ResponseHandler.success("Teacher retrieved successfully", result);
     }
 
+    /**
+     * Retrieves teachers with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param includeRelations Whether to include related entities
+     * @param searchValue Optional search term
+     * @return Paginated list of teachers
+     */
     @Operation(
             summary = "Get paginated teachers",
             description = "Retrieves teachers with pagination, sorting, and optional search"
@@ -101,6 +134,12 @@ public class TeacherController {
         return ResponseHandler.success("Teachers retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all teachers without pagination.
+     *
+     * @param includeRelations Whether to include related entities
+     * @return List of all teachers
+     */
     @Operation(
             summary = "Get all teachers",
             description = "Retrieves all teachers without pagination"
@@ -119,6 +158,12 @@ public class TeacherController {
         return ResponseHandler.success("Teachers retrieved successfully", result);
     }
 
+    /**
+     * Creates a new teacher.
+     *
+     * @param dto Teacher creation data
+     * @return Created teacher
+     */
     @Operation(
             summary = "Create new teacher",
             description = "Creates a new teacher with the provided details"
@@ -138,6 +183,13 @@ public class TeacherController {
         return ResponseHandler.created("Teacher created successfully", created);
     }
 
+    /**
+     * Updates an existing teacher.
+     *
+     * @param id Teacher ID
+     * @param dto Updated teacher data
+     * @return Updated teacher
+     */
     @Operation(
             summary = "Update teacher",
             description = "Updates an existing teacher with the provided details"
@@ -158,6 +210,13 @@ public class TeacherController {
         return ResponseHandler.updated("Teacher updated successfully", updated);
     }
 
+    /**
+     * Updates the employment status of a teacher.
+     *
+     * @param id Teacher ID
+     * @param statusDto Status update data
+     * @return Updated teacher
+     */
     @Operation(
             summary = "Update teacher status",
             description = "Updates the active status of a teacher (activate/deactivate)"
@@ -180,6 +239,12 @@ public class TeacherController {
         return ResponseHandler.updated("Teacher status updated successfully", updated);
     }
 
+    /**
+     * Deletes a teacher by its ID.
+     *
+     * @param id Teacher ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete teacher",
             description = "Deletes a teacher by its ID"
@@ -195,6 +260,13 @@ public class TeacherController {
         return ResponseHandler.noContent();
     }
 
+    /**
+     * Checks which email addresses already exist in the database.
+     * Used for bulk import validation.
+     *
+     * @param emails List of email addresses to check
+     * @return Set of existing emails
+     */
     @Operation(
             summary = "Check existing emails",
             description = "Checks which email addresses already exist in the database. Used for bulk import validation."
@@ -219,6 +291,15 @@ public class TeacherController {
         return ResponseHandler.success("Email check completed", existingEmails);
     }
 
+    /**
+     * Imports multiple teachers from an Excel file.
+     * Requires ADMIN role.
+     *
+     * @param file Excel file containing teacher data
+     * @param skipInvalidRows Whether to skip rows with validation errors
+     * @return Bulk import result with success/failure counts
+     * @throws IOException if file cannot be read
+     */
     @Operation(
             summary = "Bulk import teachers from Excel",
             description = "Imports multiple teachers from an Excel file. Requires ADMIN role."

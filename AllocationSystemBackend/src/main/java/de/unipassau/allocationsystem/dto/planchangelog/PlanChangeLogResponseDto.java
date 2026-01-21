@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * DTO for plan change log response data.
+ * Returns detailed information about changes made to allocation plans.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

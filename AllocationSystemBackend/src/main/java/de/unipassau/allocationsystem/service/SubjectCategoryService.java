@@ -28,6 +28,10 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing subject categories.
+ * Handles CRUD operations for subject category entities.
+ */
 public class SubjectCategoryService implements CrudService<SubjectCategory, Long> {
 
     private final SubjectCategoryRepository subjectCategoryRepository;
@@ -37,6 +41,11 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         return SortFieldUtils.getSortFields("id", "categoryTitle", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -48,6 +57,12 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         );
     }
 
+    /**
+     * Checks if a category with the given title exists.
+     * 
+     * @param categoryTitle the category title to check
+     * @return true if category title exists, false otherwise
+     */
     public boolean categoryTitleExists(String categoryTitle) {
         return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
     }

@@ -21,6 +21,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between TeacherAssignment entities and DTOs.
+ * Handles assignment mapping with allocation plan, teacher, internship type, and subject resolution.
+ */
 public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, TeacherAssignmentCreateDto, TeacherAssignmentUpdateDto, TeacherAssignmentResponseDto> {
 
     private final AllocationPlanRepository allocationPlanRepository;

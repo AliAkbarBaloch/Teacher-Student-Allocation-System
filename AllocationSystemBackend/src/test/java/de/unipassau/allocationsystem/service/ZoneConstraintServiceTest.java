@@ -30,6 +30,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link ZoneConstraintService}.
+ * <p>
+ * This test class validates zone constraint CRUD operations, pagination, and validation.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class ZoneConstraintServiceTest {
 

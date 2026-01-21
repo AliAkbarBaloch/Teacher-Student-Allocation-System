@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between Subject entities and DTOs.
+ * Handles subject mapping with subject category resolution.
+ */
 public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, SubjectUpdateDto, SubjectResponseDto> {
 
     private final SubjectCategoryRepository subjectCategoryRepository;

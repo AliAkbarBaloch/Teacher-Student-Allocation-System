@@ -17,12 +17,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing teacher-subject relationships.
+ * Provides CRUD operations for mapping teachers to subjects they can teach.
+ */
 @RestController
 @RequestMapping("/teacher-subjects")
 @RequiredArgsConstructor
@@ -33,6 +45,11 @@ public class TeacherSubjectController {
     private final TeacherSubjectService service;
     private final TeacherSubjectMapper mapper;
 
+    /**
+     * Retrieves available fields for sorting teacher-subjects.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting teacher-subjects"
@@ -48,6 +65,13 @@ public class TeacherSubjectController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves teacher-subjects with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param searchValue Optional search term
+     * @return Paginated list of teacher-subjects
+     */
     @Operation(
             summary = "Get paginated teacher-subjects",
             description = "Retrieves teacher-subjects with pagination, sorting, and optional search"
@@ -75,6 +99,11 @@ public class TeacherSubjectController {
         return ResponseHandler.success("Teacher-subjects retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all teacher-subjects without pagination.
+     *
+     * @return List of all teacher-subjects
+     */
     @Operation(
             summary = "Get all teacher-subjects",
             description = "Retrieves all teacher-subjects without pagination"
@@ -94,6 +123,13 @@ public class TeacherSubjectController {
         return ResponseHandler.success("Teacher-subjects retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific teacher-subject by its ID.
+     *
+     * @param id Teacher-subject ID
+     * @return Teacher-subject details
+     * @throws NoSuchElementException if teacher-subject not found
+     */
     @Operation(
             summary = "Get teacher-subject by ID",
             description = "Retrieves a specific teacher-subject by its ID"
@@ -116,6 +152,12 @@ public class TeacherSubjectController {
         return ResponseHandler.success("Teacher-subject retrieved successfully", result);
     }
 
+    /**
+     * Retrieves all teacher-subject mappings for a specific teacher.
+     *
+     * @param teacherId Teacher ID
+     * @return List of teacher-subjects for the teacher
+     */
     @Operation(
         summary = "Get teacher-subjects by teacher ID",
         description = "Retrieves all teacher-subject mappings for a specific teacher"
@@ -136,6 +178,12 @@ public class TeacherSubjectController {
         return ResponseHandler.success("Teacher-subjects retrieved successfully", result);
     }
 
+    /**
+     * Creates a new teacher-subject mapping.
+     *
+     * @param dto Teacher-subject creation data
+     * @return Created teacher-subject
+     */
     @Operation(
             summary = "Create new teacher-subject mapping",
             description = "Creates a new teacher-subject mapping with the provided details"
@@ -157,6 +205,13 @@ public class TeacherSubjectController {
         return ResponseHandler.created("Teacher-subject mapping created successfully", mapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing teacher-subject mapping.
+     *
+     * @param id Teacher-subject ID
+     * @param dto Updated teacher-subject data
+     * @return Updated teacher-subject
+     */
     @Operation(
             summary = "Update teacher-subject mapping",
             description = "Updates an existing teacher-subject mapping with the provided details"
@@ -179,6 +234,12 @@ public class TeacherSubjectController {
         return ResponseHandler.updated("Teacher-subject mapping updated successfully", mapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a teacher-subject mapping by its ID.
+     *
+     * @param id Teacher-subject ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete teacher-subject mapping",
             description = "Deletes a teacher-subject mapping by its ID"

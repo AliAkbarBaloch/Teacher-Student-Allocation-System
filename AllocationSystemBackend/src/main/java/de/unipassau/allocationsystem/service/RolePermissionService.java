@@ -25,16 +25,30 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+/**
+ * Service for managing role-permission associations.
+ * Handles CRUD operations for role-permission mappings.
+ */
 public class RolePermissionService implements CrudService<RolePermission, Long> {
 
     private final RolePermissionRepository rolePermissionRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
             "id", "role.title", "permission.title", "accessLevel", "createdAt", "updatedAt"
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -77,6 +91,11 @@ public class RolePermissionService implements CrudService<RolePermission, Long> 
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    /**
+     * Retrieves all role-permission associations.
+     * 
+     * @return list of all role permissions
+     */
     public List<RolePermission> getAll() {
         return rolePermissionRepository.findAll();
     }
@@ -100,17 +119,29 @@ public class RolePermissionService implements CrudService<RolePermission, Long> 
             captureNewValue = false
     )
     @Transactional(readOnly = true)
+    /**
+     * Retrieves all permissions associated with a specific role.
+     * 
+     * @param roleId the role ID
+     * @return list of role permissions for the role
+     */
     public List<RolePermission> getByRoleId(Long roleId) {
         return rolePermissionRepository.findByRoleId(roleId);
     }
 
     @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE_PERMISSION,
-            description = "Viewed role permission by permissionId",
-            captureNewValue = false
+        action = AuditAction.VIEW,
+        entityName = AuditEntityNames.ROLE_PERMISSION,
+        description = "Viewed role permissions by permissionId",
+        captureNewValue = false
     )
     @Transactional(readOnly = true)
+    /**
+     * Retrieves all roles associated with a specific permission.
+     * 
+     * @param permissionId the permission ID
+     * @return list of role permissions for the permission
+     */
     public List<RolePermission> getByPermissionId(Long permissionId) {
         return rolePermissionRepository.findByPermissionId(permissionId);
     }
