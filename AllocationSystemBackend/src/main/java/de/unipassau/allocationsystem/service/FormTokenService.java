@@ -25,6 +25,7 @@ public class FormTokenService {
 
     /**
      * Inner class to hold decoded token data.
+     * Contains teacher ID and academic year ID from token.
      */
     public static class TokenData {
         private final Long teacherId;

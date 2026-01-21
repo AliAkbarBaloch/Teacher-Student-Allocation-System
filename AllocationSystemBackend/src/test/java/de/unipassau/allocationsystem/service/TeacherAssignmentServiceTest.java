@@ -21,6 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link TeacherAssignmentService}.
+ * <p>
+ * This test class validates teacher assignment CRUD operations and credit hour recalculation.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class TeacherAssignmentServiceTest {
 

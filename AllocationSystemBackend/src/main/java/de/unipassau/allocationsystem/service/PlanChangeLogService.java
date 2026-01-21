@@ -30,16 +30,30 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing plan change logs.
+ * Tracks changes made to allocation plans for audit and history purposes.
+ */
 public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
     private final PlanChangeLogRepository planChangeLogRepository;
     private final AllocationPlanRepository allocationPlanRepository;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields("id", "planId", "changeType", "entityType", "entityId", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -175,6 +189,17 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
         }
     }
 
+    /**
+     * Retrieves change logs for a specific allocation plan with filtering.
+     * 
+     * @param planId the allocation plan ID
+     * @param entityType optional entity type filter
+     * @param changeType optional change type filter
+     * @param startDate optional start date filter
+     * @param endDate optional end date filter
+     * @param pageable pagination parameters
+     * @return page of plan change logs
+     */
     public Page<PlanChangeLog> getLogsByPlan(Long planId, String entityType, String changeType,
                                              LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         if (planId != null && !allocationPlanRepository.existsById(planId)) {

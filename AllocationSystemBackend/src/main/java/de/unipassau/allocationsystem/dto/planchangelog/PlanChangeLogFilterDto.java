@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for filtering and paginating plan change logs.
+ * Supports filtering by plan, change type, entity type, and date range.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between InternshipType entities and DTOs.
+ * Handles internship type creation, updates, and response transformations.
+ */
 public class InternshipTypeMapper implements BaseMapper<InternshipType, InternshipTypeCreateDto, InternshipTypeUpdateDto, InternshipTypeResponseDto> {
 
     @Override

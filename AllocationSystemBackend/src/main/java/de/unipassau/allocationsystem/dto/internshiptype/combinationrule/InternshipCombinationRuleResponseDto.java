@@ -1,7 +1,13 @@
 package de.unipassau.allocationsystem.dto.internshiptype.combinationrule;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+/**
+ * DTO for internship combination rule response data.
+ * Returns the rule details including which internship types can be combined.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

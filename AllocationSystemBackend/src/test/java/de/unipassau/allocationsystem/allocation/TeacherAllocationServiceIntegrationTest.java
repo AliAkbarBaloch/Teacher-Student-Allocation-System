@@ -1,7 +1,25 @@
 package de.unipassau.allocationsystem.allocation;
 
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.SubjectCategory;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
+import de.unipassau.allocationsystem.entity.TeacherQualification;
+import de.unipassau.allocationsystem.entity.TeacherSubject;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
+import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
+import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
+import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
+import de.unipassau.allocationsystem.repository.SubjectRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
+import de.unipassau.allocationsystem.repository.TeacherSubjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +31,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Integration tests for the {@link TeacherAllocationService}.
+ * <p>
+ * This test class validates the teacher allocation functionality across different
+ * internship types (SFP, ZSP, PDP1, PDP2) and ensures that allocation rules and
+ * constraints are properly enforced during the allocation process.
+ * </p>
+ */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @Transactional

@@ -30,6 +30,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration tests for the {@link AllocationPlanController}.
+ * <p>
+ * This test class validates CRUD operations, status transitions, and authorization
+ * for allocation plan endpoints.
+ * </p>
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

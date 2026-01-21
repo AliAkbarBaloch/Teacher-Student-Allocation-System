@@ -19,6 +19,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link AuditLogQueryService}.
+ * <p>
+ * This test class validates audit log querying, filtering, and pagination.
+ * </p>
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

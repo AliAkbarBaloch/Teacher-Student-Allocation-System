@@ -1,6 +1,19 @@
 package de.unipassau.allocationsystem.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +37,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * Entity representing teacher-subject associations per academic year.
+ * Tracks which subjects a teacher can teach, availability status, and grade level ranges.
+ */
 public class TeacherSubject {
 
     @Id
@@ -75,6 +92,9 @@ public class TeacherSubject {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Enumeration of availability statuses for teacher-subject associations.
+     */
     public enum AvailabilityStatus {
         AVAILABLE,
         NOT_AVAILABLE,

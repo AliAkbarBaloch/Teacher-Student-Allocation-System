@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for creating a new subject category.
+ * Organizes subjects into logical groupings (e.g., Languages, Sciences).
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

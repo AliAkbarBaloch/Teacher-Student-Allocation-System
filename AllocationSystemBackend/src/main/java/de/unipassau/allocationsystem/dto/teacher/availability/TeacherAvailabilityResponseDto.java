@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for teacher availability response data.
+ * Includes detailed teacher, academic year, and internship type information with availability status.
+ */
 @Data
 @Builder
 @NoArgsConstructor

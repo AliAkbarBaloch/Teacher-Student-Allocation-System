@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for permission response data.
+ * Includes all permission details with timestamps.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

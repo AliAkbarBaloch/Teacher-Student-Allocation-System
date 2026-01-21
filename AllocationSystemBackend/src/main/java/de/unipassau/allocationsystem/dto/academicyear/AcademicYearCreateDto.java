@@ -8,6 +8,10 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for creating a new academic year.
+ * Contains year information, credit hour allocations, and important dates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

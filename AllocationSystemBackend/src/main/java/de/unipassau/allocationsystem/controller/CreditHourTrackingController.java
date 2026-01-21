@@ -17,12 +17,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing credit hour tracking entries.
+ * Tracks teaching credit hours per teacher across academic years.
+ */
 @RestController
 @RequestMapping("/credit-hour-tracking")
 @RequiredArgsConstructor
@@ -33,6 +45,11 @@ public class CreditHourTrackingController {
     private final CreditHourTrackingService service;
     private final CreditHourTrackingMapper mapper;
 
+    /**
+     * Retrieves available fields for sorting credit hour tracking entries.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting credit hour tracking"
@@ -47,6 +64,13 @@ public class CreditHourTrackingController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves credit hour tracking entries with pagination and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated credit hour tracking entries
+     */
     @Operation(
             summary = "Get paginated credit hour tracking",
             description = "Retrieves credit hour tracking with pagination, sorting, and optional search"
@@ -73,6 +97,11 @@ public class CreditHourTrackingController {
         return ResponseHandler.success("Credit hour tracking retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all credit hour tracking entries without pagination.
+     * 
+     * @return ResponseEntity containing list of all credit hour tracking entries
+     */
     @Operation(
             summary = "Get all credit hour tracking entries",
             description = "Retrieves all credit hour tracking entries without pagination"
@@ -91,6 +120,13 @@ public class CreditHourTrackingController {
         return ResponseHandler.success("Credit hour tracking entries retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific credit hour tracking entry by its ID.
+     * 
+     * @param id The ID of the credit hour tracking entry
+     * @return ResponseEntity containing the entry details
+     * @throws NoSuchElementException if entry not found
+     */
     @Operation(
             summary = "Get credit hour tracking by ID",
             description = "Retrieves a specific credit hour tracking entry by its ID"
@@ -112,6 +148,12 @@ public class CreditHourTrackingController {
         return ResponseHandler.success("Credit hour tracking entry retrieved successfully", result);
     }
 
+    /**
+     * Creates a new credit hour tracking entry.
+     * 
+     * @param dto Credit hour tracking creation data
+     * @return ResponseEntity containing the created entry
+     */
     @Operation(
             summary = "Create new credit hour tracking entry",
             description = "Creates a new credit hour tracking entry with the provided details"
@@ -132,6 +174,13 @@ public class CreditHourTrackingController {
         return ResponseHandler.created("Credit hour tracking entry created successfully", mapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing credit hour tracking entry.
+     * 
+     * @param id The ID of the entry to update
+     * @param dto Credit hour tracking update data
+     * @return ResponseEntity containing the updated entry
+     */
     @Operation(
             summary = "Update credit hour tracking entry",
             description = "Updates an existing credit hour tracking entry with the provided details"
@@ -153,6 +202,12 @@ public class CreditHourTrackingController {
         return ResponseHandler.updated("Credit hour tracking entry updated successfully", mapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a credit hour tracking entry by its ID.
+     * 
+     * @param id The ID of the entry to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete credit hour tracking entry",
             description = "Deletes a credit hour tracking entry by its ID"

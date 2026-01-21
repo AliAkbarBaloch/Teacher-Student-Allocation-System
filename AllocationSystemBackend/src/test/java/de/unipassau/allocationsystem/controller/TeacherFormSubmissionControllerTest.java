@@ -28,6 +28,13 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration tests for the {@link TeacherFormSubmissionController}.
+ * <p>
+ * This test class validates form submission CRUD operations, status updates,
+ * and filtering for teacher form submissions.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Transactional

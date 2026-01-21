@@ -36,6 +36,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing internship demand records.
+ * Handles CRUD operations and aggregation for internship demands by academic year.
+ */
 public class InternshipDemandService implements CrudService<InternshipDemand, Long> {
 
     private final InternshipDemandRepository repository;
@@ -43,12 +47,22 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     private final SubjectRepository subjectRepository;
     private final AcademicYearRepository academicYearRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
                 "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -194,6 +208,17 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     }
 
     // other methods
+    /**
+     * Lists internship demands with filtering by academic year and optional criteria.
+     * 
+     * @param yearId the academic year ID (required)
+     * @param internshipTypeId optional internship type ID filter
+     * @param schoolType optional school type filter
+     * @param subjectId optional subject ID filter
+     * @param isForecasted optional forecasted status filter
+     * @param pageable pagination parameters
+     * @return page of filtered internship demands
+     */
     public Page<InternshipDemand> listByYearWithFilters(Long yearId, Long internshipTypeId, School.SchoolType schoolType, Long subjectId, Boolean isForecasted, Pageable pageable) {
         Specification<InternshipDemand> spec = (root, query, cb) -> cb.conjunction();
         spec = spec.and((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
@@ -212,10 +237,22 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
         return repository.findAll(spec, pageable);
     }
 
+    /**
+     * Retrieves all internship demands for a specific academic year.
+     * 
+     * @param yearId the academic year ID
+     * @return list of internship demands
+     */
     public List<InternshipDemand> getAllByYear(Long yearId) {
         return repository.findAll((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
     }
 
+    /**
+     * Aggregates internship demands by academic year, internship type, and school type.
+     * 
+     * @param yearId the academic year ID
+     * @return list of aggregated demand data
+     */
     public List<InternshipDemandAggregation> aggregateByYear(Long yearId) {
         return repository.aggregateByYear(yearId);
     }

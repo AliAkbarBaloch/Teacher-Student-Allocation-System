@@ -16,12 +16,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing role permissions.
+ * Provides CRUD operations for role permission entities used in role-based access control.
+ */
 @RestController
 @RequestMapping("/role-permissions")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class RolePermissionController {
     private final RolePermissionService rolePermissionService;
     private final RolePermissionMapper rolePermissionMapper;
 
+    /**
+     * Retrieves available fields for sorting role permissions.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting role permissions"
@@ -45,6 +62,13 @@ public class RolePermissionController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific role permission by its ID.
+     *
+     * @param id Role permission ID
+     * @return Role permission details
+     * @throws NoSuchElementException if role permission not found
+     */
     @Operation(
             summary = "Get role permission by ID",
             description = "Retrieves a specific role permission by its ID"
@@ -66,6 +90,14 @@ public class RolePermissionController {
         return ResponseHandler.success("Role permission retrieved successfully", result);
     }
 
+    /**
+     * Retrieves role permissions with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param includeRelations Whether to include related entities
+     * @param searchValue Optional search term
+     * @return Paginated list of role permissions
+     */
     @Operation(
             summary = "Get paginated role permissions",
             description = "Retrieves role permissions with pagination, sorting, and optional search"
@@ -85,6 +117,12 @@ public class RolePermissionController {
         return ResponseHandler.success("Role permissions retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all role permissions without pagination.
+     *
+     * @param includeRelations Whether to include related entities
+     * @return List of all role permissions
+     */
     @Operation(
             summary = "Get all role permissions",
             description = "Retrieves all role permissions without pagination"
@@ -103,6 +141,12 @@ public class RolePermissionController {
         return ResponseHandler.success("Role permissions retrieved successfully", result);
     }
 
+    /**
+     * Creates a new role permission.
+     *
+     * @param dto Role permission creation data
+     * @return Created role permission
+     */
     @Operation(
             summary = "Create new role permission",
             description = "Creates a new role permission with the provided details"
@@ -123,6 +167,13 @@ public class RolePermissionController {
         return ResponseHandler.created("Role permission created successfully", rolePermissionMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing role permission.
+     *
+     * @param id Role permission ID
+     * @param dto Updated role permission data
+     * @return Updated role permission
+     */
     @Operation(
             summary = "Update role permission",
             description = "Updates an existing role permission with the provided details"
@@ -144,6 +195,12 @@ public class RolePermissionController {
         return ResponseHandler.updated("Role permission updated successfully", rolePermissionMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a role permission by its ID.
+     *
+     * @param id Role permission ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete role permission",
             description = "Deletes a role permission by its ID"

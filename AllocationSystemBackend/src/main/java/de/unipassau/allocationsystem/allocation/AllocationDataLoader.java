@@ -1,6 +1,14 @@
 package de.unipassau.allocationsystem.allocation;
 
-import de.unipassau.allocationsystem.entity.*;
+import de.unipassau.allocationsystem.entity.InternshipCombinationRule;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
+import de.unipassau.allocationsystem.entity.TeacherQualification;
+import de.unipassau.allocationsystem.entity.TeacherSubject;
+import de.unipassau.allocationsystem.entity.TeacherSubjectExclusion;
+import de.unipassau.allocationsystem.entity.ZoneConstraint;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

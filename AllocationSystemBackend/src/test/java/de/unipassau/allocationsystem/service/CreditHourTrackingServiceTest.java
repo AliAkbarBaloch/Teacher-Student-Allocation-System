@@ -1,6 +1,10 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.entity.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.CreditHourTracking;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
 import de.unipassau.allocationsystem.mapper.CreditHourTrackingMapper;
 import de.unipassau.allocationsystem.repository.CreditHourTrackingRepository;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
@@ -20,6 +24,12 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link CreditHourTrackingService}.
+ * <p>
+ * This test class validates credit hour tracking calculations and recalculations.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreditHourTrackingServiceTest {
 

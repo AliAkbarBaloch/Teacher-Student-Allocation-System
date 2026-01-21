@@ -67,5 +67,10 @@ public interface SchoolRepository extends JpaRepository<School, Long>, JpaSpecif
             "(SELECT COUNT(t) FROM Teacher t WHERE t.school = s), " + // This returns LONG
             "(SELECT COUNT(t) FROM Teacher t WHERE t.school = s AND t.employmentStatus = 'ACTIVE')" + // This returns LONG
             ") FROM School s")
+    /**
+     * Find all schools with profile data including teacher counts.
+     * 
+     * @return list of school profile DTOs
+     */
     List<SchoolProfileDto> findAllSchoolProfiles();
 }

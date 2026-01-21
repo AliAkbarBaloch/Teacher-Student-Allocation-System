@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO for creating a new internship demand record.
+ * Represents the need for teachers in specific subjects, school types, and internship types.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

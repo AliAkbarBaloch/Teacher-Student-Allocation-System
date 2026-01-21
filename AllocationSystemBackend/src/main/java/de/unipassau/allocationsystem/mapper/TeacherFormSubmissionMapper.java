@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between TeacherFormSubmission entities and DTOs.
+ * Handles form submission mapping with teacher and academic year resolution.
+ */
 public class TeacherFormSubmissionMapper implements BaseMapper<
         TeacherFormSubmission,
         TeacherFormSubmissionCreateDto,

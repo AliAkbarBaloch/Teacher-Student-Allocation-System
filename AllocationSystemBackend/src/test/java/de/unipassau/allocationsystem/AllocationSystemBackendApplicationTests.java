@@ -5,9 +5,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Basic integration tests for the Spring Boot application context.
+ */
 @SpringBootTest
 @ActiveProfiles("test")
-class AllocationSystemBackendApplicationTests {
+class AllocationSystemBackendApplicationTest {
 
     @Test
     void contextLoads() {

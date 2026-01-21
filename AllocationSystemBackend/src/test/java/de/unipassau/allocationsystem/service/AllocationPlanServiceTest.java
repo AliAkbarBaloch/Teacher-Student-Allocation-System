@@ -25,11 +25,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+
+import org.mockito.ArgumentMatchers;
 
 /**
  * Unit tests for AllocationPlanService (updated to the latest service version).
@@ -156,7 +162,7 @@ class AllocationPlanServiceTest {
         List<AllocationPlan> plans = Arrays.asList(testPlan);
         Page<AllocationPlan> page = new PageImpl<>(plans);
 
-        when(allocationPlanRepository.findAll(any(Specification.class), any(Pageable.class)))
+        when(allocationPlanRepository.findAll(ArgumentMatchers.<Specification<AllocationPlan>>any(), any(Pageable.class)))
                 .thenReturn(page);
         when(allocationPlanMapper.toResponseDto(any(AllocationPlan.class)))
                 .thenReturn(responseDto);
@@ -167,7 +173,7 @@ class AllocationPlanServiceTest {
 
         // Assert
         assertNotNull(result);
-        verify(allocationPlanRepository).findAll(any(Specification.class), any(Pageable.class));
+        verify(allocationPlanRepository).findAll(ArgumentMatchers.<Specification<AllocationPlan>>any(), any(Pageable.class));
     }
 
     // ========== GET PLAN BY ID TESTS ==========

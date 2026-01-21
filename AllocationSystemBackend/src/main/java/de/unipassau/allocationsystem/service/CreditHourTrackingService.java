@@ -37,6 +37,10 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for tracking teacher credit hours per academic year.
+ * Manages credit hour allocation and utilization tracking.
+ */
 public class CreditHourTrackingService implements CrudService<CreditHourTracking, Long> {
 
     private final CreditHourTrackingRepository repository;
@@ -44,11 +48,21 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
     private final TeacherRepository teacherRepository;
     private final AcademicYearRepository academicYearRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields("id", "teacherId", "academicYearId", "assignmentsCount", 
             "creditHoursAllocated", "creditBalance", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -203,6 +217,13 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
     }
 
     // other
+    /**
+     * Recalculates credit hours for a teacher in a specific academic year.
+     * Updates assignment counts and credit balance based on active assignments.
+     * 
+     * @param teacherId the teacher ID
+     * @param yearId the academic year ID
+     */
     @Transactional
     public void recalculateForTeacherAndYear(Long teacherId, Long yearId) {
         // Validation of teacher and year existence

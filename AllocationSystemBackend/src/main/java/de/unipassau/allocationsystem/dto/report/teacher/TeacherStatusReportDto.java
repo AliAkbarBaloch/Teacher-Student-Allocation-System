@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for comprehensive teacher status report.
+ * Aggregates teacher metrics and individual profiles.
+ */
 @Data
 @Builder
 public class TeacherStatusReportDto {

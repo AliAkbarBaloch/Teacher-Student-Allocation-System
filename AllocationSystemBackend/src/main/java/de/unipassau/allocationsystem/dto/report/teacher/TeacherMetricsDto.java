@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * DTO for aggregated teacher metrics.
+ * Provides counts by status, employment type, and subject coverage breakdown.
+ */
 @Data
 @Builder
 public class TeacherMetricsDto {

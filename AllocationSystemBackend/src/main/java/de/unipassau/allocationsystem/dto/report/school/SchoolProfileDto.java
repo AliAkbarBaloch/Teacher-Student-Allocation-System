@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for detailed school profile information.
+ * Includes school identification, location, accessibility, and associated teacher statistics.
+ */
 @Data
 @Builder
 @NoArgsConstructor

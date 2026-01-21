@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between PlanChangeLog entities and DTOs.
+ * Handles change log tracking with allocation plan resolution.
+ */
 public class PlanChangeLogMapper implements BaseMapper<PlanChangeLog, PlanChangeLogCreateDto, PlanChangeLogUpdateDto, PlanChangeLogResponseDto> {
 
     private final AllocationPlanRepository allocationPlanRepository;

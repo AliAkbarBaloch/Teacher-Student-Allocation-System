@@ -3,6 +3,10 @@ package de.unipassau.allocationsystem.dto.report.allocation.health;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for allocation health report.
+ * Provides comprehensive metrics on budget compliance, teacher assignments, and fulfillment rates.
+ */
 @Data
 @Builder
 public class AllocationHealthReportDto {

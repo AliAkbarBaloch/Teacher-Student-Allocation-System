@@ -2,6 +2,10 @@ package de.unipassau.allocationsystem.dto.allocation;
 
 import lombok.Data;
 
+/**
+ * DTO for requesting a teacher allocation operation.
+ * Contains metadata, algorithm settings, constraints, and optimization weights.
+ */
 @Data
 public class AllocationRequestDto {
     // Metadata

@@ -3,6 +3,10 @@ package de.unipassau.allocationsystem.dto.report.teacher;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for individual teacher utilization report.
+ * Tracks current assignments, credit balance, and utilization status.
+ */
 @Data
 @Builder
 public class TeacherUtilizationReportDto {

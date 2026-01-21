@@ -22,6 +22,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link SubjectService}.
+ * <p>
+ * This test class validates subject CRUD operations, sorting, pagination,
+ * and cascade deletion behavior.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @ActiveProfiles("test")
 @Transactional

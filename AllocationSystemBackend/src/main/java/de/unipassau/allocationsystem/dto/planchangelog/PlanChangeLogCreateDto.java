@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for creating a new plan change log entry.
+ * Records changes made to allocation plans for audit purposes.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

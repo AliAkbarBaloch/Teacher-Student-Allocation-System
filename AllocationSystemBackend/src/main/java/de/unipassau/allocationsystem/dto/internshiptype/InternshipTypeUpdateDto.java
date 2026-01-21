@@ -4,6 +4,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for updating an existing internship type.
+ * All fields are optional for partial updates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

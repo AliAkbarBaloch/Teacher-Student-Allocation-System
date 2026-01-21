@@ -29,6 +29,10 @@ import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing teacher availability.
+ * Handles CRUD operations for teacher availability records.
+ */
 public class TeacherAvailabilityService implements CrudService<TeacherAvailability, Long> {
 
     private final TeacherAvailabilityRepository teacherAvailabilityRepository;
@@ -38,6 +42,11 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
         return SortFieldUtils.getSortFields("id", "teacherId", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         List<String> keys = new ArrayList<>();
         for (Map<String, String> field : getSortFields()) {

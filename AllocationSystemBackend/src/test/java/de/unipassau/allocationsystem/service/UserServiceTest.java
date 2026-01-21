@@ -22,14 +22,22 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for UserService.
+ * Unit tests for {@link UserService}.
+ * <p>
+ * This test class validates user management operations including CRUD, authentication,
+ * password management, account status changes, and user statistics.
+ * </p>
  */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

@@ -17,11 +17,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing internship types.
+ * Provides CRUD operations for internship type entities.
+ */
 @RestController
 @RequestMapping("/internship-types")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class InternshipTypeController {
     private final InternshipTypeService internshipTypeService;
     private final InternshipTypeMapper internshipTypeMapper;
 
+    /**
+     * Retrieves available fields for sorting internship types.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting internship types"
@@ -45,6 +62,13 @@ public class InternshipTypeController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific internship type by its ID.
+     * 
+     * @param id The ID of the internship type
+     * @return ResponseEntity containing the internship type details
+     * @throws ResourceNotFoundException if internship type not found
+     */
     @Operation(
             summary = "Get internship type by ID",
             description = "Retrieves a specific internship type by its ID"
@@ -66,6 +90,14 @@ public class InternshipTypeController {
         return ResponseHandler.success("Internship type retrieved successfully", result);
     }
 
+    /**
+     * Retrieves internship types with pagination and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param includeRelations Flag to include related entities
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated internship types
+     */
     @Operation(
             summary = "Get paginated internship types",
             description = "Retrieves internship types with pagination, sorting, and optional search"
@@ -85,6 +117,12 @@ public class InternshipTypeController {
         return ResponseHandler.success("Internship types retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all internship types without pagination.
+     * 
+     * @param includeRelations Flag to include related entities
+     * @return ResponseEntity containing list of all internship types
+     */
     @Operation(
             summary = "Get all internship types",
             description = "Retrieves all internship types without pagination"
@@ -103,6 +141,12 @@ public class InternshipTypeController {
         return ResponseHandler.success("Internship types retrieved successfully", result);
     }
 
+    /**
+     * Creates a new internship type.
+     * 
+     * @param dto Internship type creation data
+     * @return ResponseEntity containing the created internship type
+     */
     @Operation(
             summary = "Create new internship type",
             description = "Creates a new internship type with the provided details"
@@ -123,6 +167,13 @@ public class InternshipTypeController {
         return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing internship type.
+     * 
+     * @param id The ID of the internship type to update
+     * @param dto Internship type update data
+     * @return ResponseEntity containing the updated internship type
+     */
     @Operation(
             summary = "Update internship type",
             description = "Updates an existing internship type with the provided details"
@@ -144,6 +195,12 @@ public class InternshipTypeController {
         return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes an internship type by its ID.
+     * 
+     * @param id The ID of the internship type to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete internship type",
             description = "Deletes an internship type by its ID"

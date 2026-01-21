@@ -17,6 +17,13 @@ import de.unipassau.allocationsystem.repository.TeacherAvailabilityRepository;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration tests for the {@link TeacherAvailabilityController}.
+ * <p>
+ * This test class validates teacher availability CRUD operations, pagination,
+ * and sorting functionality.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")

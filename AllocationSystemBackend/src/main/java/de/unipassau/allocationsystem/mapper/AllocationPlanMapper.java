@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between AllocationPlan entities and DTOs.
+ * Handles allocation plan creation, updates, and response transformations.
+ */
 public class AllocationPlanMapper implements BaseMapper<AllocationPlan, AllocationPlanCreateDto, AllocationPlanUpdateDto, AllocationPlanResponseDto> {
 
     @Override

@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between Permission entities and DTOs.
+ * Handles permission creation, updates, and response transformations for RBAC.
+ */
 public class PermissionMapper implements BaseMapper<Permission, PermissionCreateDto, PermissionUpdateDto, PermissionResponseDto> {
 
     @Override

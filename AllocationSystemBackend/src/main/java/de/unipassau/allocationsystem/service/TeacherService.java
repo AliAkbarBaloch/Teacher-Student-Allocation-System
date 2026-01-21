@@ -50,6 +50,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing teacher entities.
+ * Handles CRUD operations, bulk imports, and employment status management.
+ */
 public class TeacherService implements CrudService<TeacherResponseDto, Long> {
 
     private final SubjectRepository subjectRepository;
@@ -90,6 +94,11 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         return SortFieldUtils.getSortFields("id", "firstName", "lastName", "email", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -201,6 +210,12 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
             captureNewValue = true
     )
     @Transactional
+    /**
+     * Creates a new teacher with subject qualifications.
+     * 
+     * @param createDto teacher creation data
+     * @return created teacher response DTO
+     */
     public TeacherResponseDto createTeacher(TeacherCreateDto createDto) {
         if (teacherRepository.existsByEmail(createDto.getEmail())) {
             throw new DuplicateResourceException("Email already exists: " + createDto.getEmail());
@@ -237,6 +252,13 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
             captureNewValue = true
     )
     @Transactional
+    /**
+     * Updates an existing teacher's information.
+     * 
+     * @param id the teacher ID
+     * @param updateDto teacher update data
+     * @return updated teacher response DTO
+     */
     public TeacherResponseDto updateTeacher(Long id, TeacherUpdateDto updateDto) {
         Teacher teacher = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
@@ -267,6 +289,13 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
             captureNewValue = true
     )
     @Transactional
+    /**
+     * Updates a teacher's employment status.
+     * 
+     * @param id the teacher ID
+     * @param employmentStatus the new employment status
+     * @return updated teacher response DTO
+     */
     public TeacherResponseDto updateEmploymentStatus(Long id, Teacher.EmploymentStatus employmentStatus) {
         Teacher existing = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + id));
@@ -290,6 +319,11 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         teacherRepository.deleteById(id);
     }
 
+    /**
+     * Deletes a teacher by ID.
+     * 
+     * @param id the teacher ID
+     */
     @Transactional
     public void deleteTeacher(Long id) {
         delete(id);
@@ -320,6 +354,14 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
             captureNewValue = false
     )
     @Transactional
+    /**
+     * Imports teachers from an Excel file.
+     * 
+     * @param file the Excel file containing teacher data
+     * @param skipInvalidRows whether to skip invalid rows or fail on first error
+     * @return bulk import response with success and error details
+     * @throws IOException if file reading fails
+     */
     public BulkImportResponseDto bulkImportTeachers(MultipartFile file, boolean skipInvalidRows) throws IOException {
         List<ExcelParser.ParsedRow> parsedRows = ExcelParser.parseExcelFile(file);
         List<ImportResultRowDto> results = new ArrayList<>();

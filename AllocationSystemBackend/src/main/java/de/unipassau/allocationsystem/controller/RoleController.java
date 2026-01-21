@@ -16,12 +16,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing roles.
+ * Provides CRUD operations for role entities used in role-based access control.
+ */
 @RestController
 @RequestMapping("/roles")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class RoleController {
     private final RoleService roleService;
     private final RoleMapper roleMapper;
 
+    /**
+     * Retrieves available fields for sorting roles.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting roles"
@@ -45,6 +62,13 @@ public class RoleController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific role by its ID.
+     * 
+     * @param id The ID of the role
+     * @return ResponseEntity containing the role details
+     * @throws NoSuchElementException if role not found
+     */
     @Operation(
             summary = "Get role by ID",
             description = "Retrieves a specific role by its ID"
@@ -66,6 +90,14 @@ public class RoleController {
         return ResponseHandler.success("Role retrieved successfully", result);
     }
 
+    /**
+     * Retrieves roles with pagination and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param includeRelations Flag to include related entities
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated roles
+     */
     @Operation(
             summary = "Get paginated roles",
             description = "Retrieves roles with pagination, sorting, and optional search"
@@ -85,6 +117,12 @@ public class RoleController {
         return ResponseHandler.success("Roles retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all roles without pagination.
+     * 
+     * @param includeRelations Flag to include related entities
+     * @return ResponseEntity containing list of all roles
+     */
     @Operation(
             summary = "Get all roles",
             description = "Retrieves all roles without pagination"
@@ -103,6 +141,12 @@ public class RoleController {
         return ResponseHandler.success("Roles retrieved successfully", result);
     }
 
+    /**
+     * Creates a new role.
+     * 
+     * @param dto Role creation data
+     * @return ResponseEntity containing the created role
+     */
     @Operation(
             summary = "Create new role",
             description = "Creates a new role with the provided details"
@@ -123,6 +167,13 @@ public class RoleController {
         return ResponseHandler.created("Role created successfully", roleMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing role.
+     * 
+     * @param id The ID of the role to update
+     * @param dto Role update data
+     * @return ResponseEntity containing the updated role
+     */
     @Operation(
             summary = "Update role",
             description = "Updates an existing role with the provided details"
@@ -144,6 +195,12 @@ public class RoleController {
         return ResponseHandler.updated("Role updated successfully", roleMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a role by its ID.
+     * 
+     * @param id The ID of the role to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete role",
             description = "Deletes a role by its ID"

@@ -29,11 +29,20 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing teacher assignments.
+ * Handles CRUD operations and assignment tracking for teachers.
+ */
 public class TeacherAssignmentService implements CrudService<TeacherAssignment, Long> {
 
     private final TeacherAssignmentRepository teacherAssignmentRepository;
     private final CreditHourTrackingService creditHourTrackingService;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
             "id", "planId", "teacherId", "internshipTypeId", "subjectId",
@@ -41,6 +50,11 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -184,6 +198,13 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
         creditHourTrackingService.recalculateForTeacherAndYear(existing.getTeacher().getId(), yearId);
     }
     
+    /**
+     * Lists all assignments for a specific teacher in a specific academic year.
+     * 
+     * @param teacherId the teacher ID
+     * @param yearId the academic year ID
+     * @return list of teacher assignments
+     */
     public List<TeacherAssignment> listByTeacherAndYear(Long teacherId, Long yearId) {
         return teacherAssignmentRepository.findByTeacherIdAndYearId(teacherId, yearId);
     }

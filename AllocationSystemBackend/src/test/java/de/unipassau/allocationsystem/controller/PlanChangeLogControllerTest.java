@@ -21,6 +21,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link PlanChangeLogController}.
+ * <p>
+ * This test class validates change log retrieval and filtering for allocation plans.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @ActiveProfiles("test")
 @Transactional

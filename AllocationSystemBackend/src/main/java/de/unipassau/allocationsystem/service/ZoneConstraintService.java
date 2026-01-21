@@ -50,6 +50,11 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }

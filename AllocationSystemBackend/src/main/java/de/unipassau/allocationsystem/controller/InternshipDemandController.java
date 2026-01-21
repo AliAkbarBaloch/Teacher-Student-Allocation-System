@@ -37,6 +37,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller for managing internship demands.
+ * Handles CRUD operations for internship demand entries per year/subject/school type.
+ */
 @RestController
 @RequestMapping("/internship-demands")
 @RequiredArgsConstructor
@@ -46,6 +50,11 @@ public class InternshipDemandController {
 private final InternshipDemandService service;
 private final InternshipDemandMapper internshipDemandMapper;
 
+/**
+ * Retrieves available fields for sorting internship demands.
+ * 
+ * @return ResponseEntity containing list of sortable fields
+ */
 @Operation(
         summary = "Get sort fields",
         description = "Retrieves available fields that can be used for sorting internship demands"
@@ -62,6 +71,13 @@ public ResponseEntity<?> getSortFields() {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
 }
 
+/**
+ * Retrieves internship demands with pagination and optional search.
+ * 
+ * @param queryParams Map containing pagination parameters (page, size, sort)
+ * @param searchValue Optional search term for filtering
+ * @return ResponseEntity containing paginated internship demands
+ */
 @Operation(
         summary = "Get paginated internship demands",
         description = "Retrieves internship demands with pagination, sorting, and optional search"
@@ -87,6 +103,11 @@ public ResponseEntity<?> getPaginate(
         return ResponseHandler.success("Internship demands retrieved successfully (paginated)", result);
 }
 
+/**
+ * Retrieves all internship demands without pagination.
+ * 
+ * @return ResponseEntity containing list of all internship demands
+ */
 @Operation(
         summary = "Get all internship demands",
         description = "Retrieves all internship demands without pagination"
@@ -106,6 +127,21 @@ public ResponseEntity<?> getAll() {
         return ResponseHandler.success("Internship demands retrieved successfully", result);
 }
 
+/**
+ * Lists internship demand entries filtered by year and optional dimensions.
+ * Supports pagination and filtering by multiple criteria.
+ * 
+ * @param yearId Required academic year ID
+ * @param internshipTypeId Optional internship type filter
+ * @param schoolType Optional school type filter
+ * @param subjectId Optional subject filter
+ * @param isForecasted Optional forecast flag filter
+ * @param page Page number (0-indexed)
+ * @param size Page size
+ * @param sort Sort field
+ * @param direction Sort direction (ASC or DESC)
+ * @return ResponseEntity containing paginated and filtered demand entries
+ */
 @Operation(summary = "Get internship demand list", description = "List internship demand entries filtered by year and optional dimensions")
 @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Demand entries retrieved"),
@@ -141,6 +177,13 @@ public ResponseEntity<?> list(
         return ResponseHandler.success("Internship demand retrieved successfully", dtoPage);
 }
 
+/**
+ * Aggregates internship demand by internship type for a specific year.
+ * Provides summary statistics grouped by internship type.
+ * 
+ * @param yearId The academic year ID
+ * @return ResponseEntity containing aggregated demand data
+ */
 @Operation(summary = "Aggregate internship demand by internship type for a year")
 @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Aggregation retrieved"),
@@ -154,6 +197,13 @@ public ResponseEntity<?> aggregateByYear(@RequestParam("academic_year_id") Long 
         return ResponseHandler.success("Aggregation retrieved", aggs);
 }
 
+    /**
+     * Retrieves a specific internship demand by its ID.
+     * 
+     * @param id The ID of the internship demand
+     * @return ResponseEntity containing the internship demand details
+     * @throws NoSuchElementException if internship demand not found
+     */
     @Operation(summary = "Get internship demand by id")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Found", content = @Content(schema = @Schema(implementation = InternshipDemandResponseDto.class))),
@@ -168,6 +218,12 @@ public ResponseEntity<?> aggregateByYear(@RequestParam("academic_year_id") Long 
         return ResponseHandler.success("Internship demand retrieved successfully", res);
     }
 
+    /**
+     * Creates a new internship demand.
+     * 
+     * @param dto Internship demand creation data
+     * @return ResponseEntity containing the created internship demand
+     */
     @Operation(summary = "Create internship demand")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = InternshipDemandResponseDto.class))),
@@ -182,6 +238,13 @@ public ResponseEntity<?> aggregateByYear(@RequestParam("academic_year_id") Long 
         return ResponseHandler.created("Internship demand created successfully", internshipDemandMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing internship demand.
+     * 
+     * @param id The ID of the internship demand to update
+     * @param dto Internship demand update data
+     * @return ResponseEntity containing the updated internship demand
+     */
     @Operation(summary = "Update internship demand")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = InternshipDemandResponseDto.class))),
@@ -196,6 +259,12 @@ public ResponseEntity<?> aggregateByYear(@RequestParam("academic_year_id") Long 
         return ResponseHandler.updated("Internship demand updated successfully", internshipDemandMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes an internship demand by its ID.
+     * 
+     * @param id The ID of the internship demand to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(summary = "Delete internship demand")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Deleted"),

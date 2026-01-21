@@ -59,6 +59,9 @@ public class TeacherFormSubmissionService {
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    /**
+     * Initializes the service and validates frontend URL configuration.
+     */
     @PostConstruct
     public void init() {
         log.info("TeacherFormSubmissionService initialized with frontendUrl: {}", frontendUrl);

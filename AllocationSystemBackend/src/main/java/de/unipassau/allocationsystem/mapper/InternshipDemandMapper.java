@@ -20,6 +20,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between InternshipDemand entities and DTOs.
+ * Handles demand tracking with academic year, internship type, and subject resolution.
+ */
 public class InternshipDemandMapper implements BaseMapper<InternshipDemand, InternshipDemandCreateDto, InternshipDemandUpdateDto, InternshipDemandResponseDto> {
 
     private final AcademicYearRepository academicYearRepository;
