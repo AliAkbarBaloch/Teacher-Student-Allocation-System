@@ -24,6 +24,12 @@
         }
     },
     "form": {
+        "title": {
+            "create": "Create user",
+            "edit": "Edit user",
+            "view": "User details"
+        },
+        "description": "Fill in the details below and save changes.",
         "fields": {
             "fullName": "Full name",
             "email": "Email",

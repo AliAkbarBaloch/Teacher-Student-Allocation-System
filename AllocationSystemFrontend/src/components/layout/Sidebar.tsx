@@ -102,7 +102,7 @@ export default function Sidebar() {
         crumbs.push({ label: t("navigation.allocationPlanningTeacherAssignments") });
       } else if (path === ROUTES.allocationPlanning.creditHourTracking) {
         crumbs.push({ label: t("navigation.allocationPlanningCreditHourTracking") });
-      }  else if (path === ROUTES.allocationPlanning.planChangeLogs) {
+      } else if (path === ROUTES.allocationPlanning.planChangeLogs) {
         crumbs.push({ label: t("navigation.allocationPlanningPlanChangeLogs") });
       }
       return crumbs;
@@ -120,6 +120,21 @@ export default function Sidebar() {
       } else if (path === ROUTES.reports.auditReports) {
         crumbs.push({ label: t("navigation.reportsAuditReports") });
       }
+      return crumbs;
+    }
+
+    // Admin routes
+    if (path.startsWith("/admin")) {
+      crumbs.push({ label: t("navigation.groups.admin") });
+
+      if (path === ROUTES.admin.users) {
+        crumbs.push({ label: t("navigation.users") });
+      } else if (path === ROUTES.admin.roles) {
+        crumbs.push({ label: t("navigation.roles") });
+      } else {
+        crumbs.push({ label: path }); // fallback for other admin pages
+      }
+
       return crumbs;
     }
 

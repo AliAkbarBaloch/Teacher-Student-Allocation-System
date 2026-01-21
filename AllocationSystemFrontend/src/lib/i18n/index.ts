@@ -54,7 +54,6 @@ import deTeachers from "./locales/de/teachers.json";
 import deTeacherSubjects from "./locales/de/teacherSubjects.json";
 import deTeacherSubmissions from "./locales/de/teacherSubmissions.json";
 import deZoneConstraints from "./locales/de/zoneConstraints.json";
-import { Users } from "lucide-react";
 
 // Language metadata configuration
 export const languages = [
