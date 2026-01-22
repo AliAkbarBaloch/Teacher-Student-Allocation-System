@@ -84,6 +84,21 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.existsById(id);
     }
 
+    private Pageable toPageable(Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
+    }
+
+    private Page<InternshipType> findPage(String searchValue, Pageable pageable) {
+        Specification<InternshipType> spec = buildSearchSpecification(searchValue);
+        return internshipTypeRepository.findAll(spec, pageable);
+    }
+
+    private InternshipType persist(InternshipType entity) {
+        return internshipTypeRepository.save(entity);
+    }
+
     /**
      * Validates that an internship code is unique in the system.
      *
@@ -101,10 +116,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     /**
      * Validates that an internship code can be updated to a new value.
      * Allows the code to remain unchanged, but ensures new codes are unique.
-     *
-     * @param newCode the new code to validate
-     * @param oldCode the existing code
-     * @throws DuplicateResourceException if new code already exists (and differs from old)
      */
     private void validateInternshipCodeForUpdate(String newCode, String oldCode) {
         if (!newCode.equals(oldCode) &&
@@ -116,13 +127,9 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     }
 
     /**
-     * Validates that an internship type exists by id.
-     *
-     * @param id the id to validate
-     * @return the existing InternshipType
-     * @throws ResourceNotFoundException if not found
+     * Loads existing InternshipType or throws if not found.
      */
-    private InternshipType validateExistence(Long id) {
+    private InternshipType getExistingOrThrow(Long id) {
         return internshipTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "InternshipType not found with id: " + id
@@ -131,7 +138,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
 
     /**
      * Collects names of properties that currently have null values in the given source object.
-     * Implemented with streams (instead of an explicit loop) to avoid clone-pattern hits.
      */
     private static String[] nullPropertyNamesOf(Object source) {
         BeanWrapper bw = new BeanWrapperImpl(source);
@@ -144,9 +150,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     /**
      * Applies field updates from data to existing entity by copying only non-null properties.
      * Immutable fields are always excluded.
-     *
-     * @param existing the entity to update
-     * @param data     the data containing new values
      */
     private void applyFieldUpdates(InternshipType existing, InternshipType data) {
         Set<String> ignore = new HashSet<>();
@@ -156,17 +159,16 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         BeanUtils.copyProperties(data, existing, ignore.toArray(new String[0]));
     }
 
+    private void removeOrThrow(Long id) {
+        getExistingOrThrow(id);
+        internshipTypeRepository.deleteById(id);
+    }
+
     @AuditedInternshipTypeViewPaginated
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
-
-        Specification<InternshipType> spec = buildSearchSpecification(searchValue);
-        Page<InternshipType> page = internshipTypeRepository.findAll(spec, pageable);
-
+        Page<InternshipType> page = findPage(searchValue, toPageable(queryParams));
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -189,28 +191,28 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     @Override
     public InternshipType create(InternshipType internshipType) {
         validateInternshipCodeUniqueness(internshipType.getInternshipCode());
-        return internshipTypeRepository.save(internshipType);
+        return persist(internshipType);
     }
 
     @AuditedInternshipTypeUpdate
     @Transactional
     @Override
     public InternshipType update(Long id, InternshipType data) {
-        InternshipType existing = validateExistence(id);
+        InternshipType existing = getExistingOrThrow(id);
 
-        if (data.getInternshipCode() != null) {
-            validateInternshipCodeForUpdate(data.getInternshipCode(), existing.getInternshipCode());
+        String newCode = data.getInternshipCode();
+        if (newCode != null) {
+            validateInternshipCodeForUpdate(newCode, existing.getInternshipCode());
         }
 
         applyFieldUpdates(existing, data);
-        return internshipTypeRepository.save(existing);
+        return persist(existing);
     }
 
     @AuditedInternshipTypeDelete
     @Transactional
     @Override
     public void delete(Long id) {
-        validateExistence(id);
-        internshipTypeRepository.deleteById(id);
+        removeOrThrow(id);
     }
 }
