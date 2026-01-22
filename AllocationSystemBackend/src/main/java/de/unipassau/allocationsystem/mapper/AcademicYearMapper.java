@@ -41,15 +41,17 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      */
     private AcademicYear mapCommonFields(Object dto, AcademicYear entity) {
         if (dto instanceof AcademicYearCreateDto createDto) {
-            setEntityFields(entity, createDto.getYearName(), createDto.getTotalCreditHours(),
-                    createDto.getElementarySchoolHours(), createDto.getMiddleSchoolHours(),
-                    createDto.getBudgetAnnouncementDate(), createDto.getAllocationDeadline(),
-                    createDto.getIsLocked());
+            HoursData hours = new HoursData(createDto.getTotalCreditHours(),
+                    createDto.getElementarySchoolHours(), createDto.getMiddleSchoolHours());
+            DateData dates = new DateData(createDto.getBudgetAnnouncementDate(),
+                    createDto.getAllocationDeadline());
+            setEntityFields(entity, createDto.getYearName(), hours, dates, createDto.getIsLocked());
         } else if (dto instanceof AcademicYearUpdateDto updateDto) {
-            setEntityFields(entity, updateDto.getYearName(), updateDto.getTotalCreditHours(),
-                    updateDto.getElementarySchoolHours(), updateDto.getMiddleSchoolHours(),
-                    updateDto.getBudgetAnnouncementDate(), updateDto.getAllocationDeadline(),
-                    updateDto.getIsLocked());
+            HoursData hours = new HoursData(updateDto.getTotalCreditHours(),
+                    updateDto.getElementarySchoolHours(), updateDto.getMiddleSchoolHours());
+            DateData dates = new DateData(updateDto.getBudgetAnnouncementDate(),
+                    updateDto.getAllocationDeadline());
+            setEntityFields(entity, updateDto.getYearName(), hours, dates, updateDto.getIsLocked());
         }
         return entity;
     }
@@ -59,39 +61,57 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      * 
      * @param entity Target entity
      * @param yearName Year name
-     * @param totalCreditHours Total credit hours
-     * @param elementarySchoolHours Elementary school hours
-     * @param middleSchoolHours Middle school hours
-     * @param budgetAnnouncementDate Budget announcement date
-     * @param allocationDeadline Allocation deadline
+     * @param hours Credit hours data
+     * @param dates Date information
      * @param isLocked Lock status
      */
-    private void setEntityFields(AcademicYear entity, String yearName, Integer totalCreditHours,
-                                 Integer elementarySchoolHours, Integer middleSchoolHours,
-                                 java.time.LocalDateTime budgetAnnouncementDate,
-                                 java.time.LocalDateTime allocationDeadline, Boolean isLocked) {
+    private void setEntityFields(AcademicYear entity, String yearName, HoursData hours,
+                                 DateData dates, Boolean isLocked) {
         if (yearName != null) {
             entity.setYearName(yearName);
         }
-        if (totalCreditHours != null) {
-            entity.setTotalCreditHours(totalCreditHours);
+        if (hours != null) {
+            if (hours.totalCreditHours() != null) {
+                entity.setTotalCreditHours(hours.totalCreditHours());
+            }
+            if (hours.elementarySchoolHours() != null) {
+                entity.setElementarySchoolHours(hours.elementarySchoolHours());
+            }
+            if (hours.middleSchoolHours() != null) {
+                entity.setMiddleSchoolHours(hours.middleSchoolHours());
+            }
         }
-        if (elementarySchoolHours != null) {
-            entity.setElementarySchoolHours(elementarySchoolHours);
-        }
-        if (middleSchoolHours != null) {
-            entity.setMiddleSchoolHours(middleSchoolHours);
-        }
-        if (budgetAnnouncementDate != null) {
-            entity.setBudgetAnnouncementDate(budgetAnnouncementDate);
-        }
-        if (allocationDeadline != null) {
-            entity.setAllocationDeadline(allocationDeadline);
+        if (dates != null) {
+            if (dates.budgetAnnouncementDate() != null) {
+                entity.setBudgetAnnouncementDate(dates.budgetAnnouncementDate());
+            }
+            if (dates.allocationDeadline() != null) {
+                entity.setAllocationDeadline(dates.allocationDeadline());
+            }
         }
         if (isLocked != null) {
             entity.setIsLocked(isLocked);
         }
     }
+
+    /**
+     * Holds credit hours data for academic year.
+     * 
+     * @param totalCreditHours Total credit hours
+     * @param elementarySchoolHours Elementary school hours
+     * @param middleSchoolHours Middle school hours
+     */
+    private record HoursData(Integer totalCreditHours, Integer elementarySchoolHours,
+                             Integer middleSchoolHours) {}
+
+    /**
+     * Holds date information for academic year.
+     * 
+     * @param budgetAnnouncementDate Budget announcement date
+     * @param allocationDeadline Allocation deadline
+     */
+    private record DateData(java.time.LocalDateTime budgetAnnouncementDate,
+                            java.time.LocalDateTime allocationDeadline) {}
 
     @Override
     public AcademicYearResponseDto toResponseDto(AcademicYear entity) {
@@ -127,9 +147,10 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null || entity == null) {
             return;
         }
-        setEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
-                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
-                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
-                dto.getIsLocked());
+        HoursData hours = new HoursData(dto.getTotalCreditHours(),
+                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours());
+        DateData dates = new DateData(dto.getBudgetAnnouncementDate(),
+                dto.getAllocationDeadline());
+        setEntityFields(entity, dto.getYearName(), hours, dates, dto.getIsLocked());
     }
 }
