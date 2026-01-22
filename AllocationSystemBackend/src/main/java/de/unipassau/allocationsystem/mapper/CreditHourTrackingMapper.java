@@ -30,16 +30,15 @@ public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, 
 
     @Override
     public CreditHourTracking toEntityCreate(CreditHourTrackingCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        CreditHourTracking entity = new CreditHourTracking();
-        populateEntity(entity, dto);
-        return entity;
+        return toNewEntity(dto);
     }
 
     @Override
     public CreditHourTracking toEntityUpdate(CreditHourTrackingUpdateDto dto) {
+        return toNewEntity(dto);
+    }
+
+    private CreditHourTracking toNewEntity(CreditHourTrackingUpsertDto dto) {
         if (dto == null) {
             return null;
         }
