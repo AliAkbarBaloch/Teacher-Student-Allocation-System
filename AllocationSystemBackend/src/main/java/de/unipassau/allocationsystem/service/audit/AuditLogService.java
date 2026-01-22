@@ -10,6 +10,7 @@ import de.unipassau.allocationsystem.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,27 +35,33 @@ public class AuditLogService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Self proxy to ensure @Async/@Transactional are applied (avoids self-invocation).
+     */
+    @Lazy
+    private final AuditLogService self;
+
     // ==================== Public API Methods ====================
 
     /**
      * Synchronously log an audit event with an explicit user.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public AuditLog log(User user, AuditAction action, String targetEntity, String targetRecordId, Object previousValue, Object newValue, String description) {
+    public AuditLog log(User user, AuditAction action, String targetEntity, String targetRecordId,
+                        Object previousValue, Object newValue, String description) {
         AuditLogContext context = captureContext(user);
-        return persistAuditLog(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        return persistAuditLog(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     /**
      * Asynchronously log an audit event with explicit user.
      */
     public void logAsync(User user, AuditAction action, String targetEntity,
-                        String targetRecordId, Object previousValue, Object newValue,
-                        String description) {
+                         String targetRecordId, Object previousValue, Object newValue,
+                         String description) {
         AuditLogContext context = captureContext(user);
-        logAsyncInternal(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        // IMPORTANT: call through proxy, not "this"
+        self.logAsyncInternal(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     /**
@@ -64,14 +71,15 @@ public class AuditLogService {
                                    String targetRecordId, Object previousValue,
                                    Object newValue, String description) {
         AuditLogContext context = captureContext(getCurrentUser());
-        logAsyncInternal(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        // IMPORTANT: call through proxy, not "this"
+        self.logAsyncInternal(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     // ==================== Convenience Methods ====================
+
     /**
      * Logs a CREATE action for an entity.
-     * 
+     *
      * @param entityName the entity type name
      * @param recordId the created record ID
      * @param newValue the new entity value
@@ -83,7 +91,7 @@ public class AuditLogService {
 
     /**
      * Logs an UPDATE action for an entity.
-     * 
+     *
      * @param entityName the entity type name
      * @param recordId the updated record ID
      * @param previousValue the previous entity value
@@ -96,7 +104,7 @@ public class AuditLogService {
 
     /**
      * Logs a DELETE action for an entity.
-     * 
+     *
      * @param entityName the entity type name
      * @param recordId the deleted record ID
      * @param previousValue the deleted entity value
@@ -108,7 +116,7 @@ public class AuditLogService {
 
     /**
      * Logs a VIEW action for an entity.
-     * 
+     *
      * @param entityName the entity type name
      * @param recordId the viewed record ID
      */
@@ -119,10 +127,6 @@ public class AuditLogService {
 
     /**
      * Asynchronously logs a custom action.
-     * 
-     * @param action the audit action type
-     * @param targetEntity the target entity type
-     * @param description the action description
      */
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -131,15 +135,15 @@ public class AuditLogService {
     }
 
     // ==================== Internal Methods ====================
+
     @Async("auditExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void logAsyncInternal(AuditLogContext context, AuditAction action,
-                                  String targetEntity, String targetRecordId,
-                                  Object previousValue, Object newValue, String description) {
+                                    String targetEntity, String targetRecordId,
+                                    Object previousValue, Object newValue, String description) {
         try {
-            persistAuditLog(context, action, targetEntity, targetRecordId,
-                    previousValue, newValue, description);
-        } catch (Exception e) {
+            persistAuditLog(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
+        } catch (RuntimeException e) {
             log.error("Failed to create audit log asynchronously", e);
         }
     }
@@ -170,14 +174,13 @@ public class AuditLogService {
         String userAgent = null;
 
         try {
-            ServletRequestAttributes attributes =
-                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attributes != null) {
+            Object attrs = RequestContextHolder.getRequestAttributes();
+            if (attrs instanceof ServletRequestAttributes attributes) {
                 HttpServletRequest request = attributes.getRequest();
                 ipAddress = extractClientIpAddress(request);
                 userAgent = request.getHeader("User-Agent");
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.debug("Could not capture request context", e);
         }
 
@@ -187,21 +190,28 @@ public class AuditLogService {
     private User getCurrentUser() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() != null) {
-                Object principal = authentication.getPrincipal();
-
-                if (principal instanceof User) {
-                    return (User) principal;
-                }
-
-                if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
-                    return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-                }
+            if (authentication == null) {
+                return null;
             }
-        } catch (Exception e) {
+
+            Object principal = authentication.getPrincipal();
+            if (principal == null) {
+                return null;
+            }
+
+            if (principal instanceof User u) {
+                return u;
+            }
+
+            if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+                return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+            }
+
+            return null;
+        } catch (RuntimeException e) {
             log.debug("Could not retrieve current user from security context", e);
+            return null;
         }
-        return null;
     }
 
     private String serializeValue(Object value) {
@@ -238,9 +248,9 @@ public class AuditLogService {
 
     @lombok.Value
     private static class AuditLogContext {
-        private User user;
-        private String userIdentifier;
-        private String ipAddress;
-        private String userAgent;
+        User user;
+        String userIdentifier;
+        String ipAddress;
+        String userAgent;
     }
 }
