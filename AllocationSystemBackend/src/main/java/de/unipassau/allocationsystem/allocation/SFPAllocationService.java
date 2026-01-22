@@ -1,9 +1,6 @@
 package de.unipassau.allocationsystem.allocation;
 
-import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.InternshipDemand;
-import de.unipassau.allocationsystem.entity.InternshipType;
-import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherAssignment;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.unipassau.allocationsystem.allocation.AllocationHelper.*;
@@ -29,27 +28,44 @@ class PDPAllocationService {
 
     private final TeacherAssignmentRepository teacherAssignmentRepository;
 
+    /**
+     * Allocates teachers to PDP demands.
+     * @param context allocation context with all necessary data
+     */
     public void allocate(LegacyAllocationContext context) {
         log.info("Processing {} PDP demands", context.getDemands().size());
 
         for (InternshipDemand demand : context.getDemands()) {
             int required = demand.getRequiredTeachers();
             List<Teacher> candidates = findCandidates(context, demand);
-            
-            int assigned = 0;
-            for (Teacher teacher : candidates) {
-                if (assigned >= required) {
-                    break;
-                }
-                if (context.getAssignmentsCount().getOrDefault(teacher, 0) < 2) {
-                    Subject assignedSubject = determineSubject(context, teacher, demand);
-                    if (assignedSubject != null) {
-                        createAssignment(context, teacher, demand, assignedSubject);
-                        assigned++;
-                    }
-                }
+            assignTeachersToDemand(context, demand, candidates, required);
+        }
+    }
+    
+    private int assignTeachersToDemand(LegacyAllocationContext context, InternshipDemand demand,
+                                        List<Teacher> candidates, int required) {
+        int assigned = 0;
+        for (Teacher teacher : candidates) {
+            if (assigned >= required) {
+                break;
+            }
+            if (canAssignTeacher(context, teacher, demand)) {
+                assigned++;
             }
         }
+        return assigned;
+    }
+    
+    private boolean canAssignTeacher(LegacyAllocationContext context, Teacher teacher, InternshipDemand demand) {
+        if (context.getAssignmentsCount().getOrDefault(teacher, 0) >= 2) {
+            return false;
+        }
+        Subject assignedSubject = determineSubject(context, teacher, demand);
+        if (assignedSubject != null) {
+            createAssignment(context, teacher, demand, assignedSubject);
+            return true;
+        }
+        return false;
     }
 
     private List<Teacher> findCandidates(LegacyAllocationContext context, InternshipDemand demand) {

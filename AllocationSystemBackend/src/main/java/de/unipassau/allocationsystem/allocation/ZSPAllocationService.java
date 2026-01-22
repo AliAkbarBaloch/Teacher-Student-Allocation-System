@@ -26,6 +26,10 @@ class ZSPAllocationService {
 
     private final TeacherAssignmentRepository teacherAssignmentRepository;
 
+    /**
+     * Allocates teachers to ZSP demands.
+     * @param context allocation context with all necessary data
+     */
     public void allocate(LegacyAllocationContext context) {
         log.info("Processing {} ZSP demands", context.getDemands().size());
 

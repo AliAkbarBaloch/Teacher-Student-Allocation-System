@@ -73,7 +73,7 @@ public class ImprovedTeacherAllocationService {
 
         // --- PHASE 3: VALIDATION & FINALIZATION ---
         allocationService.validateBudget(ctx, year);
-        finalizePlan(plan, year);
+        finalizePlan(plan);
 
         return plan;
     }
@@ -210,7 +210,7 @@ public class ImprovedTeacherAllocationService {
         return plan;
     }
 
-    private void finalizePlan(AllocationPlan plan, AcademicYear year) {
+    private void finalizePlan(AllocationPlan plan) {
         plan.setStatus(AllocationPlan.PlanStatus.DRAFT);
         plan.setUpdatedAt(LocalDateTime.now());
         entityManager.merge(plan);

@@ -10,7 +10,6 @@ import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class TeacherAllocationService {
 
     @PersistenceContext
@@ -39,21 +37,51 @@ public class TeacherAllocationService {
     private final SFPAllocationService sfpAllocationService;
     private final ZSPAllocationService zspAllocationService;
     private final PDPAllocationService pdpAllocationService;
+    private final TeacherAllocationService self;
 
-    // Self-reference for transactional method calls
     @Autowired
-    private TeacherAllocationService self;
+    public TeacherAllocationService(AllocationDataLoader dataLoader,
+                                     TeacherAssignmentRepository teacherAssignmentRepository,
+                                     SFPAllocationService sfpAllocationService,
+                                     ZSPAllocationService zspAllocationService,
+                                     PDPAllocationService pdpAllocationService,
+                                     @Autowired(required = false) TeacherAllocationService self) {
+        this.dataLoader = dataLoader;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.sfpAllocationService = sfpAllocationService;
+        this.zspAllocationService = zspAllocationService;
+        this.pdpAllocationService = pdpAllocationService;
+        this.self = self != null ? self : this;
+    }
 
+    /**
+     * Performs allocation for academic year.
+     * @param academicYearId the academic year ID
+     * @return created allocation plan
+     */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId) {
         return self.performAllocation(academicYearId, false, null);
     }
 
+    /**
+     * Performs allocation for academic year with current flag.
+     * @param academicYearId the academic year ID
+     * @param isCurrent whether this is the current allocation
+     * @return created allocation plan
+     */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId, Boolean isCurrent) {
         return self.performAllocation(academicYearId, isCurrent, null);
     }
 
+    /**
+     * Performs allocation for academic year with custom version.
+     * @param academicYearId the academic year ID
+     * @param isCurrent whether this is the current allocation
+     * @param customVersion custom version string
+     * @return created allocation plan
+     */
     @Transactional
     public AllocationPlan performAllocation(Long academicYearId, Boolean isCurrent, String customVersion) {
         log.info("=== Starting Allocation Process for Academic Year ID: {} ===", academicYearId);
