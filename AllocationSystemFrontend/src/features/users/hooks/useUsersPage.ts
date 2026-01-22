@@ -132,6 +132,7 @@ export function useUsersPage() {
         setRolesLoading(true);
         try {
             const all = await RoleService.getAll();
+            console.log("Roles from API:", all);
             setRoles(all ?? []);
         } catch (err) {
             const message = err instanceof Error ? err.message : t("errors.loadRoles");
