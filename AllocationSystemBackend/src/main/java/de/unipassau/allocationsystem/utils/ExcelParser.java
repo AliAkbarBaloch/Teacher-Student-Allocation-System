@@ -244,7 +244,7 @@ public class ExcelParser {
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return parser.apply(normalized);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             log.warn(warningMsg, value);
             return defaultValue;
         }
