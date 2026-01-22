@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AllocationSystemBackendApplication {
 
     /**
-     * Entry point for the Spring Boot application.
-     * 
+     * main method: entry point for the Spring Boot application.
+     *
      * @param args command-line arguments
      */
     public static void main(String[] args) {
