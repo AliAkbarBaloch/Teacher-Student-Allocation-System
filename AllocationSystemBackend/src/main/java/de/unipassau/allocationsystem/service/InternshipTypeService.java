@@ -9,6 +9,9 @@ import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +24,12 @@ import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 
+import java.beans.PropertyDescriptor;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +40,8 @@ import java.util.function.Consumer;
  * Handles CRUD operations and validation for internship types.
  */
 public class InternshipTypeService implements CrudService<InternshipType, Long> {
+
+    private static final String[] IMMUTABLE_FIELDS = {"id", "createdAt", "updatedAt"};
 
     private final InternshipTypeRepository internshipTypeRepository;
 
@@ -120,29 +127,35 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     }
 
     /**
-     * Small helper to avoid repetitive null-check-and-set clones.
+     * Returns property names with null values for the given object.
+     * Used to copy only non-null properties.
      */
-    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
+    private static String[] getNullPropertyNames(Object source) {
+        BeanWrapper src = new BeanWrapperImpl(source);
+        PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<>();
+        for (PropertyDescriptor pd : pds) {
+            Object value = src.getPropertyValue(pd.getName());
+            if (value == null) {
+                emptyNames.add(pd.getName());
+            }
         }
+        return emptyNames.toArray(new String[0]);
     }
 
     /**
-     * Applies field updates from data to existing entity.
-     * Uses a helper to avoid repetitive null-check-and-set pattern.
+     * Applies field updates from data to existing entity by copying only non-null properties.
+     * Immutable fields are always excluded.
      *
      * @param existing the entity to update
-     * @param data the data containing new values
+     * @param data     the data containing new values
      */
     private void applyFieldUpdates(InternshipType existing, InternshipType data) {
-        setIfNotNull(data.getInternshipCode(), existing::setInternshipCode);
-        setIfNotNull(data.getFullName(), existing::setFullName);
-        setIfNotNull(data.getTiming(), existing::setTiming);
-        setIfNotNull(data.getPeriodType(), existing::setPeriodType);
-        setIfNotNull(data.getSemester(), existing::setSemester);
-        setIfNotNull(data.getIsSubjectSpecific(), existing::setIsSubjectSpecific);
-        setIfNotNull(data.getPriorityOrder(), existing::setPriorityOrder);
+        Set<String> ignore = new HashSet<>(Set.of(getNullPropertyNames(data)));
+        ignore.addAll(Set.of(IMMUTABLE_FIELDS));
+
+        BeanUtils.copyProperties(data, existing, ignore.toArray(new String[0]));
     }
 
     @Audited(
