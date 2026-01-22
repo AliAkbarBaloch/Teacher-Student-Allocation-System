@@ -3,6 +3,7 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearCreateDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearResponseDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpdateDto;
+import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpsertDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null) {
             return null;
         }
-        return mapCommonFields(dto, new AcademicYear());
+        AcademicYear entity = new AcademicYear();
+        populateEntity(entity, dto);
+        return entity;
     }
 
     @Override
@@ -29,72 +32,23 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null) {
              return null;
         }
-        return mapCommonFields(dto, new AcademicYear());
-    }
-
-    /**
-     * Maps common fields from DTO to entity.
-     * 
-     * @param dto Source DTO containing academic year data
-     * @param entity Target entity to populate
-     * @return Populated entity
-     */
-    private AcademicYear mapCommonFields(Object dto, AcademicYear entity) {
-        if (dto instanceof AcademicYearCreateDto createDto) {
-            populateEntity(entity, createDto);
-        } else if (dto instanceof AcademicYearUpdateDto updateDto) {
-            populateEntity(entity, updateDto);
-        }
+        AcademicYear entity = new AcademicYear();
+        populateEntity(entity, dto);
         return entity;
     }
 
     /**
-     * Populates entity from create DTO.
+     * Populates entity from DTO using common interface.
      * 
      * @param entity Target entity
-     * @param dto Source create DTO
+     * @param dto Source DTO (create or update)
      */
-    private void populateEntity(AcademicYear entity, AcademicYearCreateDto dto) {
-        populateEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
-                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
-                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
-                dto.getIsLocked());
-    }
-
-    /**
-     * Populates entity from update DTO.
-     * 
-     * @param entity Target entity
-     * @param dto Source update DTO
-     */
-    private void populateEntity(AcademicYear entity, AcademicYearUpdateDto dto) {
-        populateEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
-                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
-                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
-                dto.getIsLocked());
-    }
-
-    /**
-     * Populates entity fields with provided values.
-     * 
-     * @param entity Target entity
-     * @param yearName Year name
-     * @param totalCreditHours Total credit hours
-     * @param elementarySchoolHours Elementary school hours
-     * @param middleSchoolHours Middle school hours
-     * @param budgetAnnouncementDate Budget announcement date
-     * @param allocationDeadline Allocation deadline
-     * @param isLocked Lock status
-     */
-    private void populateEntityFields(AcademicYear entity, String yearName,
-                                      Integer totalCreditHours, Integer elementarySchoolHours,
-                                      Integer middleSchoolHours,
-                                      java.time.LocalDateTime budgetAnnouncementDate,
-                                      java.time.LocalDateTime allocationDeadline,
-                                      Boolean isLocked) {
-        HoursData hours = new HoursData(totalCreditHours, elementarySchoolHours, middleSchoolHours);
-        DateData dates = new DateData(budgetAnnouncementDate, allocationDeadline);
-        setEntityFields(entity, yearName, hours, dates, isLocked);
+    private void populateEntity(AcademicYear entity, AcademicYearUpsertDto dto) {
+        HoursData hours = new HoursData(dto.getTotalCreditHours(),
+                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours());
+        DateData dates = new DateData(dto.getBudgetAnnouncementDate(),
+                dto.getAllocationDeadline());
+        setEntityFields(entity, dto.getYearName(), hours, dates, dto.getIsLocked());
     }
 
     /**
