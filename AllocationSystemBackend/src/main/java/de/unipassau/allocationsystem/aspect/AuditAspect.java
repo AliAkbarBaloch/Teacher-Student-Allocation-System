@@ -60,8 +60,8 @@ public class AuditAspect {
             );
         } catch (SecurityException e) {
             log.error("Security error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
-        } catch (NullPointerException e) {
-            log.error("Null pointer creating audit log for method: {}", joinPoint.getSignature().getName(), e);
+        } catch (IllegalStateException e) {
+            log.error("State error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
 
