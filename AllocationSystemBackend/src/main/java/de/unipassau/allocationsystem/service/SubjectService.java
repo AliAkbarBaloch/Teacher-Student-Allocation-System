@@ -8,6 +8,8 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,12 +20,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 
 /**
  * Service layer for CRUD operations and pagination logic around {@link Subject}.
@@ -43,21 +42,17 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Override
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
-            "id", "subjectCode", "subjectTitle", "schoolType", "isActive", "createdAt", "updatedAt"
+                "id", "subjectCode", "subjectTitle", "schoolType", "isActive", "createdAt", "updatedAt"
         );
     }
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        List<String> keys = new ArrayList<>();
-        for (Map<String, String> field : getSortFields()) {
-            keys.add(field.get("key"));
-        }
-        return keys;
+        return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
     /**
@@ -71,7 +66,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     private Specification<Subject> buildSearchSpecification(String searchValue) {
         // Search across subjectCode, subjectTitle, and schoolType
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"subjectCode", "subjectTitle", "schoolType"}, searchValue
+                new String[]{"subjectCode", "subjectTitle", "schoolType"}, searchValue
         );
     }
 
@@ -87,7 +82,7 @@ public class SubjectService implements CrudService<Subject, Long> {
 
     /**
      * Validates that the subject code is unique, throws exception if duplicate found.
-     * 
+     *
      * @param subjectCode the subject code to validate
      * @throws DuplicateResourceException if subject code already exists
      */
@@ -100,7 +95,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     /**
      * Validates that a new subject code doesn't conflict with existing records (for updates).
      * Allows the same code if it's the current subject being updated.
-     * 
+     *
      * @param newCode the new subject code
      * @param oldCode the old subject code
      * @throws DuplicateResourceException if new code conflicts with another subject's code
@@ -111,39 +106,38 @@ public class SubjectService implements CrudService<Subject, Long> {
         }
     }
 
-    /**
-     * Validates that a subject exists with the given ID.
-     * 
-     * @param id the subject ID
-     * @throws ResourceNotFoundException if not found
-     */
-    private void validateExistence(Long id) {
-        if (!subjectRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Subject not found with id: " + id);
-        }
+    private Subject getExistingOrThrow(Long id) {
+        return subjectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + id));
     }
 
     /**
      * Applies field updates from source to target subject.
      * Only updates fields that are non-null in the source.
-     * 
+     *
      * @param existing the target subject to update
-     * @param data the source data with new values
+     * @param data     the source data with new values
      */
     private void applyFieldUpdates(Subject existing, Subject data) {
-        if (data.getSubjectCode() != null) {
-            validateSubjectCodeForUpdate(data.getSubjectCode(), existing.getSubjectCode());
-            existing.setSubjectCode(data.getSubjectCode());
+        String incomingCode = data.getSubjectCode();
+        if (incomingCode != null) {
+            validateSubjectCodeForUpdate(incomingCode, existing.getSubjectCode());
+            existing.setSubjectCode(incomingCode);
         }
-        if (data.getSubjectTitle() != null) {
-            existing.setSubjectTitle(data.getSubjectTitle());
+
+        String incomingTitle = data.getSubjectTitle();
+        if (incomingTitle != null) {
+            existing.setSubjectTitle(incomingTitle);
         }
+
         if (data.getSubjectCategory() != null) {
             existing.setSubjectCategory(data.getSubjectCategory());
         }
+
         if (data.getSchoolType() != null) {
             existing.setSchoolType(data.getSchoolType());
         }
+
         if (data.getIsActive() != null) {
             existing.setIsActive(data.getIsActive());
         }
@@ -152,6 +146,17 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Override
     public boolean existsById(Long id) {
         return subjectRepository.existsById(id);
+    }
+
+    private Pageable toPageable(Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
+    }
+
+    private Page<Subject> findPage(String searchValue, Pageable pageable) {
+        Specification<Subject> spec = buildSearchSpecification(searchValue);
+        return subjectRepository.findAll(spec, pageable);
     }
 
     @Audited(
@@ -163,13 +168,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
-
-        Specification<Subject> spec = buildSearchSpecification(searchValue);
-        Page<Subject> page = subjectRepository.findAll(spec, pageable);
-
+        Page<Subject> page = findPage(searchValue, toPageable(queryParams));
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -211,7 +210,6 @@ public class SubjectService implements CrudService<Subject, Long> {
             description = "Created new subject",
             captureNewValue = true
     )
-    @Transactional
     @Override
     public Subject create(Subject subject) {
         validateSubjectCodeUniqueness(subject.getSubjectCode());
@@ -226,7 +224,7 @@ public class SubjectService implements CrudService<Subject, Long> {
      * @param id   identifier of the subject to update
      * @param data partial entity containing the new values
      * @return the updated entity
-     * @throws ResourceNotFoundException if subject not found
+     * @throws ResourceNotFoundException  if subject not found
      * @throws DuplicateResourceException if update violates uniqueness
      */
     @Audited(
@@ -235,12 +233,9 @@ public class SubjectService implements CrudService<Subject, Long> {
             description = "Updated subject information",
             captureNewValue = true
     )
-    @Transactional
     @Override
     public Subject update(Long id, Subject data) {
-        Subject existing = subjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + id));
-
+        Subject existing = getExistingOrThrow(id);
         applyFieldUpdates(existing, data);
         return subjectRepository.save(existing);
     }
@@ -258,11 +253,10 @@ public class SubjectService implements CrudService<Subject, Long> {
             description = "Deleted subject",
             captureNewValue = false
     )
-    @Transactional
     @Override
     public void delete(Long id) {
-        validateExistence(id);
+        // Preserve behavior: throw 404 when missing, then delete.
+        getExistingOrThrow(id);
         subjectRepository.deleteById(id);
     }
 }
-
