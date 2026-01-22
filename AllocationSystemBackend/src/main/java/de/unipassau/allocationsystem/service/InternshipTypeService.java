@@ -6,7 +6,6 @@ import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeUpdate;
 import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewAll;
 import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewById;
 import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewPaginated;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
