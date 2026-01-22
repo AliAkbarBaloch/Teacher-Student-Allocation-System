@@ -39,6 +39,15 @@ public class TeacherAllocationService {
     private final PDPAllocationService pdpAllocationService;
     private final TeacherAllocationService self;
 
+    /**
+     * Constructor with dependency injection.
+     * @param dataLoader allocation data loader
+     * @param teacherAssignmentRepository teacher assignment repository
+     * @param sfpAllocationService SFP allocation service
+     * @param zspAllocationService ZSP allocation service
+     * @param pdpAllocationService PDP allocation service
+     * @param self self-reference for transactional proxy
+     */
     @Autowired
     public TeacherAllocationService(AllocationDataLoader dataLoader,
                                      TeacherAssignmentRepository teacherAssignmentRepository,
