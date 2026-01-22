@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -28,10 +27,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-/**
- * Service for managing subject categories.
- * Handles CRUD operations for subject category entities.
- */
 public class SubjectCategoryService implements CrudService<SubjectCategory, Long> {
 
     private final SubjectCategoryRepository subjectCategoryRepository;
@@ -41,102 +36,47 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         return SortFieldUtils.getSortFields("id", "categoryTitle", "createdAt", "updatedAt");
     }
 
-    /**
-     * Returns the list of sortable field keys.
-     *
-     * @return list of field keys
-     */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return getSortFields().stream().map(m -> m.get("key")).toList();
     }
 
-    private Specification<SubjectCategory> buildSearchSpecification(String searchValue) {
-        // Search across categoryTitle (extend fields if needed)
+    public boolean categoryTitleExists(String categoryTitle) {
+        return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
+    }
+
+    private void assertUniqueTitleForCreate(String title) {
+        if (title != null && subjectCategoryRepository.findByCategoryTitle(title).isPresent()) {
+            throw new DuplicateResourceException("Subject category with title '" + title + "' already exists");
+        }
+    }
+
+    private void assertUniqueTitleForUpdate(String incomingTitle, SubjectCategory existing) {
+        if (incomingTitle == null) {
+            return;
+        }
+        if (incomingTitle.equals(existing.getCategoryTitle())) {
+            return;
+        }
+        Optional<SubjectCategory> match = subjectCategoryRepository.findByCategoryTitle(incomingTitle);
+        if (match.isPresent() && match.get().getId() != null && !match.get().getId().equals(existing.getId())) {
+            throw new DuplicateResourceException("Subject category with title '" + incomingTitle + "' already exists");
+        }
+    }
+
+    private SubjectCategory mustLoad(Long id) {
+        return subjectCategoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + id));
+    }
+
+    private Specification<SubjectCategory> searchSpec(String searchValue) {
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
                 new String[]{"categoryTitle"}, searchValue
         );
     }
 
-    /**
-     * Checks if a category with the given title exists.
-     *
-     * @param categoryTitle the category title to check
-     * @return true if category title exists, false otherwise
-     */
-    public boolean categoryTitleExists(String categoryTitle) {
-        return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
-    }
-
-    /**
-     * Ensures title uniqueness.
-     * - For create: currentId == null, any match is a duplicate.
-     * - For update: allows the same record to keep its title.
-     */
-    private void ensureTitleUnique(String title, Long currentId) {
-        if (title == null) {
-            return;
-        }
-
-        Optional<SubjectCategory> match = subjectCategoryRepository.findByCategoryTitle(title);
-        if (match.isEmpty()) {
-            return;
-        }
-
-        SubjectCategory found = match.get();
-        boolean sameRecord = currentId != null && found.getId() != null && found.getId().equals(currentId);
-        if (!sameRecord) {
-            throw new DuplicateResourceException("Subject category with title '" + title + "' already exists");
-        }
-    }
-
-    /**
-     * Validates that a category exists with the given ID.
-     *
-     * @param id the category ID
-     * @throws ResourceNotFoundException if not found
-     */
-    private void validateExistence(Long id) {
-        if (!subjectCategoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Subject category not found with id: " + id);
-        }
-    }
-
-    private SubjectCategory loadForUpdate(Long id) {
-        return subjectCategoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + id));
-    }
-
-    /**
-     * Applies field updates from source to target category.
-     * Only updates fields that are non-null in the source.
-     *
-     * @param existing the target category to update
-     * @param data     the source data with new values
-     */
-    private void applyFieldUpdates(SubjectCategory existing, SubjectCategory data) {
-        String incomingTitle = data.getCategoryTitle();
-        if (incomingTitle == null) {
-            return;
-        }
-
-        // Same logic as before: only enforce uniqueness when it would change the title
-        if (!incomingTitle.equals(existing.getCategoryTitle())) {
-            ensureTitleUnique(incomingTitle, existing.getId());
-        }
-
-        existing.setCategoryTitle(incomingTitle);
-    }
-
     @Override
     public boolean existsById(Long id) {
-        // keep as in your original version: repository existence
         return subjectCategoryRepository.findById(id).isPresent();
-    }
-
-    private Pageable createPageRequest(Map<String, String> queryParams) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
     }
 
     @Audited(
@@ -148,9 +88,11 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Pageable pageable = createPageRequest(queryParams);
-        Specification<SubjectCategory> spec = buildSearchSpecification(searchValue);
-        Page<SubjectCategory> page = subjectCategoryRepository.findAll(spec, pageable);
+        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
+        PageRequest pr = PageRequest.of(p.page() - 1, p.pageSize(), sort);
+
+        Page<SubjectCategory> page = subjectCategoryRepository.findAll(searchSpec(searchValue), pr);
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -186,8 +128,7 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     )
     @Override
     public SubjectCategory create(SubjectCategory subjectCategory) {
-        // Same behavior as validateCategoryTitleUniqueness(title)
-        ensureTitleUnique(subjectCategory.getCategoryTitle(), null);
+        assertUniqueTitleForCreate(subjectCategory.getCategoryTitle());
         return subjectCategoryRepository.save(subjectCategory);
     }
 
@@ -199,8 +140,14 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     )
     @Override
     public SubjectCategory update(Long id, SubjectCategory data) {
-        SubjectCategory existing = loadForUpdate(id);
-        applyFieldUpdates(existing, data);
+        SubjectCategory existing = mustLoad(id);
+
+        String incomingTitle = data.getCategoryTitle();
+        if (incomingTitle != null) {
+            assertUniqueTitleForUpdate(incomingTitle, existing);
+            existing.setCategoryTitle(incomingTitle);
+        }
+
         return subjectCategoryRepository.save(existing);
     }
 
@@ -212,8 +159,10 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     )
     @Override
     public void delete(Long id) {
-        // Preserve original behavior: check existence via existsById, then delete.
-        validateExistence(id);
+        // keep original semantics: 404 if missing, then delete
+        if (!subjectCategoryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Subject category not found with id: " + id);
+        }
         subjectCategoryRepository.deleteById(id);
     }
 }

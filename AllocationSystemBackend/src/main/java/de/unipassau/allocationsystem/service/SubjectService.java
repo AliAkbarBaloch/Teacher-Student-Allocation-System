@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,13 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Service layer for CRUD operations and pagination logic around {@link Subject}.
- * <p>
- * This service integrates audit logging so that create/update/delete operations
- * are tracked in the central audit log. All mutations emit descriptive log entries
- * and capture before/after snapshots where applicable.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,113 +38,44 @@ public class SubjectService implements CrudService<Subject, Long> {
         );
     }
 
-    /**
-     * Returns the list of sortable field keys.
-     *
-     * @return list of field keys
-     */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return getSortFields().stream().map(x -> x.get("key")).toList();
     }
 
-    /**
-     * Builds a case-insensitive specification that matches subject code, title,
-     * or school type containing the provided search fragment. If the search string
-     * is blank the specification resolves to a conjunction (match all).
-     *
-     * @param searchValue optional string to filter by
-     * @return specification applied to the repository query
-     */
-    private Specification<Subject> buildSearchSpecification(String searchValue) {
-        // Search across subjectCode, subjectTitle, and schoolType
+    private Specification<Subject> searchSpec(String searchValue) {
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
                 new String[]{"subjectCode", "subjectTitle", "schoolType"}, searchValue
         );
     }
 
-    /**
-     * Checks whether a subject with the provided code already exists.
-     *
-     * @param subjectCode code to check
-     * @return true when the repository already has an entity with this code
-     */
     public boolean isRecordExist(String subjectCode) {
         return subjectRepository.findBySubjectCode(subjectCode).isPresent();
     }
 
-    /**
-     * Unified uniqueness guard for subject codes.
-     * - For create: currentId == null, any match is duplicate.
-     * - For update: allows the same record to keep its code.
-     */
-    private void ensureUniqueSubjectCode(String subjectCode, Long currentId) {
-        if (subjectCode == null) {
-            return;
-        }
-
-        Optional<Subject> match = subjectRepository.findBySubjectCode(subjectCode);
-        if (match.isEmpty()) {
-            return;
-        }
-
-        Subject found = match.get();
-        boolean sameRecord = currentId != null && found.getId() != null && found.getId().equals(currentId);
-        if (!sameRecord) {
-            throw new DuplicateResourceException("Subject with code '" + subjectCode + "' already exists");
+    private void rejectDuplicateCodeOnCreate(String code) {
+        if (code != null && subjectRepository.findBySubjectCode(code).isPresent()) {
+            throw new DuplicateResourceException("Subject with code '" + code + "' already exists");
         }
     }
 
-    private Subject loadOrThrow(Long id) {
-        Optional<Subject> subject = subjectRepository.findById(id);
-        if (subject.isPresent()) {
-            return subject.get();
+    private void rejectDuplicateCodeOnUpdate(Subject existing, String incomingCode) {
+        if (incomingCode == null) return;
+        if (incomingCode.equals(existing.getSubjectCode())) return;
+
+        Optional<Subject> match = subjectRepository.findBySubjectCode(incomingCode);
+        if (match.isPresent() && match.get().getId() != null && !match.get().getId().equals(existing.getId())) {
+            throw new DuplicateResourceException("Subject with code '" + incomingCode + "' already exists");
         }
-        throw new ResourceNotFoundException("Subject not found with id: " + id);
     }
 
-    /**
-     * Applies field updates from source to target subject.
-     * Only updates fields that are non-null in the source.
-     *
-     * @param existing the target subject to update
-     * @param data     the source data with new values
-     */
-    private void applyFieldUpdates(Subject existing, Subject data) {
-        String incomingCode = data.getSubjectCode();
-        if (incomingCode != null) {
-            if (!incomingCode.equals(existing.getSubjectCode())) {
-                ensureUniqueSubjectCode(incomingCode, existing.getId());
-            }
-            existing.setSubjectCode(incomingCode);
-        }
-
-        String incomingTitle = data.getSubjectTitle();
-        if (incomingTitle != null) {
-            existing.setSubjectTitle(incomingTitle);
-        }
-
-        if (data.getSubjectCategory() != null) {
-            existing.setSubjectCategory(data.getSubjectCategory());
-        }
-
-        if (data.getSchoolType() != null) {
-            existing.setSchoolType(data.getSchoolType());
-        }
-
-        if (data.getIsActive() != null) {
-            existing.setIsActive(data.getIsActive());
-        }
+    private Subject requireSubject(Long id) {
+        return subjectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + id));
     }
 
     @Override
     public boolean existsById(Long id) {
         return subjectRepository.existsById(id);
-    }
-
-    private Pageable createPageRequest(Map<String, String> queryParams) {
-        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
-        return PageRequest.of(p.page() - 1, p.pageSize(), sort);
     }
 
     @Audited(
@@ -164,9 +87,11 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Pageable pageable = createPageRequest(queryParams);
-        Specification<Subject> spec = buildSearchSpecification(searchValue);
-        Page<Subject> page = subjectRepository.findAll(spec, pageable);
+        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
+        PageRequest req = PageRequest.of(p.page() - 1, p.pageSize(), sort);
+
+        Page<Subject> page = subjectRepository.findAll(searchSpec(searchValue), req);
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -194,14 +119,6 @@ public class SubjectService implements CrudService<Subject, Long> {
         return subjectRepository.findById(id);
     }
 
-    /**
-     * Persists a new subject, enforcing unique codes and emitting an
-     * audit event via the {@link Audited} annotation.
-     *
-     * @param subject payload to persist
-     * @return stored entity including generated identifiers
-     * @throws DuplicateResourceException if subject code already exists
-     */
     @Audited(
             action = AuditLog.AuditAction.CREATE,
             entityName = AuditEntityNames.SUBJECT,
@@ -210,22 +127,10 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public Subject create(Subject subject) {
-        // Same logic as validateSubjectCodeUniqueness(code)
-        ensureUniqueSubjectCode(subject.getSubjectCode(), null);
+        rejectDuplicateCodeOnCreate(subject.getSubjectCode());
         return subjectRepository.save(subject);
     }
 
-    /**
-     * Applies mutable fields from the input entity to the stored subject while
-     * guarding against duplicate codes. Whenever a change occurs an audit log
-     * entry is recorded with before/after snapshots.
-     *
-     * @param id   identifier of the subject to update
-     * @param data partial entity containing the new values
-     * @return the updated entity
-     * @throws ResourceNotFoundException  if subject not found
-     * @throws DuplicateResourceException if update violates uniqueness
-     */
     @Audited(
             action = AuditLog.AuditAction.UPDATE,
             entityName = AuditEntityNames.SUBJECT,
@@ -234,18 +139,23 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public Subject update(Long id, Subject data) {
-        Subject existing = loadOrThrow(id);
-        applyFieldUpdates(existing, data);
+        Subject existing = requireSubject(id);
+
+        String incomingCode = data.getSubjectCode();
+        if (incomingCode != null) {
+            rejectDuplicateCodeOnUpdate(existing, incomingCode);
+            existing.setSubjectCode(incomingCode);
+        }
+
+        String incomingTitle = data.getSubjectTitle();
+        if (incomingTitle != null) existing.setSubjectTitle(incomingTitle);
+        if (data.getSubjectCategory() != null) existing.setSubjectCategory(data.getSubjectCategory());
+        if (data.getSchoolType() != null) existing.setSchoolType(data.getSchoolType());
+        if (data.getIsActive() != null) existing.setIsActive(data.getIsActive());
+
         return subjectRepository.save(existing);
     }
 
-    /**
-     * Removes the subject identified by {@code id} and records a deletion
-     * audit log that captures the key fields of the removed entity.
-     *
-     * @param id identifier of the subject to remove
-     * @throws ResourceNotFoundException if subject not found
-     */
     @Audited(
             action = AuditLog.AuditAction.DELETE,
             entityName = AuditEntityNames.SUBJECT,
@@ -254,8 +164,8 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public void delete(Long id) {
-        // Preserve behavior: throw 404 when missing, then delete.
-        Subject existing = loadOrThrow(id);
+        // same behavior: 404 if missing, then delete
+        Subject existing = requireSubject(id);
         subjectRepository.deleteById(existing.getId());
     }
 }

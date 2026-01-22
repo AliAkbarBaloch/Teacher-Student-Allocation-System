@@ -44,21 +44,10 @@ public class SchoolService implements CrudService<School, Long> {
         return SortFieldUtils.getSortFields("id", "schoolName", "createdAt", "updatedAt");
     }
 
-    /**
-     * Returns the list of sortable field keys.
-     *
-     * @return list of field keys
-     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
-    /**
-     * Checks if a school with the given name exists.
-     *
-     * @param schoolName the school name to check
-     * @return true if school name exists, false otherwise
-     */
     public boolean schoolNameExists(String schoolName) {
         return schoolRepository.findBySchoolName(schoolName).isPresent();
     }
@@ -68,7 +57,7 @@ public class SchoolService implements CrudService<School, Long> {
         return schoolRepository.existsById(id);
     }
 
-    private School getExistingOrThrow(Long id) {
+    private School loadSchool(Long id) {
         return schoolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("School not found with id: " + id));
     }
@@ -82,92 +71,29 @@ public class SchoolService implements CrudService<School, Long> {
         });
     }
 
-    private void updateNameIfChanged(School existing, School data) {
-        String incoming = data.getSchoolName();
-        if (incoming == null || incoming.equals(existing.getSchoolName())) {
-            return;
-        }
-        ensureUniqueName(incoming, existing.getId());
-        existing.setSchoolName(incoming);
-    }
-
-    private void updateZoneIfProvided(School existing, School data) {
-        if (data.getZoneNumber() != null) {
-            existing.setZoneNumber(data.getZoneNumber());
-        }
-    }
-
-    private void updateTypeIfProvided(School existing, School data) {
-        if (data.getSchoolType() != null) {
-            existing.setSchoolType(data.getSchoolType());
-        }
-    }
-
-    private void updateActiveIfProvided(School existing, School data) {
-        if (data.getIsActive() != null) {
-            existing.setIsActive(data.getIsActive());
-        }
-    }
-
-    private void updateAddressIfProvided(School existing, School data) {
-        if (data.getAddress() != null) {
-            existing.setAddress(data.getAddress());
-        }
-    }
-
-    private void updateGeoIfProvided(School existing, School data) {
-        if (data.getLatitude() != null) {
-            existing.setLatitude(data.getLatitude());
-        }
-        if (data.getLongitude() != null) {
-            existing.setLongitude(data.getLongitude());
-        }
-    }
-
-    private void updateDistanceIfProvided(School existing, School data) {
-        if (data.getDistanceFromCenter() != null) {
-            existing.setDistanceFromCenter(data.getDistanceFromCenter());
-        }
-    }
-
-    private void updateTransportIfProvided(School existing, School data) {
-        if (data.getTransportAccessibility() != null) {
-            existing.setTransportAccessibility(data.getTransportAccessibility());
-        }
-    }
-
-    private void updateContactsIfProvided(School existing, School data) {
-        if (data.getContactEmail() != null) {
-            existing.setContactEmail(data.getContactEmail());
-        }
-        if (data.getContactPhone() != null) {
-            existing.setContactPhone(data.getContactPhone());
-        }
-    }
-
-    /**
-     * Applies field updates from source to target school.
-     * Only updates fields that are non-null in the source.
-     */
     private void applyFieldUpdates(School existing, School data) {
-        updateNameIfChanged(existing, data);
-        updateZoneIfProvided(existing, data);
-        updateTypeIfProvided(existing, data);
-        updateActiveIfProvided(existing, data);
-        updateAddressIfProvided(existing, data);
-        updateGeoIfProvided(existing, data);
-        updateDistanceIfProvided(existing, data);
-        updateTransportIfProvided(existing, data);
-        updateContactsIfProvided(existing, data);
+        String incomingName = data.getSchoolName();
+        if (incomingName != null && !incomingName.equals(existing.getSchoolName())) {
+            ensureUniqueName(incomingName, existing.getId());
+            existing.setSchoolName(incomingName);
+        }
+
+        if (data.getZoneNumber() != null) existing.setZoneNumber(data.getZoneNumber());
+        if (data.getSchoolType() != null) existing.setSchoolType(data.getSchoolType());
+        if (data.getIsActive() != null) existing.setIsActive(data.getIsActive());
+        if (data.getAddress() != null) existing.setAddress(data.getAddress());
+        if (data.getLatitude() != null) existing.setLatitude(data.getLatitude());
+        if (data.getLongitude() != null) existing.setLongitude(data.getLongitude());
+        if (data.getDistanceFromCenter() != null) existing.setDistanceFromCenter(data.getDistanceFromCenter());
+        if (data.getTransportAccessibility() != null) existing.setTransportAccessibility(data.getTransportAccessibility());
+        if (data.getContactEmail() != null) existing.setContactEmail(data.getContactEmail());
+        if (data.getContactPhone() != null) existing.setContactPhone(data.getContactPhone());
     }
 
-    private Pageable toPageable(Map<String, String> queryParams) {
+    private Pageable pageRequestFrom(Map<String, String> queryParams) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        return PageRequest.of(
-                params.page() - 1,
-                params.pageSize(),
-                Sort.by(params.sortOrder(), params.sortBy())
-        );
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
     }
 
     private Specification<School> buildFilterSpecification(Map<String, String> queryParams, String searchValue) {
@@ -179,66 +105,41 @@ public class SchoolService implements CrudService<School, Long> {
                                               Root<School> root, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
 
-        addSearchPredicate(predicates, root, cb, searchValue);
-        addSchoolTypePredicate(predicates, root, cb, queryParams.get("schoolType"));
-        addZonePredicate(predicates, root, cb, queryParams.get("zoneNumber"));
-        addActivePredicate(predicates, root, cb, queryParams.get("isActive"));
+        if (searchValue != null && !searchValue.trim().isEmpty()) {
+            String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
+            predicates.add(cb.like(cb.lower(root.get("schoolName")), likePattern));
+        }
+
+        parseSchoolType(queryParams.get("schoolType"))
+                .ifPresent(t -> predicates.add(cb.equal(root.get("schoolType"), t)));
+
+        parseInteger(queryParams.get("zoneNumber"))
+                .ifPresent(z -> predicates.add(cb.equal(root.get("zoneNumber"), z)));
+
+        String isActiveParam = queryParams.get("isActive");
+        if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
+            predicates.add(cb.equal(root.get("isActive"), Boolean.parseBoolean(isActiveParam.trim())));
+        }
 
         return predicates;
     }
 
-    private void addSearchPredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
-                                    String searchValue) {
-        if (searchValue == null || searchValue.trim().isEmpty()) {
-            return;
-        }
-        String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-        predicates.add(cb.like(cb.lower(root.get("schoolName")), likePattern));
-    }
-
-    private void addSchoolTypePredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
-                                        String schoolTypeParam) {
-        Optional<School.SchoolType> schoolType = parseSchoolType(schoolTypeParam);
-        schoolType.ifPresent(t -> predicates.add(cb.equal(root.get("schoolType"), t)));
-    }
-
     private Optional<School.SchoolType> parseSchoolType(String raw) {
-        if (raw == null || raw.trim().isEmpty()) {
-            return Optional.empty();
-        }
+        if (raw == null || raw.trim().isEmpty()) return Optional.empty();
         String normalized = raw.trim().toUpperCase();
         for (School.SchoolType t : School.SchoolType.values()) {
-            if (t.name().equals(normalized)) {
-                return Optional.of(t);
-            }
+            if (t.name().equals(normalized)) return Optional.of(t);
         }
         return Optional.empty();
     }
 
-    private void addZonePredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
-                                  String zoneNumberParam) {
-        Optional<Integer> zone = parseInteger(zoneNumberParam);
-        zone.ifPresent(z -> predicates.add(cb.equal(root.get("zoneNumber"), z)));
-    }
-
     private Optional<Integer> parseInteger(String raw) {
-        if (raw == null || raw.trim().isEmpty()) {
-            return Optional.empty();
-        }
+        if (raw == null || raw.trim().isEmpty()) return Optional.empty();
         try {
             return Optional.of(Integer.parseInt(raw.trim()));
         } catch (NumberFormatException ignored) {
             return Optional.empty();
         }
-    }
-
-    private void addActivePredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
-                                    String isActiveParam) {
-        if (isActiveParam == null || isActiveParam.trim().isEmpty()) {
-            return;
-        }
-        boolean isActive = Boolean.parseBoolean(isActiveParam.trim());
-        predicates.add(cb.equal(root.get("isActive"), isActive));
     }
 
     @Audited(
@@ -250,7 +151,7 @@ public class SchoolService implements CrudService<School, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Pageable pageable = toPageable(queryParams);
+        Pageable pageable = pageRequestFrom(queryParams);
         Specification<School> spec = buildFilterSpecification(queryParams, searchValue);
         Page<School> page = schoolRepository.findAll(spec, pageable);
         return PaginationUtils.formatPaginationResponse(page);
@@ -300,17 +201,13 @@ public class SchoolService implements CrudService<School, Long> {
     )
     @Override
     public School update(Long id, School data) {
-        School existing = getExistingOrThrow(id);
+        School existing = loadSchool(id);
         applyFieldUpdates(existing, data);
         return schoolRepository.save(existing);
     }
 
     /**
      * Updates the active status of a school.
-     *
-     * @param id       the school ID
-     * @param isActive the new active status
-     * @return updated school entity
      */
     @Audited(
             action = AuditAction.UPDATE,
@@ -319,10 +216,10 @@ public class SchoolService implements CrudService<School, Long> {
             captureNewValue = true
     )
     public School updateStatus(Long id, Boolean isActive) {
-        // Delegate to update(...) to avoid duplicated "load-save" logic.
-        School patch = new School();
-        patch.setIsActive(isActive);
-        return update(id, patch);
+        // same behavior as before: load -> set -> save
+        School existing = loadSchool(id);
+        existing.setIsActive(isActive);
+        return schoolRepository.save(existing);
     }
 
     @Audited(
@@ -333,7 +230,8 @@ public class SchoolService implements CrudService<School, Long> {
     )
     @Override
     public void delete(Long id) {
-        getExistingOrThrow(id);
+        // keep same behavior: throw if missing, then delete
+        loadSchool(id);
         schoolRepository.deleteById(id);
     }
 }
