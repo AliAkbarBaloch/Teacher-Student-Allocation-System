@@ -199,9 +199,7 @@ public class SchoolService implements CrudService<School, Long> {
     private void addSchoolTypePredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
                                         String schoolTypeParam) {
         Optional<School.SchoolType> schoolType = parseSchoolType(schoolTypeParam);
-        if (schoolType.isPresent()) {
-            predicates.add(cb.equal(root.get("schoolType"), schoolType.get()));
-        }
+        schoolType.ifPresent(t -> predicates.add(cb.equal(root.get("schoolType"), t)));
     }
 
     private Optional<School.SchoolType> parseSchoolType(String raw) {
@@ -220,9 +218,7 @@ public class SchoolService implements CrudService<School, Long> {
     private void addZonePredicate(List<Predicate> predicates, Root<School> root, CriteriaBuilder cb,
                                   String zoneNumberParam) {
         Optional<Integer> zone = parseInteger(zoneNumberParam);
-        if (zone.isPresent()) {
-            predicates.add(cb.equal(root.get("zoneNumber"), zone.get()));
-        }
+        zone.ifPresent(z -> predicates.add(cb.equal(root.get("zoneNumber"), z)));
     }
 
     private Optional<Integer> parseInteger(String raw) {
@@ -290,7 +286,6 @@ public class SchoolService implements CrudService<School, Long> {
             description = "Created new school",
             captureNewValue = true
     )
-    @Transactional
     @Override
     public School create(School school) {
         ensureUniqueName(school.getSchoolName(), null);
@@ -303,7 +298,6 @@ public class SchoolService implements CrudService<School, Long> {
             description = "Updated school",
             captureNewValue = true
     )
-    @Transactional
     @Override
     public School update(Long id, School data) {
         School existing = getExistingOrThrow(id);
@@ -311,13 +305,6 @@ public class SchoolService implements CrudService<School, Long> {
         return schoolRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.SCHOOL,
-            description = "Updated school status",
-            captureNewValue = true
-    )
-    @Transactional
     /**
      * Updates the active status of a school.
      *
@@ -325,10 +312,17 @@ public class SchoolService implements CrudService<School, Long> {
      * @param isActive the new active status
      * @return updated school entity
      */
+    @Audited(
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.SCHOOL,
+            description = "Updated school status",
+            captureNewValue = true
+    )
     public School updateStatus(Long id, Boolean isActive) {
-        School existing = getExistingOrThrow(id);
-        existing.setIsActive(isActive);
-        return schoolRepository.save(existing);
+        // Delegate to update(...) to avoid duplicated "load-save" logic.
+        School patch = new School();
+        patch.setIsActive(isActive);
+        return update(id, patch);
     }
 
     @Audited(
@@ -337,7 +331,6 @@ public class SchoolService implements CrudService<School, Long> {
             description = "Deleted school",
             captureNewValue = false
     )
-    @Transactional
     @Override
     public void delete(Long id) {
         getExistingOrThrow(id);
