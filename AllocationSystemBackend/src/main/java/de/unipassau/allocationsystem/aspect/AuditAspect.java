@@ -29,27 +29,27 @@ public class AuditAspect {
         returning = "result"
     )
     public void auditMethodExecution(JoinPoint joinPoint, Audited audited, Object result) {
+        String entityName;
+        if (audited.entityName().isEmpty()) {
+            entityName = extractEntityNameFromMethod(joinPoint);
+        } else {
+            entityName = audited.entityName();
+        }
+        
+        AuditAction action = audited.action();
+        String description;
+        if (audited.description().isEmpty()) {
+            description = generateDescription(joinPoint, action, entityName);
+        } else {
+            description = audited.description();
+        }
+
+        Object recordId = extractRecordId(joinPoint, result);
+        // Note: Previous value capture not yet implemented - would require database query or ThreadLocal
+        Object previousValue = audited.capturePreviousValue() ? null : null;
+        Object newValue = audited.captureNewValue() ? result : null;
+
         try {
-            String entityName;
-            if (audited.entityName().isEmpty()) {
-                entityName = extractEntityNameFromMethod(joinPoint);
-            } else {
-                entityName = audited.entityName();
-            }
-            
-            AuditAction action = audited.action();
-            String description;
-            if (audited.description().isEmpty()) {
-                description = generateDescription(joinPoint, action, entityName);
-            } else {
-                description = audited.description();
-            }
-
-            Object recordId = extractRecordId(joinPoint, result);
-            // Note: Previous value capture not yet implemented - would require database query or ThreadLocal
-            Object previousValue = audited.capturePreviousValue() ? null : null;
-            Object newValue = audited.captureNewValue() ? result : null;
-
             auditLogService.logWithCurrentUser(
                 action,
                 entityName,
@@ -60,8 +60,6 @@ public class AuditAspect {
             );
         } catch (SecurityException e) {
             log.error("Security error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
-        } catch (IllegalStateException e) {
-            log.error("State error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
 
