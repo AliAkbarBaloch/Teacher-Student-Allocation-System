@@ -19,18 +19,23 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYear toEntityCreate(AcademicYearCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        AcademicYear entity = new AcademicYear();
-        populateEntity(entity, dto);
-        return entity;
+        return toNewEntity(dto);
     }
 
     @Override
     public AcademicYear toEntityUpdate(AcademicYearUpdateDto dto) {
+        return toNewEntity(dto);
+    }
+
+    /**
+     * Creates new entity from DTO.
+     * 
+     * @param dto Source DTO (create or update)
+     * @return New entity or null if dto is null
+     */
+    private AcademicYear toNewEntity(AcademicYearUpsertDto dto) {
         if (dto == null) {
-             return null;
+            return null;
         }
         AcademicYear entity = new AcademicYear();
         populateEntity(entity, dto);
@@ -112,28 +117,7 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYearResponseDto toResponseDto(AcademicYear entity) {
-        return entity == null ? null : buildResponseDto(entity);
-    }
-
-    /**
-     * Builds response DTO from entity.
-     * 
-     * @param entity Source entity
-     * @return Response DTO
-     */
-    private AcademicYearResponseDto buildResponseDto(AcademicYear entity) {
-        return new AcademicYearResponseDto(
-                entity.getId(),
-                entity.getYearName(),
-                entity.getTotalCreditHours(),
-                entity.getElementarySchoolHours(),
-                entity.getMiddleSchoolHours(),
-                entity.getBudgetAnnouncementDate(),
-                entity.getAllocationDeadline(),
-                entity.getIsLocked(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
+        return AcademicYearResponseDto.fromEntity(entity);
     }
 
     @Override
