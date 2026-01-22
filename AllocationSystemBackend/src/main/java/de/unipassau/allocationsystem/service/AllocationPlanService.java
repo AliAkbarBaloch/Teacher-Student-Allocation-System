@@ -8,9 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +22,12 @@ import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.entity.User;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.AllocationPlanMapper;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
-import de.unipassau.allocationsystem.repository.UserRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,39 +42,35 @@ public class AllocationPlanService {
 
     private final AllocationPlanRepository allocationPlanRepository;
     private final AcademicYearRepository academicYearRepository;
-    private final UserRepository userRepository;
     private final AllocationPlanMapper allocationPlanMapper;
     private final PlanChangeLogService planChangeLogService;
     private final TeacherAllocationService teacherAllocationService;
 
+    private final AllocationPlanWriteSupport writeSupport;
+
     /**
      * Get available sort fields for allocation plans.
+     *
+     * @return list of sortable fields
      */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields(
-            "id", "planName", "planVersion", "status", "isCurrent", "createdAt", "updatedAt"
+                "id", "planName", "planVersion", "status", "isCurrent", "createdAt", "updatedAt"
         );
     }
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
-    private Specification<AllocationPlan> buildSearchSpecification(String searchValue) {
-        // Search across planName, planVersion, status
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"planName", "planVersion", "status"}, searchValue
-        );
-    }
-
     /**
      * Retrieves all allocation plans without pagination.
-     * 
+     *
      * @return list of all allocation plans
      */
     @Transactional(readOnly = true)
@@ -98,41 +87,32 @@ public class AllocationPlanService {
             PlanStatus status,
             Boolean isCurrent,
             Map<String, String> queryParams) {
+
         log.info("Fetching allocation plans - yearId: {}, status: {}, isCurrent: {}",
                 yearId, status, isCurrent);
 
-        // Validate pagination parameters
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
 
-        // Start with a neutral specification and add filters conditionally
         Specification<AllocationPlan> spec = Specification.allOf();
 
         if (yearId != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("academicYear").get("id"), yearId));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
         }
-
         if (status != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
         }
-
         if (isCurrent != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("isCurrent"), isCurrent));
         }
 
-        // Create pageable with sorting
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
-        // Fetch paginated results (spec may be null internally)
         Page<AllocationPlan> page = allocationPlanRepository.findAll(spec, pageable);
         log.info("Found {} allocation plans (page {} of {})",
                 page.getNumberOfElements(), page.getNumber() + 1, page.getTotalPages());
 
-        // Convert to DTOs
         Page<AllocationPlanResponseDto> dtoPage = page.map(allocationPlanMapper::toResponseDto);
-
-        // Return paginated response
         return PaginationUtils.formatPaginationResponse(dtoPage);
     }
 
@@ -144,8 +124,7 @@ public class AllocationPlanService {
         log.info("Fetching allocation plan with ID: {}", id);
 
         AllocationPlan plan = allocationPlanRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Allocation plan not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with ID: " + id));
 
         return allocationPlanMapper.toResponseDto(plan);
     }
@@ -154,107 +133,45 @@ public class AllocationPlanService {
      * Create a new allocation plan.
      */
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.ALLOCATION_PLAN,
-        description = "Created new allocation plan",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.ALLOCATION_PLAN,
+            description = "Created new allocation plan",
+            captureNewValue = true
     )
     @Transactional
     public AllocationPlanResponseDto createPlan(AllocationPlanCreateDto createDto) {
-        log.info("Creating allocation plan: {} v{} for year ID: {}", 
-                createDto.getPlanName(), createDto.getPlanVersion(), createDto.getYearId());
-        log.info("[DEBUG] Received isCurrent value in service: {}", createDto.getIsCurrent());
+        AcademicYear year = writeSupport.requireAcademicYear(createDto.getYearId());
+        writeSupport.requireUniqueVersion(createDto.getYearId(), createDto.getPlanVersion());
 
-        // Validate academic year exists
-        AcademicYear academicYear = academicYearRepository.findById(createDto.getYearId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Academic year not found with ID: " + createDto.getYearId()));
-
-        // Check uniqueness of (yearId, planVersion)
-        if (allocationPlanRepository.existsByAcademicYearIdAndPlanVersion(
-                createDto.getYearId(), createDto.getPlanVersion())) {
-            throw new DuplicateResourceException(
-                    "Allocation plan with version '" + createDto.getPlanVersion() + 
-                    "' already exists for this academic year");
-        }
-
-        // If isCurrent = true, unset current for other plans of the same year
         if (Boolean.TRUE.equals(createDto.getIsCurrent())) {
             allocationPlanRepository.unsetCurrentForYear(createDto.getYearId());
-            log.info("Unset is_current for other plans of year ID: {}", createDto.getYearId());
         }
 
-        // Create the allocation plan
-        AllocationPlan plan = new AllocationPlan();
-        plan.setAcademicYear(academicYear);
-        plan.setPlanName(createDto.getPlanName());
-        plan.setPlanVersion(createDto.getPlanVersion());
-        plan.setStatus(createDto.getStatus());
-        plan.setIsCurrent(createDto.getIsCurrent() != null ? createDto.getIsCurrent() : false);
-        plan.setNotes(createDto.getNotes());
-        log.info("[DEBUG] Plan isCurrent before save: {}", plan.getIsCurrent());
+        AllocationPlan saved = writeSupport.createAndSavePlan(createDto, year);
 
-        AllocationPlan saved = allocationPlanRepository.save(plan);
-        log.info("Allocation plan created successfully with ID: {}", saved.getId());
-        log.info("[DEBUG] Saved plan isCurrent after save: {}", saved.getIsCurrent());
-
-        // Log plan creation in plan change log
-        planChangeLogService.logPlanChange(
-            saved.getId(),
-            PlanChangeTypes.CREATE,
-            AuditEntityNames.ALLOCATION_PLAN,
-            saved.getId(),
-            null,
-            allocationPlanMapper.toResponseDto(saved),
-            "Created allocation plan"
-        );
-
-        AllocationPlanResponseDto responseDto = allocationPlanMapper.toResponseDto(saved);
-        log.info("[DEBUG] Response DTO isCurrent: {}", responseDto.getIsCurrent());
-        return responseDto;
+        writeSupport.logCreateChange(saved);
+        return allocationPlanMapper.toResponseDto(saved);
     }
 
     /**
      * Run the allocation algorithm for a specific allocation plan.
-     * This triggers the teacher allocation process for the academic year associated with the plan.
      *
      * @param planId ID of the allocation plan
      * @return ID of the newly created allocation plan
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.ALLOCATION_PLAN,
-        description = "Run allocation algorithm for plan"
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.ALLOCATION_PLAN,
+            description = "Run allocation algorithm for plan"
     )
     public Long runAllocationForPlan(Long planId) {
         log.info("Running allocation algorithm for plan ID: {}", planId);
 
-        // Get the allocation plan to retrieve its academic year
         AllocationPlan plan = allocationPlanRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + planId));
 
-        log.debug("Retrieved plan: {}, academicYear: {}", plan, plan.getAcademicYear());
+        AcademicYear academicYear = writeSupport.requirePlanAcademicYear(planId, plan);
 
-        // Get the academic year
-        AcademicYear academicYear = plan.getAcademicYear();
-        if (academicYear == null) {
-            log.error("Allocation plan {} has null academic year", planId);
-            throw new IllegalStateException("Allocation plan has no associated academic year");
-        }
-
-        log.info("Academic year retrieved: ID={}, Name={}", academicYear.getId(), academicYear.getYearName());
-
-        // Trigger the allocation algorithm
-        // NOTE: This will create a NEW allocation plan with a new version number
-        // The performAllocation method always creates a new plan
-        log.info("Triggering allocation algorithm for academic year: {} (ID: {}). This will create a new plan version.",
-                academicYear.getYearName(), academicYear.getId());
-        
-        if (teacherAllocationService == null) {
-            log.error("TeacherAllocationService is NULL!");
-            throw new IllegalStateException("TeacherAllocationService is not injected");
-        }
-        
         AllocationPlan newPlan = teacherAllocationService.performAllocation(academicYear.getId());
         log.info("Allocation algorithm completed successfully - new plan created with ID: {}", newPlan.getId());
         return newPlan.getId();
@@ -264,61 +181,24 @@ public class AllocationPlanService {
      * Update an existing allocation plan.
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.ALLOCATION_PLAN,
-        description = "Updated allocation plan",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.ALLOCATION_PLAN,
+            description = "Updated allocation plan",
+            captureNewValue = true
     )
     @Transactional
     public AllocationPlanResponseDto updatePlan(Long id, AllocationPlanUpdateDto updateDto) {
-        log.info("Updating allocation plan with ID: {}", id);
+        AllocationPlan plan = writeSupport.requirePlan(id);
 
-        AllocationPlan plan = allocationPlanRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Allocation plan not found with ID: " + id));
+        writeSupport.assertUpdatable(plan);
+        writeSupport.applyCurrentFlagIfNeeded(id, plan, updateDto);
 
-        // Check if plan is locked (APPROVED or ARCHIVED)
-        // According to requirements, admin can still edit approved plans
-        if (plan.getStatus() == PlanStatus.ARCHIVED) {
-            throw new IllegalArgumentException(
-                    "Cannot update archived allocation plan. Create a new version instead.");
-        }
-
-        // If changing status to APPROVED, validate business rules
-        if (updateDto.getStatus() != null && updateDto.getStatus() == PlanStatus.APPROVED) {
-            if (plan.getStatus() != PlanStatus.IN_REVIEW && plan.getStatus() != PlanStatus.DRAFT) {
-                log.warn("Changing plan status directly to APPROVED from {}", plan.getStatus());
-            }
-        }
-
-        // If setting isCurrent = true, unset current for other plans of the same year
-        if (Boolean.TRUE.equals(updateDto.getIsCurrent()) && !plan.getIsCurrent()) {
-            allocationPlanRepository.unsetCurrentForYearExcept(
-                    plan.getAcademicYear().getId(), id);
-            log.info("Unset is_current for other plans of year ID: {} except plan ID: {}", 
-                    plan.getAcademicYear().getId(), id);
-        }
-
-        // Capture old state
         var oldDto = allocationPlanMapper.toResponseDto(plan);
 
-        // Update the plan
         allocationPlanMapper.updateEntityFromDto(updateDto, plan);
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
-        log.info("Allocation plan updated successfully with ID: {}", updated.getId());
-
-        // Log update
-        planChangeLogService.logPlanChange(
-            updated.getId(),
-            PlanChangeTypes.UPDATE,
-            AuditEntityNames.ALLOCATION_PLAN,
-            updated.getId(),
-            oldDto,
-            allocationPlanMapper.toResponseDto(updated),
-            "Updated allocation plan"
-        );
-
+        writeSupport.logUpdateChange(updated, oldDto);
         return allocationPlanMapper.toResponseDto(updated);
     }
 
@@ -327,45 +207,29 @@ public class AllocationPlanService {
      * This will unset is_current on all other plans for the same year.
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.ALLOCATION_PLAN,
-        description = "Set allocation plan as current",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.ALLOCATION_PLAN,
+            description = "Set allocation plan as current",
+            captureNewValue = true
     )
     @Transactional
     public AllocationPlanResponseDto setCurrentPlan(Long id) {
-        log.info("Setting allocation plan ID: {} as current", id);
+        AllocationPlan plan = writeSupport.requirePlan(id);
+        writeSupport.assertNotArchivedForCurrent(plan);
 
-        AllocationPlan plan = allocationPlanRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Allocation plan not found with ID: " + id));
+        allocationPlanRepository.unsetCurrentForYearExcept(plan.getAcademicYear().getId(), id);
 
-        // Validate that plan is in appropriate status to be set as current
-        if (plan.getStatus() == PlanStatus.ARCHIVED) {
-            throw new IllegalArgumentException(
-                    "Cannot set archived plan as current. Restore it first.");
-        }
-
-        // Unset current for all other plans of the same year
-        allocationPlanRepository.unsetCurrentForYearExcept(
-                plan.getAcademicYear().getId(), id);
-
-        // Set this plan as current
         plan.setIsCurrent(true);
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
-        log.info("Allocation plan ID: {} set as current for year ID: {}", 
-            id, plan.getAcademicYear().getId());
-
-        // Log status change
         planChangeLogService.logPlanChange(
-            updated.getId(),
-            PlanChangeTypes.STATUS_CHANGE,
-            AuditEntityNames.ALLOCATION_PLAN,
-            updated.getId(),
-            "isCurrent=false",
-            "isCurrent=true",
-            "Set as current plan"
+                updated.getId(),
+                PlanChangeTypes.STATUS_CHANGE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                updated.getId(),
+                "isCurrent=false",
+                "isCurrent=true",
+                "Set as current plan"
         );
 
         return allocationPlanMapper.toResponseDto(updated);
@@ -376,61 +240,36 @@ public class AllocationPlanService {
      * Sets status to ARCHIVED and removes is_current flag.
      */
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.ALLOCATION_PLAN,
-        description = "Archived allocation plan",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.ALLOCATION_PLAN,
+            description = "Archived allocation plan",
+            captureNewValue = true
     )
     @Transactional
     public AllocationPlanResponseDto archivePlan(Long id) {
-        log.info("Archiving allocation plan with ID: {}", id);
+        AllocationPlan plan = writeSupport.requirePlan(id);
 
-        AllocationPlan plan = allocationPlanRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Allocation plan not found with ID: " + id));
+        writeSupport.assertNotAlreadyArchived(plan);
 
-        if (plan.getStatus() == PlanStatus.ARCHIVED) {
-            throw new IllegalArgumentException("Plan is already archived");
-        }
-
-        // If this was the current plan, unset it
-        if (plan.getIsCurrent()) {
+        if (Boolean.TRUE.equals(plan.getIsCurrent())) {
             plan.setIsCurrent(false);
-            log.info("Removed is_current flag from archived plan");
         }
 
+        PlanStatus previous = plan.getStatus();
         plan.setStatus(PlanStatus.ARCHIVED);
         AllocationPlan updated = allocationPlanRepository.save(plan);
 
-        log.info("Allocation plan archived successfully with ID: {}", id);
-
-        // Log status change to ARCHIVED
         planChangeLogService.logPlanChange(
-            updated.getId(),
-            PlanChangeTypes.STATUS_CHANGE,
-            AuditEntityNames.ALLOCATION_PLAN,
-            updated.getId(),
-            "status=" + plan.getStatus(),
-            "status=" + AllocationPlan.PlanStatus.ARCHIVED,
-            "Archived allocation plan"
+                updated.getId(),
+                PlanChangeTypes.STATUS_CHANGE,
+                AuditEntityNames.ALLOCATION_PLAN,
+                updated.getId(),
+                "status=" + previous,
+                "status=" + AllocationPlan.PlanStatus.ARCHIVED,
+                "Archived allocation plan"
         );
 
         return allocationPlanMapper.toResponseDto(updated);
-    }
-
-    private Long resolveCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() != null) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof User) {
-                return ((User) principal).getId();
-            }
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                return userRepository.findByEmail(username).map(u -> u.getId()).orElse(null);
-            }
-        }
-        return null;
     }
 
     /**
@@ -438,8 +277,6 @@ public class AllocationPlanService {
      */
     @Transactional(readOnly = true)
     public AllocationPlanResponseDto getCurrentPlanForYear(Long yearId) {
-        log.info("Fetching current allocation plan for year ID: {}", yearId);
-
         AllocationPlan plan = allocationPlanRepository.findByAcademicYearIdAndIsCurrentTrue(yearId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No current allocation plan found for academic year ID: " + yearId));
