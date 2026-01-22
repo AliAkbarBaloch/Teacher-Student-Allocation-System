@@ -38,6 +38,14 @@ public class AllocationReportService {
     private final TeacherAssignmentRepository assignmentRepository;
     private final TeacherRepository teacherRepository;
 
+    /**
+     * Generates an allocation report for the most recently created allocation plan.
+     *
+     * <p>The "latest" plan is determined by repository ordering (typically createdAt DESC, id DESC).</p>
+     *
+     * @return allocation report DTO for the most recent plan
+     * @throws ResourceNotFoundException if no allocation plans exist
+     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReportForLatest() {
         List<AllocationPlan> recentPlans = planRepository.findMostRecentPlan();
@@ -60,6 +68,13 @@ public class AllocationReportService {
         return generateReportForPlan(plan);
     }
 
+    /**
+     * Generates an allocation report for a specific allocation plan.
+     *
+     * @param planId the allocation plan ID
+     * @return allocation report DTO for the given plan
+     * @throws ResourceNotFoundException if the plan does not exist
+     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReport(Long planId) {
         AllocationPlan plan = planRepository.findByIdWithAcademicYear(planId)
@@ -108,10 +123,6 @@ public class AllocationReportService {
         return academicYearName;
     }
 
-    // =========================
-    // Shortened methods
-    // =========================
-
     private TeacherAssignmentDetailDto mapToDetailDto(TeacherAssignment ta) {
         Teacher teacher = getTeacherOrNull(ta);
 
@@ -149,10 +160,6 @@ public class AllocationReportService {
                 .overUtilizedTeachers(overUtilized)
                 .build();
     }
-
-    // =========================
-    // Helper methods for mapToDetailDto
-    // =========================
 
     private Teacher getTeacherOrNull(TeacherAssignment ta) {
         if (ta == null) {
@@ -244,10 +251,6 @@ public class AllocationReportService {
         return sb.toString();
     }
 
-    // =========================
-    // Helper methods for analyzeUtilization
-    // =========================
-
     private Map<Long, Long> buildAssignmentCounts(List<TeacherAssignment> assignments) {
         return assignments.stream()
                 .filter(a -> a.getTeacher() != null && a.getTeacher().getId() != null)
@@ -290,10 +293,6 @@ public class AllocationReportService {
         dto.setNotes("Alert: Overloaded (" + count + " assignments)");
         overUtilized.add(dto);
     }
-
-    // =========================
-    // Existing logic (unchanged)
-    // =========================
 
     private BudgetSummaryDto calculateBudget(AllocationPlan plan, List<TeacherAssignment> assignments) {
         double hoursUsed = assignments.size() * 0.5;
