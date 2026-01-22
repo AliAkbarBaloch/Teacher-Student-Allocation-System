@@ -1,13 +1,18 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.entity.AcademicYear;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearCreate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearDelete;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearUpdate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewAll;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewById;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewPaginated;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -142,12 +145,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return academicYearRepository.existsById(id);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed list of academic years",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewPaginated
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
@@ -161,36 +159,21 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed all academic years",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewAll
     @Transactional(readOnly = true)
     @Override
     public List<AcademicYear> getAll() {
         return academicYearRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed academic year by id",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewById
     @Transactional(readOnly = true)
     @Override
     public Optional<AcademicYear> getById(Long id) {
         return academicYearRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Created new academic year",
-            captureNewValue = true
-    )
+    @AuditedAcademicYearCreate
     @Transactional
     @Override
     public AcademicYear create(AcademicYear academicYear) {
@@ -198,12 +181,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return academicYearRepository.save(academicYear);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Updated academic year",
-            captureNewValue = true
-    )
+    @AuditedAcademicYearUpdate
     @Transactional
     @Override
     public AcademicYear update(Long id, AcademicYear data) {
@@ -214,12 +192,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return academicYearRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Deleted academic year",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearDelete
     @Transactional
     @Override
     public void delete(Long id) {
