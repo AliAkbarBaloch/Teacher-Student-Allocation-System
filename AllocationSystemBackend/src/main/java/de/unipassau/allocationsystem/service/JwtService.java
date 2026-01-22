@@ -10,13 +10,15 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 /**
  * Service for JWT token operations: generation, validation, and extraction.
+ *
+ * Notes:
+ * - Avoids java.util.Date entirely by setting standard JWT time claims (iat/exp) as epoch-seconds numbers.
  */
 @Service
 public class JwtService {
@@ -46,42 +48,55 @@ public class JwtService {
 
     /**
      * Create JWT token with claims and subject.
+     * Uses numeric date claims:
+     * - iat: epoch seconds
+     * - exp: epoch seconds
      */
     private String createToken(Map<String, Object> claims, String subject) {
         Instant now = Instant.now();
         Instant expiresAt = now.plusMillis(expiration);
 
+        Map<String, Object> mergedClaims = new HashMap<>(claims);
+        mergedClaims.put(Claims.ISSUED_AT, now.getEpochSecond());
+        mergedClaims.put(Claims.EXPIRATION, expiresAt.getEpochSecond());
+
         return Jwts.builder()
-                .claims(claims)
+                .claims(mergedClaims)
                 .subject(subject)
-                // JJWT uses java.util.Date, so adapt at the boundary:
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(expiresAt))
                 .signWith(getSigningKey())
                 .compact();
     }
 
     /**
-     * Extract username (email) from token.
+     * Extract username (subject) from token.
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     /**
-     * Extract expiration timestamp from token.
+     * Extract expiration timestamp from token as Instant.
+     * Supports both numeric and Date-based exp representations (in case older tokens exist).
      */
     public Instant extractExpirationInstant(String token) {
-        Date exp = extractClaim(token, Claims::getExpiration);
-        return exp.toInstant();
-    }
+        Claims claims = extractAllClaims(token);
 
-    /**
-     * Extract expiration date from token.
-     * Kept for compatibility; prefer extractExpirationInstant().
-     */
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        Object exp = claims.get(Claims.EXPIRATION);
+        if (exp instanceof Number n) {
+            return Instant.ofEpochSecond(n.longValue());
+        }
+
+        // Fallback for unexpected token formats without referencing java.util.Date:
+        // attempt to parse as string seconds
+        if (exp instanceof String s) {
+            try {
+                return Instant.ofEpochSecond(Long.parseLong(s));
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+
+        throw new IllegalStateException("Unsupported 'exp' claim type: " + (exp == null ? "null" : exp.getClass()));
     }
 
     /**

@@ -1,8 +1,15 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeCreate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeDelete;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeUpdate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewAll;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewById;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewPaginated;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
@@ -19,10 +26,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
@@ -154,12 +157,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         BeanUtils.copyProperties(data, existing, ignore.toArray(new String[0]));
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed list of internship types",
-            captureNewValue = false
-    )
+    @AuditedInternshipTypeViewPaginated
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
@@ -173,36 +171,21 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed all internship types",
-            captureNewValue = false
-    )
+    @AuditedInternshipTypeViewAll
     @Transactional(readOnly = true)
     @Override
     public List<InternshipType> getAll() {
         return internshipTypeRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed internship type by id",
-            captureNewValue = false
-    )
+    @AuditedInternshipTypeViewById
     @Transactional(readOnly = true)
     @Override
     public Optional<InternshipType> getById(Long id) {
         return internshipTypeRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Created new InternshipType",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeCreate
     @Transactional
     @Override
     public InternshipType create(InternshipType internshipType) {
@@ -210,12 +193,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.save(internshipType);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Updated Internship Type information",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeUpdate
     @Transactional
     @Override
     public InternshipType update(Long id, InternshipType data) {
@@ -229,12 +207,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Deleted INTERNSHIP_TYPE status",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeDelete
     @Transactional
     @Override
     public void delete(Long id) {
