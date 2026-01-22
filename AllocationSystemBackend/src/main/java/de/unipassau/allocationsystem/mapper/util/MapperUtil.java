@@ -21,7 +21,25 @@ public class MapperUtil {
         }
     }
 
+    /**
+     * Updates entity title and description from a DTO if values are not null.
+     * Common pattern for mappers with title/description fields.
+     * 
+     * @param dtoTitle The title from DTO
+     * @param dtoDescription The description from DTO
+     * @param titleSetter Entity title setter
+     * @param descriptionSetter Entity description setter
+     * @param <E> Entity type
+     */
+    public static <E> void updateTitleAndDescription(String dtoTitle, String dtoDescription,
+                                                      Consumer<String> titleSetter,
+                                                      Consumer<String> descriptionSetter) {
+        setIfNotNull(dtoTitle, titleSetter);
+        setIfNotNull(dtoDescription, descriptionSetter);
+    }
+
     private MapperUtil() {
         // Utility class, no instantiation
     }
 }
+
