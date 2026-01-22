@@ -8,15 +8,11 @@ public final class PlanChangeTypes {
     private PlanChangeTypes() {
     }
 
-    /** Creation of new allocation plan or plan entity. */
-    public static final String CREATE = "CREATE";
-
-    /** Modification of existing plan data or settings. */
-    public static final String UPDATE = "UPDATE";
-
-    /** Removal of plan or plan-related entity. */
-    public static final String DELETE = "DELETE";
-
-    /** Transition of plan status (e.g., DRAFT to ACTIVE). */
-    public static final String STATUS_CHANGE = "STATUS_CHANGE";
+    public static final String CREATE = "CREATE"; // New plan creation
+    
+    public static final String UPDATE = "UPDATE"; // Plan modification
+    
+    public static final String DELETE = "DELETE"; // Plan deletion
+    
+    public static final String STATUS_CHANGE = "STATUS_CHANGE"; // Status transition
 }
