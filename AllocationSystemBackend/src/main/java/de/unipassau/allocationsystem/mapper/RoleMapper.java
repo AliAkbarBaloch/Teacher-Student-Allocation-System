@@ -61,11 +61,13 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
         if (updateDto == null || entity == null) {
             return;
         }
-        if (updateDto.getTitle() != null) {
-            entity.setTitle(updateDto.getTitle());
-        }
-        if (updateDto.getDescription() != null) {
-            entity.setDescription(updateDto.getDescription());
+        setIfNotNull(updateDto.getTitle(), entity::setTitle);
+        setIfNotNull(updateDto.getDescription(), entity::setDescription);
+    }
+
+    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 }

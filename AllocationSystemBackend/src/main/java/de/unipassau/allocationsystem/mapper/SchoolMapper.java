@@ -18,7 +18,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
 
     @Override
     public School toEntityCreate(SchoolCreateDto createDto) {
-        if (createDto == null) return null;
+        if (createDto == null) {
+            return null;
+        }
         School school = new School();
         populateEntity(school, (SchoolUpsertDto) createDto);
         school.setIsActive(createDto.getIsActive() != null ? createDto.getIsActive() : true);
@@ -29,7 +31,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
 
     @Override
     public School toEntityUpdate(SchoolUpdateDto updateDto) {
-        if (updateDto == null) return null;
+        if (updateDto == null) {
+            return null;
+        }
         School school = new School();
         populateEntity(school, (SchoolUpsertDto) updateDto);
         return school;

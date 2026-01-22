@@ -92,22 +92,22 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getSubjectCode() != null) {
-            entity.setSubjectCode(dto.getSubjectCode());
-        }
-        if (dto.getSubjectTitle() != null) {
-            entity.setSubjectTitle(dto.getSubjectTitle());
-        }
+        setIfNotNull(dto.getSubjectCode(), entity::setSubjectCode);
+        setIfNotNull(dto.getSubjectTitle(), entity::setSubjectTitle);
+        
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
-        if (dto.getSchoolType() != null) {
-            entity.setSchoolType(dto.getSchoolType());
-        }
-        if (dto.getIsActive() != null) {
-            entity.setIsActive(dto.getIsActive());
+        
+        setIfNotNull(dto.getSchoolType(), entity::setSchoolType);
+        setIfNotNull(dto.getIsActive(), entity::setIsActive);
+    }
+
+    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 }
