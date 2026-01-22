@@ -21,15 +21,7 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null) {
             return null;
         }
-        AcademicYear entity = new AcademicYear();
-        entity.setYearName(dto.getYearName());
-        entity.setTotalCreditHours(dto.getTotalCreditHours());
-        entity.setElementarySchoolHours(dto.getElementarySchoolHours());
-        entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
-        entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
-        entity.setAllocationDeadline(dto.getAllocationDeadline());
-        entity.setIsLocked(dto.getIsLocked());
-        return entity;
+        return mapCommonFields(dto, new AcademicYear());
     }
 
     @Override
@@ -37,14 +29,34 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null) {
              return null;
         }
-        AcademicYear entity = new AcademicYear();
-        entity.setYearName(dto.getYearName());
-        entity.setTotalCreditHours(dto.getTotalCreditHours());
-        entity.setElementarySchoolHours(dto.getElementarySchoolHours());
-        entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
-        entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
-        entity.setAllocationDeadline(dto.getAllocationDeadline());
-        entity.setIsLocked(dto.getIsLocked());
+        return mapCommonFields(dto, new AcademicYear());
+    }
+
+    /**
+     * Maps common fields from DTO to entity.
+     * 
+     * @param dto Source DTO containing academic year data
+     * @param entity Target entity to populate
+     * @return Populated entity
+     */
+    private AcademicYear mapCommonFields(Object dto, AcademicYear entity) {
+        if (dto instanceof AcademicYearCreateDto createDto) {
+            entity.setYearName(createDto.getYearName());
+            entity.setTotalCreditHours(createDto.getTotalCreditHours());
+            entity.setElementarySchoolHours(createDto.getElementarySchoolHours());
+            entity.setMiddleSchoolHours(createDto.getMiddleSchoolHours());
+            entity.setBudgetAnnouncementDate(createDto.getBudgetAnnouncementDate());
+            entity.setAllocationDeadline(createDto.getAllocationDeadline());
+            entity.setIsLocked(createDto.getIsLocked());
+        } else if (dto instanceof AcademicYearUpdateDto updateDto) {
+            entity.setYearName(updateDto.getYearName());
+            entity.setTotalCreditHours(updateDto.getTotalCreditHours());
+            entity.setElementarySchoolHours(updateDto.getElementarySchoolHours());
+            entity.setMiddleSchoolHours(updateDto.getMiddleSchoolHours());
+            entity.setBudgetAnnouncementDate(updateDto.getBudgetAnnouncementDate());
+            entity.setAllocationDeadline(updateDto.getAllocationDeadline());
+            entity.setIsLocked(updateDto.getIsLocked());
+        }
         return entity;
     }
 

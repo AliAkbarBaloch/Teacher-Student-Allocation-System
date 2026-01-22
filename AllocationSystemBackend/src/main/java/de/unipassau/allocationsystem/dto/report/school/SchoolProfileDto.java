@@ -27,39 +27,42 @@ public class SchoolProfileDto {
     private Long activeTeachers;
 
     /**
-     * Specific Constructor for JPQL Queries.
-     * The argument types must MATCH the query output exactly.
-     * * @param schoolId - s.id (Long)
-     * @param schoolName - s.schoolName (String)
-     * @param schoolType - s.schoolType (Enum: School.SchoolType)
-     * @param schoolId - s.id (Long)
-     * @param schoolName - s.name (String)
-     * @param schoolType - s.schoolType (School.SchoolType)
-     * @param zoneNumber - s.zoneNumber (Integer)
-     * @param transportAccessibility - s.transportAccessibility (String)
-     * @param isActive - s.isActive (Boolean)
-     * @param totalTeachers - COUNT(t) (Long)
-     * @param activeTeachers - COUNT(t) (Long)
+     * Factory method for creating SchoolProfileDto from JPQL query results.
+     * Groups school information and teacher statistics separately to reduce parameter count.
+     * 
+     * @param schoolId School identifier
+     * @param schoolName Name of the school
+     * @param schoolType School type enumeration
+     * @param zoneNumber Zone number
+     * @param transportAccessibility Transport accessibility description
+     * @param isActive Active status flag
+     * @param teacherStats Teacher statistics wrapper containing total and active counts
+     * @return Constructed SchoolProfileDto instance
      */
-    @java.beans.ConstructorProperties({"schoolId", "schoolName", "schoolType", "zoneNumber", 
-                                       "transportAccessibility", "isActive", "totalTeachers", "activeTeachers"})
-    public SchoolProfileDto(Long schoolId,
-                            String schoolName,
-                            School.SchoolType schoolType,
-                            Integer zoneNumber,
-                            String transportAccessibility,
-                            Boolean isActive,
-                            Long totalTeachers,
-                            Long activeTeachers) {
-        this.schoolId = schoolId;
-        this.schoolName = schoolName;
-        // Convert Enum to String for the frontend
-        this.schoolType = schoolType != null ? schoolType.name() : null;
-        this.zoneNumber = zoneNumber;
-        this.transportAccessibility = transportAccessibility;
-        // Handle potential nulls from DB
-        this.isActive = isActive != null && isActive;
-        this.totalTeachers = totalTeachers != null ? totalTeachers : 0L;
-        this.activeTeachers = activeTeachers != null ? activeTeachers : 0L;
+    public static SchoolProfileDto fromQuery(Long schoolId,
+                                             String schoolName,
+                                             School.SchoolType schoolType,
+                                             Integer zoneNumber,
+                                             String transportAccessibility,
+                                             Boolean isActive,
+                                             TeacherStats teacherStats) {
+        return SchoolProfileDto.builder()
+                .schoolId(schoolId)
+                .schoolName(schoolName)
+                .schoolType(schoolType != null ? schoolType.name() : null)
+                .zoneNumber(zoneNumber)
+                .transportAccessibility(transportAccessibility)
+                .isActive(isActive != null && isActive)
+                .totalTeachers(teacherStats != null ? teacherStats.totalTeachers() : 0L)
+                .activeTeachers(teacherStats != null ? teacherStats.activeTeachers() : 0L)
+                .build();
     }
+
+    /**
+     * Wrapper for teacher statistics to reduce parameter count.
+     * 
+     * @param totalTeachers Total teacher count
+     * @param activeTeachers Active teacher count
+     */
+    public record TeacherStats(Long totalTeachers, Long activeTeachers) {}
 }
