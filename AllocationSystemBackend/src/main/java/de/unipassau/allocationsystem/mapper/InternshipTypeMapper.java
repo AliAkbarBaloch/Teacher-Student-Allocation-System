@@ -3,6 +3,7 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpsertDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import org.springframework.stereotype.Component;
 
@@ -22,13 +23,7 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
             return null;
         }
         InternshipType entity = new InternshipType();
-        entity.setInternshipCode(dto.getInternshipCode());
-        entity.setFullName(dto.getFullName());
-        entity.setTiming(dto.getTiming());
-        entity.setPeriodType(dto.getPeriodType());
-        entity.setSemester(dto.getSemester());
-        entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
-        entity.setPriorityOrder(dto.getPriorityOrder());
+        populateEntity(entity, dto);
         return entity;
     }
 
@@ -38,6 +33,17 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
             return null;
         }
         InternshipType entity = new InternshipType();
+        populateEntity(entity, dto);
+        return entity;
+    }
+
+    /**
+     * Populates entity from DTO using common interface.
+     * 
+     * @param entity Target entity
+     * @param dto Source DTO (create or update)
+     */
+    private void populateEntity(InternshipType entity, InternshipTypeUpsertDto dto) {
         entity.setInternshipCode(dto.getInternshipCode());
         entity.setFullName(dto.getFullName());
         entity.setTiming(dto.getTiming());
@@ -45,14 +51,20 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         entity.setSemester(dto.getSemester());
         entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
         entity.setPriorityOrder(dto.getPriorityOrder());
-        return entity;
     }
 
     @Override
     public InternshipTypeResponseDto toResponseDto(InternshipType entity) {
-        if (entity == null) {
-            return null;
-        }
+        return entity == null ? null : buildResponseDto(entity);
+    }
+
+    /**
+     * Builds response DTO from entity.
+     * 
+     * @param entity Source entity
+     * @return Response DTO
+     */
+    private InternshipTypeResponseDto buildResponseDto(InternshipType entity) {
         return new InternshipTypeResponseDto(
                 entity.getId(),
                 entity.getInternshipCode(),
@@ -82,26 +94,25 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getInternshipCode() != null) {
-            entity.setInternshipCode(dto.getInternshipCode());
-        }
-        if (dto.getFullName() != null) {
-            entity.setFullName(dto.getFullName());
-        }
-        if (dto.getTiming() != null) {
-            entity.setTiming(dto.getTiming());
-        }
-        if (dto.getPeriodType() != null) {
-            entity.setPeriodType(dto.getPeriodType());
-        }
-        if (dto.getSemester() != null) {
-            entity.setSemester(dto.getSemester());
-        }
-        if (dto.getIsSubjectSpecific() != null) {
-            entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
-        }
-        if (dto.getPriorityOrder() != null) {
-            entity.setPriorityOrder(dto.getPriorityOrder());
+        setIfNotNull(dto.getInternshipCode(), entity::setInternshipCode);
+        setIfNotNull(dto.getFullName(), entity::setFullName);
+        setIfNotNull(dto.getTiming(), entity::setTiming);
+        setIfNotNull(dto.getPeriodType(), entity::setPeriodType);
+        setIfNotNull(dto.getSemester(), entity::setSemester);
+        setIfNotNull(dto.getIsSubjectSpecific(), entity::setIsSubjectSpecific);
+        setIfNotNull(dto.getPriorityOrder(), entity::setPriorityOrder);
+    }
+
+    /**
+     * Sets a value on entity if not null.
+     * 
+     * @param value Value to set
+     * @param setter Setter method reference
+     * @param <T> Type of value
+     */
+    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 }
