@@ -10,7 +10,6 @@ import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.repository.TeacherFormSubmissionRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 
