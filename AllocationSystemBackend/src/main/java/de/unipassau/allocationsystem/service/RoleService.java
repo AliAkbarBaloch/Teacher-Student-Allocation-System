@@ -1,7 +1,11 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.audit.RoleCreateAudit;
+import de.unipassau.allocationsystem.audit.RoleUpdateAudit;
+import de.unipassau.allocationsystem.audit.RoleDeleteAudit;
+import de.unipassau.allocationsystem.audit.RoleViewAudit;
+import de.unipassau.allocationsystem.audit.RoleViewAllAudit;
+import de.unipassau.allocationsystem.audit.RoleViewByIdAudit;
 import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.repository.RoleRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
@@ -16,7 +20,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import java.util.List;
@@ -130,12 +133,7 @@ public class RoleService  implements CrudService<Role, Long> {
         return roleRepository.existsById(id);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed list of roles",
-            captureNewValue = false
-    )
+        @RoleViewAudit
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
@@ -149,36 +147,21 @@ public class RoleService  implements CrudService<Role, Long> {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed all roles",
-            captureNewValue = false
-    )
+        @RoleViewAllAudit
     @Transactional(readOnly = true)
     @Override
     public List<Role> getAll() {
         return roleRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed role by id",
-            captureNewValue = false
-    )
+        @RoleViewByIdAudit
     @Transactional(readOnly = true)
     @Override
     public Optional<Role> getById(Long id) {
         return roleRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Created new role",
-            captureNewValue = true
-    )
+        @RoleCreateAudit
     @Transactional
     @Override
     public Role create(Role role) {
@@ -186,12 +169,7 @@ public class RoleService  implements CrudService<Role, Long> {
         return roleRepository.save(role);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Updated role",
-            captureNewValue = true
-    )
+        @RoleUpdateAudit
     @Transactional
     @Override
     public Role update(Long id, Role data) {
@@ -202,12 +180,7 @@ public class RoleService  implements CrudService<Role, Long> {
         return roleRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Deleted role",
-            captureNewValue = false
-    )
+        @RoleDeleteAudit
     @Transactional
     @Override
     public void delete(Long id) {
