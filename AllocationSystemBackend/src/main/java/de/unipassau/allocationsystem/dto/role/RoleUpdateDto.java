@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleUpdateDto {
+public class RoleUpdateDto implements RoleUpsertDto {
     @Size(max = 255, message = "Title must not exceed 255 characters")
     private String title; // Optional for partial update
 

@@ -3,6 +3,7 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.role.RoleCreateDto;
 import de.unipassau.allocationsystem.dto.role.RoleUpdateDto;
 import de.unipassau.allocationsystem.dto.role.RoleResponseDto;
+import de.unipassau.allocationsystem.dto.role.RoleUpsertDto;
 import de.unipassau.allocationsystem.entity.Role;
 import org.springframework.stereotype.Component;
 
@@ -18,20 +19,15 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public Role toEntityCreate(RoleCreateDto createDto) {
-        return toNewEntity(createDto, Role::new, this::populateEntity);
+        return toNewEntity((RoleUpsertDto) createDto, Role::new, this::populateEntity);
     }
 
     @Override
     public Role toEntityUpdate(RoleUpdateDto updateDto) {
-        return toNewEntity(updateDto, Role::new, this::populateEntity);
+        return toNewEntity((RoleUpsertDto) updateDto, Role::new, this::populateEntity);
     }
 
-    private void populateEntity(Role entity, RoleCreateDto dto) {
-        entity.setTitle(dto.getTitle());
-        entity.setDescription(dto.getDescription());
-    }
-
-    private void populateEntity(Role entity, RoleUpdateDto dto) {
+    private void populateEntity(Role entity, RoleUpsertDto dto) {
         entity.setTitle(dto.getTitle());
         entity.setDescription(dto.getDescription());
     }
