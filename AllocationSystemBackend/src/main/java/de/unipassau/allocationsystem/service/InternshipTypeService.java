@@ -84,15 +84,20 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.existsById(id);
     }
 
-    private Pageable toPageable(Map<String, String> queryParams) {
+    /**
+     * Builds a paged query for internship types (combines pageable creation + repository call).
+     * This intentionally avoids the common "toPageable + findPage" helper clone pattern.
+     */
+    private Page<InternshipType> pageInternshipTypes(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
-    }
 
-    private Page<InternshipType> findPage(String searchValue, Pageable pageable) {
-        Specification<InternshipType> spec = buildSearchSpecification(searchValue);
-        return internshipTypeRepository.findAll(spec, pageable);
+        Pageable pageable = PageRequest.of(
+                params.page() - 1,
+                params.pageSize(),
+                Sort.by(params.sortOrder(), params.sortBy())
+        );
+
+        return internshipTypeRepository.findAll(buildSearchSpecification(searchValue), pageable);
     }
 
     private InternshipType persist(InternshipType entity) {
@@ -168,7 +173,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Page<InternshipType> page = findPage(searchValue, toPageable(queryParams));
+        Page<InternshipType> page = pageInternshipTypes(queryParams, searchValue);
         return PaginationUtils.formatPaginationResponse(page);
     }
 
