@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -77,49 +79,21 @@ public class AuditLogService {
 
     // ==================== Convenience Methods ====================
 
-    /**
-     * Logs a CREATE action for an entity.
-     *
-     * @param entityName the entity type name
-     * @param recordId the created record ID
-     * @param newValue the new entity value
-     */
     public void logCreate(String entityName, String recordId, Object newValue) {
         logWithCurrentUser(AuditAction.CREATE, entityName, recordId, null, newValue,
                 String.format("Created %s with ID: %s", entityName, recordId));
     }
 
-    /**
-     * Logs an UPDATE action for an entity.
-     *
-     * @param entityName the entity type name
-     * @param recordId the updated record ID
-     * @param previousValue the previous entity value
-     * @param newValue the new entity value
-     */
     public void logUpdate(String entityName, String recordId, Object previousValue, Object newValue) {
         logWithCurrentUser(AuditAction.UPDATE, entityName, recordId, previousValue, newValue,
                 String.format("Updated %s with ID: %s", entityName, recordId));
     }
 
-    /**
-     * Logs a DELETE action for an entity.
-     *
-     * @param entityName the entity type name
-     * @param recordId the deleted record ID
-     * @param previousValue the deleted entity value
-     */
     public void logDelete(String entityName, String recordId, Object previousValue) {
         logWithCurrentUser(AuditAction.DELETE, entityName, recordId, previousValue, null,
                 String.format("Deleted %s with ID: %s", entityName, recordId));
     }
 
-    /**
-     * Logs a VIEW action for an entity.
-     *
-     * @param entityName the entity type name
-     * @param recordId the viewed record ID
-     */
     public void logView(String entityName, String recordId) {
         logWithCurrentUser(AuditAction.VIEW, entityName, recordId, null, null,
                 String.format("Viewed %s with ID: %s", entityName, recordId));
@@ -143,7 +117,7 @@ public class AuditLogService {
                                     Object previousValue, Object newValue, String description) {
         try {
             persistAuditLog(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
-        } catch (RuntimeException e) {
+        } catch (DataAccessException | TransactionException e) {
             log.error("Failed to create audit log asynchronously", e);
         }
     }
@@ -180,7 +154,7 @@ public class AuditLogService {
                 ipAddress = extractClientIpAddress(request);
                 userAgent = request.getHeader("User-Agent");
             }
-        } catch (RuntimeException e) {
+        } catch (IllegalStateException | ClassCastException e) {
             log.debug("Could not capture request context", e);
         }
 
@@ -208,7 +182,7 @@ public class AuditLogService {
             }
 
             return null;
-        } catch (RuntimeException e) {
+        } catch (IllegalStateException | ClassCastException e) {
             log.debug("Could not retrieve current user from security context", e);
             return null;
         }
