@@ -12,7 +12,6 @@ import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.UserRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,95 +38,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    /**
-     * Query parameters container for user listing.
-     * Used to avoid long parameter lists in public service methods.
-     */
-    @Getter
-    public static final class UserQuery {
-        private final User.UserRole role;
-        private final User.AccountStatus status;
-        private final Boolean enabled;
-        private final String search;
-        private final int page;
-        private final int size;
-        private final String sortBy;
-        private final String sortDirection;
-
-        private UserQuery(Builder b) {
-            this.role = b.role;
-            this.status = b.status;
-            this.enabled = b.enabled;
-            this.search = b.search;
-            this.page = b.page;
-            this.size = b.size;
-            this.sortBy = b.sortBy;
-            this.sortDirection = b.sortDirection;
-        }
-
-        /**
-         * Builder for {@link UserQuery}. Avoids constructors with many parameters.
-         */
-        public static final class Builder {
-            private User.UserRole role;
-            private User.AccountStatus status;
-            private Boolean enabled;
-            private String search;
-            private int page;
-            private int size;
-            private String sortBy = "id";
-            private String sortDirection = "ASC";
-
-            public Builder role(User.UserRole role) {
-                this.role = role;
-                return this;
-            }
-
-            public Builder status(User.AccountStatus status) {
-                this.status = status;
-                return this;
-            }
-
-            public Builder enabled(Boolean enabled) {
-                this.enabled = enabled;
-                return this;
-            }
-
-            public Builder search(String search) {
-                this.search = search;
-                return this;
-            }
-
-            public Builder page(int page) {
-                this.page = page;
-                return this;
-            }
-
-            public Builder size(int size) {
-                this.size = size;
-                return this;
-            }
-
-            public Builder sortBy(String sortBy) {
-                if (sortBy != null && !sortBy.trim().isEmpty()) {
-                    this.sortBy = sortBy;
-                }
-                return this;
-            }
-
-            public Builder sortDirection(String sortDirection) {
-                if (sortDirection != null && !sortDirection.trim().isEmpty()) {
-                    this.sortDirection = sortDirection;
-                }
-                return this;
-            }
-
-            public UserQuery build() {
-                return new UserQuery(this);
-            }
-        }
-    }
 
     /**
      * Create a new user with automatic audit logging using @Audited annotation.
@@ -345,7 +255,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public Page<UserResponseDto> getAllUsers(UserQuery query) {
-        Pageable pageable = buildPageable(query.getPage(), query.getSize(), query.getSortBy(), query.getSortDirection());
+        Pageable pageable = buildPageable(query.page(), query.size(), query.sortBy(), query.sortDirection());
         Specification<User> spec = buildUserFilterSpec(query);
         return userRepository.findAll(spec, pageable).map(this::mapToResponseDto);
     }
@@ -417,18 +327,17 @@ public class UserService {
     private Specification<User> buildUserFilterSpec(UserQuery query) {
         Specification<User> spec = Specification.allOf();
 
-        if (query.getRole() != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("role"), query.getRole()));
+        if (query.role() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("role"), query.role()));
         }
-        if (query.getStatus() != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("accountStatus"), query.getStatus()));
+        if (query.status() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("accountStatus"), query.status()));
         }
-        if (query.getEnabled() != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("enabled"), query.getEnabled()));
+        if (query.enabled() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("enabled"), query.enabled()));
         }
-        String search = query.getSearch();
-        if (search != null && !search.trim().isEmpty()) {
-            String pattern = "%" + search.toLowerCase() + "%";
+        if (query.search() != null && !query.search().trim().isEmpty()) {
+            String pattern = "%" + query.search().toLowerCase() + "%";
             spec = spec.and((root, q, cb) -> cb.or(
                     cb.like(cb.lower(root.get("email")), pattern),
                     cb.like(cb.lower(root.get("fullName")), pattern)
