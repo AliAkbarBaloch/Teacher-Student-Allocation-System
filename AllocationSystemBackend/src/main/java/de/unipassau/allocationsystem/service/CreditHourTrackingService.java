@@ -247,14 +247,15 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         double creditHoursAllocated = assignmentsCount * hoursPerAssignment;
         double creditBalance = year.getTotalCreditHours() - creditHoursAllocated;
 
-        CreditHourTracking record = repository.findByTeacherIdAndAcademicYearId(teacherId, yearId)
-                .orElseGet(() -> createNewTrackingRecord(teacher, year));
+        CreditHourTracking trackingRecord = repository.findByTeacherIdAndAcademicYearId(teacherId, yearId)
+        .orElseGet(() -> createNewTrackingRecord(teacher, year));
 
-        record.setAssignmentsCount(assignmentsCount);
-        record.setCreditHoursAllocated(creditHoursAllocated);
-        record.setCreditBalance(creditBalance);
+        trackingRecord.setAssignmentsCount(assignmentsCount);
+        trackingRecord.setCreditHoursAllocated(creditHoursAllocated);
+        trackingRecord.setCreditBalance(creditBalance);
 
-        repository.save(record);
+        repository.save(trackingRecord);
+
     }
 
     private double determineHoursPerAssignment(Teacher teacher, AcademicYear year) {
