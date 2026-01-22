@@ -57,7 +57,7 @@ public class AuditAspect {
                 newValue,
                 description
             );
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (Exception e) {
             log.error("Failed to create audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
@@ -158,6 +158,7 @@ public class AuditAspect {
      * 
      * @return null - Previous value must be provided by caller
      */
+    @SuppressWarnings("SameReturnValue")
     private Object extractPreviousValue() {
         // Previous value should be captured by the service method
         // and passed via the @Auditable annotation parameters
