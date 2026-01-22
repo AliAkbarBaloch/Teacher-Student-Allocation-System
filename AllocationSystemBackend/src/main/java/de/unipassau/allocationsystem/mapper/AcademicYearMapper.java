@@ -41,23 +41,56 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      */
     private AcademicYear mapCommonFields(Object dto, AcademicYear entity) {
         if (dto instanceof AcademicYearCreateDto createDto) {
-            entity.setYearName(createDto.getYearName());
-            entity.setTotalCreditHours(createDto.getTotalCreditHours());
-            entity.setElementarySchoolHours(createDto.getElementarySchoolHours());
-            entity.setMiddleSchoolHours(createDto.getMiddleSchoolHours());
-            entity.setBudgetAnnouncementDate(createDto.getBudgetAnnouncementDate());
-            entity.setAllocationDeadline(createDto.getAllocationDeadline());
-            entity.setIsLocked(createDto.getIsLocked());
+            setEntityFields(entity, createDto.getYearName(), createDto.getTotalCreditHours(),
+                    createDto.getElementarySchoolHours(), createDto.getMiddleSchoolHours(),
+                    createDto.getBudgetAnnouncementDate(), createDto.getAllocationDeadline(),
+                    createDto.getIsLocked());
         } else if (dto instanceof AcademicYearUpdateDto updateDto) {
-            entity.setYearName(updateDto.getYearName());
-            entity.setTotalCreditHours(updateDto.getTotalCreditHours());
-            entity.setElementarySchoolHours(updateDto.getElementarySchoolHours());
-            entity.setMiddleSchoolHours(updateDto.getMiddleSchoolHours());
-            entity.setBudgetAnnouncementDate(updateDto.getBudgetAnnouncementDate());
-            entity.setAllocationDeadline(updateDto.getAllocationDeadline());
-            entity.setIsLocked(updateDto.getIsLocked());
+            setEntityFields(entity, updateDto.getYearName(), updateDto.getTotalCreditHours(),
+                    updateDto.getElementarySchoolHours(), updateDto.getMiddleSchoolHours(),
+                    updateDto.getBudgetAnnouncementDate(), updateDto.getAllocationDeadline(),
+                    updateDto.getIsLocked());
         }
         return entity;
+    }
+
+    /**
+     * Sets entity fields from provided values.
+     * 
+     * @param entity Target entity
+     * @param yearName Year name
+     * @param totalCreditHours Total credit hours
+     * @param elementarySchoolHours Elementary school hours
+     * @param middleSchoolHours Middle school hours
+     * @param budgetAnnouncementDate Budget announcement date
+     * @param allocationDeadline Allocation deadline
+     * @param isLocked Lock status
+     */
+    private void setEntityFields(AcademicYear entity, String yearName, Integer totalCreditHours,
+                                 Integer elementarySchoolHours, Integer middleSchoolHours,
+                                 java.time.LocalDateTime budgetAnnouncementDate,
+                                 java.time.LocalDateTime allocationDeadline, Boolean isLocked) {
+        if (yearName != null) {
+            entity.setYearName(yearName);
+        }
+        if (totalCreditHours != null) {
+            entity.setTotalCreditHours(totalCreditHours);
+        }
+        if (elementarySchoolHours != null) {
+            entity.setElementarySchoolHours(elementarySchoolHours);
+        }
+        if (middleSchoolHours != null) {
+            entity.setMiddleSchoolHours(middleSchoolHours);
+        }
+        if (budgetAnnouncementDate != null) {
+            entity.setBudgetAnnouncementDate(budgetAnnouncementDate);
+        }
+        if (allocationDeadline != null) {
+            entity.setAllocationDeadline(allocationDeadline);
+        }
+        if (isLocked != null) {
+            entity.setIsLocked(isLocked);
+        }
     }
 
     @Override
@@ -94,26 +127,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getYearName() != null) {
-            entity.setYearName(dto.getYearName());
-        }
-        if (dto.getTotalCreditHours() != null) {
-            entity.setTotalCreditHours(dto.getTotalCreditHours());
-        }
-        if (dto.getElementarySchoolHours() != null) {
-            entity.setElementarySchoolHours(dto.getElementarySchoolHours());
-        }
-        if (dto.getMiddleSchoolHours() != null) {
-            entity.setMiddleSchoolHours(dto.getMiddleSchoolHours());
-        }
-        if (dto.getBudgetAnnouncementDate() != null) {
-            entity.setBudgetAnnouncementDate(dto.getBudgetAnnouncementDate());
-        }
-        if (dto.getAllocationDeadline() != null) {
-            entity.setAllocationDeadline(dto.getAllocationDeadline());
-        }
-        if (dto.getIsLocked() != null) {
-            entity.setIsLocked(dto.getIsLocked());
-        }
+        setEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
+                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
+                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
+                dto.getIsLocked());
     }
 }

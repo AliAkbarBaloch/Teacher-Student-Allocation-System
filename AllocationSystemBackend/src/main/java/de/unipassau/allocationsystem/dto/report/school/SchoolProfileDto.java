@@ -46,15 +46,39 @@ public class SchoolProfileDto {
                                              String transportAccessibility,
                                              Boolean isActive,
                                              TeacherStats teacherStats) {
+        String schoolTypeStr;
+        if (schoolType != null) {
+            schoolTypeStr = schoolType.name();
+        } else {
+            schoolTypeStr = null;
+        }
+
+        boolean activeStatus;
+        if (isActive != null) {
+            activeStatus = isActive;
+        } else {
+            activeStatus = false;
+        }
+
+        Long totalTeacherCount;
+        Long activeTeacherCount;
+        if (teacherStats != null) {
+            totalTeacherCount = teacherStats.totalTeachers();
+            activeTeacherCount = teacherStats.activeTeachers();
+        } else {
+            totalTeacherCount = 0L;
+            activeTeacherCount = 0L;
+        }
+
         return SchoolProfileDto.builder()
                 .schoolId(schoolId)
                 .schoolName(schoolName)
-                .schoolType(schoolType != null ? schoolType.name() : null)
+                .schoolType(schoolTypeStr)
                 .zoneNumber(zoneNumber)
                 .transportAccessibility(transportAccessibility)
-                .isActive(isActive != null && isActive)
-                .totalTeachers(teacherStats != null ? teacherStats.totalTeachers() : 0L)
-                .activeTeachers(teacherStats != null ? teacherStats.activeTeachers() : 0L)
+                .isActive(activeStatus)
+                .totalTeachers(totalTeacherCount)
+                .activeTeachers(activeTeacherCount)
                 .build();
     }
 
