@@ -67,6 +67,76 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return academicYearRepository.findByYearName(yearName).isPresent();
     }
 
+    /**
+     * Validates that the year name is unique, throws exception if duplicate found.
+     * 
+     * @param yearName the year name to validate
+     * @throws DuplicateResourceException if year name already exists
+     */
+    private void validateYearNameUniqueness(String yearName) {
+        if (academicYearRepository.findByYearName(yearName).isPresent()) {
+            throw new DuplicateResourceException("Academic year with name '" + yearName + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new year name doesn't conflict with existing records (for updates).
+     * Allows the same name if it's the current year being updated.
+     * 
+     * @param newName the new year name
+     * @param oldName the old year name
+     * @throws DuplicateResourceException if new name conflicts with another year's name
+     */
+    private void validateYearNameForUpdate(String newName, String oldName) {
+        if (!newName.equals(oldName) && academicYearRepository.findByYearName(newName).isPresent()) {
+            throw new DuplicateResourceException("Academic year with name '" + newName + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that an academic year exists with the given ID.
+     * 
+     * @param id the academic year ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!academicYearRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Academic year not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target academic year.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target academic year to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(AcademicYear existing, AcademicYear data) {
+        if (data.getYearName() != null) {
+            validateYearNameForUpdate(data.getYearName(), existing.getYearName());
+            existing.setYearName(data.getYearName());
+        }
+        if (data.getTotalCreditHours() != null) {
+            existing.setTotalCreditHours(data.getTotalCreditHours());
+        }
+        if (data.getElementarySchoolHours() != null) {
+            existing.setElementarySchoolHours(data.getElementarySchoolHours());
+        }
+        if (data.getMiddleSchoolHours() != null) {
+            existing.setMiddleSchoolHours(data.getMiddleSchoolHours());
+        }
+        if (data.getBudgetAnnouncementDate() != null) {
+            existing.setBudgetAnnouncementDate(data.getBudgetAnnouncementDate());
+        }
+        if (data.getAllocationDeadline() != null) {
+            existing.setAllocationDeadline(data.getAllocationDeadline());
+        }
+        if (data.getIsLocked() != null) {
+            existing.setIsLocked(data.getIsLocked());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return academicYearRepository.existsById(id);
@@ -124,9 +194,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     @Transactional
     @Override
     public AcademicYear create(AcademicYear academicYear) {
-        if (academicYearRepository.findByYearName(academicYear.getYearName()).isPresent()) {
-            throw new DuplicateResourceException("Academic year with name '" + academicYear.getYearName() + "' already exists");
-        }
+        validateYearNameUniqueness(academicYear.getYearName());
         return academicYearRepository.save(academicYear);
     }
 
@@ -142,31 +210,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         AcademicYear existing = academicYearRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + id));
 
-        if (data.getYearName() != null && !data.getYearName().equals(existing.getYearName())) {
-            if (academicYearRepository.findByYearName(data.getYearName()).isPresent()) {
-                throw new DuplicateResourceException("Academic year with name '" + data.getYearName() + "' already exists");
-            }
-            existing.setYearName(data.getYearName());
-        }
-        if (data.getTotalCreditHours() != null) {
-            existing.setTotalCreditHours(data.getTotalCreditHours());
-        }
-        if (data.getElementarySchoolHours() != null) {
-            existing.setElementarySchoolHours(data.getElementarySchoolHours());
-        }
-        if (data.getMiddleSchoolHours() != null) {
-            existing.setMiddleSchoolHours(data.getMiddleSchoolHours());
-        }
-        if (data.getBudgetAnnouncementDate() != null) {
-            existing.setBudgetAnnouncementDate(data.getBudgetAnnouncementDate());
-        }
-        if (data.getAllocationDeadline() != null) {
-            existing.setAllocationDeadline(data.getAllocationDeadline());
-        }
-        if (data.getIsLocked() != null) {
-            existing.setIsLocked(data.getIsLocked());
-        }
-
+        applyFieldUpdates(existing, data);
         return academicYearRepository.save(existing);
     }
 
@@ -179,9 +223,7 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!academicYearRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Academic year not found with id: " + id);
-        }
+        validateExistence(id);
         academicYearRepository.deleteById(id);
     }
 }
