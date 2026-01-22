@@ -57,7 +57,7 @@ public class AuditAspect {
                 newValue,
                 description
             );
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             log.error("Failed to create audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
@@ -149,14 +149,18 @@ public class AuditAspect {
         }
     }
 
+    /**
+     * Extracts the previous value before an operation.
+     * 
+     * Note: This method intentionally returns null as the implementation requires
+     * the previous value to be captured and passed explicitly by the calling service.
+     * Future implementations could use database queries or ThreadLocal storage.
+     * 
+     * @return null - Previous value must be provided by caller
+     */
     private Object extractPreviousValue() {
-        // In a real implementation, you might want to:
-        // 1. Query the database for the current state before the operation
-        // 2. Use a ThreadLocal to store the "before" state
-        // 3. Implement a more sophisticated change tracking mechanism
-        
-        // For now, return null - the previous value should be passed explicitly
-        // or captured via other means (e.g., in the service method itself)
+        // Previous value should be captured by the service method
+        // and passed via the @Auditable annotation parameters
         return null;
     }
 }

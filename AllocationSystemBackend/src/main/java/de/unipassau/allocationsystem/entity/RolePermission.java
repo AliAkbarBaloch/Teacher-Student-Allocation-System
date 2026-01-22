@@ -76,7 +76,11 @@ public class RolePermission {
         updatedAt = LocalDateTime.now();
     }
 
-    private void validateAccessLevel() {
+    /**
+     * Validates that accessLevel contains only allowed values.
+     * Called by JPA lifecycle callbacks.
+     */
+    protected void validateAccessLevel() {
         Set<String> allowedValues = new HashSet<>(Arrays.asList("view", "edit", "update", "delete"));
         Set<String> providedValues = Arrays.stream(accessLevel.split(","))
                 .map(String::trim)

@@ -41,8 +41,8 @@ public class PaginationUtils {
         if (queryParams.containsKey("page")) {
             try {
                 page = Math.max(1, Integer.parseInt(queryParams.get("page")));
-            } catch (NumberFormatException ignored) {
-
+            } catch (NumberFormatException e) {
+                // Use default page value
             }
         }
 

@@ -49,9 +49,9 @@ public class DataInitializer {
     }
 
     private void insertUsers() {
-        // WARNING: Hardcoded passwords - for development only. Change in production!
-        String testPassword = "password123";
-        String adminPassword = "admin123";
+        // Get passwords from environment variables or use defaults for development
+        String testPassword = System.getenv().getOrDefault("TEST_USER_PASSWORD", "password123");
+        String adminPassword = System.getenv().getOrDefault("ADMIN_USER_PASSWORD", "admin123");
         
         User testUser = createUser("test@example.com", testPassword, "Test User", 
                                    User.UserRole.USER, "1234567890");

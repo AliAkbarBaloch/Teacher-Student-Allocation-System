@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -65,12 +66,13 @@ public class ZoneConstraintMapper implements BaseMapper<ZoneConstraint, ZoneCons
         if (zoneConstraint == null) {
             return null;
         }
+        InternshipType type = zoneConstraint.getInternshipType();
         return new ZoneConstraintResponseDto(
                 zoneConstraint.getId(),
                 zoneConstraint.getZoneNumber(),
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getId() : null,
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getInternshipCode() : null,
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getFullName() : null,
+                Optional.ofNullable(type).map(InternshipType::getId).orElse(null),
+                Optional.ofNullable(type).map(InternshipType::getInternshipCode).orElse(null),
+                Optional.ofNullable(type).map(InternshipType::getFullName).orElse(null),
                 zoneConstraint.getIsAllowed(),
                 zoneConstraint.getDescription(),
                 zoneConstraint.getCreatedAt(),

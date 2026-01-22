@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.mapper;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -72,8 +73,8 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
         School school = teacher.getSchool();
         return TeacherResponseDto.builder()
                 .id(teacher.getId())
-                .schoolId(school != null ? school.getId() : null)
-                .schoolName(school != null ? school.getSchoolName() : null)
+                .schoolId(Optional.ofNullable(school).map(School::getId).orElse(null))
+                .schoolName(Optional.ofNullable(school).map(School::getSchoolName).orElse(null))
                 .firstName(teacher.getFirstName())
                 .lastName(teacher.getLastName())
                 .email(teacher.getEmail())
@@ -85,11 +86,10 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
                 .creditHourBalance(teacher.getCreditHourBalance())
                 .createdAt(teacher.getCreatedAt())
                 .updatedAt(teacher.getUpdatedAt())
-                //subjects 
                 .subjects(
-                    teacher.getSubjects() == null
-                    ? Collections.emptyList()
-                    : teacher.getSubjects().stream()
+                    Optional.ofNullable(teacher.getSubjects())
+                        .orElse(Collections.emptySet())
+                        .stream()
                         .map(subject -> new SubjectSimpleDto(
                             subject.getId(),
                             subject.getSubjectTitle()

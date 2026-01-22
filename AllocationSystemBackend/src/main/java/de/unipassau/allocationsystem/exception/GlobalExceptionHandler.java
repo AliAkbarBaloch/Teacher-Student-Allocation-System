@@ -42,6 +42,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Helper method to create a response entity with standard error structure.
+     * Reduces code duplication across exception handlers.
+     * 
+     * @param status HTTP status code
+     * @param message Error message
+     * @param logLevel Log level (ERROR, WARN, INFO)
+     * @return ResponseEntity with error details
+     */
+    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message, String logLevel) {
+        if ("ERROR".equals(logLevel)) {
+            LOGGER.error(message);
+        } else if ("WARN".equals(logLevel)) {
+            LOGGER.warn(message);
+        }
+        Map<String, Object> body = buildBody(status, message);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    /**
      * Handles validation errors from bean validation annotations.
      * 
      * @param ex the validation exception
@@ -68,9 +87,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        LOGGER.warn("Resource not found: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.NOT_FOUND, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Resource not found: " + ex.getMessage(), "WARN");
     }
 
     /**
@@ -81,9 +98,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
-        LOGGER.warn("Duplicate resource: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.CONFLICT, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return createErrorResponse(HttpStatus.CONFLICT, "Duplicate resource: " + ex.getMessage(), "WARN");
     }
 
     /**
@@ -94,9 +109,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        LOGGER.error("Data integrity violation: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.CONFLICT, "Data integrity constraint violated");
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return createErrorResponse(HttpStatus.CONFLICT, "Data integrity constraint violated", "ERROR");
     }
 
     /**
@@ -146,9 +159,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        LOGGER.warn("Invalid argument: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid argument: " + ex.getMessage(), "WARN");
     }
 
     /**
@@ -159,9 +170,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        LOGGER.warn("Invalid state: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.UNAUTHORIZED, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+        return createErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid state: " + ex.getMessage(), "WARN");
     }
 
     /**
@@ -172,9 +181,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
-        LOGGER.warn("Authorization denied: {}", ex.getMessage());
-        Map<String, Object> body = buildBody(HttpStatus.FORBIDDEN, "Access denied");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return createErrorResponse(HttpStatus.FORBIDDEN, "Access denied", "WARN");
     }
 
     /**

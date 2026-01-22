@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -68,12 +69,13 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         if (entity == null) {
             return null;
         }
+        SubjectCategory category = entity.getSubjectCategory();
         return new SubjectResponseDto(
                 entity.getId(),
                 entity.getSubjectCode(),
                 entity.getSubjectTitle(),
-                entity.getSubjectCategory() != null ? entity.getSubjectCategory().getId() : null,
-                entity.getSubjectCategory() != null ? entity.getSubjectCategory().getCategoryTitle() : null,
+                Optional.ofNullable(category).map(SubjectCategory::getId).orElse(null),
+                Optional.ofNullable(category).map(SubjectCategory::getCategoryTitle).orElse(null),
                 entity.getSchoolType(),
                 entity.getIsActive(),
                 entity.getCreatedAt(),

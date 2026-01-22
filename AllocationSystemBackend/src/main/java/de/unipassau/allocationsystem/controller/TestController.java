@@ -44,18 +44,9 @@ public class TestController {
         try {
             log.warn("TEST ENDPOINT: Resetting password for email: {}", email);
             
-            if (email == null || email.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false,
-                        "message", "Email is required"
-                ));
-            }
-            
-            if (newPassword == null || newPassword.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false,
-                        "message", "Password is required"
-                ));
+            Map<String, Object> validation = validateResetPasswordInput(email, newPassword);
+            if (validation != null) {
+                return ResponseEntity.badRequest().body(validation);
             }
             
             User user = userRepository.findByEmail(email.trim())
@@ -68,38 +59,57 @@ public class TestController {
                 ));
             }
             
-            // Reset password and unlock account
-            String encodedPassword = passwordEncoder.encode(newPassword);
-            user.setPassword(encodedPassword);
-            user.setAccountLocked(false);
-            user.setFailedLoginAttempts(0);
-            user.setEnabled(true);
-            user.setAccountStatus(User.AccountStatus.ACTIVE);
-            User savedUser = userRepository.save(user);
-            
-            // Verify password
-            boolean passwordMatches = passwordEncoder.matches(newPassword, savedUser.getPassword());
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Password reset successfully");
-            response.put("email", savedUser.getEmail());
-            response.put("passwordVerified", passwordMatches);
-            response.put("accountLocked", savedUser.isAccountLocked());
-            response.put("enabled", savedUser.isEnabled());
-            response.put("role", savedUser.getRole().name());
-            
-            log.info("Password reset for {}: verified={}", email, passwordMatches);
-            
+            Map<String, Object> response = performPasswordReset(user, newPassword, email);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error resetting password for {}: {}", email, e.getMessage(), e);
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Error resetting password: " + e.getMessage());
-            errorResponse.put("error", e.getClass().getSimpleName());
-            return ResponseEntity.status(500).body(errorResponse);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            log.error("Error resetting password for {}: {}", email, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Error resetting password: " + e.getMessage(),
+                    "error", e.getClass().getSimpleName()
+            ));
+        } catch (RuntimeException e) {
+            log.error("Unexpected error resetting password for {}: {}", email, e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Unexpected error resetting password: " + e.getMessage(),
+                    "error", e.getClass().getSimpleName()
+            ));
         }
+    }
+
+    private Map<String, Object> validateResetPasswordInput(String email, String newPassword) {
+        if (email == null || email.trim().isEmpty()) {
+            return Map.of("success", false, "message", "Email is required");
+        }
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return Map.of("success", false, "message", "Password is required");
+        }
+        return null;
+    }
+
+    private Map<String, Object> performPasswordReset(User user, String newPassword, String email) {
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        user.setEnabled(true);
+        user.setAccountStatus(User.AccountStatus.ACTIVE);
+        User savedUser = userRepository.save(user);
+        
+        boolean passwordMatches = passwordEncoder.matches(newPassword, savedUser.getPassword());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Password reset successfully");
+        response.put("email", savedUser.getEmail());
+        response.put("passwordVerified", passwordMatches);
+        response.put("accountLocked", savedUser.isAccountLocked());
+        response.put("enabled", savedUser.isEnabled());
+        response.put("role", savedUser.getRole().name());
+        
+        log.info("Password reset for {}: verified={}", email, passwordMatches);
+        return response;
     }
     
     /**

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,12 +82,14 @@ public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, 
         if (entity == null) {
             return null;
         }
+        Teacher teacher = entity.getTeacher();
+        AcademicYear year = entity.getAcademicYear();
         return new CreditHourTrackingResponseDto(
                 entity.getId(),
-                entity.getTeacher() != null ? entity.getTeacher().getId() : null,
-                entity.getTeacher() != null ? (entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName()) : null,
-                entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null,
-                entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null,
+                Optional.ofNullable(teacher).map(Teacher::getId).orElse(null),
+                Optional.ofNullable(teacher).map(t -> t.getFirstName() + " " + t.getLastName()).orElse(null),
+                Optional.ofNullable(year).map(AcademicYear::getId).orElse(null),
+                Optional.ofNullable(year).map(AcademicYear::getYearName).orElse(null),
                 entity.getAssignmentsCount(),
                 entity.getCreditHoursAllocated(),
                 entity.getCreditBalance(),

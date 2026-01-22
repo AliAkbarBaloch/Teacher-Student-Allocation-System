@@ -6,11 +6,13 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +35,7 @@ import java.util.function.Function;
  *   <li>Internal claim resolution for custom use cases</li>
  * </ul>
  */
+@Slf4j
 @Component
 public class JWTUtil {
     @Value("${jwt.secret}")
@@ -102,11 +105,12 @@ public class JWTUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
+        Instant now = Instant.now();
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusMillis(jwtExpiration)))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -120,12 +124,7 @@ public class JWTUtil {
      * @return true if token is valid, false otherwise
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            final String username = extractUsername(token);
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (ExpiredJwtException e) {
-            return false;
-        }
+        return validateTokenInternal(token, username -> username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     /**
@@ -135,13 +134,25 @@ public class JWTUtil {
      * @return true if token is valid, false otherwise
      */
     public Boolean validateToken(String token) {
+        return validateTokenInternal(token, username -> true);
+    }
+    
+    private Boolean validateTokenInternal(String token, java.util.function.Predicate<String> additionalCheck) {
         try {
             Jwts.parser()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
+            String username = extractUsername(token);
+            return additionalCheck.test(username);
+        } catch (ExpiredJwtException e) {
+            log.debug("JWT token expired: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.warn("Invalid JWT token: {}", e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid JWT token format: {}", e.getMessage());
             return false;
         }
     }

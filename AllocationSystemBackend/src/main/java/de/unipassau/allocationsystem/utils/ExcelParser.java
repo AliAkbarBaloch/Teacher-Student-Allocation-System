@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.utils;
 
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.entity.Teacher;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Utility class for parsing Excel files containing teacher data.
@@ -46,65 +48,73 @@ public class ExcelParser {
     public static List<ParsedRow> parseExcelFile(MultipartFile file) throws IOException {
         List<ParsedRow> rows = new ArrayList<>();
 
-        try (InputStream inputStream = file.getInputStream()) {
-            Workbook workbook;
-            String fileName = file.getOriginalFilename();
-            if (fileName != null && fileName.endsWith(".xls")) {
-                workbook = new HSSFWorkbook(inputStream);
-            } else {
-                workbook = new XSSFWorkbook(inputStream);
-            }
-
-            try {
-                Sheet sheet = workbook.getSheetAt(0);
-                if (sheet.getPhysicalNumberOfRows() < 2) {
-                    throw new IllegalArgumentException("Excel file must contain at least a header row and one data row");
-                }
-
-                // Parse header row
-                Row headerRow = sheet.getRow(0);
-                ColumnIndices indices = findColumnIndices(headerRow);
-
-                // Validate required columns
-                if (indices.getFirstNameIndex() == -1 || indices.getLastNameIndex() == -1 || indices.getEmailIndex() == -1) {
-                    throw new IllegalArgumentException(
-                        "Missing required columns. Required: First Name, Last Name, Email. "
-                        + "Optional: School Name/ID, Employment Status, Is Part Time, Phone, Usage Cycle"
-                    );
-                }
-
-                // Parse data rows
-                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                    Row row = sheet.getRow(i);
-                    if (row == null) {
-                        continue;
-                    }
-
-                    // Skip completely empty rows
-                    if (isRowEmpty(row)) {
-                        continue;
-                    }
-
-                    ParsedRow parsedRow = parseRow(row, indices, i + 1);
-                    if (parsedRow != null) {
-                        rows.add(parsedRow);
-                    }
-                }
-
-                if (rows.isEmpty()) {
-                    throw new IllegalArgumentException("No valid data rows found in Excel file");
-                }
-            } finally {
-                workbook.close();
-            }
-        } catch (Exception e) {
-            log.error("Error parsing Excel file", e);
-            if (e instanceof IOException) {
-                throw e;
-            }
+        try (InputStream inputStream = file.getInputStream(); 
+             Workbook workbook = createWorkbook(inputStream, file.getOriginalFilename())) {
+            
+            Sheet sheet = validateAndGetSheet(workbook);
+            ColumnIndices indices = parseAndValidateHeaders(sheet);
+            rows = parseDataRows(sheet, indices);
+            
+        } catch (IOException e) {
+            log.error("Error reading Excel file", e);
+            throw e;
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid Excel file format: {}", e.getMessage());
+            throw e;
+        } catch (IllegalStateException e) {
+            log.error("Error processing Excel file: {}", e.getMessage());
             throw new IllegalArgumentException("Failed to parse Excel file: " + e.getMessage(), e);
         }
 
+        return rows;
+    }
+    
+    private static Workbook createWorkbook(InputStream inputStream, String fileName) throws IOException {
+        if (fileName != null && fileName.endsWith(".xls")) {
+            return new HSSFWorkbook(inputStream);
+        }
+        return new XSSFWorkbook(inputStream);
+    }
+    
+    private static Sheet validateAndGetSheet(Workbook workbook) {
+        Sheet sheet = workbook.getSheetAt(0);
+        if (sheet.getPhysicalNumberOfRows() < 2) {
+            throw new IllegalArgumentException("Excel file must contain at least a header row and one data row");
+        }
+        return sheet;
+    }
+    
+    private static ColumnIndices parseAndValidateHeaders(Sheet sheet) {
+        Row headerRow = sheet.getRow(0);
+        ColumnIndices indices = findColumnIndices(headerRow);
+        
+        if (indices.getFirstNameIndex() == -1 || indices.getLastNameIndex() == -1 || indices.getEmailIndex() == -1) {
+            throw new IllegalArgumentException(
+                "Missing required columns. Required: First Name, Last Name, Email. "
+                + "Optional: School Name/ID, Employment Status, Is Part Time, Phone, Usage Cycle"
+            );
+        }
+        return indices;
+    }
+    
+    private static List<ParsedRow> parseDataRows(Sheet sheet, ColumnIndices indices) {
+        List<ParsedRow> rows = new ArrayList<>();
+        
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null || isRowEmpty(row)) {
+                continue;
+            }
+            
+            ParsedRow parsedRow = parseRow(row, indices, i + 1);
+            if (parsedRow != null) {
+                rows.add(parsedRow);
+            }
+        }
+        
+        if (rows.isEmpty()) {
+            throw new IllegalArgumentException("No valid data rows found in Excel file");
+        }
         return rows;
     }
 
@@ -176,64 +186,71 @@ public class ExcelParser {
         String lastName = getCellValueAsString(row.getCell(indices.getLastNameIndex()));
         String email = getCellValueAsString(row.getCell(indices.getEmailIndex()));
 
-        // Skip rows with missing required fields
-        if (firstName == null || firstName.trim().isEmpty() ||
-            lastName == null || lastName.trim().isEmpty() ||
-            email == null || email.trim().isEmpty()) {
+        if (!areRequiredFieldsValid(firstName, lastName, email)) {
             return null;
         }
 
-        String schoolName = indices.getSchoolNameIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getSchoolNameIndex()))
-            : null;
-        String schoolIdStr = indices.getSchoolIdIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getSchoolIdIndex()))
-            : null;
-        Long schoolId = null;
-        if (schoolIdStr != null && !schoolIdStr.trim().isEmpty()) {
-            try {
-                schoolId = Long.parseLong(schoolIdStr.trim());
-            } catch (NumberFormatException e) {
-                // Invalid school ID, will be handled in validation
-            }
-        }
+        String schoolName = getCellValue(row, indices.getSchoolNameIndex());
+        String schoolIdStr = getCellValue(row, indices.getSchoolIdIndex());
+        Long schoolId = parseSchoolId(schoolIdStr);
+        String phone = getCellValue(row, indices.getPhoneIndex());
+        
+        Teacher.EmploymentStatus employmentStatus = parseEmploymentStatus(
+            Optional.ofNullable(getCellValue(row, indices.getEmploymentStatusIndex())).orElse("FULL_TIME")
+        );
+        Boolean isPartTime = parseBoolean(
+            Optional.ofNullable(getCellValue(row, indices.getIsPartTimeIndex())).orElse("false")
+        );
+        Teacher.UsageCycle usageCycle = parseUsageCycle(getCellValue(row, indices.getUsageCycleIndex()));
 
-        String phone = indices.getPhoneIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getPhoneIndex()))
-            : null;
-
-        String employmentStatusStr = indices.getEmploymentStatusIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getEmploymentStatusIndex()))
-            : "FULL_TIME";
-        Teacher.EmploymentStatus employmentStatus = parseEmploymentStatus(employmentStatusStr);
-
-        String isPartTimeStr = indices.getIsPartTimeIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getIsPartTimeIndex()))
-            : "false";
-        Boolean isPartTime = parseBoolean(isPartTimeStr);
-
-        String usageCycleStr = indices.getUsageCycleIndex() != -1
-            ? getCellValueAsString(row.getCell(indices.getUsageCycleIndex()))
-            : null;
-        Teacher.UsageCycle usageCycle = parseUsageCycle(usageCycleStr);
-
-        TeacherCreateDto dto = new TeacherCreateDto();
-        dto.setSchoolId(schoolId); // Will be resolved from school name if needed
-        dto.setFirstName(firstName.trim());
-        dto.setLastName(lastName.trim());
-        dto.setEmail(email.trim());
-        dto.setPhone(phone != null && !phone.trim().isEmpty() ? phone.trim() : null);
-        dto.setIsPartTime(isPartTime);
-        dto.setEmploymentStatus(employmentStatus);
-        dto.setUsageCycle(usageCycle);
+        TeacherCreateDto dto = buildTeacherDto(firstName, lastName, email, schoolId, phone, 
+                                                isPartTime, employmentStatus, usageCycle);
 
         ParsedRow parsedRow = new ParsedRow();
         parsedRow.setRowNumber(rowNumber);
         parsedRow.setDto(dto);
-        parsedRow.setSchoolName(schoolName != null ? schoolName.trim() : null);
+        parsedRow.setSchoolName(Optional.ofNullable(schoolName).map(String::trim).orElse(null));
         parsedRow.setSchoolId(schoolId);
 
         return parsedRow;
+    }
+    
+    private static boolean areRequiredFieldsValid(String firstName, String lastName, String email) {
+        return firstName != null && !firstName.trim().isEmpty() &&
+               lastName != null && !lastName.trim().isEmpty() &&
+               email != null && !email.trim().isEmpty();
+    }
+    
+    private static String getCellValue(Row row, int index) {
+        return index != -1 ? getCellValueAsString(row.getCell(index)) : null;
+    }
+    
+    private static Long parseSchoolId(String schoolIdStr) {
+        if (schoolIdStr == null || schoolIdStr.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(schoolIdStr.trim());
+        } catch (NumberFormatException e) {
+            log.warn("Invalid school ID format: {}", schoolIdStr);
+            return null;
+        }
+    }
+    
+    private static TeacherCreateDto buildTeacherDto(String firstName, String lastName, String email,
+                                                     Long schoolId, String phone, Boolean isPartTime,
+                                                     Teacher.EmploymentStatus employmentStatus,
+                                                     Teacher.UsageCycle usageCycle) {
+        TeacherCreateDto dto = new TeacherCreateDto();
+        dto.setSchoolId(schoolId);
+        dto.setFirstName(firstName.trim());
+        dto.setLastName(lastName.trim());
+        dto.setEmail(email.trim());
+        dto.setPhone(Optional.ofNullable(phone).filter(p -> !p.trim().isEmpty()).map(String::trim).orElse(null));
+        dto.setIsPartTime(isPartTime);
+        dto.setEmploymentStatus(employmentStatus);
+        dto.setUsageCycle(usageCycle);
+        return dto;
     }
 
     private static String getCellValueAsString(Cell cell) {
@@ -294,7 +311,8 @@ public class ExcelParser {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return Teacher.EmploymentStatus.valueOf(normalized);
         } catch (IllegalArgumentException e) {
-            return Teacher.EmploymentStatus.ACTIVE; // Default
+            log.warn("Invalid employment status: {}, using default ACTIVE", value);
+            return Teacher.EmploymentStatus.ACTIVE;
         }
     }
 
@@ -306,6 +324,7 @@ public class ExcelParser {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return Teacher.UsageCycle.valueOf(normalized);
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid usage cycle: {}, using null", value);
             return null;
         }
     }
@@ -313,6 +332,7 @@ public class ExcelParser {
     /**
      * Helper class to store column indices.
      */
+    @Data
     private static class ColumnIndices {
         private int schoolNameIndex = -1;
         private int schoolIdIndex = -1;
@@ -323,120 +343,17 @@ public class ExcelParser {
         private int employmentStatusIndex = -1;
         private int isPartTimeIndex = -1;
         private int usageCycleIndex = -1;
-
-        public int getSchoolNameIndex() {
-            return schoolNameIndex;
-        }
-
-        public void setSchoolNameIndex(int schoolNameIndex) {
-            this.schoolNameIndex = schoolNameIndex;
-        }
-
-        public int getSchoolIdIndex() {
-            return schoolIdIndex;
-        }
-
-        public void setSchoolIdIndex(int schoolIdIndex) {
-            this.schoolIdIndex = schoolIdIndex;
-        }
-
-        public int getFirstNameIndex() {
-            return firstNameIndex;
-        }
-
-        public void setFirstNameIndex(int firstNameIndex) {
-            this.firstNameIndex = firstNameIndex;
-        }
-
-        public int getLastNameIndex() {
-            return lastNameIndex;
-        }
-
-        public void setLastNameIndex(int lastNameIndex) {
-            this.lastNameIndex = lastNameIndex;
-        }
-
-        public int getEmailIndex() {
-            return emailIndex;
-        }
-
-        public void setEmailIndex(int emailIndex) {
-            this.emailIndex = emailIndex;
-        }
-
-        public int getPhoneIndex() {
-            return phoneIndex;
-        }
-
-        public void setPhoneIndex(int phoneIndex) {
-            this.phoneIndex = phoneIndex;
-        }
-
-        public int getEmploymentStatusIndex() {
-            return employmentStatusIndex;
-        }
-
-        public void setEmploymentStatusIndex(int employmentStatusIndex) {
-            this.employmentStatusIndex = employmentStatusIndex;
-        }
-
-        public int getIsPartTimeIndex() {
-            return isPartTimeIndex;
-        }
-
-        public void setIsPartTimeIndex(int isPartTimeIndex) {
-            this.isPartTimeIndex = isPartTimeIndex;
-        }
-
-        public int getUsageCycleIndex() {
-            return usageCycleIndex;
-        }
-
-        public void setUsageCycleIndex(int usageCycleIndex) {
-            this.usageCycleIndex = usageCycleIndex;
-        }
     }
 
     /**
      * Represents a parsed row with its DTO and metadata.
      */
+    @Data
     public static class ParsedRow {
         private int rowNumber;
         private TeacherCreateDto dto;
         private String schoolName;
         private Long schoolId;
-
-        public int getRowNumber() {
-            return rowNumber;
-        }
-
-        public void setRowNumber(int rowNumber) {
-            this.rowNumber = rowNumber;
-        }
-
-        public TeacherCreateDto getDto() {
-            return dto;
-        }
-
-        public void setDto(TeacherCreateDto dto) {
-            this.dto = dto;
-        }
-
-        public String getSchoolName() {
-            return schoolName;
-        }
-
-        public void setSchoolName(String schoolName) {
-            this.schoolName = schoolName;
-        }
-
-        public Long getSchoolId() {
-            return schoolId;
-        }
-
-        public void setSchoolId(Long schoolId) {
-            this.schoolId = schoolId;
-        }
     }
 }
 

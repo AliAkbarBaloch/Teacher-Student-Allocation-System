@@ -32,12 +32,17 @@ public class SchoolProfileDto {
      * * @param schoolId - s.id (Long)
      * @param schoolName - s.schoolName (String)
      * @param schoolType - s.schoolType (Enum: School.SchoolType)
+     * @param schoolId - s.id (Long)
+     * @param schoolName - s.name (String)
+     * @param schoolType - s.schoolType (School.SchoolType)
      * @param zoneNumber - s.zoneNumber (Integer)
      * @param transportAccessibility - s.transportAccessibility (String)
      * @param isActive - s.isActive (Boolean)
      * @param totalTeachers - COUNT(t) (Long)
      * @param activeTeachers - COUNT(t) (Long)
      */
+    @java.beans.ConstructorProperties({"schoolId", "schoolName", "schoolType", "zoneNumber", 
+                                       "transportAccessibility", "isActive", "totalTeachers", "activeTeachers"})
     public SchoolProfileDto(Long schoolId,
                             String schoolName,
                             School.SchoolType schoolType,

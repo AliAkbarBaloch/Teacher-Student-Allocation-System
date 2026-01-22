@@ -95,6 +95,12 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
             return;
         }
 
+        updateBasicFields(updateDto, school);
+        updateLocationFields(updateDto, school);
+        updateContactFields(updateDto, school);
+    }
+
+    private void updateBasicFields(SchoolUpdateDto updateDto, School school) {
         if (updateDto.getSchoolName() != null) {
             school.setSchoolName(updateDto.getSchoolName());
         }
@@ -104,6 +110,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
         if (updateDto.getZoneNumber() != null) {
             school.setZoneNumber(updateDto.getZoneNumber());
         }
+    }
+
+    private void updateLocationFields(SchoolUpdateDto updateDto, School school) {
         if (updateDto.getAddress() != null) {
             school.setAddress(updateDto.getAddress());
         }
@@ -119,6 +128,9 @@ public class SchoolMapper implements BaseMapper<School, SchoolCreateDto, SchoolU
         if (updateDto.getTransportAccessibility() != null) {
             school.setTransportAccessibility(updateDto.getTransportAccessibility());
         }
+    }
+
+    private void updateContactFields(SchoolUpdateDto updateDto, School school) {
         if (updateDto.getContactEmail() != null) {
             school.setContactEmail(updateDto.getContactEmail());
         }

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandCreateDto;
+import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandFilterDto;
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandResponseDto;
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandUpdateDto;
 import de.unipassau.allocationsystem.entity.InternshipDemand;
@@ -152,25 +154,21 @@ public ResponseEntity<?> getAll() {
 
 @GetMapping("list-filter")
 @PreAuthorize("hasRole('ADMIN')")
-public ResponseEntity<?> list(
-        @RequestParam(name = "academic_year_id") Long yearId,
-        @RequestParam(name = "internship_type_id", required = false) Long internshipTypeId,
-        @RequestParam(name = "school_type", required = false) String schoolType,
-        @RequestParam(name = "subject_id", required = false) Long subjectId,
-        @RequestParam(name = "is_forecasted", required = false) Boolean isForecasted,
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "20") int size,
-        @RequestParam(name = "sort", defaultValue = "id") String sort,
-        @RequestParam(name = "direction", defaultValue = "ASC") String direction
-) {
-        Sort.Direction dir = Sort.Direction.fromString(Objects.requireNonNull(direction));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sort));
+public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto) {
+        Sort.Direction dir = Sort.Direction.fromString(
+                Objects.requireNonNullElse(filterDto.getDirection(), "ASC"));
+        Pageable pageable = PageRequest.of(
+                filterDto.getPage() != null ? filterDto.getPage() : 0,
+                filterDto.getSize() != null ? filterDto.getSize() : 20,
+                Sort.by(dir, filterDto.getSort() != null ? filterDto.getSort() : "id")
+        );
         Page<InternshipDemand> result = service.listByYearWithFilters(
-                yearId,
-                internshipTypeId,
-                schoolType != null ? de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(schoolType) : null,
-                subjectId,
-                isForecasted,
+                filterDto.getYearId(),
+                filterDto.getInternshipTypeId(),
+                filterDto.getSchoolType() != null ? 
+                        de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(filterDto.getSchoolType()) : null,
+                filterDto.getSubjectId(),
+                filterDto.getIsForecasted(),
                 pageable
         );
         Page<InternshipDemandResponseDto> dtoPage = result.map(internshipDemandMapper::toResponseDto);
