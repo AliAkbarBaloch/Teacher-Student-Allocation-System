@@ -40,6 +40,12 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Authenticates user with provided credentials and returns access tokens.
+     * 
+     * @param request Login request containing email and password
+     * @return ResponseEntity containing authentication tokens and user information
+     */
     @Operation(summary = "Login", description = "Authenticate user and return access tokens")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful",

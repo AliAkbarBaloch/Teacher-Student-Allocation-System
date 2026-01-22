@@ -1,5 +1,12 @@
 package de.unipassau.allocationsystem.controller;
 
+import de.unipassau.allocationsystem.controller.docs.CreateDocs;
+import de.unipassau.allocationsystem.controller.docs.DeleteDocs;
+import de.unipassau.allocationsystem.controller.docs.GetAllDocs;
+import de.unipassau.allocationsystem.controller.docs.GetByIdDocs;
+import de.unipassau.allocationsystem.controller.docs.GetPaginatedDocs;
+import de.unipassau.allocationsystem.controller.docs.GetSortFieldsDocs;
+import de.unipassau.allocationsystem.controller.docs.UpdateDocs;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
@@ -8,11 +15,6 @@ import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.InternshipTypeMapper;
 import de.unipassau.allocationsystem.service.InternshipTypeService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,14 +50,7 @@ public class InternshipTypeController {
      * 
      * @return ResponseEntity containing list of sortable fields
      */
-    @Operation(
-            summary = "Get sort fields",
-            description = "Retrieves available fields that can be used for sorting internship types"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetSortFieldsDocs
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
         List<Map<String, String>> result = internshipTypeService.getSortFields();
@@ -69,19 +64,7 @@ public class InternshipTypeController {
      * @return ResponseEntity containing the internship type details
      * @throws ResourceNotFoundException if internship type not found
      */
-    @Operation(
-            summary = "Get internship type by ID",
-            description = "Retrieves a specific internship type by its ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Internship type found",
-                    content = @Content(schema = @Schema(implementation = InternshipTypeResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Internship type not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetByIdDocs
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         InternshipTypeResponseDto result = internshipTypeService.getById(id)
@@ -98,15 +81,7 @@ public class InternshipTypeController {
      * @param searchValue Optional search term for filtering
      * @return ResponseEntity containing paginated internship types
      */
-    @Operation(
-            summary = "Get paginated internship types",
-            description = "Retrieves internship types with pagination, sorting, and optional search"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Internship types retrieved successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetPaginatedDocs
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
@@ -123,18 +98,7 @@ public class InternshipTypeController {
      * @param includeRelations Flag to include related entities
      * @return ResponseEntity containing list of all internship types
      */
-    @Operation(
-            summary = "Get all internship types",
-            description = "Retrieves all internship types without pagination"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Internship types retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = InternshipTypeResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetAllDocs
     @GetMapping("")
     public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
         List<InternshipTypeResponseDto> result = internshipTypeMapper.toResponseDtoList(internshipTypeService.getAll());
@@ -147,19 +111,7 @@ public class InternshipTypeController {
      * @param dto Internship type creation data
      * @return ResponseEntity containing the created internship type
      */
-    @Operation(
-            summary = "Create new internship type",
-            description = "Creates a new internship type with the provided details"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Internship type created successfully",
-                    content = @Content(schema = @Schema(implementation = InternshipTypeResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate internship type"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @CreateDocs
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody InternshipTypeCreateDto dto) {
         InternshipType internshipType = internshipTypeMapper.toEntityCreate(dto);
@@ -174,20 +126,7 @@ public class InternshipTypeController {
      * @param dto Internship type update data
      * @return ResponseEntity containing the updated internship type
      */
-    @Operation(
-            summary = "Update internship type",
-            description = "Updates an existing internship type with the provided details"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Internship type updated successfully",
-                    content = @Content(schema = @Schema(implementation = InternshipTypeResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate code"),
-            @ApiResponse(responseCode = "404", description = "Internship type not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @UpdateDocs
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipTypeUpdateDto dto) {
         InternshipType internshipType = internshipTypeMapper.toEntityUpdate(dto);
@@ -201,15 +140,7 @@ public class InternshipTypeController {
      * @param id The ID of the internship type to delete
      * @return ResponseEntity with no content
      */
-    @Operation(
-            summary = "Delete internship type",
-            description = "Deletes an internship type by its ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Internship type deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Internship type not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @DeleteDocs
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         internshipTypeService.delete(id);

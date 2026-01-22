@@ -133,15 +133,7 @@ public ResponseEntity<?> getAll() {
  * Lists internship demand entries filtered by year and optional dimensions.
  * Supports pagination and filtering by multiple criteria.
  * 
- * @param yearId Required academic year ID
- * @param internshipTypeId Optional internship type filter
- * @param schoolType Optional school type filter
- * @param subjectId Optional subject filter
- * @param isForecasted Optional forecast flag filter
- * @param page Page number (0-indexed)
- * @param size Page size
- * @param sort Sort field
- * @param direction Sort direction (ASC or DESC)
+ * @param filterDto Filter criteria including yearId, internshipTypeId, schoolType, subjectId, isForecasted, page, size, sort, direction
  * @return ResponseEntity containing paginated and filtered demand entries
  */
 @Operation(summary = "Get internship demand list", description = "List internship demand entries filtered by year and optional dimensions")
@@ -155,18 +147,41 @@ public ResponseEntity<?> getAll() {
 @GetMapping("list-filter")
 @PreAuthorize("hasRole('ADMIN')")
 public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto) {
-        Sort.Direction dir = Sort.Direction.fromString(
-                Objects.requireNonNullElse(filterDto.getDirection(), "ASC"));
-        Pageable pageable = PageRequest.of(
-                filterDto.getPage() != null ? filterDto.getPage() : 0,
-                filterDto.getSize() != null ? filterDto.getSize() : 20,
-                Sort.by(dir, filterDto.getSort() != null ? filterDto.getSort() : "id")
-        );
+        String direction = Objects.requireNonNullElse(filterDto.getDirection(), "ASC");
+        Sort.Direction dir = Sort.Direction.fromString(direction);
+        
+        Integer page;
+        if (filterDto.getPage() != null) {
+                page = filterDto.getPage();
+        } else {
+                page = 0;
+        }
+        
+        Integer size;
+        if (filterDto.getSize() != null) {
+                size = filterDto.getSize();
+        } else {
+                size = 20;
+        }
+        
+        String sort;
+        if (filterDto.getSort() != null) {
+                sort = filterDto.getSort();
+        } else {
+                sort = "id";
+        }
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sort));
+        
+        de.unipassau.allocationsystem.entity.School.SchoolType schoolType = null;
+        if (filterDto.getSchoolType() != null) {
+                schoolType = de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(filterDto.getSchoolType());
+        }
+        
         Page<InternshipDemand> result = service.listByYearWithFilters(
                 filterDto.getYearId(),
                 filterDto.getInternshipTypeId(),
-                filterDto.getSchoolType() != null ? 
-                        de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(filterDto.getSchoolType()) : null,
+                schoolType,
                 filterDto.getSubjectId(),
                 filterDto.getIsForecasted(),
                 pageable
