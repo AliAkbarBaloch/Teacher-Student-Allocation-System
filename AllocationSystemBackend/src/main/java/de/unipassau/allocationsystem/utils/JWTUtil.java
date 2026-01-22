@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -62,10 +58,10 @@ public class JWTUtil {
      * Extracts the expiration date from the JWT token.
      * 
      * @param token the JWT token
-     * @return the expiration date
+     * @return the expiration instant
      */
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Instant extractExpiration(String token) {
+        return extractClaim(token, claims -> claims.getExpiration().toInstant());
     }
 
     /**
@@ -90,29 +86,7 @@ public class JWTUtil {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    /**
-     * Generates a new JWT token for the authenticated user.
-     * 
-     * @param userDetails the user details containing username and authorities
-     * @return the generated JWT token
-     */
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        Instant now = Instant.now();
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusMillis(jwtExpiration)))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return extractExpiration(token).isBefore(Instant.now());
     }
 
     /**
@@ -148,11 +122,8 @@ public class JWTUtil {
         } catch (ExpiredJwtException e) {
             log.debug("JWT token expired: {}", e.getMessage());
             return false;
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             log.warn("Invalid JWT token: {}", e.getMessage());
-            return false;
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid JWT token format: {}", e.getMessage());
             return false;
         }
     }

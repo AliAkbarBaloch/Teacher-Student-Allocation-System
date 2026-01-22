@@ -46,27 +46,20 @@ public class ExcelParser {
      * @throws IOException if file cannot be read
      */
     public static List<ParsedRow> parseExcelFile(MultipartFile file) throws IOException {
-        List<ParsedRow> rows = new ArrayList<>();
-
         try (InputStream inputStream = file.getInputStream(); 
              Workbook workbook = createWorkbook(inputStream, file.getOriginalFilename())) {
             
             Sheet sheet = validateAndGetSheet(workbook);
             ColumnIndices indices = parseAndValidateHeaders(sheet);
-            rows = parseDataRows(sheet, indices);
+            return parseDataRows(sheet, indices);
             
         } catch (IOException e) {
             log.error("Error reading Excel file", e);
             throw e;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             log.error("Invalid Excel file format: {}", e.getMessage());
-            throw e;
-        } catch (IllegalStateException e) {
-            log.error("Error processing Excel file: {}", e.getMessage());
             throw new IllegalArgumentException("Failed to parse Excel file: " + e.getMessage(), e);
         }
-
-        return rows;
     }
     
     private static Workbook createWorkbook(InputStream inputStream, String fileName) throws IOException {
@@ -190,27 +183,14 @@ public class ExcelParser {
             return null;
         }
 
-        String schoolName = getCellValue(row, indices.getSchoolNameIndex());
-        String schoolIdStr = getCellValue(row, indices.getSchoolIdIndex());
-        Long schoolId = parseSchoolId(schoolIdStr);
-        String phone = getCellValue(row, indices.getPhoneIndex());
-        
-        Teacher.EmploymentStatus employmentStatus = parseEmploymentStatus(
-            Optional.ofNullable(getCellValue(row, indices.getEmploymentStatusIndex())).orElse("FULL_TIME")
-        );
-        Boolean isPartTime = parseBoolean(
-            Optional.ofNullable(getCellValue(row, indices.getIsPartTimeIndex())).orElse("false")
-        );
-        Teacher.UsageCycle usageCycle = parseUsageCycle(getCellValue(row, indices.getUsageCycleIndex()));
-
-        TeacherCreateDto dto = buildTeacherDto(firstName, lastName, email, schoolId, phone, 
-                                                isPartTime, employmentStatus, usageCycle);
+        TeacherDataExtractor extractor = new TeacherDataExtractor(row, indices);
+        TeacherCreateDto dto = extractor.buildTeacherDto();
 
         ParsedRow parsedRow = new ParsedRow();
         parsedRow.setRowNumber(rowNumber);
         parsedRow.setDto(dto);
-        parsedRow.setSchoolName(Optional.ofNullable(schoolName).map(String::trim).orElse(null));
-        parsedRow.setSchoolId(schoolId);
+        parsedRow.setSchoolName(extractor.getSchoolName());
+        parsedRow.setSchoolId(extractor.getSchoolId());
 
         return parsedRow;
     }
@@ -235,22 +215,6 @@ public class ExcelParser {
             log.warn("Invalid school ID format: {}", schoolIdStr);
             return null;
         }
-    }
-    
-    private static TeacherCreateDto buildTeacherDto(String firstName, String lastName, String email,
-                                                     Long schoolId, String phone, Boolean isPartTime,
-                                                     Teacher.EmploymentStatus employmentStatus,
-                                                     Teacher.UsageCycle usageCycle) {
-        TeacherCreateDto dto = new TeacherCreateDto();
-        dto.setSchoolId(schoolId);
-        dto.setFirstName(firstName.trim());
-        dto.setLastName(lastName.trim());
-        dto.setEmail(email.trim());
-        dto.setPhone(Optional.ofNullable(phone).filter(p -> !p.trim().isEmpty()).map(String::trim).orElse(null));
-        dto.setIsPartTime(isPartTime);
-        dto.setEmploymentStatus(employmentStatus);
-        dto.setUsageCycle(usageCycle);
-        return dto;
     }
 
     private static String getCellValueAsString(Cell cell) {
@@ -346,6 +310,61 @@ public class ExcelParser {
     }
 
     /**
+     * Helper class to extract and build teacher data from Excel row.
+     */
+    private static class TeacherDataExtractor {
+        private final Row row;
+        private final ColumnIndices indices;
+        private final String schoolName;
+        private final Long schoolId;
+        private final String phone;
+        private final Teacher.EmploymentStatus employmentStatus;
+        private final Boolean isPartTime;
+        private final Teacher.UsageCycle usageCycle;
+
+        TeacherDataExtractor(Row row, ColumnIndices indices) {
+            this.row = row;
+            this.indices = indices;
+            this.schoolName = Optional.ofNullable(getCellValue(row, indices.getSchoolNameIndex()))
+                    .map(String::trim).orElse(null);
+            this.schoolId = parseSchoolId(getCellValue(row, indices.getSchoolIdIndex()));
+            this.phone = getCellValue(row, indices.getPhoneIndex());
+            this.employmentStatus = parseEmploymentStatus(
+                Optional.ofNullable(getCellValue(row, indices.getEmploymentStatusIndex())).orElse("FULL_TIME")
+            );
+            this.isPartTime = parseBoolean(
+                Optional.ofNullable(getCellValue(row, indices.getIsPartTimeIndex())).orElse("false")
+            );
+            this.usageCycle = parseUsageCycle(getCellValue(row, indices.getUsageCycleIndex()));
+        }
+
+        TeacherCreateDto buildTeacherDto() {
+            String firstName = getCellValueAsString(row.getCell(indices.getFirstNameIndex()));
+            String lastName = getCellValueAsString(row.getCell(indices.getLastNameIndex()));
+            String email = getCellValueAsString(row.getCell(indices.getEmailIndex()));
+
+            TeacherCreateDto dto = new TeacherCreateDto();
+            dto.setSchoolId(schoolId);
+            dto.setFirstName(firstName.trim());
+            dto.setLastName(lastName.trim());
+            dto.setEmail(email.trim());
+            dto.setPhone(Optional.ofNullable(phone).filter(p -> !p.trim().isEmpty()).map(String::trim).orElse(null));
+            dto.setIsPartTime(isPartTime);
+            dto.setEmploymentStatus(employmentStatus);
+            dto.setUsageCycle(usageCycle);
+            return dto;
+        }
+
+        String getSchoolName() {
+            return schoolName;
+        }
+
+        Long getSchoolId() {
+            return schoolId;
+        }
+    }
+
+    /**
      * Represents a parsed row with its DTO and metadata.
      */
     @Data
@@ -356,4 +375,3 @@ public class ExcelParser {
         private Long schoolId;
     }
 }
-
