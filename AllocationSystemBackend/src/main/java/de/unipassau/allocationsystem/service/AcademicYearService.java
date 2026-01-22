@@ -71,9 +71,16 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         );
     }
 
+        /**
+     * Checks whether an {@link AcademicYear} exists with the given {@code yearName}.
+     *
+     * @param yearName the academic year name to check (e.g., "2025/2026")
+     * @return {@code true} if a record exists with the given name, otherwise {@code false}
+     */
     public boolean yearNameExists(String yearName) {
         return academicYearRepository.findByYearName(yearName).isPresent();
     }
+
 
     @Override
     public boolean existsById(Long id) {
