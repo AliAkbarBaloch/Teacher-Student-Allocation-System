@@ -19,12 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+// ...existing code...
 
 @Service
 @RequiredArgsConstructor
@@ -56,11 +58,50 @@ public class SchoolService implements CrudService<School, Long> {
         return keys;
     }
 
-    private Specification<School> buildSearchSpecification(String searchValue) {
-        // Search across schoolName (extend fields if needed)
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"schoolName"}, searchValue
-        );
+
+    // Helper methods for building filter predicates
+    private Predicate buildSchoolNamePredicate(String searchValue, Root<School> root, CriteriaBuilder cb) {
+        if (searchValue != null && !searchValue.trim().isEmpty()) {
+            String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
+            return cb.like(cb.lower(root.get("schoolName")), likePattern);
+        }
+        return null;
+    }
+
+    private Predicate buildSchoolTypePredicate(String schoolTypeParam, Root<School> root, CriteriaBuilder cb) {
+        if (schoolTypeParam != null && !schoolTypeParam.trim().isEmpty()) {
+            try {
+                School.SchoolType schoolType = School.SchoolType.valueOf(schoolTypeParam.toUpperCase());
+                return cb.equal(root.get("schoolType"), schoolType);
+            } catch (IllegalArgumentException e) {
+                // Invalid school type, ignore filter
+            }
+        }
+        return null;
+    }
+
+    private Predicate buildZoneNumberPredicate(String zoneNumberParam, Root<School> root, CriteriaBuilder cb) {
+        if (zoneNumberParam != null && !zoneNumberParam.trim().isEmpty()) {
+            try {
+                Integer zoneNumber = Integer.parseInt(zoneNumberParam);
+                return cb.equal(root.get("zoneNumber"), zoneNumber);
+            } catch (NumberFormatException e) {
+                // Invalid zone number, ignore filter
+            }
+        }
+        return null;
+    }
+
+    private Predicate buildIsActivePredicate(String isActiveParam, Root<School> root, CriteriaBuilder cb) {
+        if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
+            try {
+                Boolean isActive = Boolean.parseBoolean(isActiveParam);
+                return cb.equal(root.get("isActive"), isActive);
+            } catch (Exception e) {
+                // Invalid boolean, ignore filter
+            }
+        }
+        return null;
     }
 
     /**
@@ -183,44 +224,17 @@ public class SchoolService implements CrudService<School, Long> {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Search filter
-            if (searchValue != null && !searchValue.trim().isEmpty()) {
-                String likePattern = "%" + searchValue.trim().toLowerCase() + "%";
-                predicates.add(cb.like(cb.lower(root.get("schoolName")), likePattern));
-            }
+            Predicate schoolNamePredicate = buildSchoolNamePredicate(searchValue, root, cb);
+            if (schoolNamePredicate != null) predicates.add(schoolNamePredicate);
 
-            // School type filter
-            String schoolTypeParam = queryParams.get("schoolType");
-            if (schoolTypeParam != null && !schoolTypeParam.trim().isEmpty()) {
-                try {
-                    School.SchoolType schoolType = School.SchoolType.valueOf(schoolTypeParam.toUpperCase());
-                    predicates.add(cb.equal(root.get("schoolType"), schoolType));
-                } catch (IllegalArgumentException e) {
-                    // Invalid school type, ignore filter
-                }
-            }
+            Predicate schoolTypePredicate = buildSchoolTypePredicate(queryParams.get("schoolType"), root, cb);
+            if (schoolTypePredicate != null) predicates.add(schoolTypePredicate);
 
-            // Zone number filter
-            String zoneNumberParam = queryParams.get("zoneNumber");
-            if (zoneNumberParam != null && !zoneNumberParam.trim().isEmpty()) {
-                try {
-                    Integer zoneNumber = Integer.parseInt(zoneNumberParam);
-                    predicates.add(cb.equal(root.get("zoneNumber"), zoneNumber));
-                } catch (NumberFormatException e) {
-                    // Invalid zone number, ignore filter
-                }
-            }
+            Predicate zoneNumberPredicate = buildZoneNumberPredicate(queryParams.get("zoneNumber"), root, cb);
+            if (zoneNumberPredicate != null) predicates.add(zoneNumberPredicate);
 
-            // Active status filter
-            String isActiveParam = queryParams.get("isActive");
-            if (isActiveParam != null && !isActiveParam.trim().isEmpty()) {
-                try {
-                    Boolean isActive = Boolean.parseBoolean(isActiveParam);
-                    predicates.add(cb.equal(root.get("isActive"), isActive));
-                } catch (Exception e) {
-                    // Invalid boolean, ignore filter
-                }
-            }
+            Predicate isActivePredicate = buildIsActivePredicate(queryParams.get("isActive"), root, cb);
+            if (isActivePredicate != null) predicates.add(isActivePredicate);
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
