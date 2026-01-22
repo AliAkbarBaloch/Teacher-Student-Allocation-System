@@ -24,7 +24,6 @@ import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.AllocationPlanMapper;
-import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
@@ -41,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AllocationPlanService {
 
     private final AllocationPlanRepository allocationPlanRepository;
-    private final AcademicYearRepository academicYearRepository;
     private final AllocationPlanMapper allocationPlanMapper;
     private final PlanChangeLogService planChangeLogService;
     private final TeacherAllocationService teacherAllocationService;
@@ -148,8 +146,8 @@ public class AllocationPlanService {
         }
 
         AllocationPlan saved = writeSupport.createAndSavePlan(createDto, year);
-
         writeSupport.logCreateChange(saved);
+
         return allocationPlanMapper.toResponseDto(saved);
     }
 
@@ -248,7 +246,6 @@ public class AllocationPlanService {
     @Transactional
     public AllocationPlanResponseDto archivePlan(Long id) {
         AllocationPlan plan = writeSupport.requirePlan(id);
-
         writeSupport.assertNotAlreadyArchived(plan);
 
         if (Boolean.TRUE.equals(plan.getIsCurrent())) {
