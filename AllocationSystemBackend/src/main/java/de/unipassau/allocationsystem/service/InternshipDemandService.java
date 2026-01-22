@@ -42,6 +42,16 @@ import java.util.Optional;
  */
 public class InternshipDemandService implements CrudService<InternshipDemand, Long> {
 
+    private static final List<Map<String, String>> SORT_FIELDS =
+            SortFieldUtils.getSortFields(
+                    "id", "yearId", "internshipTypeId", "schoolType", "subjectId",
+                    "isForecasted", "createdAt", "updatedAt"
+            );
+
+    private static final String[] SEARCH_FIELDS = {
+            "schoolType", "internshipType.title", "subject.subjectTitle"
+    };
+
     private final InternshipDemandRepository repository;
     private final InternshipTypeRepository internshipTypeRepository;
     private final SubjectRepository subjectRepository;
@@ -53,9 +63,7 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
      * @return list of sort field metadata
      */
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields(
-                "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
-        );
+        return SORT_FIELDS;
     }
 
     /**
@@ -64,14 +72,11 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(field -> field.get("key")).toList();
+        return SORT_FIELDS.stream().map(field -> field.get("key")).toList();
     }
 
     private Specification<InternshipDemand> buildSearchSpecification(String searchValue) {
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-                new String[]{"schoolType", "internshipType.title", "subject.subjectTitle"},
-                searchValue
-        );
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(SEARCH_FIELDS, searchValue);
     }
 
     @Override
@@ -88,14 +93,19 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+        return doGetPaginated(queryParams, searchValue);
+    }
 
-        Specification<InternshipDemand> spec = buildSearchSpecification(searchValue);
-        Page<InternshipDemand> page = repository.findAll(spec, pageable);
+    private Map<String, Object> doGetPaginated(Map<String, String> queryParams, String searchValue) {
+        PaginationUtils.PaginationParams pageParams = PaginationUtils.validatePaginationParams(queryParams);
 
-        return PaginationUtils.formatPaginationResponse(page);
+        Sort orderBy = Sort.by(pageParams.sortOrder(), pageParams.sortBy());
+        Pageable pageRequest = PageRequest.of(pageParams.page() - 1, pageParams.pageSize(), orderBy);
+
+        Specification<InternshipDemand> filterSpec = buildSearchSpecification(searchValue);
+        Page<InternshipDemand> pageResult = repository.findAll(filterSpec, pageRequest);
+
+        return PaginationUtils.formatPaginationResponse(pageResult);
     }
 
     @Audited(
@@ -107,6 +117,10 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public List<InternshipDemand> getAll() {
+        return doGetAll();
+    }
+
+    private List<InternshipDemand> doGetAll() {
         return repository.findAll();
     }
 
@@ -119,6 +133,10 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public Optional<InternshipDemand> getById(Long id) {
+        return doGetById(id);
+    }
+
+    private Optional<InternshipDemand> doGetById(Long id) {
         return repository.findById(id);
     }
 
@@ -140,17 +158,18 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
 
     private Specification<InternshipDemand> buildUniquenessSpec(InternshipDemand entity) {
         Boolean forecastedFlag = toForecastedFlag(entity.getIsForecasted());
+
         Long yearId = entity.getAcademicYear().getId();
         Long internshipTypeId = entity.getInternshipType().getId();
         Long subjectId = entity.getSubject().getId();
         School.SchoolType schoolType = entity.getSchoolType();
 
-        return (criteriaRoot, criteriaQuery, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(criteriaRoot.get("academicYear").get("id"), yearId),
-                criteriaBuilder.equal(criteriaRoot.get("internshipType").get("id"), internshipTypeId),
-                criteriaBuilder.equal(criteriaRoot.get("schoolType"), schoolType),
-                criteriaBuilder.equal(criteriaRoot.get("subject").get("id"), subjectId),
-                criteriaBuilder.equal(criteriaRoot.get("isForecasted"), forecastedFlag)
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("academicYear").get("id"), yearId),
+                cb.equal(root.get("internshipType").get("id"), internshipTypeId),
+                cb.equal(root.get("schoolType"), schoolType),
+                cb.equal(root.get("subject").get("id"), subjectId),
+                cb.equal(root.get("isForecasted"), forecastedFlag)
         );
     }
 
@@ -248,12 +267,12 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     /**
      * Lists internship demands with filtering by academic year and optional criteria.
      *
-     * @param yearId          the academic year ID (required)
+     * @param yearId           the academic year ID (required)
      * @param internshipTypeId optional internship type ID filter
-     * @param schoolType      optional school type filter
-     * @param subjectId       optional subject ID filter
-     * @param isForecasted    optional forecasted status filter
-     * @param pageable        pagination parameters
+     * @param schoolType       optional school type filter
+     * @param subjectId        optional subject ID filter
+     * @param isForecasted     optional forecasted status filter
+     * @param pageable         pagination parameters
      * @return page of filtered internship demands
      */
     public Page<InternshipDemand> listByYearWithFilters(Long yearId,
@@ -262,11 +281,9 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
                                                         Long subjectId,
                                                         Boolean isForecasted,
                                                         Pageable pageable) {
-
         Specification<InternshipDemand> spec = buildYearFilterSpec(
                 yearId, internshipTypeId, schoolType, subjectId, isForecasted
         );
-
         return repository.findAll(spec, pageable);
     }
 
@@ -277,24 +294,19 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
                                                                 Boolean isForecasted) {
 
         Specification<InternshipDemand> spec =
-                (criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                        criteriaBuilder.equal(criteriaRoot.get("academicYear").get("id"), yearId);
+                (root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId);
 
         if (internshipTypeId != null) {
-            spec = spec.and((criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                    criteriaBuilder.equal(criteriaRoot.get("internshipType").get("id"), internshipTypeId));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("internshipType").get("id"), internshipTypeId));
         }
         if (schoolType != null) {
-            spec = spec.and((criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                    criteriaBuilder.equal(criteriaRoot.get("schoolType"), schoolType));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("schoolType"), schoolType));
         }
         if (subjectId != null) {
-            spec = spec.and((criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                    criteriaBuilder.equal(criteriaRoot.get("subject").get("id"), subjectId));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("subject").get("id"), subjectId));
         }
         if (isForecasted != null) {
-            spec = spec.and((criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                    criteriaBuilder.equal(criteriaRoot.get("isForecasted"), isForecasted));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("isForecasted"), isForecasted));
         }
 
         return spec;
@@ -307,8 +319,7 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
      * @return list of internship demands
      */
     public List<InternshipDemand> getAllByYear(Long yearId) {
-        return repository.findAll((criteriaRoot, criteriaQuery, criteriaBuilder) ->
-                criteriaBuilder.equal(criteriaRoot.get("academicYear").get("id"), yearId));
+        return repository.findAll((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
     }
 
     /**
