@@ -38,12 +38,6 @@ public class AllocationReportService {
     private final TeacherAssignmentRepository assignmentRepository;
     private final TeacherRepository teacherRepository;
 
-    /**
-     * Generates allocation report for the most recently created plan.
-     *
-     * @return allocation report DTO
-     * @throws ResourceNotFoundException if no plans exist
-     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReportForLatest() {
         List<AllocationPlan> recentPlans = planRepository.findMostRecentPlan();
@@ -66,13 +60,6 @@ public class AllocationReportService {
         return generateReportForPlan(plan);
     }
 
-    /**
-     * Generates allocation report for a specific plan.
-     *
-     * @param planId the allocation plan ID
-     * @return allocation report DTO
-     * @throws ResourceNotFoundException if plan not found
-     */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReport(Long planId) {
         AllocationPlan plan = planRepository.findByIdWithAcademicYear(planId)
@@ -97,10 +84,7 @@ public class AllocationReportService {
         BudgetSummaryDto budgetSummary = calculateBudget(plan, assignments);
         UtilizationAnalysisDto utilizationAnalysis = analyzeUtilization(allTeachers, assignments);
 
-        String academicYearName = "Unknown";
-        if (plan.getAcademicYear() != null && plan.getAcademicYear().getYearName() != null) {
-            academicYearName = plan.getAcademicYear().getYearName();
-        }
+        String academicYearName = getAcademicYearName(plan);
 
         return AllocationReportDto.builder()
                 .header(ReportHeaderDto.builder()
@@ -116,56 +100,130 @@ public class AllocationReportService {
                 .build();
     }
 
+    private String getAcademicYearName(AllocationPlan plan) {
+        String academicYearName = "Unknown";
+        if (plan.getAcademicYear() != null && plan.getAcademicYear().getYearName() != null) {
+            academicYearName = plan.getAcademicYear().getYearName();
+        }
+        return academicYearName;
+    }
+
+    // =========================
+    // Shortened methods
+    // =========================
+
     private TeacherAssignmentDetailDto mapToDetailDto(TeacherAssignment ta) {
-        String teacherName = buildTeacherName(ta != null ? ta.getTeacher() : null);
-
-        String teacherEmail = null;
-        String schoolName = "Unknown";
-        String schoolZone = "Unknown";
-
-        if (ta != null && ta.getTeacher() != null) {
-            teacherEmail = ta.getTeacher().getEmail();
-
-            if (ta.getTeacher().getSchool() != null) {
-                School s = ta.getTeacher().getSchool();
-                if (s.getSchoolName() != null) {
-                    schoolName = s.getSchoolName();
-                }
-                schoolZone = "Zone " + s.getZoneNumber();
-            }
-        }
-
-        String internshipCode = "Unknown";
-        if (ta != null && ta.getInternshipType() != null && ta.getInternshipType().getInternshipCode() != null) {
-            internshipCode = ta.getInternshipType().getInternshipCode();
-        }
-
-        String subjectCode = "Unknown";
-        if (ta != null && ta.getSubject() != null && ta.getSubject().getSubjectCode() != null) {
-            subjectCode = ta.getSubject().getSubjectCode();
-        }
-
-        int groupSize = 0;
-        if (ta != null && ta.getStudentGroupSize() != null) {
-            groupSize = ta.getStudentGroupSize();
-        }
-
-        String assignmentStatus = "UNKNOWN";
-        if (ta != null && ta.getAssignmentStatus() != null) {
-            assignmentStatus = ta.getAssignmentStatus().name();
-        }
+        Teacher teacher = getTeacherOrNull(ta);
 
         return TeacherAssignmentDetailDto.builder()
-                .assignmentId(ta != null ? ta.getId() : null)
-                .teacherName(teacherName)
-                .teacherEmail(teacherEmail)
-                .schoolName(schoolName)
-                .schoolZone(schoolZone)
-                .internshipCode(internshipCode)
-                .subjectCode(subjectCode)
-                .studentGroupSize(groupSize)
-                .assignmentStatus(assignmentStatus)
+                .assignmentId(getAssignmentIdOrNull(ta))
+                .teacherName(buildTeacherName(teacher))
+                .teacherEmail(getTeacherEmailOrNull(teacher))
+                .schoolName(getSchoolNameOrUnknown(teacher))
+                .schoolZone(getSchoolZoneOrUnknown(teacher))
+                .internshipCode(getInternshipCodeOrUnknown(ta))
+                .subjectCode(getSubjectCodeOrUnknown(ta))
+                .studentGroupSize(getStudentGroupSizeOrZero(ta))
+                .assignmentStatus(getAssignmentStatusOrUnknown(ta))
                 .build();
+    }
+
+    private UtilizationAnalysisDto analyzeUtilization(List<Teacher> allTeachers, List<TeacherAssignment> assignments) {
+        Map<Long, Long> assignmentCounts = buildAssignmentCounts(assignments);
+
+        List<TeacherUtilizationDto> unassigned = new ArrayList<>();
+        List<TeacherUtilizationDto> underUtilized = new ArrayList<>();
+        List<TeacherUtilizationDto> overUtilized = new ArrayList<>();
+        List<TeacherUtilizationDto> perfect = new ArrayList<>();
+
+        for (Teacher teacher : allTeachers) {
+            long count = assignmentCounts.getOrDefault(teacher.getId(), 0L);
+            TeacherUtilizationDto dto = buildUtilizationDto(teacher, count);
+            addToUtilizationBucket(dto, count, unassigned, underUtilized, perfect, overUtilized);
+        }
+
+        return UtilizationAnalysisDto.builder()
+                .unassignedTeachers(unassigned)
+                .underUtilizedTeachers(underUtilized)
+                .perfectlyUtilizedTeachers(perfect)
+                .overUtilizedTeachers(overUtilized)
+                .build();
+    }
+
+    // =========================
+    // Helper methods for mapToDetailDto
+    // =========================
+
+    private Teacher getTeacherOrNull(TeacherAssignment ta) {
+        if (ta == null) {
+            return null;
+        }
+        return ta.getTeacher();
+    }
+
+    private Long getAssignmentIdOrNull(TeacherAssignment ta) {
+        if (ta == null) {
+            return null;
+        }
+        return ta.getId();
+    }
+
+    private String getTeacherEmailOrNull(Teacher teacher) {
+        if (teacher == null) {
+            return null;
+        }
+        return teacher.getEmail();
+    }
+
+    private String getSchoolNameOrUnknown(Teacher teacher) {
+        if (teacher == null || teacher.getSchool() == null) {
+            return "Unknown";
+        }
+        if (teacher.getSchool().getSchoolName() == null) {
+            return "Unknown";
+        }
+        return teacher.getSchool().getSchoolName();
+    }
+
+    private String getSchoolZoneOrUnknown(Teacher teacher) {
+        if (teacher == null || teacher.getSchool() == null) {
+            return "Unknown";
+        }
+        return "Zone " + teacher.getSchool().getZoneNumber();
+    }
+
+    private String getInternshipCodeOrUnknown(TeacherAssignment ta) {
+        if (ta == null || ta.getInternshipType() == null) {
+            return "Unknown";
+        }
+        if (ta.getInternshipType().getInternshipCode() == null) {
+            return "Unknown";
+        }
+        return ta.getInternshipType().getInternshipCode();
+    }
+
+    private String getSubjectCodeOrUnknown(TeacherAssignment ta) {
+        if (ta == null || ta.getSubject() == null) {
+            return "Unknown";
+        }
+        if (ta.getSubject().getSubjectCode() == null) {
+            return "Unknown";
+        }
+        return ta.getSubject().getSubjectCode();
+    }
+
+    private int getStudentGroupSizeOrZero(TeacherAssignment ta) {
+        if (ta == null || ta.getStudentGroupSize() == null) {
+            return 0;
+        }
+        return ta.getStudentGroupSize();
+    }
+
+    private String getAssignmentStatusOrUnknown(TeacherAssignment ta) {
+        if (ta == null || ta.getAssignmentStatus() == null) {
+            return "UNKNOWN";
+        }
+        return ta.getAssignmentStatus().name();
     }
 
     private String buildTeacherName(Teacher teacher) {
@@ -185,6 +243,57 @@ public class AllocationReportService {
         }
         return sb.toString();
     }
+
+    // =========================
+    // Helper methods for analyzeUtilization
+    // =========================
+
+    private Map<Long, Long> buildAssignmentCounts(List<TeacherAssignment> assignments) {
+        return assignments.stream()
+                .filter(a -> a.getTeacher() != null && a.getTeacher().getId() != null)
+                .collect(Collectors.groupingBy(a -> a.getTeacher().getId(), Collectors.counting()));
+    }
+
+    private TeacherUtilizationDto buildUtilizationDto(Teacher teacher, long count) {
+        String teacherName = buildTeacherName(teacher);
+        String schoolName = getSchoolNameOrUnknown(teacher);
+
+        return TeacherUtilizationDto.builder()
+                .teacherId(teacher.getId())
+                .teacherName(teacherName)
+                .email(teacher.getEmail())
+                .schoolName(schoolName)
+                .assignmentCount((int) count)
+                .build();
+    }
+
+    private void addToUtilizationBucket(TeacherUtilizationDto dto,
+                                        long count,
+                                        List<TeacherUtilizationDto> unassigned,
+                                        List<TeacherUtilizationDto> underUtilized,
+                                        List<TeacherUtilizationDto> perfect,
+                                        List<TeacherUtilizationDto> overUtilized) {
+        if (count == 0) {
+            dto.setNotes("Warning: Unused Resource");
+            unassigned.add(dto);
+            return;
+        }
+        if (count == 1) {
+            dto.setNotes("Warning: Only 1 assignment (Needs 2 for credit)");
+            underUtilized.add(dto);
+            return;
+        }
+        if (count == 2) {
+            perfect.add(dto);
+            return;
+        }
+        dto.setNotes("Alert: Overloaded (" + count + " assignments)");
+        overUtilized.add(dto);
+    }
+
+    // =========================
+    // Existing logic (unchanged)
+    // =========================
 
     private BudgetSummaryDto calculateBudget(AllocationPlan plan, List<TeacherAssignment> assignments) {
         double hoursUsed = assignments.size() * 0.5;
@@ -213,55 +322,6 @@ public class AllocationReportService {
                 .elementaryHoursUsed(elementaryAssignments * 0.5)
                 .middleSchoolHoursUsed(middleAssignments * 0.5)
                 .isOverBudget(hoursUsed > totalBudgetHours)
-                .build();
-    }
-
-    private UtilizationAnalysisDto analyzeUtilization(List<Teacher> allTeachers, List<TeacherAssignment> assignments) {
-        Map<Long, Long> assignmentCounts = assignments.stream()
-                .filter(a -> a.getTeacher() != null && a.getTeacher().getId() != null)
-                .collect(Collectors.groupingBy(a -> a.getTeacher().getId(), Collectors.counting()));
-
-        List<TeacherUtilizationDto> unassigned = new ArrayList<>();
-        List<TeacherUtilizationDto> underUtilized = new ArrayList<>();
-        List<TeacherUtilizationDto> overUtilized = new ArrayList<>();
-        List<TeacherUtilizationDto> perfect = new ArrayList<>();
-
-        for (Teacher teacher : allTeachers) {
-            long count = assignmentCounts.getOrDefault(teacher.getId(), 0L);
-
-            String teacherName = buildTeacherName(teacher);
-            String schoolName = "Unknown";
-            if (teacher.getSchool() != null && teacher.getSchool().getSchoolName() != null) {
-                schoolName = teacher.getSchool().getSchoolName();
-            }
-
-            TeacherUtilizationDto dto = TeacherUtilizationDto.builder()
-                    .teacherId(teacher.getId())
-                    .teacherName(teacherName)
-                    .email(teacher.getEmail())
-                    .schoolName(schoolName)
-                    .assignmentCount((int) count)
-                    .build();
-
-            if (count == 0) {
-                dto.setNotes("Warning: Unused Resource");
-                unassigned.add(dto);
-            } else if (count == 1) {
-                dto.setNotes("Warning: Only 1 assignment (Needs 2 for credit)");
-                underUtilized.add(dto);
-            } else if (count == 2) {
-                perfect.add(dto);
-            } else {
-                dto.setNotes("Alert: Overloaded (" + count + " assignments)");
-                overUtilized.add(dto);
-            }
-        }
-
-        return UtilizationAnalysisDto.builder()
-                .unassignedTeachers(unassigned)
-                .underUtilizedTeachers(underUtilized)
-                .perfectlyUtilizedTeachers(perfect)
-                .overUtilizedTeachers(overUtilized)
                 .build();
     }
 }
