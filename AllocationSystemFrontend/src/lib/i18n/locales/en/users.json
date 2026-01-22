@@ -58,6 +58,14 @@
             "passwordMinLength": "Password must be at least {{min}} characters",
             "confirmPasswordRequired": "Please confirm the password",
             "passwordsDoNotMatch": "Passwords do not match"
+            }
+        },
+        "notifications": {
+            "createSuccess": "User created successfully",
+            "updateSuccess": "User updated successfully",
+            "deleteSuccess": "User deleted successfully",
+            "activateSuccess": "User activated successfully",
+            "deactivateSuccess": "User deactivated successfully",
+            "passwordResetSuccess": "Password reset successfully"
         }
     }
-}

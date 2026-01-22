@@ -188,7 +188,12 @@ export function UserDialogs({
                             user={null}
                             roles={roles}
                             onSubmit={async (payload) => {
+                                try {
                                 await onCreateSubmit(payload);
+                                setIsCreateDialogOpen(false);
+                            } catch {
+                                //
+                            }
                             }}
                             onCancel={() => setIsCreateDialogOpen(false)}
                             isLoading={isSubmitting}
