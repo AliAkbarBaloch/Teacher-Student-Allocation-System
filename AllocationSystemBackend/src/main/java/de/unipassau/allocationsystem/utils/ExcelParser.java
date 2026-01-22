@@ -241,10 +241,14 @@ public class ExcelParser {
 
     private static <E extends Enum<E>> E parseEnum(String value, java.util.function.Function<String, E> parser,
                                                      E defaultValue, String warningMsg) {
+        if (value == null) {
+            log.warn(warningMsg, value);
+            return defaultValue;
+        }
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return parser.apply(normalized);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException e) {
             log.warn(warningMsg, value);
             return defaultValue;
         }
