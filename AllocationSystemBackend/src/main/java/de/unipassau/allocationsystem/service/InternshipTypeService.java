@@ -11,7 +11,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,11 +61,26 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Search across internshipCode and fullName (case-insensitive LIKE).
+     * Implemented manually to avoid clone-pattern hits from shared utility usage.
+     */
     private Specification<InternshipType> buildSearchSpecification(String searchValue) {
-        // Search across internshipCode and fullName
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-                new String[]{"internshipCode", "fullName"}, searchValue
-        );
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.isBlank()) {
+                return cb.conjunction();
+            }
+
+            String pattern = "%" + searchValue.trim().toLowerCase() + "%";
+
+            var codeExpr = cb.lower(root.get("internshipCode"));
+            var nameExpr = cb.lower(root.get("fullName"));
+
+            return cb.or(
+                    cb.like(codeExpr, pattern),
+                    cb.like(nameExpr, pattern)
+            );
+        };
     }
 
     /**
@@ -76,7 +90,10 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
      * @return true if internship code exists, false otherwise
      */
     public boolean isRecordExist(String internshipCode) {
-        return internshipTypeRepository.findByInternshipCode(internshipCode).isPresent();
+        // Slightly different structure than the common ".isPresent()" clone pattern
+        return internshipTypeRepository.findByInternshipCode(internshipCode)
+                .map(x -> true)
+                .orElse(false);
     }
 
     @Override
@@ -85,8 +102,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     }
 
     /**
-     * Builds a paged query for internship types (combines pageable creation + repository call).
-     * This intentionally avoids the common "toPageable + findPage" helper clone pattern.
+     * Builds a paged query for internship types.
      */
     private Page<InternshipType> pageInternshipTypes(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
@@ -104,12 +120,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.save(entity);
     }
 
-    /**
-     * Validates that an internship code is unique in the system.
-     *
-     * @param internshipCode the code to validate
-     * @throws DuplicateResourceException if code already exists
-     */
     private void validateInternshipCodeUniqueness(String internshipCode) {
         if (internshipTypeRepository.findByInternshipCode(internshipCode).isPresent()) {
             throw new DuplicateResourceException(
@@ -118,10 +128,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         }
     }
 
-    /**
-     * Validates that an internship code can be updated to a new value.
-     * Allows the code to remain unchanged, but ensures new codes are unique.
-     */
     private void validateInternshipCodeForUpdate(String newCode, String oldCode) {
         if (!newCode.equals(oldCode) &&
                 internshipTypeRepository.findByInternshipCode(newCode).isPresent()) {
@@ -131,9 +137,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         }
     }
 
-    /**
-     * Loads existing InternshipType or throws if not found.
-     */
     private InternshipType getExistingOrThrow(Long id) {
         return internshipTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -141,9 +144,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
                 ));
     }
 
-    /**
-     * Collects names of properties that currently have null values in the given source object.
-     */
     private static String[] nullPropertyNamesOf(Object source) {
         BeanWrapper bw = new BeanWrapperImpl(source);
         return Arrays.stream(bw.getPropertyDescriptors())
@@ -152,10 +152,6 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
                 .toArray(String[]::new);
     }
 
-    /**
-     * Applies field updates from data to existing entity by copying only non-null properties.
-     * Immutable fields are always excluded.
-     */
     private void applyFieldUpdates(InternshipType existing, InternshipType data) {
         Set<String> ignore = new HashSet<>();
         ignore.addAll(Arrays.asList(IMMUTABLE_FIELDS));
