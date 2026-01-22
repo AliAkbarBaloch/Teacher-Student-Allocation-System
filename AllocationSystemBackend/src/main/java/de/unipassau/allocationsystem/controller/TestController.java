@@ -5,7 +5,6 @@ import de.unipassau.allocationsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -102,7 +101,11 @@ public class TestController {
     }
 
     /**
-     * @return ResponseEntity error if invalid, otherwise null
+     * Validates reset-password input parameters.
+     *
+     * @param email normalized email (trimmed), may be null
+     * @param newPassword new password, may be null
+     * @return a 400 (Bad Request) response if invalid; otherwise {@code null}
      */
     private ResponseEntity<?> validateResetPasswordInput(String email, String newPassword) {
         if (email == null || email.isEmpty()) {
@@ -115,13 +118,10 @@ public class TestController {
     }
 
     private User findUserByEmail(String email) {
-        // repository returns Optional; no exceptions needed
         return userRepository.findByEmail(email).orElse(null);
     }
 
     private Map<String, Object> performPasswordReset(User user, String newPassword) {
-        // If PasswordEncoder were to throw at runtime, let the global exception handler deal with it
-        // (or wrap it in a specific exception type if you have a controller advice).
         String encodedPassword = passwordEncoder.encode(newPassword);
 
         user.setPassword(encodedPassword);
@@ -156,14 +156,4 @@ public class TestController {
                 "message", message
         ));
     }
-
-    @SuppressWarnings("unused")
-    private ResponseEntity<?> internalServerError(String message, String errorType) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "success", false,
-                "message", message,
-                "error", errorType
-        ));
-    }
 }
-
