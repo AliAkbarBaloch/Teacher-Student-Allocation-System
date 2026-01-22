@@ -12,6 +12,7 @@ import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,14 +40,48 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /**
+     * Query container to avoid long parameter lists.
+     */
+    @Getter
+    public static class UserQuery {
+        private final User.UserRole role;
+        private final User.AccountStatus status;
+        private final Boolean enabled;
+        private final String search;
+        private final int page;
+        private final int size;
+        private final String sortBy;
+        private final String sortDirection;
+
+        public UserQuery(
+                User.UserRole role,
+                User.AccountStatus status,
+                Boolean enabled,
+                String search,
+                int page,
+                int size,
+                String sortBy,
+                String sortDirection
+        ) {
+            this.role = role;
+            this.status = status;
+            this.enabled = enabled;
+            this.search = search;
+            this.page = page;
+            this.size = size;
+            this.sortBy = sortBy;
+            this.sortDirection = sortDirection;
+        }
+    }
+
+    /**
      * Create a new user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Created new user",
+            captureNewValue = true
     )
     public User createUser(String email, String password, String fullName) {
         log.info("Creating new user: {}", email);
@@ -57,53 +92,40 @@ public class UserService {
         user.setFullName(fullName);
         user.setEnabled(true);
 
-        User savedUser = userRepository.save(user);
-
-        // The @Audited annotation will automatically create an audit log entry
-        return savedUser;
+        return userRepository.save(user);
     }
 
     /**
      * Update user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user",
+            captureNewValue = true
     )
     public User updateUser(Long userId, String newEmail, String newFullName) {
         log.info("Updating user: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Update user
+        User user = requireUser(userId);
         user.setEmail(newEmail);
         user.setFullName(newFullName);
-        User updatedUser = userRepository.save(user);
 
-        return updatedUser;
+        return userRepository.save(user);
     }
 
     /**
      * Delete user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.DELETE,
-        entityName = AuditEntityNames.USER,
-        description = "Deleted user",
-        captureNewValue = false
+            action = AuditAction.DELETE,
+            entityName = AuditEntityNames.USER,
+            description = "Deleted user",
+            captureNewValue = false
     )
     public void deleteUser(Long userId) {
         log.info("Deleting user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        // Delete user
+        User user = requireUser(userId);
         userRepository.delete(user);
     }
 
@@ -118,19 +140,15 @@ public class UserService {
     /**
      * Change user password.
      */
-    @Transactional
     public void changePassword(Long userId, String oldPassword, String newPassword) {
         log.info("Changing password for user: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = requireUser(userId);
 
-        // Verify old password
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new RuntimeException("Invalid old password");
+            throw new IllegalArgumentException("Invalid old password");
         }
 
-        // Update password
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
@@ -138,23 +156,19 @@ public class UserService {
     /**
      * Enable or disable user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user enabled status",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user enabled status",
+            captureNewValue = true
     )
     public User setUserEnabled(Long userId, boolean enabled) {
         log.info("Setting user {} enabled status to: {}", userId, enabled);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User user = requireUser(userId);
         user.setEnabled(enabled);
-        User updatedUser = userRepository.save(user);
 
-        return updatedUser;
+        return userRepository.save(user);
     }
 
     // ========== NEW COMPREHENSIVE CRUD METHODS ==========
@@ -162,12 +176,11 @@ public class UserService {
     /**
      * Create user with DTO.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin created new user",
+            captureNewValue = true
     )
     public UserResponseDto createUserWithDto(UserCreateDto dto) {
         log.info("Creating new user with DTO: {}", dto.getEmail());
@@ -182,135 +195,110 @@ public class UserService {
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
         user.setPhoneNumber(dto.getPhoneNumber());
-        user.setEnabled(dto.getEnabled() != null ? dto.getEnabled() : true);
-        user.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        user.setAccountStatus(dto.getAccountStatus() != null ? dto.getAccountStatus() : User.AccountStatus.ACTIVE);
+        user.setEnabled(defaultTrue(dto.getEnabled()));
+        user.setIsActive(defaultTrue(dto.getIsActive()));
+        user.setAccountStatus(defaultAccountStatus(dto.getAccountStatus()));
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
         user.setLoginAttempt(0);
 
-        User savedUser = userRepository.save(user);
-        return mapToResponseDto(savedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Update user with DTO.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user with DTO",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user with DTO",
+            captureNewValue = true
     )
     public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
         log.info("Updating user with DTO: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
-        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(dto.getEmail())) {
-                throw new DuplicateResourceException("User with email " + dto.getEmail() + " already exists");
+        String incomingEmail = dto.getEmail();
+        if (incomingEmail != null && !incomingEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(incomingEmail)) {
+                throw new DuplicateResourceException("User with email " + incomingEmail + " already exists");
             }
-            user.setEmail(dto.getEmail());
-        }
-        if (dto.getFullName() != null) {
-            user.setFullName(dto.getFullName());
-        }
-        if (dto.getRole() != null) {
-            user.setRole(dto.getRole());
-        }
-        if (dto.getPhoneNumber() != null) {
-            user.setPhoneNumber(dto.getPhoneNumber());
-        }
-        if (dto.getEnabled() != null) {
-            user.setEnabled(dto.getEnabled());
-        }
-        if (dto.getIsActive() != null) {
-            user.setIsActive(dto.getIsActive());
-        }
-        if (dto.getAccountStatus() != null) {
-            user.setAccountStatus(dto.getAccountStatus());
+            user.setEmail(incomingEmail);
         }
 
-        User updatedUser = userRepository.save(user);
+        setIfPresent(dto.getFullName(), user::setFullName);
+        setIfPresent(dto.getRole(), user::setRole);
+        setIfPresent(dto.getPhoneNumber(), user::setPhoneNumber);
+        setIfPresent(dto.getEnabled(), user::setEnabled);
+        setIfPresent(dto.getIsActive(), user::setIsActive);
+        setIfPresent(dto.getAccountStatus(), user::setAccountStatus);
 
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Activate user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Activated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Activated user account",
+            captureNewValue = true
     )
     public UserResponseDto activateUser(Long userId) {
         log.info("Activating user: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setEnabled(true);
         user.setAccountStatus(User.AccountStatus.ACTIVE);
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
 
-        User updatedUser = userRepository.save(user);
-
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Deactivate user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Deactivated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Deactivated user account",
+            captureNewValue = true
     )
     public UserResponseDto deactivateUser(Long userId) {
         log.info("Deactivating user: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setEnabled(false);
         user.setAccountStatus(User.AccountStatus.INACTIVE);
 
-        User updatedUser = userRepository.save(user);
-
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Reset user password (admin function).
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin reset user password",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin reset user password",
+            captureNewValue = true
     )
     public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
         log.info("Admin resetting password for user: {}", userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        user.setLastPasswordResetDate(LocalDateTime.now());
-        user.setPasswordUpdateDate(LocalDateTime.now());
-        User savedUser = userRepository.save(user);
-        
-        return mapToResponseDto(savedUser);
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastPasswordResetDate(now);
+        user.setPasswordUpdateDate(now);
+
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
@@ -318,55 +306,31 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponseDto getUserByIdDto(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        return mapToResponseDto(user);
+        return mapToResponseDto(requireUser(userId));
     }
 
     /**
      * Get all users with pagination, filtering, and search.
      */
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllUsers(
-            User.UserRole role,
-            User.AccountStatus status,
-            Boolean enabled,
-            String search,
-            int page,
-            int size,
-            String sortBy,
-            String sortDirection
-    ) {
-        log.info("Getting users - role: {}, status: {}, enabled: {}, search: {}", role, status, enabled, search);
+    public Page<UserResponseDto> getAllUsers(UserQuery query) {
+        log.info("Getting users - role: {}, status: {}, enabled: {}, search: {}",
+                query.getRole(), query.getStatus(), query.getEnabled(), query.getSearch());
 
-        Pageable pageable = PageRequest.of(
-            page,
-            size,
-            sortDirection.equalsIgnoreCase("DESC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
+        Pageable pageable = buildPageable(
+                query.getPage(),
+                query.getSize(),
+                query.getSortBy(),
+                query.getSortDirection()
         );
 
         Specification<User> spec = Specification.allOf();
+        spec = andRole(spec, query.getRole());
+        spec = andStatus(spec, query.getStatus());
+        spec = andEnabled(spec, query.getEnabled());
+        spec = andSearch(spec, query.getSearch());
 
-        if (role != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), role));
-        }
-        if (status != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("accountStatus"), status));
-        }
-        if (enabled != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("enabled"), enabled));
-        }
-        if (search != null && !search.trim().isEmpty()) {
-            String searchPattern = "%" + search.toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("email")), searchPattern),
-                cb.like(cb.lower(root.get("fullName")), searchPattern)
-            ));
-        }
-
-        Page<User> users = userRepository.findAll(spec, pageable);
-        return users.map(this::mapToResponseDto);
+        return userRepository.findAll(spec, pageable).map(this::mapToResponseDto);
     }
 
     /**
@@ -411,5 +375,72 @@ public class UserService {
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
         return dto;
+    }
+
+    private User requireUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    }
+
+    private boolean defaultTrue(Boolean value) {
+        if (value == null) {
+            return true;
+        }
+        return value;
+    }
+
+    private User.AccountStatus defaultAccountStatus(User.AccountStatus value) {
+        if (value == null) {
+            return User.AccountStatus.ACTIVE;
+        }
+        return value;
+    }
+
+    private Pageable buildPageable(int page, int size, String sortBy, String sortDirection) {
+        Sort sort;
+        if (sortDirection != null && sortDirection.equalsIgnoreCase("DESC")) {
+            sort = Sort.by(sortBy).descending();
+        } else {
+            sort = Sort.by(sortBy).ascending();
+        }
+        return PageRequest.of(page, size, sort);
+    }
+
+    private Specification<User> andRole(Specification<User> spec, User.UserRole role) {
+        if (role == null) {
+            return spec;
+        }
+        return spec.and((root, query, cb) -> cb.equal(root.get("role"), role));
+    }
+
+    private Specification<User> andStatus(Specification<User> spec, User.AccountStatus status) {
+        if (status == null) {
+            return spec;
+        }
+        return spec.and((root, query, cb) -> cb.equal(root.get("accountStatus"), status));
+    }
+
+    private Specification<User> andEnabled(Specification<User> spec, Boolean enabled) {
+        if (enabled == null) {
+            return spec;
+        }
+        return spec.and((root, query, cb) -> cb.equal(root.get("enabled"), enabled));
+    }
+
+    private Specification<User> andSearch(Specification<User> spec, String search) {
+        if (search == null || search.trim().isEmpty()) {
+            return spec;
+        }
+        String pattern = "%" + search.toLowerCase() + "%";
+        return spec.and((root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("email")), pattern),
+                cb.like(cb.lower(root.get("fullName")), pattern)
+        ));
+    }
+
+    private static <T> void setIfPresent(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 }
