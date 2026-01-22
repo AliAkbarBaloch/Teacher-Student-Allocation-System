@@ -18,24 +18,22 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public Role toEntityCreate(RoleCreateDto createDto) {
-        if (createDto == null) {
-            return null;
-        }
-        Role entity = new Role();
-        entity.setTitle(createDto.getTitle());
-        entity.setDescription(createDto.getDescription());
-        return entity;
+        return toNewEntity(createDto, Role::new, this::populateEntity);
     }
 
     @Override
     public Role toEntityUpdate(RoleUpdateDto updateDto) {
-        if (updateDto == null) {
-            return null;
-        }
-        Role entity = new Role();
-        entity.setTitle(updateDto.getTitle());
-        entity.setDescription(updateDto.getDescription());
-        return entity;
+        return toNewEntity(updateDto, Role::new, this::populateEntity);
+    }
+
+    private void populateEntity(Role entity, RoleCreateDto dto) {
+        entity.setTitle(dto.getTitle());
+        entity.setDescription(dto.getDescription());
+    }
+
+    private void populateEntity(Role entity, RoleUpdateDto dto) {
+        entity.setTitle(dto.getTitle());
+        entity.setDescription(dto.getDescription());
     }
 
     @Override

@@ -26,42 +26,36 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
 
     @Override
     public Subject toEntityCreate(SubjectCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Subject entity = new Subject();
-        entity.setSubjectCode(dto.getSubjectCode());
-        entity.setSubjectTitle(dto.getSubjectTitle());
-        entity.setSchoolType(dto.getSchoolType());
-        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        
-        if (dto.getSubjectCategoryId() != null) {
-            SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
-            entity.setSubjectCategory(category);
-        }
-        
-        return entity;
+        return toNewEntity(dto, Subject::new, this::populateEntityCreate);
     }
 
     @Override
     public Subject toEntityUpdate(SubjectUpdateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Subject entity = new Subject();
+        return toNewEntity(dto, Subject::new, this::populateEntityUpdate);
+    }
+
+    private void populateEntityCreate(Subject entity, SubjectCreateDto dto) {
         entity.setSubjectCode(dto.getSubjectCode());
         entity.setSubjectTitle(dto.getSubjectTitle());
         entity.setSchoolType(dto.getSchoolType());
-        entity.setIsActive(dto.getIsActive());
-        
+        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
-        
-        return entity;
+    }
+
+    private void populateEntityUpdate(Subject entity, SubjectUpdateDto dto) {
+        entity.setSubjectCode(dto.getSubjectCode());
+        entity.setSubjectTitle(dto.getSubjectTitle());
+        entity.setSchoolType(dto.getSchoolType());
+        entity.setIsActive(dto.getIsActive());
+        if (dto.getSubjectCategoryId() != null) {
+            SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
+            entity.setSubjectCategory(category);
+        }
     }
 
     @Override

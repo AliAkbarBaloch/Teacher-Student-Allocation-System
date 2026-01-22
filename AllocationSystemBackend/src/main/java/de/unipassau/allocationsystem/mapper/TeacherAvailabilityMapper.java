@@ -51,8 +51,11 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
         }
         TeacherAvailability entity = new TeacherAvailability();
         entity.setStatus(createDto.getStatus());
-        entity.setIsAvailable(createDto.getIsAvailable() != null ? createDto.getIsAvailable() : 
-                (createDto.getStatus() != TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE));
+        if (createDto.getIsAvailable() != null) {
+            entity.setIsAvailable(createDto.getIsAvailable());
+        } else {
+            entity.setIsAvailable(createDto.getStatus() != TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE);
+        }
         entity.setPreferenceRank(createDto.getPreferenceRank());
         entity.setNotes(createDto.getNotes());
 
