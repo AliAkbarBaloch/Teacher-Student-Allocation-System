@@ -67,6 +67,58 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
     }
 
+    /**
+     * Validates that the category title is unique, throws exception if duplicate found.
+     * 
+     * @param categoryTitle the category title to validate
+     * @throws DuplicateResourceException if title already exists
+     */
+    private void validateCategoryTitleUniqueness(String categoryTitle) {
+        if (subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent()) {
+            throw new DuplicateResourceException("Subject category with title '" + categoryTitle + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new category title doesn't conflict with existing records (for updates).
+     * Allows the same title if it's the current category being updated.
+     * 
+     * @param newTitle the new category title
+     * @param oldTitle the old category title
+     * @throws DuplicateResourceException if new title conflicts with another category's title
+     */
+    private void validateCategoryTitleForUpdate(String newTitle, String oldTitle) {
+        if (!newTitle.equals(oldTitle) && subjectCategoryRepository.findByCategoryTitle(newTitle).isPresent()) {
+            throw new DuplicateResourceException("Subject category with title '" + newTitle + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a category exists with the given ID.
+     * 
+     * @param id the category ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!subjectCategoryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Subject category not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target category.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target category to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(SubjectCategory existing, SubjectCategory data) {
+        if (data.getCategoryTitle() != null) {
+            validateCategoryTitleForUpdate(data.getCategoryTitle(), existing.getCategoryTitle());
+            existing.setCategoryTitle(data.getCategoryTitle());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return subjectCategoryRepository.findById(id).isPresent();
@@ -124,9 +176,7 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     @Transactional
     @Override
     public SubjectCategory create(SubjectCategory subjectCategory) {
-        if (subjectCategoryRepository.findByCategoryTitle(subjectCategory.getCategoryTitle()).isPresent()) {
-            throw new DuplicateResourceException("Subject category with title '" + subjectCategory.getCategoryTitle() + "' already exists");
-        }
+        validateCategoryTitleUniqueness(subjectCategory.getCategoryTitle());
         return subjectCategoryRepository.save(subjectCategory);
     }
 
@@ -142,13 +192,7 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         SubjectCategory existing = subjectCategoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + id));
 
-        if (data.getCategoryTitle() != null && !data.getCategoryTitle().equals(existing.getCategoryTitle())) {
-            if (subjectCategoryRepository.findByCategoryTitle(data.getCategoryTitle()).isPresent()) {
-                throw new DuplicateResourceException("Subject category with title '" + data.getCategoryTitle() + "' already exists");
-            }
-            existing.setCategoryTitle(data.getCategoryTitle());
-        }
-
+        applyFieldUpdates(existing, data);
         return subjectCategoryRepository.save(existing);
     }
 
@@ -161,9 +205,7 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!subjectCategoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Subject category not found with id: " + id);
-        }
+        validateExistence(id);
         subjectCategoryRepository.deleteById(id);
     }
 }

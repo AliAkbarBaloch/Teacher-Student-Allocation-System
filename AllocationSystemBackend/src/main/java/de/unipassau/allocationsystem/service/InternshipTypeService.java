@@ -71,6 +71,82 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.existsById(id);
     }
 
+    /**
+     * Validates that an internship code is unique in the system.
+     * 
+     * @param internshipCode the code to validate
+     * @throws DuplicateResourceException if code already exists
+     */
+    private void validateInternshipCodeUniqueness(String internshipCode) {
+        if (internshipTypeRepository.findByInternshipCode(internshipCode).isPresent()) {
+            throw new DuplicateResourceException(
+                "InternshipType with code '" + internshipCode + "' already exists"
+            );
+        }
+    }
+
+    /**
+     * Validates that an internship code can be updated to a new value.
+     * Allows the code to remain unchanged, but ensures new codes are unique.
+     * 
+     * @param newCode the new code to validate
+     * @param oldCode the existing code
+     * @throws DuplicateResourceException if new code already exists (and differs from old)
+     */
+    private void validateInternshipCodeForUpdate(String newCode, String oldCode) {
+        if (!newCode.equals(oldCode) && 
+            internshipTypeRepository.findByInternshipCode(newCode).isPresent()) {
+            throw new DuplicateResourceException(
+                "InternshipType with code '" + newCode + "' already exists"
+            );
+        }
+    }
+
+    /**
+     * Validates that an internship type exists by id.
+     * 
+     * @param id the id to validate
+     * @return the existing InternshipType
+     * @throws ResourceNotFoundException if not found
+     */
+    private InternshipType validateExistence(Long id) {
+        return internshipTypeRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "InternshipType not found with id: " + id
+            ));
+    }
+
+    /**
+     * Applies field updates from data to existing entity.
+     * Uses null-check-and-set pattern for all updatable fields.
+     * 
+     * @param existing the entity to update
+     * @param data the data containing new values
+     */
+    private void applyFieldUpdates(InternshipType existing, InternshipType data) {
+        if (data.getInternshipCode() != null) {
+            existing.setInternshipCode(data.getInternshipCode());
+        }
+        if (data.getFullName() != null) {
+            existing.setFullName(data.getFullName());
+        }
+        if (data.getTiming() != null) {
+            existing.setTiming(data.getTiming());
+        }
+        if (data.getPeriodType() != null) {
+            existing.setPeriodType(data.getPeriodType());
+        }
+        if (data.getSemester() != null) {
+            existing.setSemester(data.getSemester());
+        }
+        if (data.getIsSubjectSpecific() != null) {
+            existing.setIsSubjectSpecific(data.getIsSubjectSpecific());
+        }
+        if (data.getPriorityOrder() != null) {
+            existing.setPriorityOrder(data.getPriorityOrder());
+        }
+    }
+
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.INTERNSHIP_TYPE,
@@ -123,9 +199,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     @Transactional
     @Override
     public InternshipType create(InternshipType internshipType) {
-        if (internshipTypeRepository.findByInternshipCode(internshipType.getInternshipCode()).isPresent()) {
-            throw new DuplicateResourceException("InternshipType with code '" + internshipType.getInternshipCode() + "' already exists");
-        }
+        validateInternshipCodeUniqueness(internshipType.getInternshipCode());
         return internshipTypeRepository.save(internshipType);
     }
 
@@ -138,34 +212,13 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     @Transactional
     @Override
     public InternshipType update(Long id, InternshipType data) {
-        InternshipType existing = internshipTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found with id: " + id));
+        InternshipType existing = validateExistence(id);
 
-        if (data.getInternshipCode() != null && !data.getInternshipCode().equals(existing.getInternshipCode())) {
-            if (internshipTypeRepository.findByInternshipCode(data.getInternshipCode()).isPresent()) {
-                throw new DuplicateResourceException("InternshipType with code '" + data.getInternshipCode() + "' already exists");
-            }
-            existing.setInternshipCode(data.getInternshipCode());
-        }
-        if (data.getFullName() != null) {
-            existing.setFullName(data.getFullName());
-        }
-        if (data.getTiming() != null) {
-            existing.setTiming(data.getTiming());
-        }
-        if (data.getPeriodType() != null) {
-            existing.setPeriodType(data.getPeriodType());
-        }
-        if (data.getSemester() != null) {
-            existing.setSemester(data.getSemester());
-        }
-        if (data.getIsSubjectSpecific() != null) {
-            existing.setIsSubjectSpecific(data.getIsSubjectSpecific());
-        }
-        if (data.getPriorityOrder() != null) {
-            existing.setPriorityOrder(data.getPriorityOrder());
+        if (data.getInternshipCode() != null) {
+            validateInternshipCodeForUpdate(data.getInternshipCode(), existing.getInternshipCode());
         }
 
+        applyFieldUpdates(existing, data);
         return internshipTypeRepository.save(existing);
     }
 
@@ -178,9 +231,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!internshipTypeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("InternshipType not found with id: " + id);
-        }
+        validateExistence(id);
         internshipTypeRepository.deleteById(id);
     }
 }

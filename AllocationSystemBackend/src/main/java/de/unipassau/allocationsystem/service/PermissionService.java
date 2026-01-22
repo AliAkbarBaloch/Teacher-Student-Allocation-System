@@ -68,6 +68,61 @@ public class PermissionService implements CrudService<Permission, Long> {
         return permissionRepository.findByTitle(title).isPresent();
     }
 
+    /**
+     * Validates that the permission title is unique, throws exception if duplicate found.
+     * 
+     * @param title the permission title to validate
+     * @throws DuplicateResourceException if title already exists
+     */
+    private void validatePermissionTitleUniqueness(String title) {
+        if (permissionRepository.findByTitle(title).isPresent()) {
+            throw new DuplicateResourceException("Permission with title '" + title + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new permission title doesn't conflict with existing records (for updates).
+     * Allows the same title if it's the current permission being updated.
+     * 
+     * @param newTitle the new permission title
+     * @param oldTitle the old permission title
+     * @throws DuplicateResourceException if new title conflicts with another permission's title
+     */
+    private void validatePermissionTitleForUpdate(String newTitle, String oldTitle) {
+        if (!newTitle.equals(oldTitle) && permissionRepository.findByTitle(newTitle).isPresent()) {
+            throw new DuplicateResourceException("Permission with title '" + newTitle + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a permission exists with the given ID.
+     * 
+     * @param id the permission ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!permissionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Permission not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target permission.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target permission to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(Permission existing, Permission data) {
+        if (data.getTitle() != null) {
+            validatePermissionTitleForUpdate(data.getTitle(), existing.getTitle());
+            existing.setTitle(data.getTitle());
+        }
+        if (data.getDescription() != null) {
+            existing.setDescription(data.getDescription());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return permissionRepository.findById(id).isPresent();
@@ -125,9 +180,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public Permission create(Permission permission) {
-        if (permissionRepository.findByTitle(permission.getTitle()).isPresent()) {
-            throw new DuplicateResourceException("Permission with title '" + permission.getTitle() + "' already exists");
-        }
+        validatePermissionTitleUniqueness(permission.getTitle());
         return permissionRepository.save(permission);
     }
 
@@ -143,17 +196,7 @@ public class PermissionService implements CrudService<Permission, Long> {
         Permission existing = permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
 
-        if (data.getTitle() != null && !data.getTitle().equals(existing.getTitle())) {
-            if (permissionRepository.findByTitle(data.getTitle()).isPresent()) {
-                throw new DuplicateResourceException("Permission with title '" + data.getTitle() + "' already exists");
-            }
-            existing.setTitle(data.getTitle());
-        }
-
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
-
+        applyFieldUpdates(existing, data);
         return permissionRepository.save(existing);
     }
 
@@ -166,10 +209,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!permissionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Permission not found with id: " + id);
-        }
+        validateExistence(id);
         permissionRepository.deleteById(id);
     }
-    
 }

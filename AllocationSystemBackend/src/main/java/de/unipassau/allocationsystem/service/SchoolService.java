@@ -73,6 +73,88 @@ public class SchoolService implements CrudService<School, Long> {
         return schoolRepository.findBySchoolName(schoolName).isPresent();
     }
 
+    /**
+     * Validates that the school name is unique, throws exception if duplicate found.
+     * 
+     * @param schoolName the school name to validate
+     * @throws DuplicateResourceException if school name already exists
+     */
+    private void validateSchoolNameUniqueness(String schoolName) {
+        if (schoolRepository.findBySchoolName(schoolName).isPresent()) {
+            throw new DuplicateResourceException("School with name '" + schoolName + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new school name doesn't conflict with existing records (for updates).
+     * Allows the same name if it's the current school being updated.
+     * 
+     * @param newName the new school name
+     * @param oldName the old school name
+     * @throws DuplicateResourceException if new name conflicts with another school's name
+     */
+    private void validateSchoolNameForUpdate(String newName, String oldName) {
+        if (!newName.equals(oldName) && schoolRepository.findBySchoolName(newName).isPresent()) {
+            throw new DuplicateResourceException("School with name '" + newName + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a school exists with the given ID.
+     * 
+     * @param id the school ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!schoolRepository.existsById(id)) {
+            throw new ResourceNotFoundException("School not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target school.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target school to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(School existing, School data) {
+        if (data.getSchoolName() != null) {
+            validateSchoolNameForUpdate(data.getSchoolName(), existing.getSchoolName());
+            existing.setSchoolName(data.getSchoolName());
+        }
+        if (data.getZoneNumber() != null) {
+            existing.setZoneNumber(data.getZoneNumber());
+        }
+        if (data.getSchoolType() != null) {
+            existing.setSchoolType(data.getSchoolType());
+        }
+        if (data.getIsActive() != null) {
+            existing.setIsActive(data.getIsActive());
+        }
+        if (data.getAddress() != null) {
+            existing.setAddress(data.getAddress());
+        }
+        if (data.getLatitude() != null) {
+            existing.setLatitude(data.getLatitude());
+        }
+        if (data.getLongitude() != null) {
+            existing.setLongitude(data.getLongitude());
+        }
+        if (data.getDistanceFromCenter() != null) {
+            existing.setDistanceFromCenter(data.getDistanceFromCenter());
+        }
+        if (data.getTransportAccessibility() != null) {
+            existing.setTransportAccessibility(data.getTransportAccessibility());
+        }
+        if (data.getContactEmail() != null) {
+            existing.setContactEmail(data.getContactEmail());
+        }
+        if (data.getContactPhone() != null) {
+            existing.setContactPhone(data.getContactPhone());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return schoolRepository.findById(id).isPresent();
@@ -177,9 +259,7 @@ public class SchoolService implements CrudService<School, Long> {
     @Transactional
     @Override
     public School create(School school) {
-        if (schoolRepository.findBySchoolName(school.getSchoolName()).isPresent()) {
-            throw new DuplicateResourceException("School with name '" + school.getSchoolName() + "' already exists");
-        }
+        validateSchoolNameUniqueness(school.getSchoolName());
         return schoolRepository.save(school);
     }
 
@@ -195,45 +275,7 @@ public class SchoolService implements CrudService<School, Long> {
         School existing = schoolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("School not found with id: " + id));
 
-        if (data.getSchoolName() != null && !data.getSchoolName().equals(existing.getSchoolName())) {
-            if (schoolRepository.findBySchoolName(data.getSchoolName()).isPresent()) {
-                throw new DuplicateResourceException("School with name '" + data.getSchoolName() + "' already exists");
-            }
-            existing.setSchoolName(data.getSchoolName());
-        }
-
-        if (data.getZoneNumber() != null) {
-            existing.setZoneNumber(data.getZoneNumber());
-        }
-        if (data.getSchoolType() != null) {
-            existing.setSchoolType(data.getSchoolType());
-        }
-        if (data.getIsActive() != null) {
-            existing.setIsActive(data.getIsActive());
-        }
-        // Add missing fields update
-        if (data.getAddress() != null) {
-            existing.setAddress(data.getAddress());
-        }
-        if (data.getLatitude() != null) {
-            existing.setLatitude(data.getLatitude());
-        }
-        if (data.getLongitude() != null) {
-            existing.setLongitude(data.getLongitude());
-        }
-        if (data.getDistanceFromCenter() != null) {
-            existing.setDistanceFromCenter(data.getDistanceFromCenter());
-        }
-        if (data.getTransportAccessibility() != null) {
-            existing.setTransportAccessibility(data.getTransportAccessibility());
-        }
-        if (data.getContactEmail() != null) {
-            existing.setContactEmail(data.getContactEmail());
-        }
-        if (data.getContactPhone() != null) {
-            existing.setContactPhone(data.getContactPhone());
-        }
-
+        applyFieldUpdates(existing, data);
         return schoolRepository.save(existing);
     }
 
@@ -267,9 +309,7 @@ public class SchoolService implements CrudService<School, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!schoolRepository.existsById(id)) {
-            throw new ResourceNotFoundException("School not found with id: " + id);
-        }
+        validateExistence(id);
         schoolRepository.deleteById(id);
     }
 }

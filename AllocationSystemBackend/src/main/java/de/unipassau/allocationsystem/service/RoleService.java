@@ -70,6 +70,61 @@ public class RoleService  implements CrudService<Role, Long> {
         return roleRepository.findByTitle(title).isPresent();
     }
 
+    /**
+     * Validates that the role title is unique, throws exception if duplicate found.
+     * 
+     * @param title the role title to validate
+     * @throws DuplicateResourceException if title already exists
+     */
+    private void validateRoleTitleUniqueness(String title) {
+        if (roleRepository.findByTitle(title).isPresent()) {
+            throw new DuplicateResourceException("Role with title '" + title + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new role title doesn't conflict with existing records (for updates).
+     * Allows the same title if it's the current role being updated.
+     * 
+     * @param newTitle the new role title
+     * @param oldTitle the old role title
+     * @throws DuplicateResourceException if new title conflicts with another role's title
+     */
+    private void validateRoleTitleForUpdate(String newTitle, String oldTitle) {
+        if (!newTitle.equals(oldTitle) && roleRepository.findByTitle(newTitle).isPresent()) {
+            throw new DuplicateResourceException("Role with title '" + newTitle + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a role exists with the given ID.
+     * 
+     * @param id the role ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!roleRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Role not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target role.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target role to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(Role existing, Role data) {
+        if (data.getTitle() != null) {
+            validateRoleTitleForUpdate(data.getTitle(), existing.getTitle());
+            existing.setTitle(data.getTitle());
+        }
+        if (data.getDescription() != null) {
+            existing.setDescription(data.getDescription());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return roleRepository.existsById(id);
@@ -127,9 +182,7 @@ public class RoleService  implements CrudService<Role, Long> {
     @Transactional
     @Override
     public Role create(Role role) {
-        if (roleRepository.findByTitle(role.getTitle()).isPresent()) {
-            throw new DuplicateResourceException("Role with title '" + role.getTitle() + "' already exists");
-        }
+        validateRoleTitleUniqueness(role.getTitle());
         return roleRepository.save(role);
     }
 
@@ -145,17 +198,7 @@ public class RoleService  implements CrudService<Role, Long> {
         Role existing = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
 
-        if (data.getTitle() != null && !data.getTitle().equals(existing.getTitle())) {
-            if (roleRepository.findByTitle(data.getTitle()).isPresent()) {
-                throw new DuplicateResourceException("Role with title '" + data.getTitle() + "' already exists");
-            }
-            existing.setTitle(data.getTitle());
-        }
-
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
-
+        applyFieldUpdates(existing, data);
         return roleRepository.save(existing);
     }
 
@@ -168,9 +211,7 @@ public class RoleService  implements CrudService<Role, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Role not found with id: " + id);
-        }
+        validateExistence(id);
         roleRepository.deleteById(id);
     }
 }

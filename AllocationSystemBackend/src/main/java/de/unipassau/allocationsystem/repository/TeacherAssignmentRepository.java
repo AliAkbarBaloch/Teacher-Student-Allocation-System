@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -106,4 +107,16 @@ public interface TeacherAssignmentRepository extends JpaRepository<TeacherAssign
      * @return list of teacher assignments
      */
     List<TeacherAssignment> findByAllocationPlanId(Long planId);
+
+    /**
+     * Find assignment by the 4-part composite key.
+     * 
+     * @param planId the allocation plan ID
+     * @param teacherId the teacher ID
+     * @param internshipTypeId the internship type ID
+     * @param subjectId the subject ID
+     * @return Optional containing the assignment if found
+     */
+    java.util.Optional<TeacherAssignment> findByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
+        Long planId, Long teacherId, Long internshipTypeId, Long subjectId);
 }

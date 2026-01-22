@@ -71,6 +71,77 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
         return zoneConstraintRepository.findById(id).isPresent();
     }
 
+    /**
+     * Validates that a zone-internshipType combination is unique.
+     * 
+     * @param zoneNumber the zone number
+     * @param internshipTypeId the internship type id
+     * @throws DuplicateResourceException if combination already exists
+     */
+    private void validateCompositeUniqueness(Integer zoneNumber, Long internshipTypeId) {
+        if (zoneConstraintRepository.existsByZoneNumberAndInternshipTypeId(zoneNumber, internshipTypeId)) {
+            throw new DuplicateResourceException(
+                "Zone constraint already exists for zone " + zoneNumber +
+                " and internship type " + internshipTypeId
+            );
+        }
+    }
+
+    /**
+     * Validates that a zone-internshipType combination can be updated to a new value.
+     * Allows the same combination to remain unchanged, but ensures new combinations are unique.
+     * 
+     * @param zoneNumber the new zone number
+     * @param internshipTypeId the new internship type id
+     * @param existingId the id of the existing constraint
+     * @throws DuplicateResourceException if new combination already exists (for different record)
+     */
+    private void validateCompositeUniquenessForUpdate(Integer zoneNumber, Long internshipTypeId, Long existingId) {
+        if (zoneConstraintRepository.existsByZoneNumberAndInternshipTypeIdAndIdNot(
+                zoneNumber, internshipTypeId, existingId)) {
+            throw new DuplicateResourceException(
+                "Zone constraint already exists for zone " + zoneNumber +
+                " and internship type " + internshipTypeId
+            );
+        }
+    }
+
+    /**
+     * Validates that a zone constraint exists by id.
+     * 
+     * @param id the id to validate
+     * @return the existing ZoneConstraint
+     * @throws ResourceNotFoundException if not found
+     */
+    private ZoneConstraint validateExistence(Long id) {
+        return zoneConstraintRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Zone constraint not found with id: " + id
+            ));
+    }
+
+    /**
+     * Applies field updates from data to existing entity.
+     * Uses null-check-and-set pattern for all updatable fields.
+     * 
+     * @param existing the entity to update
+     * @param data the data containing new values
+     */
+    private void applyFieldUpdates(ZoneConstraint existing, ZoneConstraint data) {
+        if (data.getZoneNumber() != null) {
+            existing.setZoneNumber(data.getZoneNumber());
+        }
+        if (data.getInternshipType() != null) {
+            existing.setInternshipType(data.getInternshipType());
+        }
+        if (data.getIsAllowed() != null) {
+            existing.setIsAllowed(data.getIsAllowed());
+        }
+        if (data.getDescription() != null) {
+            existing.setDescription(data.getDescription());
+        }
+    }
+
     @Audited(
             action = AuditAction.VIEW,
             entityName = AuditEntityNames.ZONE_CONSTRAINT,
@@ -123,13 +194,7 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     @Transactional
     @Override
     public ZoneConstraint create(ZoneConstraint zoneConstraint) {
-        // Check for duplicate constraint
-        if (zoneConstraintRepository.existsByZoneNumberAndInternshipTypeId(
-                zoneConstraint.getZoneNumber(), zoneConstraint.getInternshipType().getId())) {
-            throw new DuplicateResourceException(
-                    "Zone constraint already exists for zone " + zoneConstraint.getZoneNumber() +
-                            " and internship type " + zoneConstraint.getInternshipType().getId());
-        }
+        validateCompositeUniqueness(zoneConstraint.getZoneNumber(), zoneConstraint.getInternshipType().getId());
         return zoneConstraintRepository.save(zoneConstraint);
     }
 
@@ -160,35 +225,17 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     @Transactional
     @Override
     public ZoneConstraint update(Long id, ZoneConstraint data) {
-        ZoneConstraint existing = zoneConstraintRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Zone constraint not found with id: " + id));
+        ZoneConstraint existing = validateExistence(id);
 
-        // Check for duplicate if zone number or internship type changed
+        // Validate composite uniqueness if either field is being changed
         if (data.getZoneNumber() != null && data.getInternshipType() != null) {
             if (!data.getZoneNumber().equals(existing.getZoneNumber()) ||
                 !data.getInternshipType().getId().equals(existing.getInternshipType().getId())) {
-                if (zoneConstraintRepository.existsByZoneNumberAndInternshipTypeIdAndIdNot(
-                        data.getZoneNumber(), data.getInternshipType().getId(), id)) {
-                    throw new DuplicateResourceException(
-                            "Zone constraint already exists for zone " + data.getZoneNumber() +
-                                    " and internship type " + data.getInternshipType().getId());
-                }
+                validateCompositeUniquenessForUpdate(data.getZoneNumber(), data.getInternshipType().getId(), id);
             }
         }
 
-        if (data.getZoneNumber() != null) {
-            existing.setZoneNumber(data.getZoneNumber());
-        }
-        if (data.getInternshipType() != null) {
-            existing.setInternshipType(data.getInternshipType());
-        }
-        if (data.getIsAllowed() != null) {
-            existing.setIsAllowed(data.getIsAllowed());
-        }
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
-
+        applyFieldUpdates(existing, data);
         return zoneConstraintRepository.save(existing);
     }
 
@@ -224,9 +271,7 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!zoneConstraintRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Zone constraint not found with id: " + id);
-        }
+        validateExistence(id);
         zoneConstraintRepository.deleteById(id);
     }
 }

@@ -85,6 +85,70 @@ public class SubjectService implements CrudService<Subject, Long> {
         return subjectRepository.findBySubjectCode(subjectCode).isPresent();
     }
 
+    /**
+     * Validates that the subject code is unique, throws exception if duplicate found.
+     * 
+     * @param subjectCode the subject code to validate
+     * @throws DuplicateResourceException if subject code already exists
+     */
+    private void validateSubjectCodeUniqueness(String subjectCode) {
+        if (subjectRepository.findBySubjectCode(subjectCode).isPresent()) {
+            throw new DuplicateResourceException("Subject with code '" + subjectCode + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a new subject code doesn't conflict with existing records (for updates).
+     * Allows the same code if it's the current subject being updated.
+     * 
+     * @param newCode the new subject code
+     * @param oldCode the old subject code
+     * @throws DuplicateResourceException if new code conflicts with another subject's code
+     */
+    private void validateSubjectCodeForUpdate(String newCode, String oldCode) {
+        if (!newCode.equals(oldCode) && subjectRepository.findBySubjectCode(newCode).isPresent()) {
+            throw new DuplicateResourceException("Subject with code '" + newCode + "' already exists");
+        }
+    }
+
+    /**
+     * Validates that a subject exists with the given ID.
+     * 
+     * @param id the subject ID
+     * @throws ResourceNotFoundException if not found
+     */
+    private void validateExistence(Long id) {
+        if (!subjectRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Subject not found with id: " + id);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target subject.
+     * Only updates fields that are non-null in the source.
+     * 
+     * @param existing the target subject to update
+     * @param data the source data with new values
+     */
+    private void applyFieldUpdates(Subject existing, Subject data) {
+        if (data.getSubjectCode() != null) {
+            validateSubjectCodeForUpdate(data.getSubjectCode(), existing.getSubjectCode());
+            existing.setSubjectCode(data.getSubjectCode());
+        }
+        if (data.getSubjectTitle() != null) {
+            existing.setSubjectTitle(data.getSubjectTitle());
+        }
+        if (data.getSubjectCategory() != null) {
+            existing.setSubjectCategory(data.getSubjectCategory());
+        }
+        if (data.getSchoolType() != null) {
+            existing.setSchoolType(data.getSchoolType());
+        }
+        if (data.getIsActive() != null) {
+            existing.setIsActive(data.getIsActive());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return subjectRepository.existsById(id);
@@ -150,9 +214,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional
     @Override
     public Subject create(Subject subject) {
-        if (subjectRepository.findBySubjectCode(subject.getSubjectCode()).isPresent()) {
-            throw new DuplicateResourceException("Subject with code '" + subject.getSubjectCode() + "' already exists");
-        }
+        validateSubjectCodeUniqueness(subject.getSubjectCode());
         return subjectRepository.save(subject);
     }
 
@@ -179,25 +241,7 @@ public class SubjectService implements CrudService<Subject, Long> {
         Subject existing = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + id));
 
-        if (data.getSubjectCode() != null && !data.getSubjectCode().equals(existing.getSubjectCode())) {
-            if (subjectRepository.findBySubjectCode(data.getSubjectCode()).isPresent()) {
-                throw new DuplicateResourceException("Subject with code '" + data.getSubjectCode() + "' already exists");
-            }
-            existing.setSubjectCode(data.getSubjectCode());
-        }
-        if (data.getSubjectTitle() != null) {
-            existing.setSubjectTitle(data.getSubjectTitle());
-        }
-        if (data.getSubjectCategory() != null) {
-            existing.setSubjectCategory(data.getSubjectCategory());
-        }
-        if (data.getSchoolType() != null) {
-            existing.setSchoolType(data.getSchoolType());
-        }
-        if (data.getIsActive() != null) {
-            existing.setIsActive(data.getIsActive());
-        }
-
+        applyFieldUpdates(existing, data);
         return subjectRepository.save(existing);
     }
 
@@ -217,9 +261,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!subjectRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Subject not found with id: " + id);
-        }
+        validateExistence(id);
         subjectRepository.deleteById(id);
     }
 }
