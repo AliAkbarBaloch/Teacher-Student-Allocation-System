@@ -113,53 +113,14 @@ public class ExcelParser {
 
     private static ColumnIndices findColumnIndices(Row headerRow) {
         ColumnIndices indices = new ColumnIndices();
-
         for (int i = 0; i < headerRow.getLastCellNum(); i++) {
             Cell cell = headerRow.getCell(i);
             if (cell == null) {
                 continue;
             }
-
             String cellValue = getCellValueAsString(cell).trim();
-
-            // School Name
-            if (indices.getSchoolNameIndex() == -1 && matchesColumn(cellValue, 0, 3)) {
-                indices.setSchoolNameIndex(i);
-            }
-            // School ID
-            if (indices.getSchoolIdIndex() == -1 && matchesColumn(cellValue, 4, 6)) {
-                indices.setSchoolIdIndex(i);
-            }
-            // First Name
-            if (indices.getFirstNameIndex() == -1 && matchesColumn(cellValue, 7, 10)) {
-                indices.setFirstNameIndex(i);
-            }
-            // Last Name
-            if (indices.getLastNameIndex() == -1 && matchesColumn(cellValue, 11, 14)) {
-                indices.setLastNameIndex(i);
-            }
-            // Email
-            if (indices.getEmailIndex() == -1 && matchesColumn(cellValue, 15, 17)) {
-                indices.setEmailIndex(i);
-            }
-            // Phone
-            if (indices.getPhoneIndex() == -1 && matchesColumn(cellValue, 18, 21)) {
-                indices.setPhoneIndex(i);
-            }
-            // Employment Status
-            if (indices.getEmploymentStatusIndex() == -1 && matchesColumn(cellValue, 22, 25)) {
-                indices.setEmploymentStatusIndex(i);
-            }
-            // Is Part Time
-            if (indices.getIsPartTimeIndex() == -1 && matchesColumn(cellValue, 26, 30)) {
-                indices.setIsPartTimeIndex(i);
-            }
-            // Usage Cycle
-            if (indices.getUsageCycleIndex() == -1 && matchesColumn(cellValue, 31, 34)) {
-                indices.setUsageCycleIndex(i);
-            }
+            ColumnMatcher.matchAndSetColumns(cellValue, i, indices);
         }
-
         return indices;
     }
 
@@ -271,25 +232,26 @@ public class ExcelParser {
         if (value == null || value.trim().isEmpty()) {
             return Teacher.EmploymentStatus.ACTIVE;
         }
-        try {
-            String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
-            return Teacher.EmploymentStatus.valueOf(normalized);
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid employment status: {}, using default ACTIVE", value);
-            return Teacher.EmploymentStatus.ACTIVE;
-        }
+        return parseEnum(value, Teacher.EmploymentStatus::valueOf, Teacher.EmploymentStatus.ACTIVE,
+                "Invalid employment status: {}, using default ACTIVE");
     }
 
     private static Teacher.UsageCycle parseUsageCycle(String value) {
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
+        return parseEnum(value, Teacher.UsageCycle::valueOf, null,
+                "Invalid usage cycle: {}, using null");
+    }
+
+    private static <E extends Enum<E>> E parseEnum(String value, java.util.function.Function<String, E> parser,
+                                                     E defaultValue, String warningMsg) {
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
-            return Teacher.UsageCycle.valueOf(normalized);
+            return parser.apply(normalized);
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid usage cycle: {}, using null", value);
-            return null;
+            log.warn(warningMsg, value);
+            return defaultValue;
         }
     }
 
@@ -373,5 +335,32 @@ public class ExcelParser {
         private TeacherCreateDto dto;
         private String schoolName;
         private Long schoolId;
+    }
+
+    /**
+     * Helper class for matching and setting column indices.
+     */
+    private static class ColumnMatcher {
+        static void matchAndSetColumns(String cellValue, int index, ColumnIndices indices) {
+            if (indices.getSchoolNameIndex() == -1 && matchesColumn(cellValue, 0, 3)) {
+                indices.setSchoolNameIndex(index);
+            } else if (indices.getSchoolIdIndex() == -1 && matchesColumn(cellValue, 4, 6)) {
+                indices.setSchoolIdIndex(index);
+            } else if (indices.getFirstNameIndex() == -1 && matchesColumn(cellValue, 7, 10)) {
+                indices.setFirstNameIndex(index);
+            } else if (indices.getLastNameIndex() == -1 && matchesColumn(cellValue, 11, 14)) {
+                indices.setLastNameIndex(index);
+            } else if (indices.getEmailIndex() == -1 && matchesColumn(cellValue, 15, 17)) {
+                indices.setEmailIndex(index);
+            } else if (indices.getPhoneIndex() == -1 && matchesColumn(cellValue, 18, 21)) {
+                indices.setPhoneIndex(index);
+            } else if (indices.getEmploymentStatusIndex() == -1 && matchesColumn(cellValue, 22, 25)) {
+                indices.setEmploymentStatusIndex(index);
+            } else if (indices.getIsPartTimeIndex() == -1 && matchesColumn(cellValue, 26, 30)) {
+                indices.setIsPartTimeIndex(index);
+            } else if (indices.getUsageCycleIndex() == -1 && matchesColumn(cellValue, 31, 34)) {
+                indices.setUsageCycleIndex(index);
+            }
+        }
     }
 }
