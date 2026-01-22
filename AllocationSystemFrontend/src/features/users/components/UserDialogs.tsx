@@ -129,7 +129,7 @@ export function UserDialogs({
     const { t: tCommon } = useTranslation("common");
 
     // Reset password local state
-    
+
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [resetError, setResetError] = useState<string | null>(null);
@@ -172,7 +172,7 @@ export function UserDialogs({
 
     return (
         <>
-            
+
             {/* Create Dialog */}
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -189,11 +189,11 @@ export function UserDialogs({
                             roles={roles}
                             onSubmit={async (payload) => {
                                 try {
-                                await onCreateSubmit(payload);
-                                setIsCreateDialogOpen(false);
-                            } catch {
-                                //
-                            }
+                                    await onCreateSubmit(payload);
+                                    setIsCreateDialogOpen(false);
+                                } catch {
+                                    //
+                                }
                             }}
                             onCancel={() => setIsCreateDialogOpen(false)}
                             isLoading={isSubmitting}
@@ -204,7 +204,7 @@ export function UserDialogs({
             </Dialog>
 
             {/* Edit Dialog */}
-        
+
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent className="max-w-3xl">
                     <DialogHeader>
@@ -222,11 +222,15 @@ export function UserDialogs({
                                 <UserForm
                                     user={selectedUser}
                                     roles={roles}
-                                    onSubmit={async (payload) => 
-                                        {
+                                    onSubmit={async (payload) => {
+                                        try {
                                             await onUpdateSubmit(payload);
+                                            setIsEditDialogOpen(false);     // ✅ close on success
+                                            // optional: setSelectedUser(null); // if you want to reset selection
+                                        } catch {
+                                            // keep dialog open if API fails (errors/toast handled by parent)
                                         }
-                                    }
+                                    }}
                                     onCancel={() => setIsEditDialogOpen(false)}
                                     isLoading={isSubmitting}
                                     fieldErrors={fieldErrors}

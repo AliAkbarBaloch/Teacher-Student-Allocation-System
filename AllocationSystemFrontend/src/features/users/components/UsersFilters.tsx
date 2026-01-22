@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 type EnabledFilter = "all" | "true" | "false";
 
-//data + functions passed from parent 
 interface UsersFiltersProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -24,7 +31,8 @@ interface UsersFiltersProps {
   onReset: () => void;
 }
 
-//the component 
+const ALL = "__all__" as const;
+
 export function UsersFilters({
   searchValue,
   onSearchChange,
@@ -35,12 +43,13 @@ export function UsersFilters({
   enabled,
   onEnabledChange,
   onReset,
-  //props 
 }: UsersFiltersProps) {
-  //translations  
   const { t } = useTranslation("users");
   const { t: tCommon } = useTranslation("common");
-  //UI
+
+  const roleValue = role ?? ALL;
+  const statusValue = status ?? ALL;
+
   return (
     <div className="rounded-lg border bg-background p-4">
       <div className="grid gap-4 md:grid-cols-4">
@@ -57,52 +66,63 @@ export function UsersFilters({
 
         {/* Role */}
         <div className="space-y-2">
-          <Label htmlFor="roleFilter">{t("filters.role")}</Label>
-          <select
-            id="roleFilter"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-            value={role ?? ""}
-            onChange={(e) => onRoleChange((e.target.value || undefined) as UserRole | undefined)}
+          <Label>{t("filters.role")}</Label>
+          <Select
+            value={roleValue}
+            onValueChange={(v) =>
+              onRoleChange(v === ALL ? undefined : (v as UserRole))
+            }
           >
-            <option value="">{t("filters.all")}</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="MODERATOR">MODERATOR</option>
-            <option value="USER">USER</option>
-          </select>
+            <SelectTrigger className="h-10 w-full">
+              <SelectValue placeholder={t("filters.all")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t("filters.all")}</SelectItem>
+              <SelectItem value="ADMIN">ADMIN</SelectItem>
+              <SelectItem value="MODERATOR">MODERATOR</SelectItem>
+              <SelectItem value="USER">USER</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Status */}
         <div className="space-y-2">
-          <Label htmlFor="statusFilter">{t("filters.status")}</Label>
-          <select
-            id="statusFilter"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-            value={status ?? ""}
-            onChange={(e) =>
-              onStatusChange((e.target.value || undefined) as AccountStatus | undefined)
+          <Label>{t("filters.status")}</Label>
+          <Select
+            value={statusValue}
+            onValueChange={(v) =>
+              onStatusChange(v === ALL ? undefined : (v as AccountStatus))
             }
           >
-            <option value="">{t("filters.all")}</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="SUSPENDED">SUSPENDED</option>
-            <option value="PENDING_VERIFICATION">PENDING_VERIFICATION</option>
-          </select>
+            <SelectTrigger className="h-10 w-full">
+              <SelectValue placeholder={t("filters.all")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t("filters.all")}</SelectItem>
+              <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+              <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+              <SelectItem value="SUSPENDED">SUSPENDED</SelectItem>
+              <SelectItem value="PENDING_VERIFICATION">PENDING_VERIFICATION</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Enabled */}
         <div className="space-y-2">
-          <Label htmlFor="enabledFilter">{t("filters.enabled")}</Label>
-          <select
-            id="enabledFilter"
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+          <Label>{t("filters.enabled")}</Label>
+          <Select
             value={enabled}
-            onChange={(e) => onEnabledChange(e.target.value as EnabledFilter)}
+            onValueChange={(v) => onEnabledChange(v as EnabledFilter)}
           >
-            <option value="all">{t("filters.all")}</option>
-            <option value="true">{t("status.enabled")}</option>
-            <option value="false">{t("status.disabled")}</option>
-          </select>
+            <SelectTrigger className="h-10 w-full">
+              <SelectValue placeholder={t("filters.all")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filters.all")}</SelectItem>
+              <SelectItem value="true">{t("status.enabled")}</SelectItem>
+              <SelectItem value="false">{t("status.disabled")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

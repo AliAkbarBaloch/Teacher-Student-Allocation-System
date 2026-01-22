@@ -1,19 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
-import de.unipassau.allocationsystem.dto.user.UserCreateDto;
-import de.unipassau.allocationsystem.dto.user.UserResponseDto;
-import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
-import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.entity.User;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
-import de.unipassau.allocationsystem.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +12,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.user.UserCreateDto;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
+import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
+import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.entity.Role;
+import de.unipassau.allocationsystem.entity.User;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.repository.RoleRepository;
+import de.unipassau.allocationsystem.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service for managing users with automatic audit logging via @Audited annotation.
+ * Service for managing users with automatic audit logging via @Audited
+ * annotation.
  */
 @Service
 @RequiredArgsConstructor
@@ -38,15 +42,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final RoleRepository roleRepository;
+
     /**
      * Create a new user with automatic audit logging using @Audited annotation.
      */
     @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Created new user",
+            captureNewValue = true
     )
     public User createUser(String email, String password, String fullName) {
         log.info("Creating new user: {}", email);
@@ -68,16 +74,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user",
+            captureNewValue = true
     )
     public User updateUser(Long userId, String newEmail, String newFullName) {
         log.info("Updating user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Update user
         user.setEmail(newEmail);
@@ -92,16 +98,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.DELETE,
-        entityName = AuditEntityNames.USER,
-        description = "Deleted user",
-        captureNewValue = false
+            action = AuditAction.DELETE,
+            entityName = AuditEntityNames.USER,
+            description = "Deleted user",
+            captureNewValue = false
     )
     public void deleteUser(Long userId) {
         log.info("Deleting user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         // Delete user
         userRepository.delete(user);
@@ -123,7 +129,7 @@ public class UserService {
         log.info("Changing password for user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Verify old password
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
@@ -140,16 +146,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user enabled status",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user enabled status",
+            captureNewValue = true
     )
     public User setUserEnabled(Long userId, boolean enabled) {
         log.info("Setting user {} enabled status to: {}", userId, enabled);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setEnabled(enabled);
         User updatedUser = userRepository.save(user);
@@ -158,16 +164,15 @@ public class UserService {
     }
 
     // ========== NEW COMPREHENSIVE CRUD METHODS ==========
-
     /**
      * Create user with DTO.
      */
     @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin created new user",
+            captureNewValue = true
     )
     public UserResponseDto createUserWithDto(UserCreateDto dto) {
         log.info("Creating new user with DTO: {}", dto.getEmail());
@@ -181,6 +186,20 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
+
+        //set roleEntity 
+        // Prefer roleId if provided
+        if (dto.getRoleId() != null) {
+            Role roleEntity = roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + dto.getRoleId()));
+            user.setRoleEntity(roleEntity);
+        } else if (dto.getRole() != null) {
+            // Fallback: resolve Role entity by title (must match DB titles like "USER"/"ADMIN"/"MODERATOR")
+            Role roleEntity = roleRepository.findByTitle(dto.getRole().name())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with title: " + dto.getRole().name()));
+            user.setRoleEntity(roleEntity);
+        }
+
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setEnabled(dto.getEnabled() != null ? dto.getEnabled() : true);
         user.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
@@ -198,16 +217,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user with DTO",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user with DTO",
+            captureNewValue = true
     )
     public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
         log.info("Updating user with DTO: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(dto.getEmail())) {
@@ -221,6 +240,17 @@ public class UserService {
         if (dto.getRole() != null) {
             user.setRole(dto.getRole());
         }
+
+        if (dto.getRoleId() != null) {
+            Role roleEntity = roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + dto.getRoleId()));
+            user.setRoleEntity(roleEntity);
+        } else if (dto.getRole() != null) {
+            Role roleEntity = roleRepository.findByTitle(dto.getRole().name())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with title: " + dto.getRole().name()));
+            user.setRoleEntity(roleEntity);
+        }
+
         if (dto.getPhoneNumber() != null) {
             user.setPhoneNumber(dto.getPhoneNumber());
         }
@@ -244,16 +274,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Activated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Activated user account",
+            captureNewValue = true
     )
     public UserResponseDto activateUser(Long userId) {
         log.info("Activating user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         user.setEnabled(true);
         user.setAccountStatus(User.AccountStatus.ACTIVE);
@@ -270,16 +300,16 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Deactivated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Deactivated user account",
+            captureNewValue = true
     )
     public UserResponseDto deactivateUser(Long userId) {
         log.info("Deactivating user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         user.setEnabled(false);
         user.setAccountStatus(User.AccountStatus.INACTIVE);
@@ -294,22 +324,22 @@ public class UserService {
      */
     @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin reset user password",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin reset user password",
+            captureNewValue = true
     )
     public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
         log.info("Admin resetting password for user: {}", userId);
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
         user.setPasswordUpdateDate(LocalDateTime.now());
         User savedUser = userRepository.save(user);
-        
+
         return mapToResponseDto(savedUser);
     }
 
@@ -319,7 +349,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDto getUserByIdDto(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         return mapToResponseDto(user);
     }
@@ -341,9 +371,9 @@ public class UserService {
         log.info("Getting users - role: {}, status: {}, enabled: {}, search: {}", role, status, enabled, search);
 
         Pageable pageable = PageRequest.of(
-            page,
-            size,
-            sortDirection.equalsIgnoreCase("DESC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
+                page,
+                size,
+                sortDirection.equalsIgnoreCase("DESC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
         );
 
         Specification<User> spec = Specification.allOf();
@@ -360,8 +390,8 @@ public class UserService {
         if (search != null && !search.trim().isEmpty()) {
             String searchPattern = "%" + search.toLowerCase() + "%";
             spec = spec.and((root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("email")), searchPattern),
-                cb.like(cb.lower(root.get("fullName")), searchPattern)
+                    cb.like(cb.lower(root.get("email")), searchPattern),
+                    cb.like(cb.lower(root.get("fullName")), searchPattern)
             ));
         }
 

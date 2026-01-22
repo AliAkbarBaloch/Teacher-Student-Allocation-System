@@ -137,6 +137,12 @@ export function UserForm(props: UserFormProps){
     //true while submit request is running 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    //
+    useEffect(() => {
+        console.log("EDIT user", user);
+        console.log("roles", roles);
+    },[user, roles]);
+
 
     //fill form when editting, reset when creating 
     //runs whenenver user or firstRoleId changes 
