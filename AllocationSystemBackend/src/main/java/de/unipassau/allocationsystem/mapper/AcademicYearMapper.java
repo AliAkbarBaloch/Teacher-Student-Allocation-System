@@ -19,27 +19,12 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYear toEntityCreate(AcademicYearCreateDto dto) {
-        return toNewEntity(dto);
+        return toNewEntity(dto, AcademicYear::new, this::populateEntity);
     }
 
     @Override
     public AcademicYear toEntityUpdate(AcademicYearUpdateDto dto) {
-        return toNewEntity(dto);
-    }
-
-    /**
-     * Creates new entity from DTO.
-     * 
-     * @param dto Source DTO (create or update)
-     * @return New entity or null if dto is null
-     */
-    private AcademicYear toNewEntity(AcademicYearUpsertDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        AcademicYear entity = new AcademicYear();
-        populateEntity(entity, dto);
-        return entity;
+        return toNewEntity(dto, AcademicYear::new, this::populateEntity);
     }
 
     /**
