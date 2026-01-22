@@ -77,7 +77,6 @@ public class InternshipTypeController {
      * Retrieves internship types with pagination and optional search.
      * 
      * @param queryParams Map containing pagination parameters (page, size, sort)
-     * @param includeRelations Flag to include related entities
      * @param searchValue Optional search term for filtering
      * @return ResponseEntity containing paginated internship types
      */
@@ -85,7 +84,6 @@ public class InternshipTypeController {
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
-            @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         Map<String, Object> result = internshipTypeService.getPaginated(queryParams, searchValue);
@@ -95,12 +93,11 @@ public class InternshipTypeController {
     /**
      * Retrieves all internship types without pagination.
      * 
-     * @param includeRelations Flag to include related entities
      * @return ResponseEntity containing list of all internship types
      */
     @GetAllDocs
     @GetMapping("")
-    public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
+    public ResponseEntity<?> getAll() {
         List<InternshipTypeResponseDto> result = internshipTypeMapper.toResponseDtoList(internshipTypeService.getAll());
         return ResponseHandler.success("Internship types retrieved successfully", result);
     }

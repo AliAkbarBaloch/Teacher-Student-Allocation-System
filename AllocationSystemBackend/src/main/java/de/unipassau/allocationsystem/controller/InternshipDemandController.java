@@ -98,6 +98,7 @@ public ResponseEntity<?> getPaginate(
         var result = service.getPaginated(queryParams, searchValue);
         // Convert items to DTOs to avoid lazy loading serialization issues
         if (result.containsKey("items")) {
+                @SuppressWarnings("unchecked")
                 List<InternshipDemand> items = (List<InternshipDemand>) result.get("items");
                 List<InternshipDemandResponseDto> dtoItems = internshipDemandMapper.toResponseDtoList(items);
                 result.put("items", dtoItems);
@@ -149,34 +150,8 @@ public ResponseEntity<?> getAll() {
 public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto) {
         String direction = Objects.requireNonNullElse(filterDto.getDirection(), "ASC");
         Sort.Direction dir = Sort.Direction.fromString(direction);
-        
-        Integer page;
-        if (filterDto.getPage() != null) {
-                page = filterDto.getPage();
-        } else {
-                page = 0;
-        }
-        
-        Integer size;
-        if (filterDto.getSize() != null) {
-                size = filterDto.getSize();
-        } else {
-                size = 20;
-        }
-        
-        String sort;
-        if (filterDto.getSort() != null) {
-                sort = filterDto.getSort();
-        } else {
-                sort = "id";
-        }
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sort));
-        
-        de.unipassau.allocationsystem.entity.School.SchoolType schoolType = null;
-        if (filterDto.getSchoolType() != null) {
-                schoolType = de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(filterDto.getSchoolType());
-        }
+        Pageable pageable = createPageable(filterDto, dir);
+        de.unipassau.allocationsystem.entity.School.SchoolType schoolType = parseSchoolType(filterDto.getSchoolType());
         
         Page<InternshipDemand> result = service.listByYearWithFilters(
                 filterDto.getYearId(),
@@ -188,6 +163,33 @@ public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDt
         );
         Page<InternshipDemandResponseDto> dtoPage = result.map(internshipDemandMapper::toResponseDto);
         return ResponseHandler.success("Internship demand retrieved successfully", dtoPage);
+}
+
+/**
+ * Creates a Pageable object from filter parameters with defaults.
+ * 
+ * @param filterDto Filter data containing pagination parameters
+ * @param direction Sort direction
+ * @return Pageable instance with validated parameters
+ */
+private Pageable createPageable(InternshipDemandFilterDto filterDto, Sort.Direction direction) {
+        Integer page = filterDto.getPage() != null ? filterDto.getPage() : 0;
+        Integer size = filterDto.getSize() != null ? filterDto.getSize() : 20;
+        String sort = filterDto.getSort() != null ? filterDto.getSort() : "id";
+        return PageRequest.of(page, size, Sort.by(direction, sort));
+}
+
+/**
+ * Parses school type from string representation.
+ * 
+ * @param schoolTypeString School type as string, may be null
+ * @return Parsed SchoolType or null if not provided
+ */
+private de.unipassau.allocationsystem.entity.School.SchoolType parseSchoolType(String schoolTypeString) {
+        if (schoolTypeString != null) {
+                return de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(schoolTypeString);
+        }
+        return null;
 }
 
 /**

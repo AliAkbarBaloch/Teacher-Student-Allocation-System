@@ -12,6 +12,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting GET ALL operations in REST controllers.
+ * Combines Swagger documentation for a GET endpoint that retrieves all entities without pagination.
+ * Automatically generates OpenAPI documentation with 200 and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get all entities", description = "Retrieves all entities without pagination")

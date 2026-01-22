@@ -9,6 +9,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting DELETE operations in REST controllers.
+ * Combines Swagger documentation for a DELETE endpoint that removes an entity.
+ * Automatically generates OpenAPI documentation with 204, 404, and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Delete entity", description = "Deletes an entity by its ID")

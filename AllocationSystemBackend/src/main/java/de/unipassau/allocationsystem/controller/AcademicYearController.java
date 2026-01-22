@@ -77,7 +77,6 @@ public class AcademicYearController {
      * Retrieves academic years with pagination, sorting, and optional search.
      * 
      * @param queryParams Map containing pagination parameters (page, size, sort)
-     * @param includeRelations Flag to include related entities
      * @param searchValue Optional search term for filtering
      * @return ResponseEntity containing paginated academic years
      */
@@ -85,7 +84,6 @@ public class AcademicYearController {
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
-            @RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
         Map<String, Object> result = academicYearService.getPaginated(queryParams, searchValue);
@@ -95,12 +93,11 @@ public class AcademicYearController {
     /**
      * Retrieves all academic years without pagination.
      * 
-     * @param includeRelations Flag to include related entities
      * @return ResponseEntity containing list of all academic years
      */
     @GetAllDocs
     @GetMapping("")
-    public ResponseEntity<?> getAll(@RequestParam(value = "includeRelations", defaultValue = "true") boolean includeRelations) {
+    public ResponseEntity<?> getAll() {
         List<AcademicYearResponseDto> result = academicYearMapper.toResponseDtoList(academicYearService.getAll());
         return ResponseHandler.success("Academic years retrieved successfully", result);
     }

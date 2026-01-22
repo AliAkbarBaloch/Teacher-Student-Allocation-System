@@ -9,6 +9,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting GET SORT FIELDS operations in REST controllers.
+ * Combines Swagger documentation for a GET endpoint that retrieves available sortable fields.
+ * Automatically generates OpenAPI documentation with 200 and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get sort fields", description = "Retrieves available fields that can be used for sorting")

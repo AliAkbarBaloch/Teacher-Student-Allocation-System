@@ -12,6 +12,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting GET BY ID operations in REST controllers.
+ * Combines Swagger documentation for a GET endpoint that retrieves a specific entity by its ID.
+ * Automatically generates OpenAPI documentation with 200, 404, and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get entity by ID", description = "Retrieves a specific entity by its ID")

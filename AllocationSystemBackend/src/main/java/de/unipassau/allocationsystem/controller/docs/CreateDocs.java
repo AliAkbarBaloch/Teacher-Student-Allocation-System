@@ -12,6 +12,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting CREATE operations in REST controllers.
+ * Combines Swagger documentation for a POST endpoint that creates a new entity.
+ * Automatically generates OpenAPI documentation with 201, 400, and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Create new entity", description = "Creates a new entity with the provided details")

@@ -12,6 +12,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Meta-annotation for documenting UPDATE operations in REST controllers.
+ * Combines Swagger documentation for a PUT endpoint that updates an existing entity.
+ * Automatically generates OpenAPI documentation with 200, 400, 404, and 500 response codes.
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
