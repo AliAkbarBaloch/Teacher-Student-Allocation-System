@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Service for managing {@link SubjectCategory} entities.
+ * Provides CRUD operations and paginated search/sort for subject categories.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -36,10 +40,21 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
         return SortFieldUtils.getSortFields("id", "categoryTitle", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys exposed by {@link #getSortFields()}.
+     *
+     * @return list of sort field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(m -> m.get("key")).toList();
     }
 
+    /**
+     * Checks if a subject category exists with the given title.
+     *
+     * @param categoryTitle category title to check
+     * @return true if a category with the given title exists, otherwise false
+     */
     public boolean categoryTitleExists(String categoryTitle) {
         return subjectCategoryRepository.findByCategoryTitle(categoryTitle).isPresent();
     }
