@@ -3,7 +3,6 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog;
-import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherSubject;
@@ -165,7 +164,15 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     public TeacherSubject update(Long id, TeacherSubject update) {
         TeacherSubject existing = teacherSubjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TeacherSubject not found with id: " + id));
+        applyFieldUpdates(existing, update);
+        return teacherSubjectRepository.save(existing);
+    }
 
+    /**
+     * Applies field updates from source to target TeacherSubject.
+     * Only updates fields that are non-null in the source.
+     */
+    private void applyFieldUpdates(TeacherSubject existing, TeacherSubject update) {
         // validate references if changed
         if (update.getAcademicYear() != null && !update.getAcademicYear().getId().equals(existing.getAcademicYear().getId())) {
             if (!academicYearRepository.existsById(update.getAcademicYear().getId())) {
@@ -173,21 +180,18 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
             }
             existing.setAcademicYear(update.getAcademicYear());
         }
-
         if (update.getTeacher() != null && !update.getTeacher().getId().equals(existing.getTeacher().getId())) {
             if (!teacherRepository.existsById(update.getTeacher().getId())) {
                 throw new ResourceNotFoundException("Teacher not found with id: " + update.getTeacher().getId());
             }
             existing.setTeacher(update.getTeacher());
         }
-
         if (update.getSubject() != null && !update.getSubject().getId().equals(existing.getSubject().getId())) {
             if (!subjectRepository.existsById(update.getSubject().getId())) {
                 throw new ResourceNotFoundException("Subject not found with id: " + update.getSubject().getId());
             }
             existing.setSubject(update.getSubject());
         }
-
         if (update.getAvailabilityStatus() != null) {
             existing.setAvailabilityStatus(update.getAvailabilityStatus());
         }
@@ -200,13 +204,10 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
         if (update.getNotes() != null) {
             existing.setNotes(update.getNotes());
         }
-
         // validate grade range
         if (existing.getGradeLevelFrom() != null && existing.getGradeLevelTo() != null && existing.getGradeLevelFrom() > existing.getGradeLevelTo()) {
             throw new IllegalArgumentException("gradeLevelFrom must be <= gradeLevelTo");
         }
-
-        return teacherSubjectRepository.save(existing);
     }
 
     @Audited(
@@ -235,8 +236,8 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
             throw new IllegalArgumentException("subjectId is required");
         }
 
-        AcademicYear year = academicYearRepository.findById(entity.getAcademicYear().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + entity.getAcademicYear().getId()));
+        academicYearRepository.findById(entity.getAcademicYear().getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + entity.getAcademicYear().getId()));
 
         Teacher teacher = teacherRepository.findById(entity.getTeacher().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + entity.getTeacher().getId()));

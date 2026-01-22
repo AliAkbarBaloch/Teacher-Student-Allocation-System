@@ -34,10 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing teacher form submissions.
@@ -65,7 +63,7 @@ public class TeacherFormSubmissionService {
     @PostConstruct
     public void init() {
         log.info("TeacherFormSubmissionService initialized with frontendUrl: {}", frontendUrl);
-        if (frontendUrl == null || frontendUrl.trim().isEmpty()) {
+        if (TeacherFormSubmissionSupport.isBlank(frontendUrl)) {
             log.warn("Frontend URL is not configured. Using default: http://localhost:5173");
             frontendUrl = "http://localhost:5173";
         }
@@ -90,9 +88,9 @@ public class TeacherFormSubmissionService {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
 
         Specification<TeacherFormSubmission> spec = (root, query, cb) -> cb.conjunction();
-        spec = addTeacherFilter(spec, teacherId);
-        spec = addYearFilter(spec, yearId);
-        spec = addProcessedFilter(spec, isProcessed);
+        spec = TeacherFormSubmissionSupport.addTeacherFilter(spec, teacherId);
+        spec = TeacherFormSubmissionSupport.addYearFilter(spec, yearId);
+        spec = TeacherFormSubmissionSupport.addProcessedFilter(spec, isProcessed);
 
         Pageable pageable = buildPageable(params);
 
@@ -102,33 +100,6 @@ public class TeacherFormSubmissionService {
 
         Page<TeacherFormSubmissionResponseDto> dtoPage = page.map(teacherFormSubmissionMapper::toResponseDto);
         return PaginationUtils.formatPaginationResponse(dtoPage);
-    }
-
-    private Specification<TeacherFormSubmission> addTeacherFilter(
-            Specification<TeacherFormSubmission> spec, Long teacherId
-    ) {
-        if (teacherId == null) {
-            return spec;
-        }
-        return spec.and((root, query, cb) -> cb.equal(root.get("teacher").get("id"), teacherId));
-    }
-
-    private Specification<TeacherFormSubmission> addYearFilter(
-            Specification<TeacherFormSubmission> spec, Long yearId
-    ) {
-        if (yearId == null) {
-            return spec;
-        }
-        return spec.and((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
-    }
-
-    private Specification<TeacherFormSubmission> addProcessedFilter(
-            Specification<TeacherFormSubmission> spec, Boolean isProcessed
-    ) {
-        if (isProcessed == null) {
-            return spec;
-        }
-        return spec.and((root, query, cb) -> cb.equal(root.get("isProcessed"), isProcessed));
     }
 
     private Pageable buildPageable(PaginationUtils.PaginationParams params) {
@@ -167,11 +138,11 @@ public class TeacherFormSubmissionService {
         log.info("Creating new form submission for teacher ID: {} and year ID: {}",
                 createDto.getTeacherId(), createDto.getYearId());
 
-        // Validate teacher exists (previously assigned to a variable but never used)
-        validateAndGetTeacher(createDto.getTeacherId());
+        TeacherFormSubmissionSupport.validateAndGetTeacher(teacherRepository, createDto.getTeacherId());
 
-        AcademicYear academicYear = validateAndGetAcademicYear(createDto.getYearId());
-        validateAcademicYearNotLocked(academicYear);
+        AcademicYear academicYear =
+                TeacherFormSubmissionSupport.validateAndGetAcademicYear(academicYearRepository, createDto.getYearId());
+        TeacherFormSubmissionSupport.validateAcademicYearNotLocked(academicYear);
 
         if (teacherFormSubmissionRepository.existsByFormToken(createDto.getFormToken())) {
             throw new DuplicateResourceException("Form token already exists: " + createDto.getFormToken());
@@ -193,7 +164,9 @@ public class TeacherFormSubmissionService {
             description = "Updated teacher form submission processing status",
             captureNewValue = true
     )
-    public TeacherFormSubmissionResponseDto updateFormSubmissionStatus(Long id, TeacherFormSubmissionStatusUpdateDto statusDto) {
+    public TeacherFormSubmissionResponseDto updateFormSubmissionStatus(
+            Long id, TeacherFormSubmissionStatusUpdateDto statusDto
+    ) {
         log.info("Updating processing status for submission ID: {} to: {}", id, statusDto.getIsProcessed());
 
         TeacherFormSubmission submission = teacherFormSubmissionRepository.findById(id)
@@ -220,52 +193,31 @@ public class TeacherFormSubmissionService {
         log.info("Generating form link for teacher ID: {} and year ID: {}",
                 request.getTeacherId(), request.getYearId());
 
-        Teacher teacher = validateAndGetTeacher(request.getTeacherId());
-        AcademicYear academicYear = validateAndGetAcademicYear(request.getYearId());
-        validateAcademicYearNotLocked(academicYear);
+        Teacher teacher =
+                TeacherFormSubmissionSupport.validateAndGetTeacher(teacherRepository, request.getTeacherId());
+        AcademicYear academicYear =
+                TeacherFormSubmissionSupport.validateAndGetAcademicYear(academicYearRepository, request.getYearId());
+        TeacherFormSubmissionSupport.validateAcademicYearNotLocked(academicYear);
 
-        ensureNoExistingSubmissionForTeacherYear(request.getTeacherId(), request.getYearId());
+        TeacherFormSubmissionSupport.ensureNoExistingSubmissionForTeacherYear(
+                teacherFormSubmissionRepository, request.getTeacherId(), request.getYearId(), log
+        );
 
         String formToken = formTokenService.generateUniqueFormToken(request.getTeacherId(), request.getYearId());
 
-        TeacherFormSubmission saved = createInvitationRecord(teacher, academicYear, formToken);
-        entityManager.flush();
+        TeacherFormSubmission saved = TeacherFormSubmissionSupport.createInvitationRecord(
+                teacherFormSubmissionRepository, teacher, academicYear, formToken
+        );
 
+        entityManager.flush();
         log.info("Created submission record for generated link - ID: {}, token: {}, teacherId: {}, yearId: {}",
                 saved.getId(), formToken, request.getTeacherId(), request.getYearId());
 
-        String formUrl = buildFormUrl(formToken);
+        String formUrl = TeacherFormSubmissionSupport.buildFormUrl(frontendUrl, formToken, log);
 
         log.info("Form link generated successfully - token: {}, URL: {}", formToken, formUrl);
 
-        return FormLinkResponseDto.builder()
-                .formToken(formToken)
-                .formUrl(formUrl)
-                .teacherId(teacher.getId())
-                .teacherName(teacher.getFirstName() + " " + teacher.getLastName())
-                .teacherEmail(teacher.getEmail())
-                .yearId(academicYear.getId())
-                .yearName(academicYear.getYearName())
-                .build();
-    }
-
-    private void ensureNoExistingSubmissionForTeacherYear(Long teacherId, Long yearId) {
-        boolean exists = teacherFormSubmissionRepository.existsByTeacherIdAndAcademicYearId(teacherId, yearId);
-        if (exists) {
-            log.warn("Attempted to generate form link for teacher {} and year {} - submission already exists",
-                    teacherId, yearId);
-            throw new IllegalArgumentException("A form submission already exists for this teacher and academic year");
-        }
-    }
-
-    private TeacherFormSubmission createInvitationRecord(Teacher teacher, AcademicYear academicYear, String token) {
-        TeacherFormSubmission submission = new TeacherFormSubmission();
-        submission.setTeacher(teacher);
-        submission.setAcademicYear(academicYear);
-        submission.setFormToken(token);
-        submission.setSubmittedAt(null);
-        submission.setIsProcessed(false);
-        return teacherFormSubmissionRepository.save(submission);
+        return TeacherFormSubmissionSupport.buildFormLinkResponse(formToken, formUrl, teacher, academicYear);
     }
 
     /**
@@ -275,7 +227,7 @@ public class TeacherFormSubmissionService {
     public TeacherFormSubmissionResponseDto submitFormByToken(String formToken, PublicFormSubmissionDto submissionDto) {
         log.info("Processing form submission for token: {}", formToken);
 
-        validateTokenNotBlank(formToken);
+        TeacherFormSubmissionSupport.validateTokenNotBlank(formToken);
 
         Optional<TeacherFormSubmission> existingOpt = teacherFormSubmissionRepository.findByFormToken(formToken);
         if (existingOpt.isPresent()) {
@@ -285,12 +237,6 @@ public class TeacherFormSubmissionService {
         return submitAsNewRecord(formToken, submissionDto);
     }
 
-    private void validateTokenNotBlank(String token) {
-        if (token == null || token.trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid form token");
-        }
-    }
-
     private TeacherFormSubmissionResponseDto submitIntoExistingRecord(
             String formToken, TeacherFormSubmission existing, PublicFormSubmissionDto submissionDto
     ) {
@@ -298,10 +244,10 @@ public class TeacherFormSubmissionService {
             throw new DuplicateResourceException("Form has already been submitted with this token");
         }
 
-        validateSubjectIds(submissionDto.getSubjectIds());
+        TeacherFormSubmissionSupport.validateSubjectIds(subjectRepository, submissionDto.getSubjectIds());
 
         existing.setSubmittedAt(LocalDateTime.now());
-        populateSubmissionFields(existing, submissionDto);
+        TeacherFormSubmissionSupport.populateSubmissionFields(existing, submissionDto);
         existing.setIsProcessed(false);
 
         TeacherFormSubmission saved = teacherFormSubmissionRepository.save(existing);
@@ -312,18 +258,20 @@ public class TeacherFormSubmissionService {
     private TeacherFormSubmissionResponseDto submitAsNewRecord(String formToken, PublicFormSubmissionDto submissionDto) {
         FormTokenService.TokenData tokenData = formTokenService.decodeFormToken(formToken);
 
-        Teacher teacher = validateAndGetTeacher(tokenData.getTeacherId());
-        AcademicYear academicYear = validateAndGetAcademicYear(tokenData.getYearId());
-        validateAcademicYearNotLocked(academicYear);
+        Teacher teacher =
+                TeacherFormSubmissionSupport.validateAndGetTeacher(teacherRepository, tokenData.getTeacherId());
+        AcademicYear academicYear =
+                TeacherFormSubmissionSupport.validateAndGetAcademicYear(academicYearRepository, tokenData.getYearId());
+        TeacherFormSubmissionSupport.validateAcademicYearNotLocked(academicYear);
 
-        validateSubjectIds(submissionDto.getSubjectIds());
+        TeacherFormSubmissionSupport.validateSubjectIds(subjectRepository, submissionDto.getSubjectIds());
 
         TeacherFormSubmission submission = new TeacherFormSubmission();
         submission.setTeacher(teacher);
         submission.setAcademicYear(academicYear);
         submission.setFormToken(formToken);
         submission.setSubmittedAt(LocalDateTime.now());
-        populateSubmissionFields(submission, submissionDto);
+        TeacherFormSubmissionSupport.populateSubmissionFields(submission, submissionDto);
         submission.setIsProcessed(false);
 
         TeacherFormSubmission saved = teacherFormSubmissionRepository.save(submission);
@@ -339,105 +287,16 @@ public class TeacherFormSubmissionService {
     public FormLinkResponseDto getFormDetailsByToken(String formToken) {
         log.info("Fetching form details for token: {}", formToken);
 
-        validateTokenNotBlank(formToken);
-        ensureNotSubmitted(formToken);
+        TeacherFormSubmissionSupport.validateTokenNotBlank(formToken);
+        TeacherFormSubmissionSupport.ensureNotSubmitted(teacherFormSubmissionRepository, formToken);
 
         FormTokenService.TokenData tokenData = formTokenService.decodeFormToken(formToken);
-        Teacher teacher = validateAndGetTeacher(tokenData.getTeacherId());
-        AcademicYear academicYear = validateAndGetAcademicYear(tokenData.getYearId());
+        Teacher teacher =
+                TeacherFormSubmissionSupport.validateAndGetTeacher(teacherRepository, tokenData.getTeacherId());
+        AcademicYear academicYear =
+                TeacherFormSubmissionSupport.validateAndGetAcademicYear(academicYearRepository, tokenData.getYearId());
 
-        return buildFormDetailsResponse(formToken, teacher, academicYear);
-    }
-
-    private void ensureNotSubmitted(String formToken) {
-        Optional<TeacherFormSubmission> existingOpt = teacherFormSubmissionRepository.findByFormToken(formToken);
-        if (existingOpt.isPresent() && existingOpt.get().getSubmittedAt() != null) {
-            throw new IllegalArgumentException("This form has already been submitted");
-        }
-    }
-
-    private FormLinkResponseDto buildFormDetailsResponse(String formToken, Teacher teacher, AcademicYear academicYear) {
-        String formUrl = buildFormUrl(formToken);
-        return FormLinkResponseDto.builder()
-                .formToken(formToken)
-                .formUrl(formUrl)
-                .teacherId(teacher.getId())
-                .teacherName(teacher.getFirstName() + " " + teacher.getLastName())
-                .teacherEmail(teacher.getEmail())
-                .yearId(academicYear.getId())
-                .yearName(academicYear.getYearName())
-                .build();
-    }
-
-    // ==================== Helper Methods ====================
-
-    /**
-     * Validate and retrieve teacher by ID.
-     */
-    private Teacher validateAndGetTeacher(Long teacherId) {
-        return teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with ID: " + teacherId));
-    }
-
-    /**
-     * Validate and retrieve academic year by ID.
-     */
-    private AcademicYear validateAndGetAcademicYear(Long yearId) {
-        return academicYearRepository.findById(yearId)
-                .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with ID: " + yearId));
-    }
-
-    /**
-     * Validate that academic year is not locked.
-     */
-    private void validateAcademicYearNotLocked(AcademicYear academicYear) {
-        if (Boolean.TRUE.equals(academicYear.getIsLocked())) {
-            throw new IllegalArgumentException("Cannot perform operation for locked academic year: " + academicYear.getYearName());
-        }
-    }
-
-    /**
-     * Validate that all subject IDs exist in the database.
-     */
-    private void validateSubjectIds(List<Long> subjectIds) {
-        if (subjectIds == null || subjectIds.isEmpty()) {
-            return;
-        }
-        for (Long subjectId : subjectIds) {
-            if (!subjectRepository.existsById(subjectId)) {
-                throw new ResourceNotFoundException("Subject not found with ID: " + subjectId);
-            }
-        }
-    }
-
-    /**
-     * Populate submission entity fields from DTO.
-     */
-    private void populateSubmissionFields(TeacherFormSubmission submission, PublicFormSubmissionDto dto) {
-        submission.setSchoolId(dto.getSchoolId());
-        submission.setNotes(dto.getNotes());
-        submission.setSubjectIds(convertLongListToString(dto.getSubjectIds()));
-        submission.setInternshipCombinations(convertLongListToString(dto.getInternshipTypeIds()));
-    }
-
-    /**
-     * Convert list of Longs to comma-separated string.
-     */
-    private String convertLongListToString(List<Long> list) {
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-        return list.stream().map(String::valueOf).collect(Collectors.joining(","));
-    }
-
-    /**
-     * Build form URL from token.
-     */
-    private String buildFormUrl(String formToken) {
-        if (frontendUrl == null || frontendUrl.trim().isEmpty()) {
-            log.error("Frontend URL is not configured. Please set app.frontend.url in application.properties");
-            throw new IllegalStateException("Frontend URL is not configured. Please set app.frontend.url in application.properties");
-        }
-        return frontendUrl + "/form/" + formToken;
+        String formUrl = TeacherFormSubmissionSupport.buildFormUrl(frontendUrl, formToken, log);
+        return TeacherFormSubmissionSupport.buildFormLinkResponse(formToken, formUrl, teacher, academicYear);
     }
 }
