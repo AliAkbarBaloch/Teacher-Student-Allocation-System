@@ -50,7 +50,7 @@ public class AuthService {
     private final AuditLogService auditLogService;
     private final EmailService emailService;
 
-    // Authenticate user and generate JWT token.
+    /** Authenticates the user and returns a JWT-based {@link LoginResponseDto}. */
     public LoginResponseDto login(LoginRequestDto request) {
         User user = requireUserByEmail(request.getEmail());
         assertAccountNotLocked(user);
@@ -71,6 +71,7 @@ public class AuthService {
             throw e;
         }
     }
+
 
     /**
      * Logout user (client-side token invalidation).
