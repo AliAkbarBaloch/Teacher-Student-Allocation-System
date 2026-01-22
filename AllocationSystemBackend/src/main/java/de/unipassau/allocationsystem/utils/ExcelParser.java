@@ -54,7 +54,7 @@ public class ExcelParser {
         } catch (IOException e) {
             log.error("Error reading Excel file", e);
             throw e;
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             log.error("Invalid Excel file format: {}", e.getMessage());
             throw new IllegalArgumentException("Failed to parse Excel file: " + e.getMessage(), e);
         }
@@ -247,7 +247,7 @@ public class ExcelParser {
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return parser.apply(normalized);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             log.warn(warningMsg, value);
             return defaultValue;
         }
