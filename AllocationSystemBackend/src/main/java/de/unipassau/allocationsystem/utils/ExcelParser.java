@@ -223,11 +223,22 @@ public class ExcelParser {
         return lower.equals("true") || lower.equals("yes") || lower.equals("1") || lower.equals("y");
     }
 
+    private static <E extends Enum<E>> E safeEnumValueOf(String normalized, Class<E> enumClass, E defaultValue, String warningMsg) {
+        for (E constant : enumClass.getEnumConstants()) {
+            if (constant.name().equals(normalized)) {
+                return constant;
+            }
+        }
+        log.warn(warningMsg, normalized);
+        return defaultValue;
+    }
+
     static Teacher.EmploymentStatus parseEmploymentStatus(String value) {
         if (value == null || value.trim().isEmpty()) {
             return Teacher.EmploymentStatus.ACTIVE;
         }
-        return parseEnum(value, Teacher.EmploymentStatus::valueOf, Teacher.EmploymentStatus.ACTIVE,
+        String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
+        return safeEnumValueOf(normalized, Teacher.EmploymentStatus.class, Teacher.EmploymentStatus.ACTIVE,
                 "Invalid employment status: {}, using default ACTIVE");
     }
 
@@ -235,22 +246,8 @@ public class ExcelParser {
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
-        return parseEnum(value, Teacher.UsageCycle::valueOf, null,
+        String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
+        return safeEnumValueOf(normalized, Teacher.UsageCycle.class, null,
                 "Invalid usage cycle: {}, using null");
-    }
-
-    private static <E extends Enum<E>> E parseEnum(String value, java.util.function.Function<String, E> parser,
-                                                     E defaultValue, String warningMsg) {
-        if (value == null) {
-            log.warn(warningMsg, value);
-            return defaultValue;
-        }
-        try {
-            String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
-            return parser.apply(normalized);
-        } catch (IllegalArgumentException e) {
-            log.warn(warningMsg, value);
-            return defaultValue;
-        }
     }
 }
