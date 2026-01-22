@@ -14,7 +14,6 @@ import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.InternshipTypeMapper;
 import de.unipassau.allocationsystem.service.InternshipTypeService;
-import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,25 +39,24 @@ import java.util.Map;
 @RequestMapping("/internship-types")
 @RequiredArgsConstructor
 @Tag(name = "Internship Types", description = "Internship type management APIs")
-public class InternshipTypeController {
+public class InternshipTypeController extends ApiControllerSupport {
 
     private final InternshipTypeService internshipTypeService;
     private final InternshipTypeMapper internshipTypeMapper;
 
     /**
-     * Retrieves available fields for sorting internship types.
+     * getSortFields: retrieves available fields for sorting internship types.
      * 
      * @return ResponseEntity containing list of sortable fields
      */
     @GetSortFieldsDocs
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
-        List<Map<String, String>> result = internshipTypeService.getSortFields();
-        return ResponseHandler.success("Sort fields retrieved successfully", result);
+        return ok("Sort fields retrieved successfully", internshipTypeService.getSortFields());
     }
 
     /**
-     * Retrieves a specific internship type by its ID.
+     * getById: retrieves a specific internship type by its ID.
      * 
      * @param id The ID of the internship type
      * @return ResponseEntity containing the internship type details
@@ -67,14 +65,14 @@ public class InternshipTypeController {
     @GetByIdDocs
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        InternshipTypeResponseDto result = internshipTypeService.getById(id)
+        InternshipTypeResponseDto dto = internshipTypeService.getById(id)
                 .map(internshipTypeMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found with id: " + id));
-        return ResponseHandler.success("Internship type retrieved successfully", result);
+        return ok("Internship type retrieved successfully", dto);
     }
 
     /**
-     * Retrieves internship types with pagination and optional search.
+     * getPaginate: retrieves internship types with pagination and optional search.
      * 
      * @param queryParams Map containing pagination parameters (page, size, sort)
      * @param searchValue Optional search term for filtering
@@ -86,24 +84,24 @@ public class InternshipTypeController {
             @RequestParam Map<String, String> queryParams,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = internshipTypeService.getPaginated(queryParams, searchValue);
-        return ResponseHandler.success("Internship types retrieved successfully (paginated)", result);
+        return ok("Internship types retrieved successfully (paginated)",
+                  internshipTypeService.getPaginated(queryParams, searchValue));
     }
 
     /**
-     * Retrieves all internship types without pagination.
+     * getAll: retrieves all internship types without pagination.
      * 
      * @return ResponseEntity containing list of all internship types
      */
     @GetAllDocs
     @GetMapping("")
     public ResponseEntity<?> getAll() {
-        List<InternshipTypeResponseDto> result = internshipTypeMapper.toResponseDtoList(internshipTypeService.getAll());
-        return ResponseHandler.success("Internship types retrieved successfully", result);
+        List<InternshipTypeResponseDto> list = internshipTypeMapper.toResponseDtoList(internshipTypeService.getAll());
+        return ok("Internship types retrieved successfully", list);
     }
 
     /**
-     * Creates a new internship type.
+     * create: creates a new internship type.
      * 
      * @param dto Internship type creation data
      * @return ResponseEntity containing the created internship type
@@ -111,13 +109,12 @@ public class InternshipTypeController {
     @CreateDocs
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody InternshipTypeCreateDto dto) {
-        InternshipType internshipType = internshipTypeMapper.toEntityCreate(dto);
-        InternshipType created = internshipTypeService.create(internshipType);
-        return ResponseHandler.created("Internship type created successfully", internshipTypeMapper.toResponseDto(created));
+        InternshipType createdEntity = internshipTypeService.create(internshipTypeMapper.toEntityCreate(dto));
+        return created("Internship type created successfully", internshipTypeMapper.toResponseDto(createdEntity));
     }
 
     /**
-     * Updates an existing internship type.
+     * update: updates an existing internship type.
      * 
      * @param id The ID of the internship type to update
      * @param dto Internship type update data
@@ -126,13 +123,12 @@ public class InternshipTypeController {
     @UpdateDocs
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InternshipTypeUpdateDto dto) {
-        InternshipType internshipType = internshipTypeMapper.toEntityUpdate(dto);
-        InternshipType updated = internshipTypeService.update(id, internshipType);
-        return ResponseHandler.updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updated));
+        InternshipType updatedEntity = internshipTypeService.update(id, internshipTypeMapper.toEntityUpdate(dto));
+        return updated("Internship type updated successfully", internshipTypeMapper.toResponseDto(updatedEntity));
     }
 
     /**
-     * Deletes an internship type by its ID.
+     * delete: deletes an internship type by its ID.
      * 
      * @param id The ID of the internship type to delete
      * @return ResponseEntity with no content
@@ -141,6 +137,6 @@ public class InternshipTypeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         internshipTypeService.delete(id);
-        return ResponseHandler.noContent();
+        return noContent();
     }
 }

@@ -14,7 +14,6 @@ import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.AcademicYearMapper;
 import de.unipassau.allocationsystem.service.AcademicYearService;
-import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,25 +39,24 @@ import java.util.Map;
 @RequestMapping("/academic-years")
 @RequiredArgsConstructor
 @Tag(name = "AcademicYears", description = "Academic Year management APIs")
-public class AcademicYearController {
+public class AcademicYearController extends ApiControllerSupport {
 
     private final AcademicYearService academicYearService;
     private final AcademicYearMapper academicYearMapper;
 
     /**
-     * Retrieves available fields for sorting academic years.
+     * getSortFields: retrieves available fields for sorting academic years.
      * 
      * @return ResponseEntity containing list of sortable fields
      */
     @GetSortFieldsDocs
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
-        List<Map<String, String>> result = academicYearService.getSortFields();
-        return ResponseHandler.success("Sort fields retrieved successfully", result);
+        return ok("Sort fields retrieved successfully", academicYearService.getSortFields());
     }
 
     /**
-     * Retrieves an academic year by its ID.
+     * getById: retrieves a specific academic year by its ID.
      * 
      * @param id The ID of the academic year
      * @return ResponseEntity containing the academic year details
@@ -67,14 +65,14 @@ public class AcademicYearController {
     @GetByIdDocs
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        AcademicYearResponseDto result = academicYearService.getById(id)
+        AcademicYearResponseDto dto = academicYearService.getById(id)
                 .map(academicYearMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + id));
-        return ResponseHandler.success("Academic year retrieved successfully", result);
+        return ok("Academic year retrieved successfully", dto);
     }
 
     /**
-     * Retrieves academic years with pagination, sorting, and optional search.
+     * getPaginate: retrieves academic years with pagination, sorting, and optional search.
      * 
      * @param queryParams Map containing pagination parameters (page, size, sort)
      * @param searchValue Optional search term for filtering
@@ -86,24 +84,24 @@ public class AcademicYearController {
             @RequestParam Map<String, String> queryParams,
             @RequestParam(value = "searchValue", required = false) String searchValue
     ) {
-        Map<String, Object> result = academicYearService.getPaginated(queryParams, searchValue);
-        return ResponseHandler.success("Academic years retrieved successfully (paginated)", result);
+        return ok("Academic years retrieved successfully (paginated)",
+                  academicYearService.getPaginated(queryParams, searchValue));
     }
 
     /**
-     * Retrieves all academic years without pagination.
+     * getAll: retrieves all academic years without pagination.
      * 
      * @return ResponseEntity containing list of all academic years
      */
     @GetAllDocs
     @GetMapping("")
     public ResponseEntity<?> getAll() {
-        List<AcademicYearResponseDto> result = academicYearMapper.toResponseDtoList(academicYearService.getAll());
-        return ResponseHandler.success("Academic years retrieved successfully", result);
+        List<AcademicYearResponseDto> list = academicYearMapper.toResponseDtoList(academicYearService.getAll());
+        return ok("Academic years retrieved successfully", list);
     }
 
     /**
-     * Creates a new academic year.
+     * create: creates a new academic year.
      * 
      * @param dto Academic year creation data
      * @return ResponseEntity containing the created academic year
@@ -111,13 +109,12 @@ public class AcademicYearController {
     @CreateDocs
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody AcademicYearCreateDto dto) {
-        AcademicYear academicYear = academicYearMapper.toEntityCreate(dto);
-        AcademicYear created = academicYearService.create(academicYear);
-        return ResponseHandler.created("Academic year created successfully", academicYearMapper.toResponseDto(created));
+        AcademicYear createdEntity = academicYearService.create(academicYearMapper.toEntityCreate(dto));
+        return created("Academic year created successfully", academicYearMapper.toResponseDto(createdEntity));
     }
 
     /**
-     * Updates an existing academic year.
+     * update: updates an existing academic year.
      * 
      * @param id The ID of the academic year to update
      * @param dto Academic year update data
@@ -126,13 +123,12 @@ public class AcademicYearController {
     @UpdateDocs
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AcademicYearUpdateDto dto) {
-        AcademicYear academicYear = academicYearMapper.toEntityUpdate(dto);
-        AcademicYear updated = academicYearService.update(id, academicYear);
-        return ResponseHandler.updated("Academic year updated successfully", academicYearMapper.toResponseDto(updated));
+        AcademicYear updatedEntity = academicYearService.update(id, academicYearMapper.toEntityUpdate(dto));
+        return updated("Academic year updated successfully", academicYearMapper.toResponseDto(updatedEntity));
     }
 
     /**
-     * Deletes an academic year by its ID.
+     * delete: deletes an academic year by its ID.
      * 
      * @param id The ID of the academic year to delete
      * @return ResponseEntity with no content
@@ -141,6 +137,6 @@ public class AcademicYearController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         academicYearService.delete(id);
-        return ResponseHandler.noContent();
+        return noContent();
     }
 }
