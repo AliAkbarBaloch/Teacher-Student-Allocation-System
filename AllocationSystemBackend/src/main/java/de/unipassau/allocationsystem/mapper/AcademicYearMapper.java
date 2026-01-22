@@ -62,30 +62,32 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      */
     private void setEntityFields(AcademicYear entity, String yearName, HoursData hours,
                                  DateData dates, Boolean isLocked) {
-        if (yearName != null) {
-            entity.setYearName(yearName);
-        }
+        setIfNotNull(yearName, entity::setYearName);
+
         if (hours != null) {
-            if (hours.totalCreditHours() != null) {
-                entity.setTotalCreditHours(hours.totalCreditHours());
-            }
-            if (hours.elementarySchoolHours() != null) {
-                entity.setElementarySchoolHours(hours.elementarySchoolHours());
-            }
-            if (hours.middleSchoolHours() != null) {
-                entity.setMiddleSchoolHours(hours.middleSchoolHours());
-            }
+            setIfNotNull(hours.totalCreditHours(), entity::setTotalCreditHours);
+            setIfNotNull(hours.elementarySchoolHours(), entity::setElementarySchoolHours);
+            setIfNotNull(hours.middleSchoolHours(), entity::setMiddleSchoolHours);
         }
+
         if (dates != null) {
-            if (dates.budgetAnnouncementDate() != null) {
-                entity.setBudgetAnnouncementDate(dates.budgetAnnouncementDate());
-            }
-            if (dates.allocationDeadline() != null) {
-                entity.setAllocationDeadline(dates.allocationDeadline());
-            }
+            setIfNotNull(dates.budgetAnnouncementDate(), entity::setBudgetAnnouncementDate);
+            setIfNotNull(dates.allocationDeadline(), entity::setAllocationDeadline);
         }
-        if (isLocked != null) {
-            entity.setIsLocked(isLocked);
+
+        setIfNotNull(isLocked, entity::setIsLocked);
+    }
+
+    /**
+     * Sets a value on entity if not null.
+     * 
+     * @param value Value to set
+     * @param setter Setter method reference
+     * @param <T> Type of value
+     */
+    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 
@@ -110,9 +112,16 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
 
     @Override
     public AcademicYearResponseDto toResponseDto(AcademicYear entity) {
-        if (entity == null) {
-             return null;
-        }
+        return entity == null ? null : buildResponseDto(entity);
+    }
+
+    /**
+     * Builds response DTO from entity.
+     * 
+     * @param entity Source entity
+     * @return Response DTO
+     */
+    private AcademicYearResponseDto buildResponseDto(AcademicYear entity) {
         return new AcademicYearResponseDto(
                 entity.getId(),
                 entity.getYearName(),
