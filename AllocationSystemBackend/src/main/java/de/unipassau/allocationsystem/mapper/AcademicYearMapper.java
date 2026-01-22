@@ -41,9 +41,9 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      */
     private AcademicYear mapCommonFields(Object dto, AcademicYear entity) {
         if (dto instanceof AcademicYearCreateDto createDto) {
-            populateEntityFromCreateDto(entity, createDto);
+            populateEntity(entity, createDto);
         } else if (dto instanceof AcademicYearUpdateDto updateDto) {
-            populateEntityFromUpdateDto(entity, updateDto);
+            populateEntity(entity, updateDto);
         }
         return entity;
     }
@@ -54,12 +54,11 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      * @param entity Target entity
      * @param dto Source create DTO
      */
-    private void populateEntityFromCreateDto(AcademicYear entity, AcademicYearCreateDto dto) {
-        HoursData hours = new HoursData(dto.getTotalCreditHours(),
-                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours());
-        DateData dates = new DateData(dto.getBudgetAnnouncementDate(),
-                dto.getAllocationDeadline());
-        setEntityFields(entity, dto.getYearName(), hours, dates, dto.getIsLocked());
+    private void populateEntity(AcademicYear entity, AcademicYearCreateDto dto) {
+        populateEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
+                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
+                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
+                dto.getIsLocked());
     }
 
     /**
@@ -68,12 +67,34 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      * @param entity Target entity
      * @param dto Source update DTO
      */
-    private void populateEntityFromUpdateDto(AcademicYear entity, AcademicYearUpdateDto dto) {
-        HoursData hours = new HoursData(dto.getTotalCreditHours(),
-                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours());
-        DateData dates = new DateData(dto.getBudgetAnnouncementDate(),
-                dto.getAllocationDeadline());
-        setEntityFields(entity, dto.getYearName(), hours, dates, dto.getIsLocked());
+    private void populateEntity(AcademicYear entity, AcademicYearUpdateDto dto) {
+        populateEntityFields(entity, dto.getYearName(), dto.getTotalCreditHours(),
+                dto.getElementarySchoolHours(), dto.getMiddleSchoolHours(),
+                dto.getBudgetAnnouncementDate(), dto.getAllocationDeadline(),
+                dto.getIsLocked());
+    }
+
+    /**
+     * Populates entity fields with provided values.
+     * 
+     * @param entity Target entity
+     * @param yearName Year name
+     * @param totalCreditHours Total credit hours
+     * @param elementarySchoolHours Elementary school hours
+     * @param middleSchoolHours Middle school hours
+     * @param budgetAnnouncementDate Budget announcement date
+     * @param allocationDeadline Allocation deadline
+     * @param isLocked Lock status
+     */
+    private void populateEntityFields(AcademicYear entity, String yearName,
+                                      Integer totalCreditHours, Integer elementarySchoolHours,
+                                      Integer middleSchoolHours,
+                                      java.time.LocalDateTime budgetAnnouncementDate,
+                                      java.time.LocalDateTime allocationDeadline,
+                                      Boolean isLocked) {
+        HoursData hours = new HoursData(totalCreditHours, elementarySchoolHours, middleSchoolHours);
+        DateData dates = new DateData(budgetAnnouncementDate, allocationDeadline);
+        setEntityFields(entity, yearName, hours, dates, isLocked);
     }
 
     /**
@@ -167,6 +188,6 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
         if (dto == null || entity == null) {
             return;
         }
-        populateEntityFromUpdateDto(entity, dto);
+        populateEntity(entity, dto);
     }
 }
