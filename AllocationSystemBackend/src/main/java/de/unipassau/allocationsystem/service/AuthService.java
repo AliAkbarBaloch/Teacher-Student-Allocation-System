@@ -50,12 +50,7 @@ public class AuthService {
     private final AuditLogService auditLogService;
     private final EmailService emailService;
 
-    /**
-     * Authenticate user and generate JWT token.
-     *
-     * @param request login request containing email/password
-     * @return login response containing JWT token and user details
-     */
+    // Authenticate user and generate JWT token.
     public LoginResponseDto login(LoginRequestDto request) {
         User user = requireUserByEmail(request.getEmail());
         assertAccountNotLocked(user);
