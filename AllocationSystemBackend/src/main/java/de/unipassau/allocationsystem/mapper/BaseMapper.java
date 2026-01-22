@@ -57,7 +57,14 @@ public interface BaseMapper<ENT, CREATE_DTO, UPDATE_DTO, RESPONSE_DTO> {
      * @param entities list of entities
      * @return list of response DTOs
      */
-    List<RESPONSE_DTO> toResponseDtoList(List<ENT> entities);
+    default List<RESPONSE_DTO> toResponseDtoList(List<ENT> entities) {
+        if (entities == null) {
+            return null;
+        }
+        return entities.stream()
+                .map(this::toResponseDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
     
     /**
      * Updates an existing entity from an update DTO.

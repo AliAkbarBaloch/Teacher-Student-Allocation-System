@@ -8,9 +8,6 @@ import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
 /**
  * Mapper for converting between Role entities and DTOs.
@@ -36,16 +33,6 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
     @Override
     public RoleResponseDto toResponseDto(Role entity) {
         return RoleResponseDto.fromEntity(entity);
-    }
-
-    @Override
-    public List<RoleResponseDto> toResponseDtoList(List<Role> entities) {
-        if (entities == null) {
-            return null;
-        }
-        return entities.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
     }
 
     @Override

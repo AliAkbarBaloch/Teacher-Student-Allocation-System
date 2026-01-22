@@ -8,9 +8,6 @@ import de.unipassau.allocationsystem.entity.Permission;
 import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
 /**
  * Mapper for converting between Permission entities and DTOs.
@@ -42,16 +39,6 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
     @Override
     public PermissionResponseDto toResponseDto(Permission entity) {
         return PermissionResponseDto.fromEntity(entity);
-    }
-
-    @Override
-    public List<PermissionResponseDto> toResponseDtoList(List<Permission> entities) {
-        if (entities == null) {
-            return null;
-        }
-        return entities.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
     }
 
     @Override
