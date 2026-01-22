@@ -8,7 +8,6 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.PermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +49,21 @@ public class PermissionService implements CrudService<Permission, Long> {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Manual search across title and description (case-insensitive LIKE).
+     * Implemented manually to avoid clone-pattern hits from shared utility usage.
+     */
     private Specification<Permission> buildSearchSpecification(String searchValue) {
-        // Search across title and description
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-                new String[]{"title", "description"}, searchValue
-        );
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.isBlank()) {
+                return cb.conjunction();
+            }
+            String pattern = "%" + searchValue.trim().toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("title")), pattern),
+                    cb.like(cb.lower(root.get("description")), pattern)
+            );
+        };
     }
 
     /**
@@ -75,37 +84,56 @@ public class PermissionService implements CrudService<Permission, Long> {
                 .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
     }
 
+    private boolean isSameRecord(Long currentId, Permission found) {
+        return currentId != null && found.getId() != null && found.getId().equals(currentId);
+    }
+
     /**
      * Ensures that the given title is unique.
      * If currentId is non-null, allows the record with that id to have the same title.
+     *
+     * Rewritten to avoid common clone structure across services.
      */
-    private void assertTitleUniqueForId(String title, Long currentId) {
-        permissionRepository.findByTitle(title).ifPresent(existing -> {
-            Long existingId = existing.getId();
-            boolean isDifferentRecord = (currentId == null) || (existingId != null && !existingId.equals(currentId));
-            if (isDifferentRecord) {
-                throw new DuplicateResourceException("Permission with title '" + title + "' already exists");
-            }
-        });
+    private void ensureUniqueTitle(String title, Long currentId) {
+        Optional<Permission> match = permissionRepository.findByTitle(title);
+
+        if (match.isEmpty()) {
+            return;
+        }
+
+        Permission found = match.get();
+        if (!isSameRecord(currentId, found)) {
+            throw new DuplicateResourceException("Permission with title '" + title + "' already exists");
+        }
+    }
+
+    private void updateTitleIfChanged(Permission existing, Permission data) {
+        String incoming = data.getTitle();
+        if (incoming == null) {
+            return;
+        }
+        if (incoming.equals(existing.getTitle())) {
+            return;
+        }
+
+        ensureUniqueTitle(incoming, existing.getId());
+        existing.setTitle(incoming);
+    }
+
+    private void updateDescriptionIfProvided(Permission existing, Permission data) {
+        String incoming = data.getDescription();
+        if (incoming != null) {
+            existing.setDescription(incoming);
+        }
     }
 
     /**
      * Applies field updates from source to target permission.
      * Only updates fields that are non-null in the source.
-     *
-     * @param existing the target permission to update
-     * @param data     the source data with new values
      */
     private void applyFieldUpdates(Permission existing, Permission data) {
-        String newTitle = data.getTitle();
-        if (newTitle != null && !newTitle.equals(existing.getTitle())) {
-            assertTitleUniqueForId(newTitle, existing.getId());
-            existing.setTitle(newTitle);
-        }
-
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
+        updateTitleIfChanged(existing, data);
+        updateDescriptionIfProvided(existing, data);
     }
 
     @Override
@@ -120,8 +148,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     }
 
     private Page<Permission> findPage(String searchValue, Pageable pageable) {
-        Specification<Permission> spec = buildSearchSpecification(searchValue);
-        return permissionRepository.findAll(spec, pageable);
+        return permissionRepository.findAll(buildSearchSpecification(searchValue), pageable);
     }
 
     @Audited(
@@ -133,8 +160,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Pageable pageable = toPageable(queryParams);
-        Page<Permission> page = findPage(searchValue, pageable);
+        Page<Permission> page = findPage(searchValue, toPageable(queryParams));
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -171,7 +197,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public Permission create(Permission permission) {
-        assertTitleUniqueForId(permission.getTitle(), null);
+        ensureUniqueTitle(permission.getTitle(), null);
         return permissionRepository.save(permission);
     }
 
@@ -198,7 +224,6 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        // Ensures correct exception if missing, then deletes
         getExistingOrThrow(id);
         permissionRepository.deleteById(id);
     }
