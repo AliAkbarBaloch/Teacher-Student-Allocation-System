@@ -233,9 +233,10 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findByTeacherIdAndYearId(teacherId, yearId);
 
         long activeCount = assignments.stream()
-                .filter(a -> a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.PLANNED
-                        || a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.CONFIRMED)
-                .count();
+        .filter(assignment -> assignment.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.PLANNED
+                || assignment.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.CONFIRMED)
+        .count();
+
 
         double hoursPerAssignment = determineHoursPerAssignment(teacher, year);
 
