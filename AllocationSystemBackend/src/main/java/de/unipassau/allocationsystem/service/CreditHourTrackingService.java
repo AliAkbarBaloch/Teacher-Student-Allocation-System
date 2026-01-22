@@ -69,8 +69,9 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return SORT_FIELDS.stream().map(f -> f.get("key")).toList();
-    }
+    return SORT_FIELDS.stream().map(field -> field.get("key")).toList();
+}
+
 
     private Specification<CreditHourTracking> buildSearchSpecification(String searchValue) {
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
@@ -103,27 +104,28 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
     }
 
     private Specification<CreditHourTracking> buildFilterSpecification(Map<String, String> queryParams, String searchValue) {
-        return (root, query, cb) -> {
-            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+    return (criteriaRoot, criteriaQuery, criteriaBuilder) -> {
+        List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
 
-            if (searchValue != null && !searchValue.trim().isEmpty()) {
-                Specification<CreditHourTracking> searchSpec = buildSearchSpecification(searchValue);
-                predicates.add(searchSpec.toPredicate(root, query, cb));
+        if (searchValue != null && !searchValue.trim().isEmpty()) {
+            Specification<CreditHourTracking> searchSpec = buildSearchSpecification(searchValue);
+            predicates.add(searchSpec.toPredicate(criteriaRoot, criteriaQuery, criteriaBuilder));
+        }
+
+        String academicYearIdParam = queryParams.get("academicYearId");
+        if (academicYearIdParam != null && !academicYearIdParam.trim().isEmpty()) {
+            try {
+                Long academicYearId = Long.parseLong(academicYearIdParam);
+                predicates.add(criteriaBuilder.equal(criteriaRoot.get("academicYear").get("id"), academicYearId));
+            } catch (NumberFormatException ignored) {
+                // ignore invalid filter value
             }
+        }
 
-            String academicYearIdParam = queryParams.get("academicYearId");
-            if (academicYearIdParam != null && !academicYearIdParam.trim().isEmpty()) {
-                try {
-                    Long academicYearId = Long.parseLong(academicYearIdParam);
-                    predicates.add(cb.equal(root.get("academicYear").get("id"), academicYearId));
-                } catch (NumberFormatException ignored) {
-                    // ignore invalid filter value
-                }
-            }
+        return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+    };
+}
 
-            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
-        };
-    }
 
     @Audited(
             action = AuditLog.AuditAction.VIEW,
@@ -236,6 +238,7 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         .filter(assignment -> assignment.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.PLANNED
                 || assignment.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.CONFIRMED)
         .count();
+
 
 
         double hoursPerAssignment = determineHoursPerAssignment(teacher, year);
