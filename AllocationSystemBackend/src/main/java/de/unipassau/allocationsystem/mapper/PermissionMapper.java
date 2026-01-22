@@ -40,23 +40,7 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public PermissionResponseDto toResponseDto(Permission entity) {
-        return entity == null ? null : buildResponseDto(entity);
-    }
-
-    /**
-     * Builds response DTO from entity.
-     * 
-     * @param entity Source entity
-     * @return Response DTO
-     */
-    private PermissionResponseDto buildResponseDto(Permission entity) {
-        return new PermissionResponseDto(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getDescription(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
+        return PermissionResponseDto.fromEntity(entity);
     }
 
     @Override

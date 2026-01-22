@@ -34,16 +34,7 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
 
     @Override
     public RoleResponseDto toResponseDto(Role entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new RoleResponseDto(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getDescription(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
+        return RoleResponseDto.fromEntity(entity);
     }
 
     @Override
