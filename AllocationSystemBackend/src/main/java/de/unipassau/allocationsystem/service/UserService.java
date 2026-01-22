@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Service for managing users with automatic audit logging via @Audited annotation.
@@ -40,10 +41,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Query container to avoid long parameter lists.
+     * Query parameters container for user listing.
+     * Used to avoid long parameter lists in public service methods.
      */
     @Getter
-    public static class UserQuery {
+    public static final class UserQuery {
         private final User.UserRole role;
         private final User.AccountStatus status;
         private final Boolean enabled;
@@ -53,24 +55,77 @@ public class UserService {
         private final String sortBy;
         private final String sortDirection;
 
-        public UserQuery(
-                User.UserRole role,
-                User.AccountStatus status,
-                Boolean enabled,
-                String search,
-                int page,
-                int size,
-                String sortBy,
-                String sortDirection
-        ) {
-            this.role = role;
-            this.status = status;
-            this.enabled = enabled;
-            this.search = search;
-            this.page = page;
-            this.size = size;
-            this.sortBy = sortBy;
-            this.sortDirection = sortDirection;
+        private UserQuery(Builder b) {
+            this.role = b.role;
+            this.status = b.status;
+            this.enabled = b.enabled;
+            this.search = b.search;
+            this.page = b.page;
+            this.size = b.size;
+            this.sortBy = b.sortBy;
+            this.sortDirection = b.sortDirection;
+        }
+
+        /**
+         * Builder for {@link UserQuery}. Avoids constructors with many parameters.
+         */
+        public static final class Builder {
+            private User.UserRole role;
+            private User.AccountStatus status;
+            private Boolean enabled;
+            private String search;
+            private int page;
+            private int size;
+            private String sortBy = "id";
+            private String sortDirection = "ASC";
+
+            public Builder role(User.UserRole role) {
+                this.role = role;
+                return this;
+            }
+
+            public Builder status(User.AccountStatus status) {
+                this.status = status;
+                return this;
+            }
+
+            public Builder enabled(Boolean enabled) {
+                this.enabled = enabled;
+                return this;
+            }
+
+            public Builder search(String search) {
+                this.search = search;
+                return this;
+            }
+
+            public Builder page(int page) {
+                this.page = page;
+                return this;
+            }
+
+            public Builder size(int size) {
+                this.size = size;
+                return this;
+            }
+
+            public Builder sortBy(String sortBy) {
+                if (sortBy != null && !sortBy.trim().isEmpty()) {
+                    this.sortBy = sortBy;
+                }
+                return this;
+            }
+
+            public Builder sortDirection(String sortDirection) {
+                if (sortDirection != null && !sortDirection.trim().isEmpty()) {
+                    this.sortDirection = sortDirection;
+                }
+                return this;
+            }
+
+            public UserQuery build() {
+                return new UserQuery(this);
+            }
         }
     }
 
@@ -84,15 +139,11 @@ public class UserService {
             captureNewValue = true
     )
     public User createUser(String email, String password, String fullName) {
-        log.info("Creating new user: {}", email);
-
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setFullName(fullName);
-        user.setEnabled(true);
-
-        return userRepository.save(user);
+        UserCreateDto dto = new UserCreateDto();
+        dto.setEmail(email);
+        dto.setPassword(password);
+        dto.setFullName(fullName);
+        return toEntity(createUserWithDto(dto));
     }
 
     /**
@@ -105,13 +156,10 @@ public class UserService {
             captureNewValue = true
     )
     public User updateUser(Long userId, String newEmail, String newFullName) {
-        log.info("Updating user: {}", userId);
-
-        User user = requireUser(userId);
-        user.setEmail(newEmail);
-        user.setFullName(newFullName);
-
-        return userRepository.save(user);
+        UserUpdateDto dto = new UserUpdateDto();
+        dto.setEmail(newEmail);
+        dto.setFullName(newFullName);
+        return toEntity(updateUserWithDto(userId, dto));
     }
 
     /**
@@ -124,9 +172,7 @@ public class UserService {
             captureNewValue = false
     )
     public void deleteUser(Long userId) {
-        log.info("Deleting user: {}", userId);
-        User user = requireUser(userId);
-        userRepository.delete(user);
+        userRepository.delete(requireUser(userId));
     }
 
     /**
@@ -141,8 +187,6 @@ public class UserService {
      * Change user password.
      */
     public void changePassword(Long userId, String oldPassword, String newPassword) {
-        log.info("Changing password for user: {}", userId);
-
         User user = requireUser(userId);
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
@@ -163,15 +207,12 @@ public class UserService {
             captureNewValue = true
     )
     public User setUserEnabled(Long userId, boolean enabled) {
-        log.info("Setting user {} enabled status to: {}", userId, enabled);
-
         User user = requireUser(userId);
         user.setEnabled(enabled);
-
         return userRepository.save(user);
     }
 
-    // ========== NEW COMPREHENSIVE CRUD METHODS ==========
+    // ========== DTO-BASED CRUD METHODS ==========
 
     /**
      * Create user with DTO.
@@ -183,8 +224,6 @@ public class UserService {
             captureNewValue = true
     )
     public UserResponseDto createUserWithDto(UserCreateDto dto) {
-        log.info("Creating new user with DTO: {}", dto.getEmail());
-
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("User with email " + dto.getEmail() + " already exists");
         }
@@ -215,8 +254,6 @@ public class UserService {
             captureNewValue = true
     )
     public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
-        log.info("Updating user with DTO: {}", userId);
-
         User user = requireUser(userId);
 
         String incomingEmail = dto.getEmail();
@@ -247,8 +284,6 @@ public class UserService {
             captureNewValue = true
     )
     public UserResponseDto activateUser(Long userId) {
-        log.info("Activating user: {}", userId);
-
         User user = requireUser(userId);
 
         user.setEnabled(true);
@@ -269,8 +304,6 @@ public class UserService {
             captureNewValue = true
     )
     public UserResponseDto deactivateUser(Long userId) {
-        log.info("Deactivating user: {}", userId);
-
         User user = requireUser(userId);
 
         user.setEnabled(false);
@@ -289,8 +322,6 @@ public class UserService {
             captureNewValue = true
     )
     public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
-        log.info("Admin resetting password for user: {}", userId);
-
         User user = requireUser(userId);
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
@@ -314,22 +345,8 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public Page<UserResponseDto> getAllUsers(UserQuery query) {
-        log.info("Getting users - role: {}, status: {}, enabled: {}, search: {}",
-                query.getRole(), query.getStatus(), query.getEnabled(), query.getSearch());
-
-        Pageable pageable = buildPageable(
-                query.getPage(),
-                query.getSize(),
-                query.getSortBy(),
-                query.getSortDirection()
-        );
-
-        Specification<User> spec = Specification.allOf();
-        spec = andRole(spec, query.getRole());
-        spec = andStatus(spec, query.getStatus());
-        spec = andEnabled(spec, query.getEnabled());
-        spec = andSearch(spec, query.getSearch());
-
+        Pageable pageable = buildPageable(query.getPage(), query.getSize(), query.getSortBy(), query.getSortDirection());
+        Specification<User> spec = buildUserFilterSpec(query);
         return userRepository.findAll(spec, pageable).map(this::mapToResponseDto);
     }
 
@@ -338,8 +355,6 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserStatisticsDto getUserStatistics() {
-        log.info("Getting user statistics");
-
         UserStatisticsDto stats = new UserStatisticsDto();
         stats.setTotalUsers(userRepository.count());
         stats.setActiveUsers(userRepository.countByAccountStatus(User.AccountStatus.ACTIVE));
@@ -348,7 +363,6 @@ public class UserService {
         stats.setLockedUsers(userRepository.countByAccountLocked(true));
         stats.setAdminUsers(userRepository.countByRole(User.UserRole.ADMIN));
         stats.setRegularUsers(userRepository.countByRole(User.UserRole.USER));
-
         return stats;
     }
 
@@ -383,17 +397,11 @@ public class UserService {
     }
 
     private boolean defaultTrue(Boolean value) {
-        if (value == null) {
-            return true;
-        }
-        return value;
+        return value == null || value;
     }
 
     private User.AccountStatus defaultAccountStatus(User.AccountStatus value) {
-        if (value == null) {
-            return User.AccountStatus.ACTIVE;
-        }
-        return value;
+        return value == null ? User.AccountStatus.ACTIVE : value;
     }
 
     private Pageable buildPageable(int page, int size, String sortBy, String sortDirection) {
@@ -406,41 +414,41 @@ public class UserService {
         return PageRequest.of(page, size, sort);
     }
 
-    private Specification<User> andRole(Specification<User> spec, User.UserRole role) {
-        if (role == null) {
-            return spec;
+    private Specification<User> buildUserFilterSpec(UserQuery query) {
+        Specification<User> spec = Specification.allOf();
+
+        if (query.getRole() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("role"), query.getRole()));
         }
-        return spec.and((root, query, cb) -> cb.equal(root.get("role"), role));
+        if (query.getStatus() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("accountStatus"), query.getStatus()));
+        }
+        if (query.getEnabled() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("enabled"), query.getEnabled()));
+        }
+        String search = query.getSearch();
+        if (search != null && !search.trim().isEmpty()) {
+            String pattern = "%" + search.toLowerCase() + "%";
+            spec = spec.and((root, q, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("email")), pattern),
+                    cb.like(cb.lower(root.get("fullName")), pattern)
+            ));
+        }
+
+        return spec;
     }
 
-    private Specification<User> andStatus(Specification<User> spec, User.AccountStatus status) {
-        if (status == null) {
-            return spec;
-        }
-        return spec.and((root, query, cb) -> cb.equal(root.get("accountStatus"), status));
-    }
-
-    private Specification<User> andEnabled(Specification<User> spec, Boolean enabled) {
-        if (enabled == null) {
-            return spec;
-        }
-        return spec.and((root, query, cb) -> cb.equal(root.get("enabled"), enabled));
-    }
-
-    private Specification<User> andSearch(Specification<User> spec, String search) {
-        if (search == null || search.trim().isEmpty()) {
-            return spec;
-        }
-        String pattern = "%" + search.toLowerCase() + "%";
-        return spec.and((root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("email")), pattern),
-                cb.like(cb.lower(root.get("fullName")), pattern)
-        ));
-    }
-
-    private static <T> void setIfPresent(T value, java.util.function.Consumer<T> setter) {
+    private static <T> void setIfPresent(T value, Consumer<T> setter) {
         if (value != null) {
             setter.accept(value);
         }
+    }
+
+    /**
+     * Converts the DTO response back to an entity by reloading it.
+     * Keeps legacy methods compatible without duplicating logic.
+     */
+    private User toEntity(UserResponseDto dto) {
+        return requireUser(dto.getId());
     }
 }
