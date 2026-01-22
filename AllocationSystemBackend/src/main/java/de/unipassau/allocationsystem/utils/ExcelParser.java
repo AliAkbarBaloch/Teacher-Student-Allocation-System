@@ -43,7 +43,7 @@ public class ExcelParser {
      * @return List of TeacherCreateDto objects parsed from the file
      * @throws IOException if file cannot be read
      */
-    public static List<ParsedRow> parseExcelFile(MultipartFile file) throws IOException {
+    public static List<ParsedRow> parseExcelFile(MultipartFile file) throws IOException, IllegalArgumentException {
         try (InputStream inputStream = file.getInputStream(); 
              Workbook workbook = createWorkbook(inputStream, file.getOriginalFilename())) {
             
@@ -54,9 +54,6 @@ public class ExcelParser {
         } catch (IOException e) {
             log.error("Error reading Excel file", e);
             throw e;
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            log.error("Invalid Excel file format: {}", e.getMessage());
-            throw new IllegalArgumentException("Failed to parse Excel file: " + e.getMessage(), e);
         }
     }
     
