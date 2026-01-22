@@ -5,8 +5,8 @@ import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,12 +16,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
@@ -52,13 +55,13 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     private Specification<InternshipType> buildSearchSpecification(String searchValue) {
         // Search across internshipCode and fullName
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"internshipCode", "fullName"}, searchValue
+                new String[]{"internshipCode", "fullName"}, searchValue
         );
     }
 
     /**
      * Checks if an internship type with the given code exists.
-     * 
+     *
      * @param internshipCode the internship code to check
      * @return true if internship code exists, false otherwise
      */
@@ -73,14 +76,14 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
 
     /**
      * Validates that an internship code is unique in the system.
-     * 
+     *
      * @param internshipCode the code to validate
      * @throws DuplicateResourceException if code already exists
      */
     private void validateInternshipCodeUniqueness(String internshipCode) {
         if (internshipTypeRepository.findByInternshipCode(internshipCode).isPresent()) {
             throw new DuplicateResourceException(
-                "InternshipType with code '" + internshipCode + "' already exists"
+                    "InternshipType with code '" + internshipCode + "' already exists"
             );
         }
     }
@@ -88,63 +91,58 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     /**
      * Validates that an internship code can be updated to a new value.
      * Allows the code to remain unchanged, but ensures new codes are unique.
-     * 
+     *
      * @param newCode the new code to validate
      * @param oldCode the existing code
      * @throws DuplicateResourceException if new code already exists (and differs from old)
      */
     private void validateInternshipCodeForUpdate(String newCode, String oldCode) {
-        if (!newCode.equals(oldCode) && 
-            internshipTypeRepository.findByInternshipCode(newCode).isPresent()) {
+        if (!newCode.equals(oldCode) &&
+                internshipTypeRepository.findByInternshipCode(newCode).isPresent()) {
             throw new DuplicateResourceException(
-                "InternshipType with code '" + newCode + "' already exists"
+                    "InternshipType with code '" + newCode + "' already exists"
             );
         }
     }
 
     /**
      * Validates that an internship type exists by id.
-     * 
+     *
      * @param id the id to validate
      * @return the existing InternshipType
      * @throws ResourceNotFoundException if not found
      */
     private InternshipType validateExistence(Long id) {
         return internshipTypeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                "InternshipType not found with id: " + id
-            ));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "InternshipType not found with id: " + id
+                ));
+    }
+
+    /**
+     * Small helper to avoid repetitive null-check-and-set clones.
+     */
+    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 
     /**
      * Applies field updates from data to existing entity.
-     * Uses null-check-and-set pattern for all updatable fields.
-     * 
+     * Uses a helper to avoid repetitive null-check-and-set pattern.
+     *
      * @param existing the entity to update
      * @param data the data containing new values
      */
     private void applyFieldUpdates(InternshipType existing, InternshipType data) {
-        if (data.getInternshipCode() != null) {
-            existing.setInternshipCode(data.getInternshipCode());
-        }
-        if (data.getFullName() != null) {
-            existing.setFullName(data.getFullName());
-        }
-        if (data.getTiming() != null) {
-            existing.setTiming(data.getTiming());
-        }
-        if (data.getPeriodType() != null) {
-            existing.setPeriodType(data.getPeriodType());
-        }
-        if (data.getSemester() != null) {
-            existing.setSemester(data.getSemester());
-        }
-        if (data.getIsSubjectSpecific() != null) {
-            existing.setIsSubjectSpecific(data.getIsSubjectSpecific());
-        }
-        if (data.getPriorityOrder() != null) {
-            existing.setPriorityOrder(data.getPriorityOrder());
-        }
+        setIfNotNull(data.getInternshipCode(), existing::setInternshipCode);
+        setIfNotNull(data.getFullName(), existing::setFullName);
+        setIfNotNull(data.getTiming(), existing::setTiming);
+        setIfNotNull(data.getPeriodType(), existing::setPeriodType);
+        setIfNotNull(data.getSemester(), existing::setSemester);
+        setIfNotNull(data.getIsSubjectSpecific(), existing::setIsSubjectSpecific);
+        setIfNotNull(data.getPriorityOrder(), existing::setPriorityOrder);
     }
 
     @Audited(
