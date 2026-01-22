@@ -15,6 +15,8 @@ import de.unipassau.allocationsystem.repository.CreditHourTrackingRepository;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +43,12 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
  */
 public class CreditHourTrackingService implements CrudService<CreditHourTracking, Long> {
 
+    private static final List<Map<String, String>> SORT_FIELDS =
+            SortFieldUtils.getSortFields(
+                    "id", "teacherId", "academicYearId", "assignmentsCount",
+                    "creditHoursAllocated", "creditBalance", "createdAt", "updatedAt"
+            );
+
     private final CreditHourTrackingRepository repository;
     private final TeacherAssignmentRepository teacherAssignmentRepository;
     private final TeacherRepository teacherRepository;
@@ -50,27 +56,25 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
 
     /**
      * Returns the sortable fields metadata.
-     * 
+     *
      * @return list of sort field metadata
      */
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields("id", "teacherId", "academicYearId", "assignmentsCount", 
-            "creditHoursAllocated", "creditBalance", "createdAt", "updatedAt");
+        return SORT_FIELDS;
     }
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return SORT_FIELDS.stream().map(f -> f.get("key")).toList();
     }
 
     private Specification<CreditHourTracking> buildSearchSpecification(String searchValue) {
-        // Search across notes (extend fields if needed)
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"notes"}, searchValue
+                new String[]{"notes"}, searchValue
         );
     }
 
@@ -102,20 +106,18 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         return (root, query, cb) -> {
             List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
 
-            // Search filter
             if (searchValue != null && !searchValue.trim().isEmpty()) {
                 Specification<CreditHourTracking> searchSpec = buildSearchSpecification(searchValue);
                 predicates.add(searchSpec.toPredicate(root, query, cb));
             }
 
-            // Academic Year ID filter
             String academicYearIdParam = queryParams.get("academicYearId");
             if (academicYearIdParam != null && !academicYearIdParam.trim().isEmpty()) {
                 try {
                     Long academicYearId = Long.parseLong(academicYearIdParam);
                     predicates.add(cb.equal(root.get("academicYear").get("id"), academicYearId));
-                } catch (NumberFormatException e) {
-                    // Invalid academic year ID, ignore filter
+                } catch (NumberFormatException ignored) {
+                    // ignore invalid filter value
                 }
             }
 
@@ -156,7 +158,6 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
     @Transactional
     @Override
     public CreditHourTracking create(CreditHourTracking entity) {
-        // Uniqueness check (example: teacherId + yearId must be unique)
         if (entity.getTeacher() != null && entity.getAcademicYear() != null) {
             Optional<CreditHourTracking> existing = repository.findByTeacherIdAndAcademicYearId(
                     entity.getTeacher().getId(), entity.getAcademicYear().getId());
@@ -216,55 +217,61 @@ public class CreditHourTrackingService implements CrudService<CreditHourTracking
         repository.deleteById(id);
     }
 
-    // other
     /**
      * Recalculates credit hours for a teacher in a specific academic year.
-     * Updates assignment counts and credit balance based on active assignments.
-     * 
+     *
      * @param teacherId the teacher ID
      * @param yearId the academic year ID
      */
     @Transactional
     public void recalculateForTeacherAndYear(Long teacherId, Long yearId) {
-        // Validation of teacher and year existence
-        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new NoSuchElementException("Teacher not found"));
-        AcademicYear year = academicYearRepository.findById(yearId).orElseThrow(() -> new NoSuchElementException("AcademicYear not found"));
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new NoSuchElementException("Teacher not found"));
+        AcademicYear year = academicYearRepository.findById(yearId)
+                .orElseThrow(() -> new NoSuchElementException("AcademicYear not found"));
 
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findByTeacherIdAndYearId(teacherId, yearId);
-        // Count active assignments (PLANNED or CONFIRMED)
+
         long activeCount = assignments.stream()
-                .filter(a -> a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.PLANNED || a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.CONFIRMED)
+                .filter(a -> a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.PLANNED
+                        || a.getAssignmentStatus() == TeacherAssignment.AssignmentStatus.CONFIRMED)
                 .count();
 
-        // Determine hours per assignment based on school's type
-        double hoursPerAssignment = year.getTotalCreditHours();
-        if (teacher.getSchool() != null && year != null) {
-            School.SchoolType st = teacher.getSchool().getSchoolType();
-            if (st == School.SchoolType.PRIMARY) {
-                hoursPerAssignment = year.getElementarySchoolHours();
-            } else if (st == School.SchoolType.MIDDLE) {
-                hoursPerAssignment = year.getMiddleSchoolHours();
-            } else {
-                hoursPerAssignment = year.getTotalCreditHours();
-            }
-        }
+        double hoursPerAssignment = determineHoursPerAssignment(teacher, year);
 
         int assignmentsCount = (int) activeCount;
         double creditHoursAllocated = assignmentsCount * hoursPerAssignment;
-        // For balance, use total credit hours minus allocated as a simple business rule
         double creditBalance = year.getTotalCreditHours() - creditHoursAllocated;
 
-        CreditHourTracking record = repository.findByTeacherIdAndAcademicYearId(teacherId, yearId).orElseGet(() -> {
-            CreditHourTracking c = new CreditHourTracking();
-            c.setTeacher(teacher);
-            c.setAcademicYear(year);
-            return c;
-        });
+        CreditHourTracking record = repository.findByTeacherIdAndAcademicYearId(teacherId, yearId)
+                .orElseGet(() -> createNewTrackingRecord(teacher, year));
 
         record.setAssignmentsCount(assignmentsCount);
         record.setCreditHoursAllocated(creditHoursAllocated);
         record.setCreditBalance(creditBalance);
 
         repository.save(record);
+    }
+
+    private double determineHoursPerAssignment(Teacher teacher, AcademicYear year) {
+        if (teacher.getSchool() == null) {
+            return year.getTotalCreditHours();
+        }
+
+        School.SchoolType schoolType = teacher.getSchool().getSchoolType();
+        if (schoolType == School.SchoolType.PRIMARY) {
+            return year.getElementarySchoolHours();
+        }
+        if (schoolType == School.SchoolType.MIDDLE) {
+            return year.getMiddleSchoolHours();
+        }
+        return year.getTotalCreditHours();
+    }
+
+    private CreditHourTracking createNewTrackingRecord(Teacher teacher, AcademicYear year) {
+        CreditHourTracking tracking = new CreditHourTracking();
+        tracking.setTeacher(teacher);
+        tracking.setAcademicYear(year);
+        return tracking;
     }
 }
