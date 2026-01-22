@@ -6,7 +6,7 @@ import de.unipassau.allocationsystem.repository.TeacherFormSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import java.util.regex.Pattern;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -25,6 +25,7 @@ public class FormTokenService {
 
     private final TeacherFormSubmissionRepository teacherFormSubmissionRepository;
     private final ObjectMapper objectMapper;
+    private static final Pattern BASE64URL_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$");
 
     /**
      * Decoded token payload containing the teacher ID and academic year ID.
@@ -113,28 +114,28 @@ public class FormTokenService {
      * @throws IllegalArgumentException if token is invalid or corrupted
      */
     public TokenData decodeFormToken(String formToken) {
-        try {
-            byte[] decodedBytes = Base64.getUrlDecoder().decode(formToken);
-            String jsonData = new String(decodedBytes, StandardCharsets.UTF_8);
-
-            @SuppressWarnings("unchecked")
-            Map<String, Object> tokenData = objectMapper.readValue(jsonData, Map.class);
-
-            Long teacherId = parseRequiredLong(tokenData, "teacherId");
-            Long yearId = parseRequiredLong(tokenData, "yearId");
-
-            return new TokenData(teacherId, yearId);
-
-        } catch (IllegalArgumentException e) {
-            // Base64 decode throws IllegalArgumentException for invalid input
-            log.error("Failed to decode form token (invalid base64)", e);
-            throw new IllegalArgumentException("Invalid or corrupted form token", e);
-        } catch (IOException e) {
-            // Jackson readValue throws IOException
-            log.error("Failed to decode form token (invalid json)", e);
-            throw new IllegalArgumentException("Invalid or corrupted form token", e);
-        }
+    if (formToken == null || formToken.isBlank() || !BASE64URL_PATTERN.matcher(formToken).matches()) {
+        throw new IllegalArgumentException("Invalid or corrupted form token");
     }
+
+    try {
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(formToken);
+        String jsonData = new String(decodedBytes, StandardCharsets.UTF_8);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tokenData = objectMapper.readValue(jsonData, Map.class);
+
+        Long teacherId = parseRequiredLong(tokenData, "teacherId");
+        Long yearId = parseRequiredLong(tokenData, "yearId");
+
+        return new TokenData(teacherId, yearId);
+
+    } catch (IOException e) {
+        log.error("Failed to decode form token (invalid json)", e);
+        throw new IllegalArgumentException("Invalid or corrupted form token", e);
+    }
+}
+
 
     private Long parseRequiredLong(Map<String, Object> tokenData, String key) {
         Object value = tokenData.get(key);
