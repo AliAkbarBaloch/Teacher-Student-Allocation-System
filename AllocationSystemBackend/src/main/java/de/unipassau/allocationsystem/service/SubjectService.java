@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Service for managing {@link Subject} entities.
@@ -67,25 +68,37 @@ public class SubjectService implements CrudService<Subject, Long> {
         return subjectRepository.findBySubjectCode(subjectCode).isPresent();
     }
 
-    private void rejectDuplicateCodeOnCreate(String code) {
-        if (code != null && subjectRepository.findBySubjectCode(code).isPresent()) {
-            throw new DuplicateResourceException("Subject with code '" + code + "' already exists");
+    private Optional<Subject> findByCode(String code) {
+        if (code == null) {
+            return Optional.empty();
         }
+        return subjectRepository.findBySubjectCode(code);
     }
 
-    private void rejectDuplicateCodeOnUpdate(Subject existing, String incomingCode) {
-        if (incomingCode == null) {
-            return;
-        }
-        if (incomingCode.equals(existing.getSubjectCode())) {
+    private void failDuplicate(String code) {
+        throw new DuplicateResourceException("Subject with code '" + code + "' already exists");
+    }
+
+    /**
+     * Ensures subject code uniqueness.
+     * - Create: currentId == null => any match is duplicate.
+     * - Update: currentId != null => only duplicate if match is a different record.
+     */
+    private void assertCodeAvailableFor(String code, Long currentId) {
+        Optional<Subject> match = findByCode(code);
+        if (match.isEmpty()) {
             return;
         }
 
-        Optional<Subject> match = subjectRepository.findBySubjectCode(incomingCode);
-        if (match.isPresent()
-                && match.get().getId() != null
-                && !match.get().getId().equals(existing.getId())) {
-            throw new DuplicateResourceException("Subject with code '" + incomingCode + "' already exists");
+        Subject found = match.get();
+        if (currentId == null) {
+            failDuplicate(code);
+            return;
+        }
+
+        Long foundId = found.getId();
+        if (foundId == null || !foundId.equals(currentId)) {
+            failDuplicate(code);
         }
     }
 
@@ -106,8 +119,24 @@ public class SubjectService implements CrudService<Subject, Long> {
     }
 
     private Page<Subject> querySubjects(String searchValue, PageRequest pageRequest) {
-        Specification<Subject> spec = searchSpec(searchValue);
-        return subjectRepository.findAll(spec, pageRequest);
+        return subjectRepository.findAll(searchSpec(searchValue), pageRequest);
+    }
+
+    private static <T> void setIfPresent(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    private void applyCodeUpdate(Subject existing, String incomingCode) {
+        if (incomingCode == null) {
+            return;
+        }
+        if (incomingCode.equals(existing.getSubjectCode())) {
+            return;
+        }
+        assertCodeAvailableFor(incomingCode, existing.getId());
+        existing.setSubjectCode(incomingCode);
     }
 
     @Audited(
@@ -156,7 +185,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public Subject create(Subject subject) {
-        rejectDuplicateCodeOnCreate(subject.getSubjectCode());
+        assertCodeAvailableFor(subject.getSubjectCode(), null);
         return subjectRepository.save(subject);
     }
 
@@ -170,25 +199,12 @@ public class SubjectService implements CrudService<Subject, Long> {
     public Subject update(Long id, Subject data) {
         Subject existing = requireSubject(id);
 
-        String incomingCode = data.getSubjectCode();
-        if (incomingCode != null) {
-            rejectDuplicateCodeOnUpdate(existing, incomingCode);
-            existing.setSubjectCode(incomingCode);
-        }
+        applyCodeUpdate(existing, data.getSubjectCode());
 
-        String incomingTitle = data.getSubjectTitle();
-        if (incomingTitle != null) {
-            existing.setSubjectTitle(incomingTitle);
-        }
-        if (data.getSubjectCategory() != null) {
-            existing.setSubjectCategory(data.getSubjectCategory());
-        }
-        if (data.getSchoolType() != null) {
-            existing.setSchoolType(data.getSchoolType());
-        }
-        if (data.getIsActive() != null) {
-            existing.setIsActive(data.getIsActive());
-        }
+        setIfPresent(data.getSubjectTitle(), existing::setSubjectTitle);
+        setIfPresent(data.getSubjectCategory(), existing::setSubjectCategory);
+        setIfPresent(data.getSchoolType(), existing::setSchoolType);
+        setIfPresent(data.getIsActive(), existing::setIsActive);
 
         return subjectRepository.save(existing);
     }
