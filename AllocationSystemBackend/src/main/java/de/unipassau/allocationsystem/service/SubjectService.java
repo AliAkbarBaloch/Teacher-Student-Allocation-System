@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Service for managing {@link Subject} entities.
+ * Provides CRUD operations plus paginated querying with search and sorting.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,6 +42,11 @@ public class SubjectService implements CrudService<Subject, Long> {
         );
     }
 
+    /**
+     * Returns the list of sortable field keys exposed by {@link #getSortFields()}.
+     *
+     * @return list of sort field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(x -> x.get("key")).toList();
     }
@@ -48,6 +57,12 @@ public class SubjectService implements CrudService<Subject, Long> {
         );
     }
 
+    /**
+     * Checks if a {@link Subject} exists with the given subject code.
+     *
+     * @param subjectCode subject code to look up
+     * @return true if a subject exists with the given code, otherwise false
+     */
     public boolean isRecordExist(String subjectCode) {
         return subjectRepository.findBySubjectCode(subjectCode).isPresent();
     }
@@ -59,11 +74,17 @@ public class SubjectService implements CrudService<Subject, Long> {
     }
 
     private void rejectDuplicateCodeOnUpdate(Subject existing, String incomingCode) {
-        if (incomingCode == null) return;
-        if (incomingCode.equals(existing.getSubjectCode())) return;
+        if (incomingCode == null) {
+            return;
+        }
+        if (incomingCode.equals(existing.getSubjectCode())) {
+            return;
+        }
 
         Optional<Subject> match = subjectRepository.findBySubjectCode(incomingCode);
-        if (match.isPresent() && match.get().getId() != null && !match.get().getId().equals(existing.getId())) {
+        if (match.isPresent()
+                && match.get().getId() != null
+                && !match.get().getId().equals(existing.getId())) {
             throw new DuplicateResourceException("Subject with code '" + incomingCode + "' already exists");
         }
     }
@@ -78,6 +99,17 @@ public class SubjectService implements CrudService<Subject, Long> {
         return subjectRepository.existsById(id);
     }
 
+    private PageRequest buildPageRequestFrom(Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
+        return PageRequest.of(p.page() - 1, p.pageSize(), sort);
+    }
+
+    private Page<Subject> querySubjects(String searchValue, PageRequest pageRequest) {
+        Specification<Subject> spec = searchSpec(searchValue);
+        return subjectRepository.findAll(spec, pageRequest);
+    }
+
     @Audited(
             action = AuditLog.AuditAction.VIEW,
             entityName = AuditEntityNames.SUBJECT,
@@ -87,12 +119,9 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
-        PageRequest req = PageRequest.of(p.page() - 1, p.pageSize(), sort);
-
-        Page<Subject> page = subjectRepository.findAll(searchSpec(searchValue), req);
-        return PaginationUtils.formatPaginationResponse(page);
+        PageRequest pageRequest = buildPageRequestFrom(queryParams);
+        Page<Subject> pageResult = querySubjects(searchValue, pageRequest);
+        return PaginationUtils.formatPaginationResponse(pageResult);
     }
 
     @Audited(
@@ -148,10 +177,18 @@ public class SubjectService implements CrudService<Subject, Long> {
         }
 
         String incomingTitle = data.getSubjectTitle();
-        if (incomingTitle != null) existing.setSubjectTitle(incomingTitle);
-        if (data.getSubjectCategory() != null) existing.setSubjectCategory(data.getSubjectCategory());
-        if (data.getSchoolType() != null) existing.setSchoolType(data.getSchoolType());
-        if (data.getIsActive() != null) existing.setIsActive(data.getIsActive());
+        if (incomingTitle != null) {
+            existing.setSubjectTitle(incomingTitle);
+        }
+        if (data.getSubjectCategory() != null) {
+            existing.setSubjectCategory(data.getSubjectCategory());
+        }
+        if (data.getSchoolType() != null) {
+            existing.setSchoolType(data.getSchoolType());
+        }
+        if (data.getIsActive() != null) {
+            existing.setIsActive(data.getIsActive());
+        }
 
         return subjectRepository.save(existing);
     }
@@ -164,7 +201,6 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public void delete(Long id) {
-        // same behavior: 404 if missing, then delete
         Subject existing = requireSubject(id);
         subjectRepository.deleteById(existing.getId());
     }
