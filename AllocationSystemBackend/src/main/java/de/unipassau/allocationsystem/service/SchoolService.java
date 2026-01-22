@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +45,21 @@ public class SchoolService implements CrudService<School, Long> {
         return SortFieldUtils.getSortFields("id", "schoolName", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys exposed by {@link #getSortFields()}.
+     *
+     * @return list of sort field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Checks if a school with the given name exists.
+     *
+     * @param schoolName the school name to check
+     * @return true if a school with the given name exists, otherwise false
+     */
     public boolean schoolNameExists(String schoolName) {
         return schoolRepository.findBySchoolName(schoolName).isPresent();
     }
@@ -71,6 +83,12 @@ public class SchoolService implements CrudService<School, Long> {
         });
     }
 
+    private static <T> void setIfPresent(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
     private void applyFieldUpdates(School existing, School data) {
         String incomingName = data.getSchoolName();
         if (incomingName != null && !incomingName.equals(existing.getSchoolName())) {
@@ -78,16 +96,16 @@ public class SchoolService implements CrudService<School, Long> {
             existing.setSchoolName(incomingName);
         }
 
-        if (data.getZoneNumber() != null) existing.setZoneNumber(data.getZoneNumber());
-        if (data.getSchoolType() != null) existing.setSchoolType(data.getSchoolType());
-        if (data.getIsActive() != null) existing.setIsActive(data.getIsActive());
-        if (data.getAddress() != null) existing.setAddress(data.getAddress());
-        if (data.getLatitude() != null) existing.setLatitude(data.getLatitude());
-        if (data.getLongitude() != null) existing.setLongitude(data.getLongitude());
-        if (data.getDistanceFromCenter() != null) existing.setDistanceFromCenter(data.getDistanceFromCenter());
-        if (data.getTransportAccessibility() != null) existing.setTransportAccessibility(data.getTransportAccessibility());
-        if (data.getContactEmail() != null) existing.setContactEmail(data.getContactEmail());
-        if (data.getContactPhone() != null) existing.setContactPhone(data.getContactPhone());
+        setIfPresent(data.getZoneNumber(), existing::setZoneNumber);
+        setIfPresent(data.getSchoolType(), existing::setSchoolType);
+        setIfPresent(data.getIsActive(), existing::setIsActive);
+        setIfPresent(data.getAddress(), existing::setAddress);
+        setIfPresent(data.getLatitude(), existing::setLatitude);
+        setIfPresent(data.getLongitude(), existing::setLongitude);
+        setIfPresent(data.getDistanceFromCenter(), existing::setDistanceFromCenter);
+        setIfPresent(data.getTransportAccessibility(), existing::setTransportAccessibility);
+        setIfPresent(data.getContactEmail(), existing::setContactEmail);
+        setIfPresent(data.getContactPhone(), existing::setContactPhone);
     }
 
     private Pageable pageRequestFrom(Map<String, String> queryParams) {
@@ -125,16 +143,22 @@ public class SchoolService implements CrudService<School, Long> {
     }
 
     private Optional<School.SchoolType> parseSchoolType(String raw) {
-        if (raw == null || raw.trim().isEmpty()) return Optional.empty();
+        if (raw == null || raw.trim().isEmpty()) {
+            return Optional.empty();
+        }
         String normalized = raw.trim().toUpperCase();
         for (School.SchoolType t : School.SchoolType.values()) {
-            if (t.name().equals(normalized)) return Optional.of(t);
+            if (t.name().equals(normalized)) {
+                return Optional.of(t);
+            }
         }
         return Optional.empty();
     }
 
     private Optional<Integer> parseInteger(String raw) {
-        if (raw == null || raw.trim().isEmpty()) return Optional.empty();
+        if (raw == null || raw.trim().isEmpty()) {
+            return Optional.empty();
+        }
         try {
             return Optional.of(Integer.parseInt(raw.trim()));
         } catch (NumberFormatException ignored) {
@@ -208,6 +232,10 @@ public class SchoolService implements CrudService<School, Long> {
 
     /**
      * Updates the active status of a school.
+     *
+     * @param id       the school ID
+     * @param isActive the new active status
+     * @return updated school entity
      */
     @Audited(
             action = AuditAction.UPDATE,
@@ -216,7 +244,6 @@ public class SchoolService implements CrudService<School, Long> {
             captureNewValue = true
     )
     public School updateStatus(Long id, Boolean isActive) {
-        // same behavior as before: load -> set -> save
         School existing = loadSchool(id);
         existing.setIsActive(isActive);
         return schoolRepository.save(existing);
