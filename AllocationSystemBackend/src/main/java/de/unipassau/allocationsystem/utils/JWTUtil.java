@@ -37,9 +37,6 @@ public class JWTUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
@@ -122,7 +119,7 @@ public class JWTUtil {
         } catch (ExpiredJwtException e) {
             log.debug("JWT token expired: {}", e.getMessage());
             return false;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException e) {
             log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
         }
