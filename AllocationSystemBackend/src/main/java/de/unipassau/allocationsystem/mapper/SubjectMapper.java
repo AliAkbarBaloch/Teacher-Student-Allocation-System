@@ -6,6 +6,7 @@ import de.unipassau.allocationsystem.dto.subject.SubjectUpdateDto;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -92,8 +93,8 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         if (dto == null || entity == null) {
             return;
         }
-        setIfNotNull(dto.getSubjectCode(), entity::setSubjectCode);
-        setIfNotNull(dto.getSubjectTitle(), entity::setSubjectTitle);
+        MapperUtil.setIfNotNull(dto.getSubjectCode(), entity::setSubjectCode);
+        MapperUtil.setIfNotNull(dto.getSubjectTitle(), entity::setSubjectTitle);
         
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
@@ -101,14 +102,8 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
             entity.setSubjectCategory(category);
         }
         
-        setIfNotNull(dto.getSchoolType(), entity::setSchoolType);
-        setIfNotNull(dto.getIsActive(), entity::setIsActive);
-    }
-
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
+        MapperUtil.setIfNotNull(dto.getSchoolType(), entity::setSchoolType);
+        MapperUtil.setIfNotNull(dto.getIsActive(), entity::setIsActive);
     }
 }
 

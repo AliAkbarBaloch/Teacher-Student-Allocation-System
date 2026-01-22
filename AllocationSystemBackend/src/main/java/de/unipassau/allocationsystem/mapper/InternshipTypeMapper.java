@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDt
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpsertDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -84,25 +85,12 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         if (dto == null || entity == null) {
             return;
         }
-        setIfNotNull(dto.getInternshipCode(), entity::setInternshipCode);
-        setIfNotNull(dto.getFullName(), entity::setFullName);
-        setIfNotNull(dto.getTiming(), entity::setTiming);
-        setIfNotNull(dto.getPeriodType(), entity::setPeriodType);
-        setIfNotNull(dto.getSemester(), entity::setSemester);
-        setIfNotNull(dto.getIsSubjectSpecific(), entity::setIsSubjectSpecific);
-        setIfNotNull(dto.getPriorityOrder(), entity::setPriorityOrder);
-    }
-
-    /**
-     * Sets a value on entity if not null.
-     * 
-     * @param value Value to set
-     * @param setter Setter method reference
-     * @param <T> Type of value
-     */
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
+        MapperUtil.setIfNotNull(dto.getInternshipCode(), entity::setInternshipCode);
+        MapperUtil.setIfNotNull(dto.getFullName(), entity::setFullName);
+        MapperUtil.setIfNotNull(dto.getTiming(), entity::setTiming);
+        MapperUtil.setIfNotNull(dto.getPeriodType(), entity::setPeriodType);
+        MapperUtil.setIfNotNull(dto.getSemester(), entity::setSemester);
+        MapperUtil.setIfNotNull(dto.getIsSubjectSpecific(), entity::setIsSubjectSpecific);
+        MapperUtil.setIfNotNull(dto.getPriorityOrder(), entity::setPriorityOrder);
     }
 }

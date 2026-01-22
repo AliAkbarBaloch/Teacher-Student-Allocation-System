@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.dto.permission;
 
 import de.unipassau.allocationsystem.entity.Permission;
+import de.unipassau.allocationsystem.mapper.util.DtoFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,15 +29,12 @@ public class PermissionResponseDto {
      * @return PermissionResponseDto or null if entity is null
      */
     public static PermissionResponseDto fromEntity(Permission entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new PermissionResponseDto(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getDescription(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
+        return DtoFactory.fromEntity(entity, permission -> new PermissionResponseDto(
+                permission.getId(),
+                permission.getTitle(),
+                permission.getDescription(),
+                permission.getCreatedAt(),
+                permission.getUpdatedAt()
+        ));
     }
 }

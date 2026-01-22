@@ -8,6 +8,7 @@ import de.unipassau.allocationsystem.entity.CreditHourTracking;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
@@ -126,25 +127,12 @@ public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, 
         if (dto == null || entity == null) {
             return;
         }
-        setIfNotNull(dto.getAssignmentsCount(), entity::setAssignmentsCount);
-        setIfNotNull(dto.getCreditHoursAllocated(), entity::setCreditHoursAllocated);
-        setIfNotNull(dto.getCreditBalance(), entity::setCreditBalance);
-        setIfNotNull(dto.getNotes(), entity::setNotes);
+        MapperUtil.setIfNotNull(dto.getAssignmentsCount(), entity::setAssignmentsCount);
+        MapperUtil.setIfNotNull(dto.getCreditHoursAllocated(), entity::setCreditHoursAllocated);
+        MapperUtil.setIfNotNull(dto.getCreditBalance(), entity::setCreditBalance);
+        MapperUtil.setIfNotNull(dto.getNotes(), entity::setNotes);
         
         resolveAndSetTeacher(entity, dto.getTeacherId());
         resolveAndSetAcademicYear(entity, dto.getAcademicYearId());
-    }
-
-    /**
-     * Sets a value on entity if not null.
-     * 
-     * @param value Value to set
-     * @param setter Setter method reference
-     * @param <T> Type of value
-     */
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
     }
 }

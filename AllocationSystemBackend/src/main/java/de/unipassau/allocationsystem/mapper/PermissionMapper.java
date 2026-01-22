@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.permission.PermissionResponseDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionUpdateDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionUpsertDto;
 import de.unipassau.allocationsystem.entity.Permission;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -58,20 +59,7 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
         if (updateDto == null || entity == null) {
             return;
         }
-        setIfNotNull(updateDto.getTitle(), entity::setTitle);
-        setIfNotNull(updateDto.getDescription(), entity::setDescription);
-    }
-
-    /**
-     * Sets a value on entity if not null.
-     * 
-     * @param value Value to set
-     * @param setter Setter method reference
-     * @param <T> Type of value
-     */
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
+        MapperUtil.setIfNotNull(updateDto.getTitle(), entity::setTitle);
+        MapperUtil.setIfNotNull(updateDto.getDescription(), entity::setDescription);
     }
 }

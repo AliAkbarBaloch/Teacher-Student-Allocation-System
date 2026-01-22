@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.academicyear.AcademicYearResponseDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpdateDto;
 import de.unipassau.allocationsystem.dto.academicyear.AcademicYearUpsertDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,33 +53,20 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      */
     private void setEntityFields(AcademicYear entity, String yearName, HoursData hours,
                                  DateData dates, Boolean isLocked) {
-        setIfNotNull(yearName, entity::setYearName);
+        MapperUtil.setIfNotNull(yearName, entity::setYearName);
 
         if (hours != null) {
-            setIfNotNull(hours.totalCreditHours(), entity::setTotalCreditHours);
-            setIfNotNull(hours.elementarySchoolHours(), entity::setElementarySchoolHours);
-            setIfNotNull(hours.middleSchoolHours(), entity::setMiddleSchoolHours);
+            MapperUtil.setIfNotNull(hours.totalCreditHours(), entity::setTotalCreditHours);
+            MapperUtil.setIfNotNull(hours.elementarySchoolHours(), entity::setElementarySchoolHours);
+            MapperUtil.setIfNotNull(hours.middleSchoolHours(), entity::setMiddleSchoolHours);
         }
 
         if (dates != null) {
-            setIfNotNull(dates.budgetAnnouncementDate(), entity::setBudgetAnnouncementDate);
-            setIfNotNull(dates.allocationDeadline(), entity::setAllocationDeadline);
+            MapperUtil.setIfNotNull(dates.budgetAnnouncementDate(), entity::setBudgetAnnouncementDate);
+            MapperUtil.setIfNotNull(dates.allocationDeadline(), entity::setAllocationDeadline);
         }
 
-        setIfNotNull(isLocked, entity::setIsLocked);
-    }
-
-    /**
-     * Sets a value on entity if not null.
-     * 
-     * @param value Value to set
-     * @param setter Setter method reference
-     * @param <T> Type of value
-     */
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
+        MapperUtil.setIfNotNull(isLocked, entity::setIsLocked);
     }
 
     /**

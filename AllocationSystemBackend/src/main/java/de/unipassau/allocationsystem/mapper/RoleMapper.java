@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.dto.role.RoleUpdateDto;
 import de.unipassau.allocationsystem.dto.role.RoleResponseDto;
 import de.unipassau.allocationsystem.dto.role.RoleUpsertDto;
 import de.unipassau.allocationsystem.entity.Role;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,13 +53,7 @@ public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto
         if (updateDto == null || entity == null) {
             return;
         }
-        setIfNotNull(updateDto.getTitle(), entity::setTitle);
-        setIfNotNull(updateDto.getDescription(), entity::setDescription);
-    }
-
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
+        MapperUtil.setIfNotNull(updateDto.getTitle(), entity::setTitle);
+        MapperUtil.setIfNotNull(updateDto.getDescription(), entity::setDescription);
     }
 }
