@@ -46,7 +46,8 @@ public class AuditAspect {
             }
 
             Object recordId = extractRecordId(joinPoint, result);
-            Object previousValue = audited.capturePreviousValue() ? extractPreviousValue() : null;
+            // Note: Previous value capture not yet implemented - would require database query or ThreadLocal
+            Object previousValue = audited.capturePreviousValue() ? null : null;
             Object newValue = audited.captureNewValue() ? result : null;
 
             auditLogService.logWithCurrentUser(
@@ -57,7 +58,7 @@ public class AuditAspect {
                 newValue,
                 description
             );
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("Failed to create audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
@@ -147,21 +148,5 @@ public class AuditAspect {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    /**
-     * Extracts the previous value before an operation.
-     * 
-     * Note: This method intentionally returns null as the implementation requires
-     * the previous value to be captured and passed explicitly by the calling service.
-     * Future implementations could use database queries or ThreadLocal storage.
-     * 
-     * @return null - Previous value must be provided by caller
-     */
-    @SuppressWarnings("SameReturnValue")
-    private Object extractPreviousValue() {
-        // Previous value should be captured by the service method
-        // and passed via the @Auditable annotation parameters
-        return null;
     }
 }
