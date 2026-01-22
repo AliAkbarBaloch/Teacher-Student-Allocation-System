@@ -81,34 +81,33 @@ public class SubjectService implements CrudService<Subject, Long> {
     }
 
     /**
-     * Validates that the subject code is unique, throws exception if duplicate found.
-     *
-     * @param subjectCode the subject code to validate
-     * @throws DuplicateResourceException if subject code already exists
+     * Unified uniqueness guard for subject codes.
+     * - For create: currentId == null, any match is duplicate.
+     * - For update: allows the same record to keep its code.
      */
-    private void validateSubjectCodeUniqueness(String subjectCode) {
-        if (subjectRepository.findBySubjectCode(subjectCode).isPresent()) {
+    private void ensureUniqueSubjectCode(String subjectCode, Long currentId) {
+        if (subjectCode == null) {
+            return;
+        }
+
+        Optional<Subject> match = subjectRepository.findBySubjectCode(subjectCode);
+        if (match.isEmpty()) {
+            return;
+        }
+
+        Subject found = match.get();
+        boolean sameRecord = currentId != null && found.getId() != null && found.getId().equals(currentId);
+        if (!sameRecord) {
             throw new DuplicateResourceException("Subject with code '" + subjectCode + "' already exists");
         }
     }
 
-    /**
-     * Validates that a new subject code doesn't conflict with existing records (for updates).
-     * Allows the same code if it's the current subject being updated.
-     *
-     * @param newCode the new subject code
-     * @param oldCode the old subject code
-     * @throws DuplicateResourceException if new code conflicts with another subject's code
-     */
-    private void validateSubjectCodeForUpdate(String newCode, String oldCode) {
-        if (!newCode.equals(oldCode) && subjectRepository.findBySubjectCode(newCode).isPresent()) {
-            throw new DuplicateResourceException("Subject with code '" + newCode + "' already exists");
+    private Subject loadOrThrow(Long id) {
+        Optional<Subject> subject = subjectRepository.findById(id);
+        if (subject.isPresent()) {
+            return subject.get();
         }
-    }
-
-    private Subject getExistingOrThrow(Long id) {
-        return subjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subject not found with id: " + id));
+        throw new ResourceNotFoundException("Subject not found with id: " + id);
     }
 
     /**
@@ -121,7 +120,9 @@ public class SubjectService implements CrudService<Subject, Long> {
     private void applyFieldUpdates(Subject existing, Subject data) {
         String incomingCode = data.getSubjectCode();
         if (incomingCode != null) {
-            validateSubjectCodeForUpdate(incomingCode, existing.getSubjectCode());
+            if (!incomingCode.equals(existing.getSubjectCode())) {
+                ensureUniqueSubjectCode(incomingCode, existing.getId());
+            }
             existing.setSubjectCode(incomingCode);
         }
 
@@ -148,15 +149,10 @@ public class SubjectService implements CrudService<Subject, Long> {
         return subjectRepository.existsById(id);
     }
 
-    private Pageable toPageable(Map<String, String> queryParams) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
-    }
-
-    private Page<Subject> findPage(String searchValue, Pageable pageable) {
-        Specification<Subject> spec = buildSearchSpecification(searchValue);
-        return subjectRepository.findAll(spec, pageable);
+    private Pageable createPageRequest(Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams p = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(p.sortOrder(), p.sortBy());
+        return PageRequest.of(p.page() - 1, p.pageSize(), sort);
     }
 
     @Audited(
@@ -168,7 +164,9 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        Page<Subject> page = findPage(searchValue, toPageable(queryParams));
+        Pageable pageable = createPageRequest(queryParams);
+        Specification<Subject> spec = buildSearchSpecification(searchValue);
+        Page<Subject> page = subjectRepository.findAll(spec, pageable);
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -212,7 +210,8 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public Subject create(Subject subject) {
-        validateSubjectCodeUniqueness(subject.getSubjectCode());
+        // Same logic as validateSubjectCodeUniqueness(code)
+        ensureUniqueSubjectCode(subject.getSubjectCode(), null);
         return subjectRepository.save(subject);
     }
 
@@ -235,7 +234,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public Subject update(Long id, Subject data) {
-        Subject existing = getExistingOrThrow(id);
+        Subject existing = loadOrThrow(id);
         applyFieldUpdates(existing, data);
         return subjectRepository.save(existing);
     }
@@ -256,7 +255,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Override
     public void delete(Long id) {
         // Preserve behavior: throw 404 when missing, then delete.
-        getExistingOrThrow(id);
-        subjectRepository.deleteById(id);
+        Subject existing = loadOrThrow(id);
+        subjectRepository.deleteById(existing.getId());
     }
 }
