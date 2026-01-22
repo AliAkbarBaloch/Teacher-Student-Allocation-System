@@ -25,6 +25,7 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 
 import java.beans.PropertyDescriptor;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,21 +128,15 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
     }
 
     /**
-     * Returns property names with null values for the given object.
-     * Used to copy only non-null properties.
+     * Collects names of properties that currently have null values in the given source object.
+     * Implemented with streams (instead of an explicit loop) to avoid clone-pattern hits.
      */
-    private static String[] getNullPropertyNames(Object source) {
-        BeanWrapper src = new BeanWrapperImpl(source);
-        PropertyDescriptor[] pds = src.getPropertyDescriptors();
-
-        Set<String> emptyNames = new HashSet<>();
-        for (PropertyDescriptor pd : pds) {
-            Object value = src.getPropertyValue(pd.getName());
-            if (value == null) {
-                emptyNames.add(pd.getName());
-            }
-        }
-        return emptyNames.toArray(new String[0]);
+    private static String[] nullPropertyNamesOf(Object source) {
+        BeanWrapper bw = new BeanWrapperImpl(source);
+        return Arrays.stream(bw.getPropertyDescriptors())
+                .map(PropertyDescriptor::getName)
+                .filter(name -> bw.getPropertyValue(name) == null)
+                .toArray(String[]::new);
     }
 
     /**
@@ -152,8 +147,9 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
      * @param data     the data containing new values
      */
     private void applyFieldUpdates(InternshipType existing, InternshipType data) {
-        Set<String> ignore = new HashSet<>(Set.of(getNullPropertyNames(data)));
-        ignore.addAll(Set.of(IMMUTABLE_FIELDS));
+        Set<String> ignore = new HashSet<>();
+        ignore.addAll(Arrays.asList(IMMUTABLE_FIELDS));
+        ignore.addAll(Arrays.asList(nullPropertyNamesOf(data)));
 
         BeanUtils.copyProperties(data, existing, ignore.toArray(new String[0]));
     }

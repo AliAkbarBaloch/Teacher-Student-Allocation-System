@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,9 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+    /**
+     * Expiration duration in milliseconds.
+     */
     @Value("${jwt.expiration}")
     private Long expiration;
 
@@ -30,8 +34,7 @@ public class JwtService {
      * Generate JWT token for a user.
      */
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(new HashMap<>(), userDetails.getUsername());
     }
 
     /**
@@ -45,14 +48,15 @@ public class JwtService {
      * Create JWT token with claims and subject.
      */
     private String createToken(Map<String, Object> claims, String subject) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusMillis(expiration);
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(now)
-                .expiration(expiryDate)
+                // JJWT uses java.util.Date, so adapt at the boundary:
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiresAt))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -65,7 +69,16 @@ public class JwtService {
     }
 
     /**
+     * Extract expiration timestamp from token.
+     */
+    public Instant extractExpirationInstant(String token) {
+        Date exp = extractClaim(token, Claims::getExpiration);
+        return exp.toInstant();
+    }
+
+    /**
      * Extract expiration date from token.
+     * Kept for compatibility; prefer extractExpirationInstant().
      */
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -75,7 +88,7 @@ public class JwtService {
      * Extract a specific claim from token.
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
@@ -93,16 +106,16 @@ public class JwtService {
     /**
      * Check if token is expired.
      */
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isTokenExpired(String token) {
+        return extractExpirationInstant(token).isBefore(Instant.now());
     }
 
     /**
      * Validate token against user details.
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     /**

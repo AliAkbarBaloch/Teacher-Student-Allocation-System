@@ -42,7 +42,7 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
     /**
      * Returns the sortable fields metadata.
-     * 
+     *
      * @return list of sort field metadata
      */
     public List<Map<String, String>> getSortFields() {
@@ -51,7 +51,7 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
@@ -153,7 +153,8 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
      * Create a new plan change log entry. Intended to be called by other services.
      */
     @Transactional
-    public PlanChangeLog logPlanChange(Long planId, String changeType, String entityType, Long entityId, Object oldValue, Object newValue, String reason) {
+    public PlanChangeLog logPlanChange(Long planId, String changeType, String entityType, Long entityId,
+                                       Object oldValue, Object newValue, String reason) {
 
         AllocationPlan plan = allocationPlanRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Allocation plan not found with id: " + planId));
@@ -164,7 +165,7 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
         PlanChangeLog log = PlanChangeLog.builder()
                 .allocationPlan(plan)
                 .eventTimestamp(LocalDateTime.now())
-            .changeType(changeType)
+                .changeType(changeType)
                 .entityType(entityType)
                 .entityId(entityId)
                 .oldValue(oldJson)
@@ -191,23 +192,35 @@ public class PlanChangeLogService implements CrudService<PlanChangeLog, Long> {
 
     /**
      * Retrieves change logs for a specific allocation plan with filtering.
-     * 
-     * @param planId the allocation plan ID
+     *
+     * @param planId     the allocation plan ID
      * @param entityType optional entity type filter
      * @param changeType optional change type filter
-     * @param startDate optional start date filter
-     * @param endDate optional end date filter
-     * @param pageable pagination parameters
+     * @param startDate  optional start date filter
+     * @param endDate    optional end date filter
+     * @param pageable   pagination parameters
      * @return page of plan change logs
+     * @throws ResourceNotFoundException if planId is provided but the plan does not exist
      */
     public Page<PlanChangeLog> getLogsByPlan(Long planId, String entityType, String changeType,
-                                             LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+                                            LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         if (planId != null && !allocationPlanRepository.existsById(planId)) {
             throw new ResourceNotFoundException("Allocation plan not found with id: " + planId);
         }
         return planChangeLogRepository.findByFilters(planId, entityType, changeType, startDate, endDate, pageable);
     }
 
+    /**
+     * Retrieves change logs with optional filtering.
+     *
+     * @param planId     optional allocation plan ID filter
+     * @param entityType optional entity type filter
+     * @param changeType optional change type filter
+     * @param startDate  optional start date filter
+     * @param endDate    optional end date filter
+     * @param pageable   pagination parameters
+     * @return page of plan change logs
+     */
     public Page<PlanChangeLog> getLogs(Long planId, String entityType, String changeType,
                                        LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return planChangeLogRepository.findByFilters(planId, entityType, changeType, startDate, endDate, pageable);
