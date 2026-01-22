@@ -19,22 +19,12 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public Permission toEntityCreate(PermissionCreateDto createDto) {
-        if (createDto == null) {
-            return null;
-        }
-        Permission entity = new Permission();
-        populateEntity(entity, createDto);
-        return entity;
+        return toNewEntity(createDto, Permission::new, this::populateEntity);
     }
 
     @Override
     public Permission toEntityUpdate(PermissionUpdateDto updateDto) {
-        if (updateDto == null) {
-            return null;
-        }
-        Permission entity = new Permission();
-        populateEntity(entity, updateDto);
-        return entity;
+        return toNewEntity(updateDto, Permission::new, this::populateEntity);
     }
 
     /**

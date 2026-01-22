@@ -19,22 +19,12 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
 
     @Override
     public InternshipType toEntityCreate(InternshipTypeCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        InternshipType entity = new InternshipType();
-        populateEntity(entity, dto);
-        return entity;
+        return toNewEntity(dto, InternshipType::new, this::populateEntity);
     }
 
     @Override
     public InternshipType toEntityUpdate(InternshipTypeUpdateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        InternshipType entity = new InternshipType();
-        populateEntity(entity, dto);
-        return entity;
+        return toNewEntity(dto, InternshipType::new, this::populateEntity);
     }
 
     /**
