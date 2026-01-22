@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeacherUpdateDto {
+public class TeacherUpdateDto implements TeacherUpsertDto {
 
     @Positive(message = "School ID must be positive")
     private Long schoolId;

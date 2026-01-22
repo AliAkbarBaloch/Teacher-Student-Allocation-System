@@ -11,6 +11,7 @@ import de.unipassau.allocationsystem.dto.subject.SubjectSimpleDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.TeacherUpdateDto;
+import de.unipassau.allocationsystem.dto.teacher.TeacherUpsertDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
 
@@ -22,47 +23,27 @@ public class TeacherMapper implements BaseMapper<Teacher, TeacherCreateDto, Teac
 
     @Override
     public Teacher toEntityCreate(TeacherCreateDto createDto) {
-        if (createDto == null) {
-            return null;
-        }
-        Teacher teacher = new Teacher();
-        // School should be set by service using schoolId
-        teacher.setFirstName(createDto.getFirstName());
-        teacher.setLastName(createDto.getLastName());
-        teacher.setEmail(createDto.getEmail());
-        teacher.setPhone(createDto.getPhone());
-        teacher.setIsPartTime(createDto.getIsPartTime());
-        if (createDto.getIsPartTime()) {
-            teacher.setWorkingHoursPerWeek(createDto.getWorkingHoursPerWeek());
-        } else {
-            teacher.setWorkingHoursPerWeek(0);
-        }
-        teacher.setEmploymentStatus(createDto.getEmploymentStatus());
-        teacher.setUsageCycle(createDto.getUsageCycle());
-        teacher.setEmploymentStatus(createDto.getEmploymentStatus());
-        return teacher;
+        return toNewEntity((TeacherUpsertDto) createDto, Teacher::new, this::populateEntity);
     }
 
     @Override
     public Teacher toEntityUpdate(TeacherUpdateDto updateDto) {
-        if (updateDto == null) {
-            return null;
-        }
-        Teacher teacher = new Teacher();
-        teacher.setFirstName(updateDto.getFirstName());
-        teacher.setLastName(updateDto.getLastName());
-        teacher.setEmail(updateDto.getEmail());
-        teacher.setPhone(updateDto.getPhone());
-        teacher.setIsPartTime(updateDto.getIsPartTime());
-        if (updateDto.getIsPartTime()) {
-            teacher.setWorkingHoursPerWeek(updateDto.getWorkingHoursPerWeek());
+        return toNewEntity((TeacherUpsertDto) updateDto, Teacher::new, this::populateEntity);
+    }
+
+    private void populateEntity(Teacher teacher, TeacherUpsertDto dto) {
+        teacher.setFirstName(dto.getFirstName());
+        teacher.setLastName(dto.getLastName());
+        teacher.setEmail(dto.getEmail());
+        teacher.setPhone(dto.getPhone());
+        teacher.setIsPartTime(dto.getIsPartTime());
+        if (dto.getIsPartTime()) {
+            teacher.setWorkingHoursPerWeek(dto.getWorkingHoursPerWeek());
         } else {
             teacher.setWorkingHoursPerWeek(0);
         }
-        teacher.setEmploymentStatus(updateDto.getEmploymentStatus());
-        teacher.setUsageCycle(updateDto.getUsageCycle());
-        // School should be set by service using schoolId if present
-        return teacher;
+        teacher.setEmploymentStatus(dto.getEmploymentStatus());
+        teacher.setUsageCycle(dto.getUsageCycle());
     }
 
     @Override
