@@ -10,34 +10,28 @@ import de.unipassau.allocationsystem.entity.AllocationPlan;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
 /**
  * Service for generating allocation reports.
  * Provides report generation for allocation plans including budget analysis and utilization metrics.
  */
+@Slf4j
+@Service
+@RequiredArgsConstructor
 public class AllocationReportService {
 
     private final AllocationPlanRepository planRepository;
@@ -46,80 +40,73 @@ public class AllocationReportService {
 
     /**
      * Generates allocation report for the most recently created plan.
-     * 
+     *
      * @return allocation report DTO
      * @throws ResourceNotFoundException if no plans exist
      */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReportForLatest() {
-        // Get the most recently created plan (regardless of status)
-        // This ensures newly created APPROVED plans from running the algorithm are selected
         List<AllocationPlan> recentPlans = planRepository.findMostRecentPlan();
-        
         if (recentPlans.isEmpty()) {
             throw new ResourceNotFoundException("No allocation plans found");
         }
-        
+
         AllocationPlan plan = recentPlans.get(0);
-        
-        // Log all recent plans for debugging
+
         log.info("Recent plans found (ordered by createdAt DESC, id DESC):");
         for (int i = 0; i < Math.min(5, recentPlans.size()); i++) {
             AllocationPlan p = recentPlans.get(i);
-            log.info("  [{}] Plan ID: {}, Name: {}, Status: {}, IsCurrent: {}, CreatedAt: {}", 
+            log.info("  [{}] Plan ID: {}, Name: {}, Status: {}, IsCurrent: {}, CreatedAt: {}",
                     i, p.getId(), p.getPlanName(), p.getStatus(), p.getIsCurrent(), p.getCreatedAt());
         }
-        
-        log.info("Using most recent plan: {} (ID: {}, Status: {}, IsCurrent: {}, CreatedAt: {})", 
+
+        log.info("Using most recent plan: {} (ID: {}, Status: {}, IsCurrent: {}, CreatedAt: {})",
                 plan.getPlanName(), plan.getId(), plan.getStatus(), plan.getIsCurrent(), plan.getCreatedAt());
-        
+
         return generateReportForPlan(plan);
     }
 
     /**
      * Generates allocation report for a specific plan.
-     * 
+     *
      * @param planId the allocation plan ID
      * @return allocation report DTO
      * @throws ResourceNotFoundException if plan not found
      */
     @Transactional(readOnly = true)
     public AllocationReportDto generateReport(Long planId) {
-        // 1. Fetch Plan with eagerly loaded academic year
         AllocationPlan plan = planRepository.findByIdWithAcademicYear(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan not found: " + planId));
         return generateReportForPlan(plan);
     }
 
     private AllocationReportDto generateReportForPlan(AllocationPlan plan) {
-        log.info("Generating report for plan ID: {}, Name: {}, Status: {}", 
+        log.info("Generating report for plan ID: {}, Name: {}, Status: {}",
                 plan.getId(), plan.getPlanName(), plan.getStatus());
 
-        // 2. Fetch Assignments
         List<TeacherAssignment> assignments = assignmentRepository.findAllByPlanIdWithDetails(plan.getId());
         log.info("Found {} assignments for plan ID: {}", assignments.size(), plan.getId());
 
-        // 3. Fetch All Active Teachers (to find unassigned ones)
         List<Teacher> allTeachers = teacherRepository.findAllByEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
         log.info("Found {} active teachers", allTeachers.size());
 
-        // 4. Build Assignment Details List
         List<TeacherAssignmentDetailDto> detailDtos = assignments.stream()
                 .map(this::mapToDetailDto)
                 .collect(Collectors.toList());
 
-        // 5. Calculate Budget Stats
         BudgetSummaryDto budgetSummary = calculateBudget(plan, assignments);
-
-        // 6. Analyze Utilization (The "2 assignments" rule)
         UtilizationAnalysisDto utilizationAnalysis = analyzeUtilization(allTeachers, assignments);
 
-        // 7. Assemble Report
+        String academicYearName = "Unknown";
+        if (plan.getAcademicYear() != null && plan.getAcademicYear().getYearName() != null) {
+            academicYearName = plan.getAcademicYear().getYearName();
+        }
+
         return AllocationReportDto.builder()
                 .header(ReportHeaderDto.builder()
                         .planName(plan.getPlanName())
                         .planVersion(plan.getPlanVersion())
-                        .academicYear(plan.getAcademicYear().getYearName())
+                        .academicYear(academicYearName)
                         .status(plan.getStatus().name())
                         .generatedAt(LocalDateTime.now())
                         .build())
@@ -130,47 +117,94 @@ public class AllocationReportService {
     }
 
     private TeacherAssignmentDetailDto mapToDetailDto(TeacherAssignment ta) {
-        String teacherName = "Unknown";
-        if (ta.getTeacher() != null) {
-            teacherName = (ta.getTeacher().getLastName() != null ? ta.getTeacher().getLastName() : "")
-                    + ", " + (ta.getTeacher().getFirstName() != null ? ta.getTeacher().getFirstName() : "");
+        String teacherName = buildTeacherName(ta != null ? ta.getTeacher() : null);
+
+        String teacherEmail = null;
+        String schoolName = "Unknown";
+        String schoolZone = "Unknown";
+
+        if (ta != null && ta.getTeacher() != null) {
+            teacherEmail = ta.getTeacher().getEmail();
+
+            if (ta.getTeacher().getSchool() != null) {
+                School s = ta.getTeacher().getSchool();
+                if (s.getSchoolName() != null) {
+                    schoolName = s.getSchoolName();
+                }
+                schoolZone = "Zone " + s.getZoneNumber();
+            }
+        }
+
+        String internshipCode = "Unknown";
+        if (ta != null && ta.getInternshipType() != null && ta.getInternshipType().getInternshipCode() != null) {
+            internshipCode = ta.getInternshipType().getInternshipCode();
+        }
+
+        String subjectCode = "Unknown";
+        if (ta != null && ta.getSubject() != null && ta.getSubject().getSubjectCode() != null) {
+            subjectCode = ta.getSubject().getSubjectCode();
+        }
+
+        int groupSize = 0;
+        if (ta != null && ta.getStudentGroupSize() != null) {
+            groupSize = ta.getStudentGroupSize();
+        }
+
+        String assignmentStatus = "UNKNOWN";
+        if (ta != null && ta.getAssignmentStatus() != null) {
+            assignmentStatus = ta.getAssignmentStatus().name();
         }
 
         return TeacherAssignmentDetailDto.builder()
-                .assignmentId(ta.getId())
+                .assignmentId(ta != null ? ta.getId() : null)
                 .teacherName(teacherName)
-                .teacherEmail(ta.getTeacher() != null ? ta.getTeacher().getEmail() : null)
-                .schoolName(ta.getTeacher() != null && ta.getTeacher().getSchool() != null 
-                        ? ta.getTeacher().getSchool().getSchoolName() : "Unknown")
-                .schoolZone(ta.getTeacher() != null && ta.getTeacher().getSchool() != null 
-                        ? "Zone " + ta.getTeacher().getSchool().getZoneNumber() : "Unknown")
-                .internshipCode(ta.getInternshipType() != null ? ta.getInternshipType().getInternshipCode() : "Unknown")
-                .subjectCode(ta.getSubject() != null ? ta.getSubject().getSubjectCode() : "Unknown")
-                .studentGroupSize(ta.getStudentGroupSize() != null ? ta.getStudentGroupSize() : 0)
-                .assignmentStatus(ta.getAssignmentStatus() != null ? ta.getAssignmentStatus().name() : "UNKNOWN")
+                .teacherEmail(teacherEmail)
+                .schoolName(schoolName)
+                .schoolZone(schoolZone)
+                .internshipCode(internshipCode)
+                .subjectCode(subjectCode)
+                .studentGroupSize(groupSize)
+                .assignmentStatus(assignmentStatus)
                 .build();
     }
 
-    private BudgetSummaryDto calculateBudget(AllocationPlan plan, List<TeacherAssignment> assignments) {
-        // Rule: 2 Assignments = 1 Credit Hour.
-        // Therefore, 1 Assignment = 0.5 Credit Hours (Conceptually for calculation)
+    private String buildTeacherName(Teacher teacher) {
+        if (teacher == null) {
+            return "Unknown";
+        }
+        String last = teacher.getLastName();
+        String first = teacher.getFirstName();
 
+        StringBuilder sb = new StringBuilder();
+        if (last != null) {
+            sb.append(last);
+        }
+        sb.append(", ");
+        if (first != null) {
+            sb.append(first);
+        }
+        return sb.toString();
+    }
+
+    private BudgetSummaryDto calculateBudget(AllocationPlan plan, List<TeacherAssignment> assignments) {
         double hoursUsed = assignments.size() * 0.5;
 
-        // Split by School Type (Elementary vs Middle)
         long elementaryAssignments = assignments.stream()
-                .filter(a -> a.getTeacher() != null && a.getTeacher().getSchool() != null 
+                .filter(a -> a.getTeacher() != null
+                        && a.getTeacher().getSchool() != null
                         && a.getTeacher().getSchool().getSchoolType() == School.SchoolType.PRIMARY)
                 .count();
 
         long middleAssignments = assignments.stream()
-                .filter(a -> a.getTeacher() != null && a.getTeacher().getSchool() != null 
+                .filter(a -> a.getTeacher() != null
+                        && a.getTeacher().getSchool() != null
                         && a.getTeacher().getSchool().getSchoolType() == School.SchoolType.MIDDLE)
                 .count();
 
-        // Safely get total credit hours with default value
-        double totalBudgetHours = plan.getAcademicYear() != null && plan.getAcademicYear().getTotalCreditHours() != null 
-                ? plan.getAcademicYear().getTotalCreditHours() : 0.0;
+        double totalBudgetHours = 0.0;
+        if (plan.getAcademicYear() != null && plan.getAcademicYear().getTotalCreditHours() != null) {
+            totalBudgetHours = plan.getAcademicYear().getTotalCreditHours();
+        }
 
         return BudgetSummaryDto.builder()
                 .totalBudgetHours(totalBudgetHours)
@@ -183,7 +217,6 @@ public class AllocationReportService {
     }
 
     private UtilizationAnalysisDto analyzeUtilization(List<Teacher> allTeachers, List<TeacherAssignment> assignments) {
-        // Group assignments by Teacher ID - filter out null teachers for safety
         Map<Long, Long> assignmentCounts = assignments.stream()
                 .filter(a -> a.getTeacher() != null && a.getTeacher().getId() != null)
                 .collect(Collectors.groupingBy(a -> a.getTeacher().getId(), Collectors.counting()));
@@ -196,9 +229,11 @@ public class AllocationReportService {
         for (Teacher teacher : allTeachers) {
             long count = assignmentCounts.getOrDefault(teacher.getId(), 0L);
 
-            String teacherName = (teacher.getLastName() != null ? teacher.getLastName() : "")
-                    + ", " + (teacher.getFirstName() != null ? teacher.getFirstName() : "");
-            String schoolName = teacher.getSchool() != null ? teacher.getSchool().getSchoolName() : "Unknown";
+            String teacherName = buildTeacherName(teacher);
+            String schoolName = "Unknown";
+            if (teacher.getSchool() != null && teacher.getSchool().getSchoolName() != null) {
+                schoolName = teacher.getSchool().getSchoolName();
+            }
 
             TeacherUtilizationDto dto = TeacherUtilizationDto.builder()
                     .teacherId(teacher.getId())
@@ -228,185 +263,5 @@ public class AllocationReportService {
                 .perfectlyUtilizedTeachers(perfect)
                 .overUtilizedTeachers(overUtilized)
                 .build();
-    }
-
-    /**
-     * Generates allocation report in Excel format.
-     * 
-     * @param planId the allocation plan ID
-     * @return Excel file as byte array
-     * @throws IOException if Excel generation fails
-     */
-    @Transactional(readOnly = true)
-    public byte[] generateExcelReport(Long planId) throws IOException {
-        AllocationReportDto data = generateReport(planId);
-
-        try (Workbook workbook = new XSSFWorkbook()) {
-            // Sheet 1: Assignments Details
-            Sheet assignmentsSheet = workbook.createSheet("Assignments");
-            Row assignmentHeader = assignmentsSheet.createRow(0);
-            assignmentHeader.createCell(0).setCellValue("Assignment ID");
-            assignmentHeader.createCell(1).setCellValue("Teacher Name");
-            assignmentHeader.createCell(2).setCellValue("Teacher Email");
-            assignmentHeader.createCell(3).setCellValue("School Name");
-            assignmentHeader.createCell(4).setCellValue("School Zone");
-            assignmentHeader.createCell(5).setCellValue("Internship Type");
-            assignmentHeader.createCell(6).setCellValue("Subject Code");
-            assignmentHeader.createCell(7).setCellValue("Student Group Size");
-            assignmentHeader.createCell(8).setCellValue("Assignment Status");
-
-            int rowIdx = 1;
-            for (TeacherAssignmentDetailDto item : data.getAssignments()) {
-                Row row = assignmentsSheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(item.getAssignmentId());
-                row.createCell(1).setCellValue(item.getTeacherName());
-                row.createCell(2).setCellValue(item.getTeacherEmail() != null ? item.getTeacherEmail() : "");
-                row.createCell(3).setCellValue(item.getSchoolName());
-                row.createCell(4).setCellValue(item.getSchoolZone());
-                row.createCell(5).setCellValue(item.getInternshipCode());
-                row.createCell(6).setCellValue(item.getSubjectCode());
-                row.createCell(7).setCellValue(item.getStudentGroupSize());
-                row.createCell(8).setCellValue(item.getAssignmentStatus());
-            }
-
-            // Auto-size columns
-            for (int i = 0; i < 9; i++) {
-                assignmentsSheet.autoSizeColumn(i);
-            }
-
-            // Sheet 2: Budget Summary
-            Sheet budgetSheet = workbook.createSheet("Budget Summary");
-            Row budgetHeader = budgetSheet.createRow(0);
-            budgetHeader.createCell(0).setCellValue("Metric");
-            budgetHeader.createCell(1).setCellValue("Value");
-
-            int budgetRowIdx = 1;
-            BudgetSummaryDto budget = data.getBudgetSummary();
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Total Budget Hours");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.getTotalBudgetHours());
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Used Hours");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.getUsedHours());
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Remaining Hours");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.getRemainingHours());
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Elementary School Hours Used");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.getElementaryHoursUsed());
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Middle School Hours Used");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.getMiddleSchoolHoursUsed());
-            
-            budgetSheet.createRow(budgetRowIdx++).createCell(0).setCellValue("Over Budget");
-            budgetSheet.getRow(budgetRowIdx - 1).createCell(1).setCellValue(budget.isOverBudget() ? "YES" : "NO");
-
-            budgetSheet.autoSizeColumn(0);
-            budgetSheet.autoSizeColumn(1);
-
-            // Sheet 3: Unassigned Teachers
-            Sheet unassignedSheet = workbook.createSheet("Unassigned Teachers");
-            Row unassignedHeader = unassignedSheet.createRow(0);
-            unassignedHeader.createCell(0).setCellValue("Teacher ID");
-            unassignedHeader.createCell(1).setCellValue("Teacher Name");
-            unassignedHeader.createCell(2).setCellValue("Email");
-            unassignedHeader.createCell(3).setCellValue("School Name");
-            unassignedHeader.createCell(4).setCellValue("Assignment Count");
-            unassignedHeader.createCell(5).setCellValue("Notes");
-
-            int unassignedRowIdx = 1;
-            for (TeacherUtilizationDto teacher : data.getUtilizationAnalysis().getUnassignedTeachers()) {
-                Row row = unassignedSheet.createRow(unassignedRowIdx++);
-                row.createCell(0).setCellValue(teacher.getTeacherId());
-                row.createCell(1).setCellValue(teacher.getTeacherName());
-                row.createCell(2).setCellValue(teacher.getEmail());
-                row.createCell(3).setCellValue(teacher.getSchoolName());
-                row.createCell(4).setCellValue(teacher.getAssignmentCount());
-                row.createCell(5).setCellValue(teacher.getNotes() != null ? teacher.getNotes() : "");
-            }
-
-            for (int i = 0; i < 6; i++) {
-                unassignedSheet.autoSizeColumn(i);
-            }
-
-            // Sheet 4: Under-Utilized Teachers (Only 1 assignment)
-            Sheet underUtilizedSheet = workbook.createSheet("Under-Utilized Teachers");
-            Row underHeader = underUtilizedSheet.createRow(0);
-            underHeader.createCell(0).setCellValue("Teacher ID");
-            underHeader.createCell(1).setCellValue("Teacher Name");
-            underHeader.createCell(2).setCellValue("Email");
-            underHeader.createCell(3).setCellValue("School Name");
-            underHeader.createCell(4).setCellValue("Assignment Count");
-            underHeader.createCell(5).setCellValue("Notes");
-
-            int underRowIdx = 1;
-            for (TeacherUtilizationDto teacher : data.getUtilizationAnalysis().getUnderUtilizedTeachers()) {
-                Row row = underUtilizedSheet.createRow(underRowIdx++);
-                row.createCell(0).setCellValue(teacher.getTeacherId());
-                row.createCell(1).setCellValue(teacher.getTeacherName());
-                row.createCell(2).setCellValue(teacher.getEmail());
-                row.createCell(3).setCellValue(teacher.getSchoolName());
-                row.createCell(4).setCellValue(teacher.getAssignmentCount());
-                row.createCell(5).setCellValue(teacher.getNotes() != null ? teacher.getNotes() : "");
-            }
-
-            for (int i = 0; i < 6; i++) {
-                underUtilizedSheet.autoSizeColumn(i);
-            }
-
-            // Sheet 5: Over-Utilized Teachers (More than 2 assignments)
-            Sheet overUtilizedSheet = workbook.createSheet("Over-Utilized Teachers");
-            Row overHeader = overUtilizedSheet.createRow(0);
-            overHeader.createCell(0).setCellValue("Teacher ID");
-            overHeader.createCell(1).setCellValue("Teacher Name");
-            overHeader.createCell(2).setCellValue("Email");
-            overHeader.createCell(3).setCellValue("School Name");
-            overHeader.createCell(4).setCellValue("Assignment Count");
-            overHeader.createCell(5).setCellValue("Notes");
-
-            int overRowIdx = 1;
-            for (TeacherUtilizationDto teacher : data.getUtilizationAnalysis().getOverUtilizedTeachers()) {
-                Row row = overUtilizedSheet.createRow(overRowIdx++);
-                row.createCell(0).setCellValue(teacher.getTeacherId());
-                row.createCell(1).setCellValue(teacher.getTeacherName());
-                row.createCell(2).setCellValue(teacher.getEmail());
-                row.createCell(3).setCellValue(teacher.getSchoolName());
-                row.createCell(4).setCellValue(teacher.getAssignmentCount());
-                row.createCell(5).setCellValue(teacher.getNotes() != null ? teacher.getNotes() : "");
-            }
-
-            for (int i = 0; i < 6; i++) {
-                overUtilizedSheet.autoSizeColumn(i);
-            }
-
-            // Sheet 6: Perfectly Utilized Teachers (Exactly 2 assignments)
-            Sheet perfectSheet = workbook.createSheet("Perfectly Utilized Teachers");
-            Row perfectHeader = perfectSheet.createRow(0);
-            perfectHeader.createCell(0).setCellValue("Teacher ID");
-            perfectHeader.createCell(1).setCellValue("Teacher Name");
-            perfectHeader.createCell(2).setCellValue("Email");
-            perfectHeader.createCell(3).setCellValue("School Name");
-            perfectHeader.createCell(4).setCellValue("Assignment Count");
-            perfectHeader.createCell(5).setCellValue("Notes");
-
-            int perfectRowIdx = 1;
-            for (TeacherUtilizationDto teacher : data.getUtilizationAnalysis().getPerfectlyUtilizedTeachers()) {
-                Row row = perfectSheet.createRow(perfectRowIdx++);
-                row.createCell(0).setCellValue(teacher.getTeacherId());
-                row.createCell(1).setCellValue(teacher.getTeacherName());
-                row.createCell(2).setCellValue(teacher.getEmail());
-                row.createCell(3).setCellValue(teacher.getSchoolName());
-                row.createCell(4).setCellValue(teacher.getAssignmentCount());
-                row.createCell(5).setCellValue(teacher.getNotes() != null ? teacher.getNotes() : "");
-            }
-
-            for (int i = 0; i < 6; i++) {
-                perfectSheet.autoSizeColumn(i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            workbook.write(out);
-            return out.toByteArray();
-        }
     }
 }
