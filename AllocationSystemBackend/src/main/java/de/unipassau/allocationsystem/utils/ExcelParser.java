@@ -2,7 +2,6 @@ package de.unipassau.allocationsystem.utils;
 
 import de.unipassau.allocationsystem.dto.teacher.TeacherCreateDto;
 import de.unipassau.allocationsystem.entity.Teacher;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Utility class for parsing Excel files containing teacher data.
@@ -56,7 +54,7 @@ public class ExcelParser {
         } catch (IOException e) {
             log.error("Error reading Excel file", e);
             throw e;
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (RuntimeException e) {
             log.error("Invalid Excel file format: {}", e.getMessage());
             throw new IllegalArgumentException("Failed to parse Excel file: " + e.getMessage(), e);
         }
@@ -124,7 +122,7 @@ public class ExcelParser {
         return indices;
     }
 
-    private static boolean matchesColumn(String value, int startIndex, int endIndex) {
+    static boolean matchesColumn(String value, int startIndex, int endIndex) {
         String normalized = value.toLowerCase().replaceAll("[\\s_-]+", "");
         for (int i = startIndex; i <= endIndex && i < COLUMN_MAPPINGS.length; i++) {
             String mapping = COLUMN_MAPPINGS[i].toLowerCase().replaceAll("[\\s_-]+", "");
@@ -162,11 +160,11 @@ public class ExcelParser {
                email != null && !email.trim().isEmpty();
     }
     
-    private static String getCellValue(Row row, int index) {
+    static String getCellValue(Row row, int index) {
         return index != -1 ? getCellValueAsString(row.getCell(index)) : null;
     }
     
-    private static Long parseSchoolId(String schoolIdStr) {
+    static Long parseSchoolId(String schoolIdStr) {
         if (schoolIdStr == null || schoolIdStr.trim().isEmpty()) {
             return null;
         }
@@ -220,7 +218,7 @@ public class ExcelParser {
         return true;
     }
 
-    private static Boolean parseBoolean(String value) {
+    static Boolean parseBoolean(String value) {
         if (value == null || value.trim().isEmpty()) {
             return false;
         }
@@ -228,7 +226,7 @@ public class ExcelParser {
         return lower.equals("true") || lower.equals("yes") || lower.equals("1") || lower.equals("y");
     }
 
-    private static Teacher.EmploymentStatus parseEmploymentStatus(String value) {
+    static Teacher.EmploymentStatus parseEmploymentStatus(String value) {
         if (value == null || value.trim().isEmpty()) {
             return Teacher.EmploymentStatus.ACTIVE;
         }
@@ -236,7 +234,7 @@ public class ExcelParser {
                 "Invalid employment status: {}, using default ACTIVE");
     }
 
-    private static Teacher.UsageCycle parseUsageCycle(String value) {
+    static Teacher.UsageCycle parseUsageCycle(String value) {
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
@@ -249,118 +247,9 @@ public class ExcelParser {
         try {
             String normalized = value.trim().toUpperCase().replaceAll("[_\\s-]+", "_");
             return parser.apply(normalized);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             log.warn(warningMsg, value);
             return defaultValue;
-        }
-    }
-
-    /**
-     * Helper class to store column indices.
-     */
-    @Data
-    private static class ColumnIndices {
-        private int schoolNameIndex = -1;
-        private int schoolIdIndex = -1;
-        private int firstNameIndex = -1;
-        private int lastNameIndex = -1;
-        private int emailIndex = -1;
-        private int phoneIndex = -1;
-        private int employmentStatusIndex = -1;
-        private int isPartTimeIndex = -1;
-        private int usageCycleIndex = -1;
-    }
-
-    /**
-     * Helper class to extract and build teacher data from Excel row.
-     */
-    private static class TeacherDataExtractor {
-        private final Row row;
-        private final ColumnIndices indices;
-        private final String schoolName;
-        private final Long schoolId;
-        private final String phone;
-        private final Teacher.EmploymentStatus employmentStatus;
-        private final Boolean isPartTime;
-        private final Teacher.UsageCycle usageCycle;
-
-        TeacherDataExtractor(Row row, ColumnIndices indices) {
-            this.row = row;
-            this.indices = indices;
-            this.schoolName = Optional.ofNullable(getCellValue(row, indices.getSchoolNameIndex()))
-                    .map(String::trim).orElse(null);
-            this.schoolId = parseSchoolId(getCellValue(row, indices.getSchoolIdIndex()));
-            this.phone = getCellValue(row, indices.getPhoneIndex());
-            this.employmentStatus = parseEmploymentStatus(
-                Optional.ofNullable(getCellValue(row, indices.getEmploymentStatusIndex())).orElse("FULL_TIME")
-            );
-            this.isPartTime = parseBoolean(
-                Optional.ofNullable(getCellValue(row, indices.getIsPartTimeIndex())).orElse("false")
-            );
-            this.usageCycle = parseUsageCycle(getCellValue(row, indices.getUsageCycleIndex()));
-        }
-
-        TeacherCreateDto buildTeacherDto() {
-            String firstName = getCellValueAsString(row.getCell(indices.getFirstNameIndex()));
-            String lastName = getCellValueAsString(row.getCell(indices.getLastNameIndex()));
-            String email = getCellValueAsString(row.getCell(indices.getEmailIndex()));
-
-            TeacherCreateDto dto = new TeacherCreateDto();
-            dto.setSchoolId(schoolId);
-            dto.setFirstName(firstName.trim());
-            dto.setLastName(lastName.trim());
-            dto.setEmail(email.trim());
-            dto.setPhone(Optional.ofNullable(phone).filter(p -> !p.trim().isEmpty()).map(String::trim).orElse(null));
-            dto.setIsPartTime(isPartTime);
-            dto.setEmploymentStatus(employmentStatus);
-            dto.setUsageCycle(usageCycle);
-            return dto;
-        }
-
-        String getSchoolName() {
-            return schoolName;
-        }
-
-        Long getSchoolId() {
-            return schoolId;
-        }
-    }
-
-    /**
-     * Represents a parsed row with its DTO and metadata.
-     */
-    @Data
-    public static class ParsedRow {
-        private int rowNumber;
-        private TeacherCreateDto dto;
-        private String schoolName;
-        private Long schoolId;
-    }
-
-    /**
-     * Helper class for matching and setting column indices.
-     */
-    private static class ColumnMatcher {
-        static void matchAndSetColumns(String cellValue, int index, ColumnIndices indices) {
-            if (indices.getSchoolNameIndex() == -1 && matchesColumn(cellValue, 0, 3)) {
-                indices.setSchoolNameIndex(index);
-            } else if (indices.getSchoolIdIndex() == -1 && matchesColumn(cellValue, 4, 6)) {
-                indices.setSchoolIdIndex(index);
-            } else if (indices.getFirstNameIndex() == -1 && matchesColumn(cellValue, 7, 10)) {
-                indices.setFirstNameIndex(index);
-            } else if (indices.getLastNameIndex() == -1 && matchesColumn(cellValue, 11, 14)) {
-                indices.setLastNameIndex(index);
-            } else if (indices.getEmailIndex() == -1 && matchesColumn(cellValue, 15, 17)) {
-                indices.setEmailIndex(index);
-            } else if (indices.getPhoneIndex() == -1 && matchesColumn(cellValue, 18, 21)) {
-                indices.setPhoneIndex(index);
-            } else if (indices.getEmploymentStatusIndex() == -1 && matchesColumn(cellValue, 22, 25)) {
-                indices.setEmploymentStatusIndex(index);
-            } else if (indices.getIsPartTimeIndex() == -1 && matchesColumn(cellValue, 26, 30)) {
-                indices.setIsPartTimeIndex(index);
-            } else if (indices.getUsageCycleIndex() == -1 && matchesColumn(cellValue, 31, 34)) {
-                indices.setUsageCycleIndex(index);
-            }
         }
     }
 }

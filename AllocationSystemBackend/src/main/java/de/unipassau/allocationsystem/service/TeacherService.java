@@ -37,6 +37,7 @@ import de.unipassau.allocationsystem.repository.SchoolRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import de.unipassau.allocationsystem.utils.ExcelParser;
+import de.unipassau.allocationsystem.utils.ParsedRow;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
@@ -363,7 +364,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
      * @throws IOException if file reading fails
      */
     public BulkImportResponseDto bulkImportTeachers(MultipartFile file, boolean skipInvalidRows) throws IOException {
-        List<ExcelParser.ParsedRow> parsedRows = ExcelParser.parseExcelFile(file);
+        List<ParsedRow> parsedRows = ExcelParser.parseExcelFile(file);
         List<ImportResultRowDto> results = new ArrayList<>();
         
         // Batch processing: Load all schools once
@@ -388,7 +389,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         Map<Integer, ImportResultRowDto> resultMap = new HashMap<>();
 
         // Process each row and validate
-        for (ExcelParser.ParsedRow parsedRow : parsedRows) {
+        for (ParsedRow parsedRow : parsedRows) {
             ImportResultRowDto result = ImportResultRowDto.builder()
                     .rowNumber(parsedRow.getRowNumber())
                     .success(false)
@@ -444,7 +445,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
                     // Set all remaining rows as failed
                     int currentIndex = parsedRows.indexOf(parsedRow);
                     for (int i = currentIndex + 1; i < parsedRows.size(); i++) {
-                        ExcelParser.ParsedRow remainingRow = parsedRows.get(i);
+                        ParsedRow remainingRow = parsedRows.get(i);
                         ImportResultRowDto remainingResult = resultMap.get(remainingRow.getRowNumber());
                         if (remainingResult != null && remainingResult.getError() == null) {
                             remainingResult.setError("Import stopped due to error in row " + parsedRow.getRowNumber());
@@ -494,7 +495,7 @@ public class TeacherService implements CrudService<TeacherResponseDto, Long> {
         }
 
         // Build final results list
-        for (ExcelParser.ParsedRow parsedRow : parsedRows) {
+        for (ParsedRow parsedRow : parsedRows) {
             results.add(resultMap.get(parsedRow.getRowNumber()));
         }
 
