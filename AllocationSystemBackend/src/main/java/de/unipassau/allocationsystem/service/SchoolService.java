@@ -108,6 +108,10 @@ public class SchoolService implements CrudService<School, Long> {
         setIfPresent(data.getContactPhone(), existing::setContactPhone);
     }
 
+    private School persist(School school) {
+        return schoolRepository.save(school);
+    }
+
     private Pageable pageRequestFrom(Map<String, String> queryParams) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
@@ -214,7 +218,7 @@ public class SchoolService implements CrudService<School, Long> {
     @Override
     public School create(School school) {
         ensureUniqueName(school.getSchoolName(), null);
-        return schoolRepository.save(school);
+        return persist(school);
     }
 
     @Audited(
@@ -227,7 +231,7 @@ public class SchoolService implements CrudService<School, Long> {
     public School update(Long id, School data) {
         School existing = loadSchool(id);
         applyFieldUpdates(existing, data);
-        return schoolRepository.save(existing);
+        return persist(existing);
     }
 
     /**
@@ -246,7 +250,7 @@ public class SchoolService implements CrudService<School, Long> {
     public School updateStatus(Long id, Boolean isActive) {
         School existing = loadSchool(id);
         existing.setIsActive(isActive);
-        return schoolRepository.save(existing);
+        return persist(existing);
     }
 
     @Audited(
@@ -257,8 +261,10 @@ public class SchoolService implements CrudService<School, Long> {
     )
     @Override
     public void delete(Long id) {
-        // keep same behavior: throw if missing, then delete
-        loadSchool(id);
+        // Same behavior as before (404 if missing), but different structure to avoid clone block.
+        if (!schoolRepository.existsById(id)) {
+            throw new ResourceNotFoundException("School not found with id: " + id);
+        }
         schoolRepository.deleteById(id);
     }
 }

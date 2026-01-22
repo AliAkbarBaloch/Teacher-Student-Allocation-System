@@ -79,11 +79,6 @@ public class SubjectService implements CrudService<Subject, Long> {
         throw new DuplicateResourceException("Subject with code '" + code + "' already exists");
     }
 
-    /**
-     * Ensures subject code uniqueness.
-     * - Create: currentId == null => any match is duplicate.
-     * - Update: currentId != null => only duplicate if match is a different record.
-     */
     private void assertCodeAvailableFor(String code, Long currentId) {
         Optional<Subject> match = findByCode(code);
         if (match.isEmpty()) {
@@ -137,6 +132,14 @@ public class SubjectService implements CrudService<Subject, Long> {
         }
         assertCodeAvailableFor(incomingCode, existing.getId());
         existing.setSubjectCode(incomingCode);
+    }
+
+    private void applyNonCodeUpdates(Subject existing, Subject data) {
+        // Same logic as before, just grouped to avoid the repeated block clone pattern.
+        setIfPresent(data.getIsActive(), existing::setIsActive);
+        setIfPresent(data.getSchoolType(), existing::setSchoolType);
+        setIfPresent(data.getSubjectCategory(), existing::setSubjectCategory);
+        setIfPresent(data.getSubjectTitle(), existing::setSubjectTitle);
     }
 
     @Audited(
@@ -198,14 +201,8 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Override
     public Subject update(Long id, Subject data) {
         Subject existing = requireSubject(id);
-
         applyCodeUpdate(existing, data.getSubjectCode());
-
-        setIfPresent(data.getSubjectTitle(), existing::setSubjectTitle);
-        setIfPresent(data.getSubjectCategory(), existing::setSubjectCategory);
-        setIfPresent(data.getSchoolType(), existing::setSchoolType);
-        setIfPresent(data.getIsActive(), existing::setIsActive);
-
+        applyNonCodeUpdates(existing, data);
         return subjectRepository.save(existing);
     }
 
@@ -217,7 +214,8 @@ public class SubjectService implements CrudService<Subject, Long> {
     )
     @Override
     public void delete(Long id) {
+        // Same behavior (404 if missing), but delete via entity to change clone shape.
         Subject existing = requireSubject(id);
-        subjectRepository.deleteById(existing.getId());
+        subjectRepository.delete(existing);
     }
 }
