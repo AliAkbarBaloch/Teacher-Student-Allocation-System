@@ -46,40 +46,68 @@ public class SchoolProfileDto {
                                              String transportAccessibility,
                                              Boolean isActive,
                                              TeacherStats teacherStats) {
-        String schoolTypeStr;
-        if (schoolType != null) {
-            schoolTypeStr = schoolType.name();
-        } else {
-            schoolTypeStr = null;
-        }
-
-        boolean activeStatus;
-        if (isActive != null) {
-            activeStatus = isActive;
-        } else {
-            activeStatus = false;
-        }
-
-        Long totalTeacherCount;
-        Long activeTeacherCount;
-        if (teacherStats != null) {
-            totalTeacherCount = teacherStats.totalTeachers();
-            activeTeacherCount = teacherStats.activeTeachers();
-        } else {
-            totalTeacherCount = 0L;
-            activeTeacherCount = 0L;
-        }
-
         return SchoolProfileDto.builder()
                 .schoolId(schoolId)
                 .schoolName(schoolName)
-                .schoolType(schoolTypeStr)
+                .schoolType(convertSchoolType(schoolType))
                 .zoneNumber(zoneNumber)
                 .transportAccessibility(transportAccessibility)
-                .isActive(activeStatus)
-                .totalTeachers(totalTeacherCount)
-                .activeTeachers(activeTeacherCount)
+                .isActive(convertActiveStatus(isActive))
+                .totalTeachers(extractTotalTeachers(teacherStats))
+                .activeTeachers(extractActiveTeachers(teacherStats))
                 .build();
+    }
+
+    /**
+     * Converts school type enum to string representation.
+     * 
+     * @param schoolType School type enumeration
+     * @return String representation or null
+     */
+    private static String convertSchoolType(School.SchoolType schoolType) {
+        if (schoolType != null) {
+            return schoolType.name();
+        }
+        return null;
+    }
+
+    /**
+     * Converts Boolean active status to primitive boolean.
+     * 
+     * @param isActive Active status flag
+     * @return Active status or false if null
+     */
+    private static boolean convertActiveStatus(Boolean isActive) {
+        if (isActive != null) {
+            return isActive;
+        }
+        return false;
+    }
+
+    /**
+     * Extracts total teacher count from statistics.
+     * 
+     * @param teacherStats Teacher statistics
+     * @return Total teacher count or 0 if null
+     */
+    private static Long extractTotalTeachers(TeacherStats teacherStats) {
+        if (teacherStats != null) {
+            return teacherStats.totalTeachers();
+        }
+        return 0L;
+    }
+
+    /**
+     * Extracts active teacher count from statistics.
+     * 
+     * @param teacherStats Teacher statistics
+     * @return Active teacher count or 0 if null
+     */
+    private static Long extractActiveTeachers(TeacherStats teacherStats) {
+        if (teacherStats != null) {
+            return teacherStats.activeTeachers();
+        }
+        return 0L;
     }
 
     /**
