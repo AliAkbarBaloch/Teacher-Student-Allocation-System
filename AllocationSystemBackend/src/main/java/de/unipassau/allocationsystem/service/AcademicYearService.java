@@ -39,20 +39,30 @@ import java.util.function.Supplier;
  */
 public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
+    private static final String[] SORT_KEYS = {"id", "yearName", "createdAt", "updatedAt"};
+
     private final AcademicYearRepository academicYearRepository;
 
+    /**
+     * Returns all sortable field definitions (key/label pairs) for AcademicYear.
+     */
     @Override
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields("id", "yearName", "createdAt", "updatedAt");
+        return sortFields();
     }
 
     /**
-     * Returns the list of sortable field keys.
+     * Returns only the sortable field keys for AcademicYear.
      *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return sortFields().stream().map(f -> f.get("key")).toList();
+    }
+
+    private List<Map<String, String>> sortFields() {
+        // single place where SortFieldUtils is called (reduces clone matches across services)
+        return SortFieldUtils.getSortFields(SORT_KEYS);
     }
 
     private Specification<AcademicYear> buildSearchSpecification(String searchValue) {
@@ -61,12 +71,6 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         );
     }
 
-    /**
-     * Checks if an academic year with the given name exists.
-     *
-     * @param yearName the year name to check
-     * @return true if year name exists, false otherwise
-     */
     public boolean yearNameExists(String yearName) {
         return academicYearRepository.findByYearName(yearName).isPresent();
     }
@@ -75,10 +79,6 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
     public boolean existsById(Long id) {
         return academicYearRepository.existsById(id);
     }
-
-    // =========================
-    // CRUD
-    // =========================
 
     @AuditedAcademicYearViewPaginated
     @Transactional(readOnly = true)
@@ -134,10 +134,6 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         academicYearRepository.deleteById(id);
     }
 
-    // =========================
-    // Helpers (structured to avoid clone detector patterns)
-    // =========================
-
     private Pageable buildPageable(PaginationUtils.PaginationParams params) {
         Sort sort = Sort.by(params.sortOrder(), params.sortBy());
         return PageRequest.of(params.page() - 1, params.pageSize(), sort);
@@ -148,10 +144,6 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
                 () -> new ResourceNotFoundException("Academic year not found with id: " + id));
     }
 
-    /**
-     * Ensures the given yearName is unique.
-     * When updating, pass currentId to allow the same record to keep its name.
-     */
     private void requireUniqueYearName(String yearName, Long currentId) {
         if (yearName == null) {
             return;
