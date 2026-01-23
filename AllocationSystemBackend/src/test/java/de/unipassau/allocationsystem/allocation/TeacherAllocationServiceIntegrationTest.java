@@ -45,6 +45,46 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 public class TeacherAllocationServiceIntegrationTest {
 
+    /**
+     * Holds all Spring-managed dependencies required by this integration test.
+     * <p>
+     * Using a parameter object avoids constructors with an excessive number of
+     * parameters while still keeping constructor injection.
+     * </p>
+     *
+     * @param allocationService            the allocation service under test
+     * @param academicYearRepository       repository for academic years
+     * @param teacherSubjectRepository     repository for teacher-subject mappings
+     * @param teacherRepository            repository for teachers
+     * @param internshipDemandRepository   repository for internship demands
+     * @param teacherAssignmentRepository  repository for teacher assignments
+     * @param internshipTypeRepository     repository for internship types
+     * @param subjectRepository            repository for subjects
+     * @param schoolRepository             repository for schools
+     * @param subjectCategoryRepository    repository for subject categories
+     */
+    interface Dependencies {
+        TeacherAllocationService allocationService();
+
+        AcademicYearRepository academicYearRepository();
+
+        TeacherSubjectRepository teacherSubjectRepository();
+
+        TeacherRepository teacherRepository();
+
+        InternshipDemandRepository internshipDemandRepository();
+
+        TeacherAssignmentRepository teacherAssignmentRepository();
+
+        InternshipTypeRepository internshipTypeRepository();
+
+        SubjectRepository subjectRepository();
+
+        SchoolRepository schoolRepository();
+
+        SubjectCategoryRepository subjectCategoryRepository();
+    }
+
     private final TeacherAllocationService allocationService;
     private final AcademicYearRepository academicYearRepository;
     private final TeacherSubjectRepository teacherSubjectRepository;
@@ -59,28 +99,17 @@ public class TeacherAllocationServiceIntegrationTest {
     private AcademicYear year;
 
     @Autowired
-    public TeacherAllocationServiceIntegrationTest(
-            TeacherAllocationService allocationService,
-            AcademicYearRepository academicYearRepository,
-            TeacherSubjectRepository teacherSubjectRepository,
-            TeacherRepository teacherRepository,
-            InternshipDemandRepository internshipDemandRepository,
-            TeacherAssignmentRepository teacherAssignmentRepository,
-            InternshipTypeRepository internshipTypeRepository,
-            SubjectRepository subjectRepository,
-            SchoolRepository schoolRepository,
-            SubjectCategoryRepository subjectCategoryRepository
-    ) {
-        this.allocationService = allocationService;
-        this.academicYearRepository = academicYearRepository;
-        this.teacherSubjectRepository = teacherSubjectRepository;
-        this.teacherRepository = teacherRepository;
-        this.internshipDemandRepository = internshipDemandRepository;
-        this.teacherAssignmentRepository = teacherAssignmentRepository;
-        this.internshipTypeRepository = internshipTypeRepository;
-        this.subjectRepository = subjectRepository;
-        this.schoolRepository = schoolRepository;
-        this.subjectCategoryRepository = subjectCategoryRepository;
+    public TeacherAllocationServiceIntegrationTest(Dependencies deps) {
+        this.allocationService = deps.allocationService();
+        this.academicYearRepository = deps.academicYearRepository();
+        this.teacherSubjectRepository = deps.teacherSubjectRepository();
+        this.teacherRepository = deps.teacherRepository();
+        this.internshipDemandRepository = deps.internshipDemandRepository();
+        this.teacherAssignmentRepository = deps.teacherAssignmentRepository();
+        this.internshipTypeRepository = deps.internshipTypeRepository();
+        this.subjectRepository = deps.subjectRepository();
+        this.schoolRepository = deps.schoolRepository();
+        this.subjectCategoryRepository = deps.subjectCategoryRepository();
     }
 
     @BeforeEach
@@ -124,9 +153,6 @@ public class TeacherAllocationServiceIntegrationTest {
         allocationService.performAllocation(year.getId());
 
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
-
-        // Minimal assertion to avoid "initial value never read" / unused variable issues
-        // while keeping the test ready for future rule assertions.
         assertThat(assignments).isNotNull();
     }
 
