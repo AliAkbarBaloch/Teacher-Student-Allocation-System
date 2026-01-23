@@ -14,42 +14,54 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration tests for {@link AuditLogService}.
- * <p>
- * This test class validates audit log creation, querying, and asynchronous logging.
- * </p>
- */
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class AuditLogServiceTest {
 
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private AuditLogRepository auditLogRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final AuditLogService auditLogService;
+    private final AuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
 
     private User testUser;
+
+    /**
+     * Constructor injection (preferred over field injection).
+     */
+    @Autowired
+    AuditLogServiceTest(AuditLogService auditLogService,
+                        AuditLogRepository auditLogRepository,
+                        UserRepository userRepository) {
+        this.auditLogService = auditLogService;
+        this.auditLogRepository = auditLogRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
         auditLogRepository.deleteAll();
+        userRepository.deleteAll();
 
-        testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password123");
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser = userRepository.save(testUser);
+        testUser = userRepository.save(newTestUser("test@example.com", "Test User"));
+    }
+
+    private static User newTestUser(String email, String fullName) {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(generateTestPassword()); // avoid hard-coded password
+        user.setFullName(fullName);
+        user.setEnabled(true);
+        return user;
+    }
+
+    private static String generateTestPassword() {
+        return "test-" + UUID.randomUUID();
     }
 
     @Test
@@ -77,16 +89,13 @@ class AuditLogServiceTest {
     }
 
     @Test
-    void testLogCreateAsync() throws InterruptedException {
+    void testLogCreateAsync() {
         auditLogService.logCreate("User", "456", Map.of("email", "newuser@example.com", "name", "New User"));
-        Thread.sleep(500); // Wait for async processing
 
-        Page<AuditLog> logs = auditLogRepository.findByTargetEntityAndTargetRecordId(
-                "User", "456", PageRequest.of(0, 10)
-        );
+        // Avoid Thread.sleep in tests: poll until the async entry appears or timeout.
+        AuditLog log = awaitFirstAuditLogFor("User", "456", Duration.ofSeconds(5));
 
-        assertTrue(logs.getTotalElements() > 0);
-        AuditLog log = logs.getContent().get(0);
+        assertNotNull(log);
         assertEquals(AuditAction.CREATE, log.getAction());
         assertEquals("User", log.getTargetEntity());
         assertEquals("456", log.getTargetRecordId());
@@ -113,4 +122,27 @@ class AuditLogServiceTest {
         assertEquals(2, userLogs.getTotalElements());
     }
 
+    /**
+     * Polls the repository until an audit log for the given entity/record exists or the timeout elapses.
+     * This avoids flaky tests caused by Thread.sleep.
+     */
+    private AuditLog awaitFirstAuditLogFor(String entityName, String recordId, Duration timeout) {
+        long deadlineNanos = System.nanoTime() + timeout.toNanos();
+
+        while (System.nanoTime() < deadlineNanos) {
+            Page<AuditLog> logs = auditLogRepository.findByTargetEntityAndTargetRecordId(
+                    entityName, recordId, PageRequest.of(0, 1)
+            );
+            if (logs.hasContent()) {
+                return logs.getContent().get(0);
+            }
+
+            // Small, cooperative backoff (not Thread.sleep)
+            // Works in plain JUnit without adding Awaitility dependency.
+            Thread.onSpinWait();
+        }
+
+        fail("Timed out waiting for async audit log entry for " + entityName + "/" + recordId);
+        return null; // unreachable
+    }
 }
