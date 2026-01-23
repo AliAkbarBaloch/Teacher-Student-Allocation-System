@@ -1,5 +1,12 @@
 package de.unipassau.allocationsystem.entity;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,13 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -37,10 +37,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 /**
- * Entity representing a user in the system.
- * Implements UserDetails for Spring Security integration and tracks authentication, roles, and account status.
+ * Entity representing a user in the system. Implements UserDetails for Spring
+ * Security integration and tracks authentication, roles, and account status.
  */
 public class User implements UserDetails {
+
     private static final int PASSWORD_MIN_LENGTH = 6;
 
     @Id
@@ -138,9 +139,13 @@ public class User implements UserDetails {
         return true;
     }
 
+
     @Override
     public boolean isEnabled() {
-        return enabled && !accountLocked && accountStatus == AccountStatus.ACTIVE;
+        return enabled
+                && !accountLocked
+                && accountStatus != null
+                && accountStatus == AccountStatus.ACTIVE;
     }
 
     @Override
