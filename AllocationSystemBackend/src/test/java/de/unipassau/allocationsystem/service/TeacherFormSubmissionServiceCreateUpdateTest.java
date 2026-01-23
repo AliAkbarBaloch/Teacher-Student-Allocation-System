@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -68,12 +67,11 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(1L, 1L, "new-token-456", now);
 
-        // Keep this entity minimal to avoid clone patterns with fixtures/other tests.
-        // The service should set teacher/year (and possibly token/timestamp) after mapping.
         TeacherFormSubmission mappedSubmission = new TeacherFormSubmission();
 
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
+        TeacherFormSubmissionServiceTestStubs.teacherFound(teacherRepository, 1L, teacher);
+        TeacherFormSubmissionServiceTestStubs.yearFound(academicYearRepository, 1L, academicYear);
+
         when(teacherFormSubmissionRepository.existsByFormToken("new-token-456")).thenReturn(false);
         when(teacherFormSubmissionMapper.toEntityCreate(createDto)).thenReturn(mappedSubmission);
         when(teacherFormSubmissionRepository.save(any(TeacherFormSubmission.class)))
@@ -102,7 +100,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(999L, 1L, "token", now);
 
-        when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
+        TeacherFormSubmissionServiceTestStubs.teacherNotFound(teacherRepository, 999L);
 
         assertThrows(ResourceNotFoundException.class, () ->
                 teacherFormSubmissionService.createFormSubmission(createDto)
@@ -119,8 +117,8 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(1L, 999L, "token", now);
 
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(academicYearRepository.findById(999L)).thenReturn(Optional.empty());
+        TeacherFormSubmissionServiceTestStubs.teacherFound(teacherRepository, 1L, teacher);
+        TeacherFormSubmissionServiceTestStubs.yearNotFound(academicYearRepository, 999L);
 
         assertThrows(ResourceNotFoundException.class, () ->
                 teacherFormSubmissionService.createFormSubmission(createDto)
@@ -139,8 +137,8 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(1L, 1L, "token", now);
 
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
+        TeacherFormSubmissionServiceTestStubs.teacherFound(teacherRepository, 1L, teacher);
+        TeacherFormSubmissionServiceTestStubs.yearFound(academicYearRepository, 1L, academicYear);
 
         assertThrows(IllegalArgumentException.class, () ->
                 teacherFormSubmissionService.createFormSubmission(createDto)
@@ -157,8 +155,9 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(1L, 1L, "existing-token", now);
 
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
+        TeacherFormSubmissionServiceTestStubs.teacherFound(teacherRepository, 1L, teacher);
+        TeacherFormSubmissionServiceTestStubs.yearFound(academicYearRepository, 1L, academicYear);
+
         when(teacherFormSubmissionRepository.existsByFormToken("existing-token")).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () ->
@@ -177,7 +176,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
         updateDto.setIsProcessed(true);
 
-        when(teacherFormSubmissionRepository.findById(1L)).thenReturn(Optional.of(submission));
+        when(teacherFormSubmissionRepository.findById(1L)).thenReturn(java.util.Optional.of(submission));
         when(teacherFormSubmissionRepository.save(any(TeacherFormSubmission.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
@@ -198,7 +197,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
         updateDto.setIsProcessed(true);
 
-        when(teacherFormSubmissionRepository.findById(999L)).thenReturn(Optional.empty());
+        when(teacherFormSubmissionRepository.findById(999L)).thenReturn(java.util.Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () ->
                 teacherFormSubmissionService.updateFormSubmissionStatus(999L, updateDto)

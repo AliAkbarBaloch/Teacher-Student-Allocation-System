@@ -1,12 +1,14 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherFormSubmission;
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherFormSubmissionMapper;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.TeacherFormSubmissionRepository;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,12 +41,16 @@ class TeacherFormSubmissionServiceGetTest {
     private TeacherFormSubmissionRepository teacherFormSubmissionRepository;
 
     @Mock
+    private TeacherRepository teacherRepository;
+
+    @Mock
+    private AcademicYearRepository academicYearRepository;
+
+    @Mock
     private TeacherFormSubmissionMapper teacherFormSubmissionMapper;
 
     @InjectMocks
     private TeacherFormSubmissionService teacherFormSubmissionService;
-
-    private final LocalDateTime now = LocalDateTime.of(2025, 1, 1, 12, 0);
 
     private Teacher teacher;
     private AcademicYear academicYear;
@@ -55,16 +59,45 @@ class TeacherFormSubmissionServiceGetTest {
 
     @BeforeEach
     void setUp() {
-        teacher = TeacherFormSubmissionServiceTestFixtures.teacher();
-        academicYear = TeacherFormSubmissionServiceTestFixtures.academicYear(false);
-        submission = TeacherFormSubmissionServiceTestFixtures.submission(teacher, academicYear, now);
-        responseDto = TeacherFormSubmissionServiceTestFixtures.responseDto(now);
+        teacher = new Teacher();
+        teacher.setId(1L);
+        teacher.setFirstName("John");
+        teacher.setLastName("Doe");
+        teacher.setEmail("john.doe@example.com");
+
+        academicYear = new AcademicYear();
+        academicYear.setId(1L);
+        academicYear.setYearName("2024/2025");
+        academicYear.setIsLocked(false);
+
+        submission = new TeacherFormSubmission();
+        submission.setId(1L);
+        submission.setTeacher(teacher);
+        submission.setAcademicYear(academicYear);
+        submission.setFormToken("unique-token-123");
+        submission.setSubmittedAt(LocalDateTime.now());
+        submission.setIsProcessed(false);
+
+        responseDto = TeacherFormSubmissionResponseDto.builder()
+                .id(1L)
+                .teacherId(1L)
+                .teacherFirstName("John")
+                .teacherLastName("Doe")
+                .teacherEmail("john.doe@example.com")
+                .yearId(1L)
+                .yearName("2024/2025")
+                .formToken("unique-token-123")
+                .submittedAt(LocalDateTime.now())
+                .isProcessed(false)
+                .build();
     }
 
+    // GET ALL Tests
     @Test
     @DisplayName("Should get all form submissions without filters")
     void shouldGetAllFormSubmissionsWithoutFilters() {
         Map<String, String> queryParams = Map.of("page", "1", "pageSize", "10");
+
         Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -85,6 +118,7 @@ class TeacherFormSubmissionServiceGetTest {
     @DisplayName("Should get form submissions filtered by teacher ID")
     void shouldGetFormSubmissionsFilteredByTeacherId() {
         Map<String, String> queryParams = Map.of("page", "1", "pageSize", "10");
+
         Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -105,6 +139,7 @@ class TeacherFormSubmissionServiceGetTest {
     @DisplayName("Should get form submissions filtered by year ID")
     void shouldGetFormSubmissionsFilteredByYearId() {
         Map<String, String> queryParams = Map.of("page", "1", "pageSize", "10");
+
         Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -125,6 +160,7 @@ class TeacherFormSubmissionServiceGetTest {
     @DisplayName("Should get form submissions filtered by processed status")
     void shouldGetFormSubmissionsFilteredByProcessedStatus() {
         Map<String, String> queryParams = Map.of("page", "1", "pageSize", "10");
+
         Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
 
         when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -141,6 +177,7 @@ class TeacherFormSubmissionServiceGetTest {
         verify(teacherFormSubmissionRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
+    // GET BY ID Tests
     @Test
     @DisplayName("Should get form submission by ID successfully")
     void shouldGetFormSubmissionByIdSuccessfully() {
