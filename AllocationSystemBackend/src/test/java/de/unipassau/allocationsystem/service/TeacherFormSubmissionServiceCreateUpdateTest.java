@@ -1,11 +1,11 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.entity.AcademicYear;
-import de.unipassau.allocationsystem.entity.Teacher;
-import de.unipassau.allocationsystem.entity.TeacherFormSubmission;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionStatusUpdateDto;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherFormSubmission;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.mapper.TeacherFormSubmissionMapper;
@@ -23,14 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for {@link TeacherFormSubmissionService} (CREATE + UPDATE operations).
- */
 @ExtendWith(MockitoExtension.class)
 class TeacherFormSubmissionServiceCreateUpdateTest {
 
@@ -49,6 +47,8 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     @InjectMocks
     private TeacherFormSubmissionService teacherFormSubmissionService;
 
+    private final LocalDateTime now = LocalDateTime.of(2025, 1, 1, 12, 0);
+
     private Teacher teacher;
     private AcademicYear academicYear;
     private TeacherFormSubmission submission;
@@ -56,40 +56,12 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
 
     @BeforeEach
     void setUp() {
-        teacher = new Teacher();
-        teacher.setId(1L);
-        teacher.setFirstName("John");
-        teacher.setLastName("Doe");
-        teacher.setEmail("john.doe@example.com");
-
-        academicYear = new AcademicYear();
-        academicYear.setId(1L);
-        academicYear.setYearName("2024/2025");
-        academicYear.setIsLocked(false);
-
-        submission = new TeacherFormSubmission();
-        submission.setId(1L);
-        submission.setTeacher(teacher);
-        submission.setAcademicYear(academicYear);
-        submission.setFormToken("unique-token-123");
-        submission.setSubmittedAt(LocalDateTime.now());
-        submission.setIsProcessed(false);
-
-        responseDto = TeacherFormSubmissionResponseDto.builder()
-                .id(1L)
-                .teacherId(1L)
-                .teacherFirstName("John")
-                .teacherLastName("Doe")
-                .teacherEmail("john.doe@example.com")
-                .yearId(1L)
-                .yearName("2024/2025")
-                .formToken("unique-token-123")
-                .submittedAt(LocalDateTime.now())
-                .isProcessed(false)
-                .build();
+        teacher = TeacherFormSubmissionServiceTestFixtures.teacher();
+        academicYear = TeacherFormSubmissionServiceTestFixtures.academicYear(false);
+        submission = TeacherFormSubmissionServiceTestFixtures.submission(teacher, academicYear, now);
+        responseDto = TeacherFormSubmissionServiceTestFixtures.responseDto(now);
     }
 
-    // CREATE Tests
     @Test
     @DisplayName("Should create form submission successfully")
     void shouldCreateFormSubmissionSuccessfully() {
@@ -97,13 +69,13 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         createDto.setTeacherId(1L);
         createDto.setYearId(1L);
         createDto.setFormToken("new-token-456");
-        createDto.setSubmittedAt(LocalDateTime.now());
+        createDto.setSubmittedAt(now);
 
         TeacherFormSubmission mappedSubmission = new TeacherFormSubmission();
         mappedSubmission.setTeacher(teacher);
         mappedSubmission.setAcademicYear(academicYear);
         mappedSubmission.setFormToken("new-token-456");
-        mappedSubmission.setSubmittedAt(LocalDateTime.now());
+        mappedSubmission.setSubmittedAt(now);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
@@ -118,8 +90,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
-        TeacherFormSubmissionResponseDto result = teacherFormSubmissionService
-                .createFormSubmission(createDto);
+        TeacherFormSubmissionResponseDto result = teacherFormSubmissionService.createFormSubmission(createDto);
 
         assertNotNull(result);
 
@@ -136,7 +107,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         createDto.setTeacherId(999L);
         createDto.setYearId(1L);
         createDto.setFormToken("token");
-        createDto.setSubmittedAt(LocalDateTime.now());
+        createDto.setSubmittedAt(now);
 
         when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -156,7 +127,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         createDto.setTeacherId(1L);
         createDto.setYearId(999L);
         createDto.setFormToken("token");
-        createDto.setSubmittedAt(LocalDateTime.now());
+        createDto.setSubmittedAt(now);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(999L)).thenReturn(Optional.empty());
@@ -173,13 +144,13 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     @Test
     @DisplayName("Should throw IllegalArgumentException when academic year is locked")
     void shouldThrowExceptionWhenAcademicYearIsLocked() {
-        academicYear.setIsLocked(true);
+        academicYear = TeacherFormSubmissionServiceTestFixtures.academicYear(true);
 
         TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
         createDto.setTeacherId(1L);
         createDto.setYearId(1L);
         createDto.setFormToken("token");
-        createDto.setSubmittedAt(LocalDateTime.now());
+        createDto.setSubmittedAt(now);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
@@ -200,7 +171,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         createDto.setTeacherId(1L);
         createDto.setYearId(1L);
         createDto.setFormToken("existing-token");
-        createDto.setSubmittedAt(LocalDateTime.now());
+        createDto.setSubmittedAt(now);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
@@ -216,22 +187,20 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         verify(teacherFormSubmissionRepository, never()).save(any(TeacherFormSubmission.class));
     }
 
-    // UPDATE STATUS Tests
     @Test
     @DisplayName("Should update form submission status successfully")
     void shouldUpdateFormSubmissionStatusSuccessfully() {
         TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
         updateDto.setIsProcessed(true);
 
-        when(teacherFormSubmissionRepository.findById(1L))
-                .thenReturn(Optional.of(submission));
+        when(teacherFormSubmissionRepository.findById(1L)).thenReturn(Optional.of(submission));
         when(teacherFormSubmissionRepository.save(any(TeacherFormSubmission.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
-        TeacherFormSubmissionResponseDto result = teacherFormSubmissionService
-                .updateFormSubmissionStatus(1L, updateDto);
+        TeacherFormSubmissionResponseDto result =
+                teacherFormSubmissionService.updateFormSubmissionStatus(1L, updateDto);
 
         assertNotNull(result);
 
@@ -245,8 +214,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
         updateDto.setIsProcessed(true);
 
-        when(teacherFormSubmissionRepository.findById(999L))
-                .thenReturn(Optional.empty());
+        when(teacherFormSubmissionRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () ->
                 teacherFormSubmissionService.updateFormSubmissionStatus(999L, updateDto)
