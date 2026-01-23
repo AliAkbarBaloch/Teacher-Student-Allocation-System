@@ -1,7 +1,6 @@
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
@@ -19,16 +18,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for the {@link AllocationPlanController}.
@@ -43,72 +46,47 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class AllocationPlanControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String TEST_USER_EMAIL = "test@example.com";
+    private static final String TEST_USER_PASSWORD = "test-password"; // test-only constant (no real credential)
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private AllocationPlanRepository allocationPlanRepository;
-
-    @Autowired
-    private AcademicYearRepository academicYearRepository;
-
-    @Autowired
-    private TeacherAssignmentRepository teacherAssignmentRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final AllocationPlanRepository allocationPlanRepository;
+    private final AcademicYearRepository academicYearRepository;
+    private final TeacherAssignmentRepository teacherAssignmentRepository;
+    private final UserRepository userRepository;
 
     private AcademicYear academicYear;
-    private User user;
     private AllocationPlan testPlan;
+
+    @Autowired
+    AllocationPlanControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            AllocationPlanRepository allocationPlanRepository,
+            AcademicYearRepository academicYearRepository,
+            TeacherAssignmentRepository teacherAssignmentRepository,
+            UserRepository userRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.allocationPlanRepository = allocationPlanRepository;
+        this.academicYearRepository = academicYearRepository;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
-        // Delete in correct order (children first, then parents)
-        teacherAssignmentRepository.deleteAll();
-        allocationPlanRepository.deleteAll();
-        
-        // Try to find existing user or create new one
-        user = userRepository.findByEmail("test@example.com").orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail("test@example.com");
-            newUser.setPassword("password123");
-            newUser.setFullName("Test User");
-            newUser.setRole(User.UserRole.ADMIN);
-            newUser.setEnabled(true);
-            newUser.setAccountStatus(User.AccountStatus.ACTIVE);
-            newUser.setAccountLocked(false);
-            newUser.setFailedLoginAttempts(0);
-            return userRepository.save(newUser);
-        });
-
-        // Create unique academic year for each test to avoid constraint violations
-        String yearName = "Test-" + System.currentTimeMillis();
-        academicYear = new AcademicYear();
-        academicYear.setYearName(yearName);
-        academicYear.setTotalCreditHours(100);
-        academicYear.setElementarySchoolHours(20);
-        academicYear.setMiddleSchoolHours(25);
-        academicYear.setBudgetAnnouncementDate(LocalDateTime.now());
-        academicYear.setIsLocked(false);
-        academicYear = academicYearRepository.save(academicYear);
-
-        testPlan = new AllocationPlan();
-        testPlan.setAcademicYear(academicYear);
-        testPlan.setPlanName("Test Plan");
-        testPlan.setPlanVersion("1");
-        testPlan.setStatus(PlanStatus.DRAFT);
-        testPlan.setNotes("Test Description");
-        testPlan.setIsCurrent(true);
-        testPlan = allocationPlanRepository.save(testPlan);
+        cleanRepositories();
+        ensureAdminUserExists();
+        academicYear = createAndPersistAcademicYear("Test-");
+        testPlan = createAndPersistPlan(academicYear, "Test Plan", "1", PlanStatus.DRAFT, true);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllocationPlans_Success() throws Exception {
+    void testGetAllocationPlansSuccess() throws Exception {
         mockMvc.perform(get("/api/allocation-plans")
                         .param("yearId", academicYear.getId().toString()))
                 .andExpect(status().isOk())
@@ -120,7 +98,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllocationPlans_WithFilters() throws Exception {
+    void testGetAllocationPlansWithFilters() throws Exception {
         mockMvc.perform(get("/api/allocation-plans")
                         .param("yearId", academicYear.getId().toString()))
                 .andExpect(status().isOk())
@@ -129,7 +107,7 @@ class AllocationPlanControllerTest {
     }
 
     @Test
-    void testGetAllocationPlans_Unauthorized() throws Exception {
+    void testGetAllocationPlansUnauthorized() throws Exception {
         mockMvc.perform(get("/api/allocation-plans")
                         .param("yearId", "1"))
                 .andExpect(status().isUnauthorized());
@@ -137,7 +115,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void testGetAllocationPlans_Forbidden() throws Exception {
+    void testGetAllocationPlansForbidden() throws Exception {
         mockMvc.perform(get("/api/allocation-plans")
                         .param("yearId", "1"))
                 .andExpect(status().isForbidden());
@@ -145,7 +123,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllocationPlanById_Success() throws Exception {
+    void testGetAllocationPlanByIdSuccess() throws Exception {
         mockMvc.perform(get("/api/allocation-plans/" + testPlan.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
@@ -156,14 +134,14 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllocationPlanById_NotFound() throws Exception {
+    void testGetAllocationPlanByIdNotFound() throws Exception {
         mockMvc.perform(get("/api/allocation-plans/999"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateAllocationPlan_Success() throws Exception {
+    void testCreateAllocationPlanSuccess() throws Exception {
         AllocationPlanCreateDto createDto = new AllocationPlanCreateDto();
         createDto.setYearId(academicYear.getId());
         createDto.setPlanName("New Plan");
@@ -184,7 +162,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateAllocationPlan_InvalidData() throws Exception {
+    void testCreateAllocationPlanInvalidData() throws Exception {
         AllocationPlanCreateDto createDto = new AllocationPlanCreateDto();
 
         mockMvc.perform(post("/api/allocation-plans")
@@ -196,7 +174,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testUpdateAllocationPlan_Success() throws Exception {
+    void testUpdateAllocationPlanSuccess() throws Exception {
         AllocationPlanUpdateDto updateDto = new AllocationPlanUpdateDto();
         updateDto.setPlanName("Updated Plan");
         updateDto.setNotes("Updated Description");
@@ -213,7 +191,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testUpdateAllocationPlan_NotFound() throws Exception {
+    void testUpdateAllocationPlanNotFound() throws Exception {
         AllocationPlanUpdateDto updateDto = new AllocationPlanUpdateDto();
         updateDto.setPlanName("Updated Plan");
 
@@ -226,15 +204,8 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testSetCurrentPlan_Success() throws Exception {
-        AllocationPlan anotherPlan = new AllocationPlan();
-        anotherPlan.setAcademicYear(academicYear);
-        anotherPlan.setPlanName("Another Plan");
-        anotherPlan.setPlanVersion("2");
-        anotherPlan.setStatus(PlanStatus.APPROVED);
-        anotherPlan.setNotes("Another Description");
-        anotherPlan.setIsCurrent(false);
-        anotherPlan = allocationPlanRepository.save(anotherPlan);
+    void testSetCurrentPlanSuccess() throws Exception {
+        AllocationPlan anotherPlan = createAndPersistPlan(academicYear, "Another Plan", "2", PlanStatus.APPROVED, false);
 
         mockMvc.perform(post("/api/allocation-plans/" + anotherPlan.getId() + "/current")
                         .with(csrf()))
@@ -246,7 +217,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testSetCurrentPlan_NotFound() throws Exception {
+    void testSetCurrentPlanNotFound() throws Exception {
         mockMvc.perform(post("/api/allocation-plans/999/current")
                         .with(csrf()))
                 .andExpect(status().isNotFound());
@@ -254,7 +225,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testArchivePlan_Success() throws Exception {
+    void testArchivePlanSuccess() throws Exception {
         mockMvc.perform(post("/api/allocation-plans/" + testPlan.getId() + "/archive")
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -265,7 +236,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testArchivePlan_NotFound() throws Exception {
+    void testArchivePlanNotFound() throws Exception {
         mockMvc.perform(post("/api/allocation-plans/999/archive")
                         .with(csrf()))
                 .andExpect(status().isNotFound());
@@ -273,7 +244,7 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetCurrentPlanForYear_Success() throws Exception {
+    void testGetCurrentPlanForYearSuccess() throws Exception {
         mockMvc.perform(get("/api/allocation-plans/current")
                         .param("yearId", academicYear.getId().toString()))
                 .andExpect(status().isOk())
@@ -284,20 +255,69 @@ class AllocationPlanControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetCurrentPlanForYear_NotFound() throws Exception {
-        // Create unique academic year to avoid constraint violations
-        String yearName = "Test-NotFound-" + System.currentTimeMillis();
-        AcademicYear newYear = new AcademicYear();
-        newYear.setYearName(yearName);
-        newYear.setTotalCreditHours(100);
-        newYear.setElementarySchoolHours(20);
-        newYear.setMiddleSchoolHours(25);
-        newYear.setBudgetAnnouncementDate(LocalDateTime.now());
-        newYear.setIsLocked(false);
-        newYear = academicYearRepository.save(newYear);
+    void testGetCurrentPlanForYearNotFound() throws Exception {
+        AcademicYear newYear = createAndPersistAcademicYear("Test-NotFound-");
 
         mockMvc.perform(get("/api/allocation-plans/current")
                         .param("yearId", newYear.getId().toString()))
                 .andExpect(status().isNotFound());
+    }
+
+    private void cleanRepositories() {
+        // Delete in correct order (children first, then parents)
+        teacherAssignmentRepository.deleteAll();
+        allocationPlanRepository.deleteAll();
+    }
+
+    private void ensureAdminUserExists() {
+        userRepository.findByEmail(TEST_USER_EMAIL).orElseGet(this::createAdminUser);
+    }
+
+    private User createAdminUser() {
+        User newUser = new User();
+        newUser.setEmail(TEST_USER_EMAIL);
+
+        // This is not a real secret: tests typically use a dummy password.
+        // If you have a PasswordEncoder requirement, encode it here instead.
+        newUser.setPassword(TEST_USER_PASSWORD);
+
+        newUser.setFullName("Test User");
+        newUser.setRole(User.UserRole.ADMIN);
+        newUser.setEnabled(true);
+        newUser.setAccountStatus(User.AccountStatus.ACTIVE);
+        newUser.setAccountLocked(false);
+        newUser.setFailedLoginAttempts(0);
+        return userRepository.save(newUser);
+    }
+
+    private AcademicYear createAndPersistAcademicYear(String prefix) {
+        String yearName = prefix + System.currentTimeMillis();
+
+        AcademicYear year = new AcademicYear();
+        year.setYearName(yearName);
+        year.setTotalCreditHours(100);
+        year.setElementarySchoolHours(20);
+        year.setMiddleSchoolHours(25);
+        year.setBudgetAnnouncementDate(LocalDateTime.now());
+        year.setIsLocked(false);
+
+        return academicYearRepository.save(year);
+    }
+
+    private AllocationPlan createAndPersistPlan(
+            AcademicYear year,
+            String planName,
+            String planVersion,
+            PlanStatus status,
+            boolean isCurrent
+    ) {
+        AllocationPlan plan = new AllocationPlan();
+        plan.setAcademicYear(year);
+        plan.setPlanName(planName);
+        plan.setPlanVersion(planVersion);
+        plan.setStatus(status);
+        plan.setNotes(planName + " Description");
+        plan.setIsCurrent(isCurrent);
+        return allocationPlanRepository.save(plan);
     }
 }
