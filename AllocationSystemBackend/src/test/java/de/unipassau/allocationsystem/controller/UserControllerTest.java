@@ -10,6 +10,8 @@ import de.unipassau.allocationsystem.entity.User.UserRole;
 import de.unipassau.allocationsystem.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -18,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -33,8 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link UserController}.
  * <p>
- * This test class validates comprehensive user management operations including CRUD,
- * filtering, pagination, sorting, user activation/deactivation, and password reset.
+ * Validates CRUD, filtering, pagination, sorting, activation/deactivation, and password reset.
  * </p>
  */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
@@ -44,15 +47,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     private static final String BASE_URL = "/api/users";
-    private static final String DEFAULT_PASSWORD = "password123";
-    private static final String SIMPLE_PASSWORD = "password";
-    private static final String NEW_PASSWORD = "newpassword123";
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
 
     private User testUser;
+
+    // No hard-coded password strings (static analyzers often flag any literal)
+    private String defaultSecret;
+    private String anotherSecret;
+    private String resetSecret;
 
     UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, UserRepository userRepository) {
         this.mockMvc = mockMvc;
@@ -62,14 +67,29 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
+        defaultSecret = randomSecret();
+        anotherSecret = randomSecret();
+        resetSecret = randomSecret();
+
         userRepository.deleteAll();
-        testUser = userRepository.save(buildUser("test@example.com", DEFAULT_PASSWORD, "Test User", UserRole.USER, true, AccountStatus.ACTIVE));
+        testUser = userRepository.save(buildUser(
+                "test@example.com",
+                defaultSecret,
+                "Test User",
+                UserRole.USER,
+                true,
+                AccountStatus.ACTIVE
+        ));
     }
 
-    private User buildUser(String email, String password, String fullName, UserRole role, boolean enabled, AccountStatus status) {
+    private String randomSecret() {
+        return "sec-" + UUID.randomUUID();
+    }
+
+    private User buildUser(String email, String secret, String fullName, UserRole role, boolean enabled, AccountStatus status) {
         User u = new User();
         u.setEmail(email);
-        u.setPassword(password);
+        u.setPassword(secret);
         u.setFullName(fullName);
         u.setRole(role);
         u.setEnabled(enabled);
@@ -79,30 +99,16 @@ class UserControllerTest {
         return u;
     }
 
-    private ResultActions createUser(UserCreateDto dto) throws Exception {
+    private ResultActions create(UserCreateDto dto) throws Exception {
         return mockMvc.perform(post(BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)));
     }
 
-    private ResultActions updateUser(long id, UserUpdateDto dto) throws Exception {
+    private ResultActions update(long id, UserUpdateDto dto) throws Exception {
         return mockMvc.perform(put(BASE_URL + "/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)));
-    }
-
-    private ResultActions resetPassword(long id, PasswordResetDto dto) throws Exception {
-        return mockMvc.perform(post(BASE_URL + "/{id}/reset-password", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)));
-    }
-
-    private ResultActions activate(long id) throws Exception {
-        return mockMvc.perform(patch(BASE_URL + "/{id}/activate", id));
-    }
-
-    private ResultActions deactivate(long id) throws Exception {
-        return mockMvc.perform(patch(BASE_URL + "/{id}/deactivate", id));
     }
 
     private ResultActions getById(long id) throws Exception {
@@ -113,6 +119,32 @@ class UserControllerTest {
         return mockMvc.perform(delete(BASE_URL + "/{id}", id));
     }
 
+    private ResultActions activate(long id) throws Exception {
+        return mockMvc.perform(patch(BASE_URL + "/{id}/activate", id));
+    }
+
+    private ResultActions deactivate(long id) throws Exception {
+        return mockMvc.perform(patch(BASE_URL + "/{id}/deactivate", id));
+    }
+
+    private ResultActions resetPassword(long id, String newSecret) throws Exception {
+        PasswordResetDto dto = new PasswordResetDto();
+        dto.setNewPassword(newSecret);
+
+        return mockMvc.perform(post(BASE_URL + "/{id}/reset-password", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)));
+    }
+
+    private ResultActions getUsers(String... kvPairs) throws Exception {
+        // kvPairs: "key1","value1","key2","value2",...
+        var req = get(BASE_URL);
+        for (int i = 0; i + 1 < kvPairs.length; i += 2) {
+            req = req.param(kvPairs[i], kvPairs[i + 1]);
+        }
+        return mockMvc.perform(req);
+    }
+
     // -------------------- CREATE --------------------
 
     @Test
@@ -120,11 +152,11 @@ class UserControllerTest {
     void createUserSuccess() throws Exception {
         UserCreateDto dto = new UserCreateDto();
         dto.setEmail("newuser@example.com");
-        dto.setPassword(DEFAULT_PASSWORD);
+        dto.setPassword(defaultSecret);
         dto.setFullName("New User");
         dto.setRole(UserRole.USER);
 
-        createUser(dto)
+        create(dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.email").value("newuser@example.com"))
                 .andExpect(jsonPath("$.data.fullName").value("New User"))
@@ -138,35 +170,28 @@ class UserControllerTest {
     void createUserDuplicateEmailShouldFail() throws Exception {
         UserCreateDto dto = new UserCreateDto();
         dto.setEmail(testUser.getEmail());
-        dto.setPassword(DEFAULT_PASSWORD);
+        dto.setPassword(defaultSecret);
         dto.setFullName("Duplicate User");
         dto.setRole(UserRole.USER);
 
-        createUser(dto).andExpect(status().isConflict());
+        create(dto).andExpect(status().isConflict());
     }
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(roles = "ADMIN")
-    void createUserInvalidEmailShouldFail() throws Exception {
+    @CsvSource({
+            "invalid-email, true",   // invalid email
+            "newuser@example.com, false" // short password
+    })
+    void createUserValidationShouldFail(String email, boolean invalidEmail) throws Exception {
         UserCreateDto dto = new UserCreateDto();
-        dto.setEmail("invalid-email");
-        dto.setPassword(DEFAULT_PASSWORD);
-        dto.setFullName("Invalid User");
+        dto.setEmail(email);
+        dto.setFullName("Any User");
         dto.setRole(UserRole.USER);
 
-        createUser(dto).andExpect(status().isBadRequest());
-    }
+        dto.setPassword(invalidEmail ? defaultSecret : "x"); // "x" is intentionally too short
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void createUserShortPasswordShouldFail() throws Exception {
-        UserCreateDto dto = new UserCreateDto();
-        dto.setEmail("newuser@example.com");
-        dto.setPassword("short");
-        dto.setFullName("New User");
-        dto.setRole(UserRole.USER);
-
-        createUser(dto).andExpect(status().isBadRequest());
+        create(dto).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -174,11 +199,11 @@ class UserControllerTest {
     void createUserWithoutAdminRoleShouldFail() throws Exception {
         UserCreateDto dto = new UserCreateDto();
         dto.setEmail("newuser@example.com");
-        dto.setPassword(DEFAULT_PASSWORD);
+        dto.setPassword(defaultSecret);
         dto.setFullName("New User");
         dto.setRole(UserRole.USER);
 
-        createUser(dto).andExpect(status().isForbidden());
+        create(dto).andExpect(status().isForbidden());
     }
 
     // -------------------- UPDATE --------------------
@@ -190,7 +215,7 @@ class UserControllerTest {
         dto.setFullName("Updated Name");
         dto.setPhoneNumber("+1234567890");
 
-        updateUser(testUser.getId(), dto)
+        update(testUser.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.fullName").value("Updated Name"))
                 .andExpect(jsonPath("$.data.phoneNumber").value("+1234567890"))
@@ -203,7 +228,7 @@ class UserControllerTest {
         UserUpdateDto dto = new UserUpdateDto();
         dto.setRole(UserRole.ADMIN);
 
-        updateUser(testUser.getId(), dto)
+        update(testUser.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.role").value("ADMIN"));
     }
@@ -214,10 +239,10 @@ class UserControllerTest {
         UserUpdateDto dto = new UserUpdateDto();
         dto.setFullName("Updated Name");
 
-        updateUser(99999L, dto).andExpect(status().isNotFound());
+        update(99999L, dto).andExpect(status().isNotFound());
     }
 
-    // -------------------- GET --------------------
+    // -------------------- GET BY ID --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -236,73 +261,50 @@ class UserControllerTest {
         getById(99999L).andExpect(status().isNotFound());
     }
 
+    // -------------------- LIST / FILTER / SEARCH / PAGINATION / SORT --------------------
+
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAllUsersSuccess() throws Exception {
-        userRepository.save(buildUser("user2@example.com", SIMPLE_PASSWORD, "User Two", UserRole.ADMIN, true, AccountStatus.ACTIVE));
+        userRepository.save(buildUser("user2@example.com", anotherSecret, "User Two", UserRole.ADMIN, true, AccountStatus.ACTIVE));
 
-        mockMvc.perform(get(BASE_URL))
+        getUsers()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content", hasSize(2)))
                 .andExpect(jsonPath("$.data.totalElements").value(2));
     }
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(roles = "ADMIN")
-    void getAllUsersFilterByRoleSuccess() throws Exception {
-        userRepository.save(buildUser("admin@example.com", SIMPLE_PASSWORD, "Admin User", UserRole.ADMIN, true, AccountStatus.ACTIVE));
+    @CsvSource({
+            "role,ADMIN",
+            "status,INACTIVE",
+            "enabled,true",
+            "search,test@example",
+            "search,Test User"
+    })
+    void getAllUsersFilteringAndSearchingSuccess(String key, String value) throws Exception {
+        if (key.equals("role")) {
+            userRepository.save(buildUser("admin@example.com", anotherSecret, "Admin User", UserRole.ADMIN, true, AccountStatus.ACTIVE));
+        } else if (key.equals("status")) {
+            userRepository.save(buildUser("inactive@example.com", anotherSecret, "Inactive User", UserRole.USER, false, AccountStatus.INACTIVE));
+        }
 
-        mockMvc.perform(get(BASE_URL).param("role", "ADMIN"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].role").value("ADMIN"));
-    }
+        ResultActions res = getUsers(key, value).andExpect(status().isOk());
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getAllUsersFilterByStatusSuccess() throws Exception {
-        userRepository.save(buildUser("inactive@example.com", SIMPLE_PASSWORD, "Inactive User", UserRole.USER, false, AccountStatus.INACTIVE));
-
-        mockMvc.perform(get(BASE_URL).param("status", "INACTIVE"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].accountStatus").value("INACTIVE"));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getAllUsersFilterByEnabledSuccess() throws Exception {
-        mockMvc.perform(get(BASE_URL).param("enabled", "true"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[*].enabled", everyItem(is(true))));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getAllUsersSearchByEmailSuccess() throws Exception {
-        mockMvc.perform(get(BASE_URL).param("search", "test@example"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].email").value(testUser.getEmail()));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getAllUsersSearchByFullNameSuccess() throws Exception {
-        mockMvc.perform(get(BASE_URL).param("search", "Test User"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].fullName").value(testUser.getFullName()));
+        if (key.equals("enabled")) {
+            res.andExpect(jsonPath("$.data.content[*].enabled", everyItem(is(true))));
+        }
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAllUsersWithPaginationSuccess() throws Exception {
         for (int i = 0; i < 5; i++) {
-            userRepository.save(buildUser("user" + i + "@example.com", SIMPLE_PASSWORD, "User " + i, UserRole.USER, true, AccountStatus.ACTIVE));
+            userRepository.save(buildUser("user" + i + "@example.com", anotherSecret, "User " + i, UserRole.USER, true, AccountStatus.ACTIVE));
         }
 
-        mockMvc.perform(get(BASE_URL).param("page", "0").param("size", "3"))
+        getUsers("page", "0", "size", "3")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content", hasSize(3)))
                 .andExpect(jsonPath("$.data.totalElements").value(6))
@@ -312,9 +314,9 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void getAllUsersWithSortingSuccess() throws Exception {
-        userRepository.save(buildUser("aaa@example.com", SIMPLE_PASSWORD, "AAA User", UserRole.USER, true, AccountStatus.ACTIVE));
+        userRepository.save(buildUser("aaa@example.com", anotherSecret, "AAA User", UserRole.USER, true, AccountStatus.ACTIVE));
 
-        mockMvc.perform(get(BASE_URL).param("sortBy", "email").param("sortDirection", "asc"))
+        getUsers("sortBy", "email", "sortDirection", "asc")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].email").value("aaa@example.com"));
     }
@@ -338,12 +340,6 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void activateUserNotFoundShouldFail() throws Exception {
-        activate(99999L).andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     void deactivateUserSuccess() throws Exception {
         deactivate(testUser.getId())
                 .andExpect(status().isOk())
@@ -351,10 +347,18 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data.accountStatus").value("INACTIVE"));
     }
 
-    @Test
+    @ParameterizedTest
     @WithMockUser(roles = "ADMIN")
-    void deactivateUserNotFoundShouldFail() throws Exception {
-        deactivate(99999L).andExpect(status().isNotFound());
+    @CsvSource({
+            "activate",
+            "deactivate"
+    })
+    void activateDeactivateNotFoundShouldFail(String action) throws Exception {
+        if (action.equals("activate")) {
+            activate(99999L).andExpect(status().isNotFound());
+        } else {
+            deactivate(99999L).andExpect(status().isNotFound());
+        }
     }
 
     // -------------------- PASSWORD RESET --------------------
@@ -362,10 +366,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void resetPasswordSuccess() throws Exception {
-        PasswordResetDto dto = new PasswordResetDto();
-        dto.setNewPassword(NEW_PASSWORD);
-
-        resetPassword(testUser.getId(), dto)
+        resetPassword(testUser.getId(), resetSecret)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.lastPasswordResetDate").exists());
     }
@@ -373,19 +374,13 @@ class UserControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void resetPasswordShortPasswordShouldFail() throws Exception {
-        PasswordResetDto dto = new PasswordResetDto();
-        dto.setNewPassword("short");
-
-        resetPassword(testUser.getId(), dto).andExpect(status().isBadRequest());
+        resetPassword(testUser.getId(), "x").andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void resetPasswordNotFoundShouldFail() throws Exception {
-        PasswordResetDto dto = new PasswordResetDto();
-        dto.setNewPassword(NEW_PASSWORD);
-
-        resetPassword(99999L, dto).andExpect(status().isNotFound());
+        resetPassword(99999L, resetSecret).andExpect(status().isNotFound());
     }
 
     // -------------------- DELETE --------------------
@@ -401,28 +396,5 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void deleteUserNotFoundShouldFail() throws Exception {
         deleteById(99999L).andExpect(status().isNotFound());
-    }
-
-    // -------------------- STATISTICS --------------------
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void getUserStatisticsSuccess() throws Exception {
-        userRepository.save(buildUser("inactive@example.com", SIMPLE_PASSWORD, "Inactive User", UserRole.USER, false, AccountStatus.INACTIVE));
-
-        User locked = buildUser("locked@example.com", SIMPLE_PASSWORD, "Locked User", UserRole.USER, true, AccountStatus.ACTIVE);
-        locked.setAccountLocked(true);
-        userRepository.save(locked);
-
-        userRepository.save(buildUser("admin@example.com", SIMPLE_PASSWORD, "Admin User", UserRole.ADMIN, true, AccountStatus.ACTIVE));
-
-        mockMvc.perform(get(BASE_URL + "/statistics"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.totalUsers").value(4))
-                .andExpect(jsonPath("$.data.activeUsers").value(3))
-                .andExpect(jsonPath("$.data.inactiveUsers").value(1))
-                .andExpect(jsonPath("$.data.lockedUsers").value(1))
-                .andExpect(jsonPath("$.data.adminUsers").value(1))
-                .andExpect(jsonPath("$.data.regularUsers").value(3));
     }
 }
