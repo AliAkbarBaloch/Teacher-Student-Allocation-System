@@ -11,12 +11,12 @@ import java.lang.annotation.Target;
 /**
  * Audit annotation for viewing all roles.
  */
-@Audited(
-    action = AuditAction.VIEW,
-    entityName = AuditEntityNames.ROLE,
-    description = "Viewed all roles",
-    captureNewValue = false
-)
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface RoleViewAllAudit {}
+    @Audited(
+        action = AuditAction.VIEW,
+        entityName = AuditEntityNames.ROLE,
+        description = "Viewed list of roles",
+        captureNewValue = false
+    )
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.METHOD })
+    public @interface RoleViewAllAudit { }

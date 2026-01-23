@@ -79,6 +79,7 @@ class AuthControllerTest {
 
     @Autowired
     AuthControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             UserRepository userRepository,

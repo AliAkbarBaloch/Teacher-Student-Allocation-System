@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import de.unipassau.allocationsystem.dto.subject.SubjectResponseDto;
+import de.unipassau.allocationsystem.mapper.SubjectMapper;
+import org.springframework.data.domain.PageImpl;
 
 /**
  * Service for managing {@link Subject} entities.
@@ -35,6 +38,7 @@ import java.util.function.Consumer;
 public class SubjectService implements CrudService<Subject, Long> {
 
     private final SubjectRepository subjectRepository;
+    private final SubjectMapper subjectMapper;
 
     @Override
     public List<Map<String, String>> getSortFields() {
@@ -153,7 +157,11 @@ public class SubjectService implements CrudService<Subject, Long> {
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PageRequest pageRequest = buildPageRequestFrom(queryParams);
         Page<Subject> pageResult = querySubjects(searchValue, pageRequest);
-        return PaginationUtils.formatPaginationResponse(pageResult);
+        List<SubjectResponseDto> dtoItems = pageResult.getContent().stream()
+            .map(subjectMapper::toResponseDto)
+            .toList();
+        PageImpl<SubjectResponseDto> dtoPage = new PageImpl<>(dtoItems, pageResult.getPageable(), pageResult.getTotalElements());
+        return PaginationUtils.formatPaginationResponse(dtoPage);
     }
 
     @Audited(

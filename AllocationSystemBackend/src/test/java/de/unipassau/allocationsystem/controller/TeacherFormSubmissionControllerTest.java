@@ -20,6 +20,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -57,7 +58,8 @@ class TeacherFormSubmissionControllerTest {
     private AcademicYear academicYear;
     private TeacherFormSubmission testSubmission;
 
-    TeacherFormSubmissionControllerTest(
+        @Autowired
+        TeacherFormSubmissionControllerTest(
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             TeacherFormSubmissionRepository submissionRepo,

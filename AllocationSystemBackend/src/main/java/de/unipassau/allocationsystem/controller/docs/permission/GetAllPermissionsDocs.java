@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for retrieving all permissions without pagination.
  * Automatically generates OpenAPI documentation with 200 and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get all permissions", description = "Retrieves all permissions without pagination")
 @ApiResponses(value = {
@@ -25,4 +25,4 @@ import java.lang.annotation.Target;
         content = @Content(schema = @Schema(implementation = PermissionResponseDto.class))),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface GetAllPermissionsDocs {}
+public @interface GetAllPermissionsDocs { }

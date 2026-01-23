@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing paginated academic year view operations.
  * Automatically logs when academic years are viewed in paginated format.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed list of academic years",
         captureNewValue = false
 )
-public @interface AuditedAcademicYearViewPaginated {
-}
+public @interface AuditedAcademicYearViewPaginated { }

@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * with @Transactional.
  * To use: @AcademicYearDeleteAudited and @Audited(action=DELETE, entityName=ACADEMIC_YEAR, description="...", captureNewValue=false)
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Transactional
 public @interface AcademicYearDeleteAudited {

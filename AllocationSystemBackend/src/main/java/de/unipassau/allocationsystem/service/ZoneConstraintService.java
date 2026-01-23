@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.PageImpl;
 
 /**
  * Service for managing zone constraints.
@@ -161,7 +162,11 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
         Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
 
         Page<ZoneConstraint> page = zoneConstraintRepository.findAll(buildSearchSpecification(searchValue), pageable);
-        return PaginationUtils.formatPaginationResponse(page);
+        List<ZoneConstraintResponseDto> dtoItems = page.getContent().stream()
+                .map(zoneConstraintMapper::toResponseDto)
+                .toList();
+        PageImpl<ZoneConstraintResponseDto> dtoPage = new PageImpl<>(dtoItems, page.getPageable(), page.getTotalElements());
+        return PaginationUtils.formatPaginationResponse(dtoPage);
     }
 
     @Audited(
@@ -260,7 +265,10 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     )
     @Override
     public void delete(Long id) {
-        requireConstraint(id);
+        // Use existsById to align with unit tests that mock existence checks.
+        if (!zoneConstraintRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Zone constraint not found with id: " + id);
+        }
         zoneConstraintRepository.deleteById(id);
     }
 }

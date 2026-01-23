@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing paginated internship type view operations.
  * Automatically logs when internship types are viewed in paginated format.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed list of internship types",
         captureNewValue = false
 )
-public @interface AuditedInternshipTypeViewPaginated {
-}
+public @interface AuditedInternshipTypeViewPaginated { }

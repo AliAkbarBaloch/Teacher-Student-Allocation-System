@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing internship type delete operations.
  * Automatically logs when an internship type is deleted.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Deleted INTERNSHIP_TYPE status",
         captureNewValue = true
 )
-public @interface AuditedInternshipTypeDelete {
-}
+public @interface AuditedInternshipTypeDelete { }

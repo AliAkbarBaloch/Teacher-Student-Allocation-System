@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a GET endpoint that retrieves entities with pagination, sorting, and search.
  * Automatically generates OpenAPI documentation with 200, 400, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get paginated entities", description = "Retrieves entities with pagination, sorting, and optional search")
 @ApiResponses(value = {
@@ -22,4 +22,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface GetPaginatedDocs {}
+public @interface GetPaginatedDocs { }

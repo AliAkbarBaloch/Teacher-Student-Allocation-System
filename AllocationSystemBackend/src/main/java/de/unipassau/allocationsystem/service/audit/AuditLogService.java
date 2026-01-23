@@ -40,11 +40,11 @@ public class AuditLogService {
 
     /**
      * Self proxy to ensure {@link Async} and {@link Transactional} are applied (avoids self-invocation).
+     * Injected lazily via field injection to avoid constructor circular dependencies.
      */
     @Lazy
-    private final AuditLogService self;
-
-    // ==================== Public API Methods ====================
+    @org.springframework.beans.factory.annotation.Autowired
+    private AuditLogService self;
 
     /**
      * Synchronously logs an audit event with an explicit user.
@@ -270,9 +270,9 @@ public class AuditLogService {
 
     @lombok.Value
     private static class AuditLogContext {
-        User user;
-        String userIdentifier;
-        String ipAddress;
-        String userAgent;
+        private final User user;
+        private final String userIdentifier;
+        private final String ipAddress;
+        private final String userAgent;
     }
 }

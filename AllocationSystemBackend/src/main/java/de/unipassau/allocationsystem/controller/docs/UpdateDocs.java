@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a PUT endpoint that updates an existing entity.
  * Automatically generates OpenAPI documentation with 200, 400, 404, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
 @ApiResponses(value = {
@@ -27,4 +27,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "404", description = "Entity not found"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface UpdateDocs {}
+public @interface UpdateDocs { }

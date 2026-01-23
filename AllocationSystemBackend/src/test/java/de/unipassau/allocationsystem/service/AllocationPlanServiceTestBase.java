@@ -9,14 +9,20 @@ import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.mapper.AllocationPlanMapper;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
+import de.unipassau.allocationsystem.allocation.TeacherAllocationService;
+import de.unipassau.allocationsystem.service.AllocationPlanWriteSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import java.time.LocalDateTime;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 abstract class AllocationPlanServiceTestBase {
 
@@ -32,7 +38,11 @@ abstract class AllocationPlanServiceTestBase {
     @Mock
     protected PlanChangeLogService planChangeLogService;
 
-    @InjectMocks
+    protected AllocationPlanWriteSupport writeSupport;
+
+    @Mock
+    protected TeacherAllocationService teacherAllocationService;
+
     protected AllocationPlanService allocationPlanService;
 
     protected AcademicYear testYear;
@@ -48,6 +58,12 @@ abstract class AllocationPlanServiceTestBase {
         createDto = buildCreateDto(1L, "New Plan", "v2.0", PlanStatus.DRAFT, false, "New plan notes");
         updateDto = buildUpdateDto("Updated Plan", PlanStatus.IN_REVIEW, null, "Updated notes");
         responseDto = buildResponseDtoFromPlan(testPlan);
+
+        // Use a real writeSupport (spied) so validation and logging behave like production
+        writeSupport = spy(new AllocationPlanWriteSupport(allocationPlanRepository, academicYearRepository, allocationPlanMapper, planChangeLogService));
+
+        // Instantiate service with mocks and the spied writeSupport
+        allocationPlanService = new AllocationPlanService(allocationPlanRepository, allocationPlanMapper, planChangeLogService, teacherAllocationService, writeSupport);
     }
 
     protected AcademicYear buildAcademicYear(Long id, String yearName) {

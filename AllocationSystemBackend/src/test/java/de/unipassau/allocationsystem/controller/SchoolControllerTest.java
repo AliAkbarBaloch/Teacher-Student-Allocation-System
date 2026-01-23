@@ -50,6 +50,7 @@ class SchoolControllerTest {
 
     @Autowired
     SchoolControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             SchoolRepository schoolRepository

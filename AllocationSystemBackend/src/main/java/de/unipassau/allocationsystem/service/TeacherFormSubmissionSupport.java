@@ -97,7 +97,7 @@ final class TeacherFormSubmissionSupport {
     static void validateAcademicYearNotLocked(AcademicYear academicYear) {
         if (Boolean.TRUE.equals(academicYear.getIsLocked())) {
             throw new IllegalArgumentException(
-                    "Cannot perform operation for locked academic year: " + academicYear.getYearName()
+                "Cannot create submission for locked academic year"
             );
         }
     }

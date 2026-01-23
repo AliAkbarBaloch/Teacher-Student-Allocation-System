@@ -14,7 +14,9 @@ import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -41,7 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * for internship demand endpoints.
  * </p>
  */
-@WebMvcTest(InternshipDemandController.class)
+@SpringBootTest(properties = "spring.sql.init.mode=never")
+@AutoConfigureMockMvc
+@Transactional
 class InternshipDemandControllerTest {
 
     private final MockMvc mockMvc;
@@ -57,7 +62,8 @@ class InternshipDemandControllerTest {
     private InternshipType it2;
     private Subject testSubject;
 
-    InternshipDemandControllerTest(
+        @Autowired
+        InternshipDemandControllerTest(
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             InternshipDemandRepository internshipDemandRepository,

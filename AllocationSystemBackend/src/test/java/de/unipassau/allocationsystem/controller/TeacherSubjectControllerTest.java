@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -51,7 +52,8 @@ class TeacherSubjectControllerTest {
     private Subject testSubject;
     private AcademicYear testYear;
 
-    TeacherSubjectControllerTest(
+        @Autowired
+        TeacherSubjectControllerTest(
             MockMvc mockMvc,
             TeacherRepository teacherRepository,
             SchoolRepository schoolRepository,

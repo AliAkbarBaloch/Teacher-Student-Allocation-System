@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing academic year get-all view operations.
  * Automatically logs when all academic years are retrieved.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed all academic years",
         captureNewValue = false
 )
-public @interface AuditedAcademicYearViewAll {
-}
+public @interface AuditedAcademicYearViewAll { }

@@ -26,7 +26,7 @@ import static de.unipassau.allocationsystem.allocation.TeacherAllocationTestData
  * Persists a minimal valid dataset required for allocation before each test.
  */
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Transactional
 abstract class TeacherAllocationServiceBaseTest {
 

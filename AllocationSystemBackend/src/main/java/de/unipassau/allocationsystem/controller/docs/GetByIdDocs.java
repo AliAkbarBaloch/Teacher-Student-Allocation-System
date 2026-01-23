@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a GET endpoint that retrieves a specific entity by its ID.
  * Automatically generates OpenAPI documentation with 200, 404, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get entity by ID", description = "Retrieves a specific entity by its ID")
 @ApiResponses(value = {
@@ -26,4 +26,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "404", description = "Entity not found"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface GetByIdDocs {}
+public @interface GetByIdDocs { }

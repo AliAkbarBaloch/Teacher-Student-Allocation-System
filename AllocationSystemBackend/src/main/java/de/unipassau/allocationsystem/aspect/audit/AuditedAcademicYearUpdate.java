@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing academic year update operations.
  * Automatically logs when an academic year is updated, capturing the new values.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Updated academic year",
         captureNewValue = true
 )
-public @interface AuditedAcademicYearUpdate {
-}
+public @interface AuditedAcademicYearUpdate { }

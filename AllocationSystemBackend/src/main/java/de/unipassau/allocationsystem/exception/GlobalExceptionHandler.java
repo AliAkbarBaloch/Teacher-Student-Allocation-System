@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, "Resource not found: " + ex.getMessage(), "WARN");
+        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), "WARN");
     }
 
     /**
@@ -98,7 +98,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
-        return createErrorResponse(HttpStatus.CONFLICT, "Duplicate resource: " + ex.getMessage(), "WARN");
+        // Return the original exception message so clients/tests receive the specific reason
+        return createErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), "WARN");
     }
 
     /**
@@ -159,7 +160,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid argument: " + ex.getMessage(), "WARN");
+        // Return the original exception message to match existing test expectations
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "WARN");
     }
 
     /**

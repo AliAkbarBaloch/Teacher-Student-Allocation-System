@@ -58,6 +58,7 @@ class CreditHourTrackingControllerTest {
 
     @Autowired
     CreditHourTrackingControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             CreditHourTrackingRepository creditRepo,

@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 @Audited(
     action = AuditAction.DELETE,
     entityName = AuditEntityNames.ROLE,
-    description = "Deleted role",
+    description = "Deleted a role",
     captureNewValue = false
 )
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface RoleDeleteAudit {}
+@Target({ ElementType.METHOD })
+public @interface RoleDeleteAudit { }

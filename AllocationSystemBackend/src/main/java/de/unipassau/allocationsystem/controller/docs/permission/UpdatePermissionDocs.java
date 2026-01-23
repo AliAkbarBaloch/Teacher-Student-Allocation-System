@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for updating an existing permission.
  * Automatically generates OpenAPI documentation with 200, 400, 404, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Update permission", description = "Updates an existing permission with the provided details")
 @ApiResponses(value = {
@@ -27,4 +27,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "404", description = "Permission not found"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface UpdatePermissionDocs {}
+public @interface UpdatePermissionDocs { }

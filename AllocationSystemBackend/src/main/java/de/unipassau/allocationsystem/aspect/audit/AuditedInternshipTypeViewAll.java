@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing internship type get-all view operations.
  * Automatically logs when all internship types are retrieved.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed all internship types",
         captureNewValue = false
 )
-public @interface AuditedInternshipTypeViewAll {
-}
+public @interface AuditedInternshipTypeViewAll { }

@@ -49,6 +49,7 @@ class SubjectCategoryControllerTest {
 
     @Autowired
     SubjectCategoryControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             SubjectCategoryRepository subjectCategoryRepository

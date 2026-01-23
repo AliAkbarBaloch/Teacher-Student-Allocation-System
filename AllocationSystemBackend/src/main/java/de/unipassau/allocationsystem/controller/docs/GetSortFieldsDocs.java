@@ -14,11 +14,11 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a GET endpoint that retrieves available sortable fields.
  * Automatically generates OpenAPI documentation with 200 and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Get sort fields", description = "Retrieves available fields that can be used for sorting")
 @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface GetSortFieldsDocs {}
+public @interface GetSortFieldsDocs { }

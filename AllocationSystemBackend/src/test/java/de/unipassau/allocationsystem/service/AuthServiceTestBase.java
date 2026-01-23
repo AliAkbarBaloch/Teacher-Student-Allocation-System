@@ -74,10 +74,6 @@ abstract class AuthServiceTestBase {
         SecurityContextHolder.clearContext();
 
         // Default mock behaviours to avoid nulls and simplify individual tests.
-        when(passwordEncoder.encode(org.mockito.ArgumentMatchers.anyString()))
-                .thenAnswer(inv -> "enc-" + inv.getArgument(0));
-        when(jwtService.generateToken(org.mockito.ArgumentMatchers.any()))
-                .thenReturn("test-jwt-token");
     }
 
     /**

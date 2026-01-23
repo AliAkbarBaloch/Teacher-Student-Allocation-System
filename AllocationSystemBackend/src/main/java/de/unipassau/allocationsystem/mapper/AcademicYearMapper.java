@@ -77,7 +77,7 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      * @param middleSchoolHours Middle school hours
      */
     private record HoursData(Integer totalCreditHours, Integer elementarySchoolHours,
-                             Integer middleSchoolHours) {}
+                             Integer middleSchoolHours) { }
 
     /**
      * Holds date information for academic year.
@@ -86,7 +86,7 @@ public class AcademicYearMapper implements BaseMapper<AcademicYear, AcademicYear
      * @param allocationDeadline Allocation deadline
      */
     private record DateData(java.time.LocalDateTime budgetAnnouncementDate,
-                            java.time.LocalDateTime allocationDeadline) {}
+                            java.time.LocalDateTime allocationDeadline) { }
 
     @Override
     public AcademicYearResponseDto toResponseDto(AcademicYear entity) {

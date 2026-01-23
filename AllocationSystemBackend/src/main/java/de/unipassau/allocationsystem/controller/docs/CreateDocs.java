@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a POST endpoint that creates a new entity.
  * Automatically generates OpenAPI documentation with 201, 400, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Create new entity", description = "Creates a new entity with the provided details")
 @ApiResponses(value = {
@@ -26,4 +26,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "400", description = "Invalid input or duplicate entity"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface CreateDocs {}
+public @interface CreateDocs { }

@@ -44,7 +44,7 @@ class AllocationService {
         }
         List<InternshipDemand> typeDemands = ctx.getDemandsByType(type.getId());
 
-        if (ctx.params.isPrioritizeScarcity()) {
+        if (ctx.getParams().isPrioritizeScarcity()) {
             typeDemands.sort(Comparator.comparingInt(d -> ctx.getCandidateCountForSubject(d.getSubject().getId())));
         }
 
@@ -71,24 +71,24 @@ class AllocationService {
     }
 
     private List<Teacher> findCandidates(AllocationContext ctx, InternshipDemand demand) {
-        return ctx.teachers.stream()
+        return ctx.getTeachers().stream()
                 .filter(t -> !ctx.isTeacherFullyBooked(t))
                 .filter(t -> {
                     if (!demand.getInternshipType().getIsSubjectSpecific()) {
                         return true;
                     }
-                    return AllocationHelper.isTeacherQualifiedForSubject(t, demand.getSubject(), ctx.teacherSubjects);
+                    return AllocationHelper.isTeacherQualifiedForSubject(t, demand.getSubject(), ctx.getTeacherSubjects());
                 })
-                .filter(t -> !AllocationHelper.isTeacherExcludedFromSubject(t, demand.getSubject(), ctx.exclusions))
-                .filter(t -> AllocationHelper.isTeacherAvailableForInternship(t, demand.getInternshipType(), ctx.availabilities))
-                .filter(t -> AllocationHelper.isTeacherInAllowedZone(t, demand.getInternshipType(), ctx.zoneConstraints))
-                .filter(t -> AllocationHelper.canTeacherBeAssignedToInternship(t, demand.getInternshipType(), ctx.assignedTypes, ctx.combinationRules))
+                .filter(t -> !AllocationHelper.isTeacherExcludedFromSubject(t, demand.getSubject(), ctx.getExclusions()))
+                .filter(t -> AllocationHelper.isTeacherAvailableForInternship(t, demand.getInternshipType(), ctx.getAvailabilities()))
+                .filter(t -> AllocationHelper.isTeacherInAllowedZone(t, demand.getInternshipType(), ctx.getZoneConstraints()))
+                .filter(t -> AllocationHelper.canTeacherBeAssignedToInternship(t, demand.getInternshipType(), ctx.getAssignedTypes(), ctx.getCombinationRules()))
                 .collect(Collectors.toList());
     }
 
     private int scoreTeacher(Teacher t, InternshipDemand d, AllocationContext ctx) {
         int score = 0;
-        if (AllocationHelper.hasMainSubjectQualification(t, d.getSubject(), ctx.qualifications)) {
+        if (AllocationHelper.hasMainSubjectQualification(t, d.getSubject(), ctx.getQualifications())) {
             score += 10;
         }
 
@@ -109,8 +109,8 @@ class AllocationService {
      * @param ctx The allocation context
      */
     public void calculateScarcityMetrics(AllocationContext ctx) {
-        for (Teacher t : ctx.teachers) {
-            List<TeacherSubject> subs = ctx.teacherSubjects.get(t.getId());
+        for (Teacher t : ctx.getTeachers()) {
+            List<TeacherSubject> subs = ctx.getTeacherSubjects().get(t.getId());
             if (subs != null) {
                 for (TeacherSubject ts : subs) {
                     ctx.incrementCandidateCount(ts.getSubject().getId());
@@ -158,7 +158,7 @@ class AllocationService {
      * @return The best subject or null
      */
     public Subject findBestSubjectForSurplus(AllocationContext ctx, Teacher t, InternshipType type) {
-        List<TeacherQualification> quals = ctx.qualifications.getOrDefault(t.getId(), Collections.emptyList());
+        List<TeacherQualification> quals = ctx.getQualifications().getOrDefault(t.getId(), Collections.emptyList());
         for (TeacherQualification q : quals) {
             Subject s = q.getSubject();
             if (!ctx.hasAssignment(t, type, s)) {
@@ -181,10 +181,10 @@ class AllocationService {
      * @param year The academic year
      */
     public void validateBudget(AllocationContext ctx, AcademicYear year) {
-        long primaryFilled = ctx.teachers.stream()
+        long primaryFilled = ctx.getTeachers().stream()
                 .filter(t -> t.getSchool().getSchoolType() == de.unipassau.allocationsystem.entity.School.SchoolType.PRIMARY)
                 .filter(t -> ctx.getAssignmentCount(t) >= 2).count();
-        long middleFilled = ctx.teachers.stream()
+        long middleFilled = ctx.getTeachers().stream()
                 .filter(t -> t.getSchool().getSchoolType() == de.unipassau.allocationsystem.entity.School.SchoolType.MIDDLE)
                 .filter(t -> ctx.getAssignmentCount(t) >= 2).count();
 

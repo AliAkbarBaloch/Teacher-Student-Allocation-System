@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +60,7 @@ class UserControllerTest {
     private String anotherSecret;
     private String resetSecret;
 
+    @Autowired
     UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, UserRepository userRepository) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;

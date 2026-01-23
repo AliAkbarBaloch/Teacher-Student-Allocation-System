@@ -147,14 +147,17 @@ public ResponseEntity<?> getAll() {
 
 @GetMapping("list-filter")
 @PreAuthorize("hasRole('ADMIN')")
-public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto) {
+public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto,
+                              @RequestParam(value = "academic_year_id", required = false) Long academicYearId) {
         String direction = Objects.requireNonNullElse(filterDto.getDirection(), "ASC");
         Sort.Direction dir = Sort.Direction.fromString(direction);
         Pageable pageable = createPageable(filterDto, dir);
         de.unipassau.allocationsystem.entity.School.SchoolType schoolType = parseSchoolType(filterDto.getSchoolType());
-        
+
+        Long yearId = filterDto.getYearId() != null ? filterDto.getYearId() : academicYearId;
+
         Page<InternshipDemand> result = service.listByYearWithFilters(
-                filterDto.getYearId(),
+                yearId,
                 filterDto.getInternshipTypeId(),
                 schoolType,
                 filterDto.getSubjectId(),

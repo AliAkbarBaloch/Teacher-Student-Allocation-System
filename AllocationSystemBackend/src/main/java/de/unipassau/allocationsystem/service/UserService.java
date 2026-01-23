@@ -53,7 +53,22 @@ public class UserService {
         dto.setEmail(email);
         dto.setPassword(password);
         dto.setFullName(fullName);
-        return toEntity(createUserWithDto(dto));
+
+        // Create and return the saved entity directly to avoid an extra lookup
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setFullName(dto.getFullName());
+        user.setRole(dto.getRole());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setEnabled(defaultTrue(dto.getEnabled()));
+        user.setIsActive(defaultTrue(dto.getIsActive()));
+        user.setAccountStatus(defaultAccountStatus(dto.getAccountStatus()));
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        user.setLoginAttempt(0);
+
+        return userRepository.save(user);
     }
 
     /**
@@ -66,10 +81,17 @@ public class UserService {
             captureNewValue = true
     )
     public User updateUser(Long userId, String newEmail, String newFullName) {
-        UserUpdateDto dto = new UserUpdateDto();
-        dto.setEmail(newEmail);
-        dto.setFullName(newFullName);
-        return toEntity(updateUserWithDto(userId, dto));
+        User user = requireUser(userId);
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(newEmail)) {
+                throw new DuplicateResourceException("User with email " + newEmail + " already exists");
+            }
+            user.setEmail(newEmail);
+        }
+        if (newFullName != null) {
+            user.setFullName(newFullName);
+        }
+        return userRepository.save(user);
     }
 
     /**

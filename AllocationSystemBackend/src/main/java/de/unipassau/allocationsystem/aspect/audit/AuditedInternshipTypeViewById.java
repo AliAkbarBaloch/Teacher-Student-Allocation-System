@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing internship type get-by-id view operations.
  * Automatically logs when a specific internship type is viewed by its identifier.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed internship type by id",
         captureNewValue = false
 )
-public @interface AuditedInternshipTypeViewById {
-}
+public @interface AuditedInternshipTypeViewById { }

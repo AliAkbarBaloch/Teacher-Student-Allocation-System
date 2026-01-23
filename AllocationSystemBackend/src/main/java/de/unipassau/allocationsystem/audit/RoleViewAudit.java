@@ -18,5 +18,5 @@ import java.lang.annotation.Target;
     captureNewValue = false
 )
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface RoleViewAudit {}
+@Target({ ElementType.METHOD })
+public @interface RoleViewAudit { }

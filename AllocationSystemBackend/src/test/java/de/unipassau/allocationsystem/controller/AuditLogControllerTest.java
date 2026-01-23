@@ -69,6 +69,7 @@ class AuditLogControllerTest {
 
     @Autowired
     AuditLogControllerTest(
+            @Autowired
             MockMvc mockMvc,
             AuditLogRepository auditLogRepository,
             AuditLogService auditLogService,

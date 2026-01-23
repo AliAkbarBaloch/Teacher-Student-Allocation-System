@@ -49,6 +49,7 @@ class PlanChangeLogControllerTest {
 
     @Autowired
     PlanChangeLogControllerTest(
+            @Autowired
             MockMvc mockMvc,
             UserRepository userRepository,
             AllocationPlanRepository allocationPlanRepository,

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class BaseResponseDto {
-    protected Long id;
-    protected LocalDateTime createdAt;
-    protected LocalDateTime updatedAt;
+    private Long id;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -228,14 +228,42 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     public TeacherAssignment update(Long id, TeacherAssignment data) {
         TeacherAssignment existing = validateExistence(id);
 
-        // Validate composite uniqueness for update, allowing self-updates
-        validateCompositeUniquenessForUpdate(
-            data.getTeacher().getId(),
-            data.getAllocationPlan().getId(),
-            data.getInternshipType().getId(),
-            data.getSubject().getId(),
-            id
-        );
+        // Determine effective composite key values: use provided data if present,
+        // otherwise fall back to existing entity values. This allows partial
+        // updates (e.g., only studentGroupSize) without requiring all nested
+        // references to be provided by the client.
+        Long teacherId = null;
+        if (data.getTeacher() != null && data.getTeacher().getId() != null) {
+            teacherId = data.getTeacher().getId();
+        } else if (existing.getTeacher() != null) {
+            teacherId = existing.getTeacher().getId();
+        }
+
+        Long planId = null;
+        if (data.getAllocationPlan() != null && data.getAllocationPlan().getId() != null) {
+            planId = data.getAllocationPlan().getId();
+        } else if (existing.getAllocationPlan() != null) {
+            planId = existing.getAllocationPlan().getId();
+        }
+
+        Long internshipTypeId = null;
+        if (data.getInternshipType() != null && data.getInternshipType().getId() != null) {
+            internshipTypeId = data.getInternshipType().getId();
+        } else if (existing.getInternshipType() != null) {
+            internshipTypeId = existing.getInternshipType().getId();
+        }
+
+        Long subjectId = null;
+        if (data.getSubject() != null && data.getSubject().getId() != null) {
+            subjectId = data.getSubject().getId();
+        } else if (existing.getSubject() != null) {
+            subjectId = existing.getSubject().getId();
+        }
+
+        // Only validate composite uniqueness when all parts of the composite key are available.
+        if (teacherId != null && planId != null && internshipTypeId != null && subjectId != null) {
+            validateCompositeUniquenessForUpdate(teacherId, planId, internshipTypeId, subjectId, id);
+        }
 
         boolean recalcNeeded = applyFieldUpdates(existing, data);
 

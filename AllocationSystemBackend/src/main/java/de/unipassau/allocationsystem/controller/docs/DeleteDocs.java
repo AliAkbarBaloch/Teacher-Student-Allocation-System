@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for a DELETE endpoint that removes an entity.
  * Automatically generates OpenAPI documentation with 204, 404, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Delete entity", description = "Deletes an entity by its ID")
 @ApiResponses(value = {
@@ -22,4 +22,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "404", description = "Entity not found"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface DeleteDocs {}
+public @interface DeleteDocs { }

@@ -54,6 +54,7 @@ class SubjectControllerTest {
 
     @Autowired
     SubjectControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             SubjectRepository subjectRepository,

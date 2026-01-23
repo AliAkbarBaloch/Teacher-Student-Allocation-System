@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 @Audited(
     action = AuditAction.UPDATE,
     entityName = AuditEntityNames.ROLE,
-    description = "Updated role",
+    description = "Updated a role",
     captureNewValue = true
 )
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface RoleUpdateAudit {}
+@Target({ ElementType.METHOD })
+public @interface RoleUpdateAudit { }

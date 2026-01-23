@@ -12,6 +12,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,11 +37,12 @@ class TeacherAvailabilityControllerTest {
     private final InternshipTypeRepository internshipTypeRepository;
     private final TeacherAvailabilityRepository teacherAvailabilityRepository;
 
-    TeacherAvailabilityControllerTest(
+        @Autowired
+        TeacherAvailabilityControllerTest(
             MockMvc mockMvc,
             InternshipTypeRepository internshipTypeRepository,
             TeacherAvailabilityRepository teacherAvailabilityRepository
-    ) {
+        ) {
         this.mockMvc = mockMvc;
         this.internshipTypeRepository = internshipTypeRepository;
         this.teacherAvailabilityRepository = teacherAvailabilityRepository;

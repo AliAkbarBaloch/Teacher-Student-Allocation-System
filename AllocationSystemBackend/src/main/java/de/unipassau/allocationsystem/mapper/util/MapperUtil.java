@@ -6,7 +6,7 @@ import java.util.function.Consumer;
  * Utility for common mapper operations.
  * Provides reusable helper methods for entity updates and DTO operations.
  */
-public class MapperUtil {
+public final class MapperUtil {
     /**
      * Sets a value on an entity only if the value is not null.
      * Useful for partial updates where null values should be ignored.

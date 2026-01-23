@@ -26,6 +26,23 @@ public class SchoolProfileDto {
     private Long totalTeachers;
     private Long activeTeachers;
 
+        // Constructor matching JPQL projection that uses a SchoolTeacherStats wrapper
+        public SchoolProfileDto(Long schoolId,
+                                String schoolName,
+                                School.SchoolType schoolType,
+                                Integer zoneNumber,
+                                String transportAccessibility,
+                                Boolean isActive,
+                                SchoolTeacherStats teacherStats) {
+            this.schoolId = schoolId;
+            this.schoolName = schoolName;
+            this.schoolType = convertSchoolType(schoolType);
+            this.zoneNumber = zoneNumber;
+            this.transportAccessibility = transportAccessibility;
+            this.isActive = convertActiveStatus(isActive);
+            this.totalTeachers = extractTotalTeachers(teacherStats);
+            this.activeTeachers = extractActiveTeachers(teacherStats);
+        }
     /**
      * Factory method for creating SchoolProfileDto from JPQL query results.
      * Groups school information and teacher statistics separately to reduce parameter count.
@@ -45,7 +62,7 @@ public class SchoolProfileDto {
                                              Integer zoneNumber,
                                              String transportAccessibility,
                                              Boolean isActive,
-                                             TeacherStats teacherStats) {
+                                             SchoolTeacherStats teacherStats) {
         return SchoolProfileDto.builder()
                 .schoolId(schoolId)
                 .schoolName(schoolName)
@@ -90,9 +107,9 @@ public class SchoolProfileDto {
      * @param teacherStats Teacher statistics
      * @return Total teacher count or 0 if null
      */
-    private static Long extractTotalTeachers(TeacherStats teacherStats) {
+    private static Long extractTotalTeachers(SchoolTeacherStats teacherStats) {
         if (teacherStats != null) {
-            return teacherStats.totalTeachers();
+            return teacherStats.getTotalTeachers();
         }
         return 0L;
     }
@@ -103,18 +120,10 @@ public class SchoolProfileDto {
      * @param teacherStats Teacher statistics
      * @return Active teacher count or 0 if null
      */
-    private static Long extractActiveTeachers(TeacherStats teacherStats) {
+    private static Long extractActiveTeachers(SchoolTeacherStats teacherStats) {
         if (teacherStats != null) {
-            return teacherStats.activeTeachers();
+            return teacherStats.getActiveTeachers();
         }
         return 0L;
     }
-
-    /**
-     * Wrapper for teacher statistics to reduce parameter count.
-     * 
-     * @param totalTeachers Total teacher count
-     * @param activeTeachers Active teacher count
-     */
-    public record TeacherStats(Long totalTeachers, Long activeTeachers) {}
 }

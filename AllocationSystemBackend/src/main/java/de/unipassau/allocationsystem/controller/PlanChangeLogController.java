@@ -12,6 +12,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+
+import java.util.Map;
+import de.unipassau.allocationsystem.utils.PaginationUtils;
 
  
 
@@ -37,5 +46,15 @@ public class PlanChangeLogController
     @Override
     protected BaseMapper<PlanChangeLog, PlanChangeLogCreateDto, PlanChangeLogUpdateDto, PlanChangeLogResponseDto> getMapper() {
         return planChangeLogMapper;
+    }
+
+    @GetMapping("/plans/{planId}/change-logs")
+    public Object getLogsForPlan(@PathVariable Long planId,
+                                  @RequestParam Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+
+        return PaginationUtils.formatPaginationResponse(planChangeLogService.getLogsByPlan(planId, null, null, null, null, pageable));
     }
 }

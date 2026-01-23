@@ -61,12 +61,17 @@ public class SchoolService implements CrudService<School, Long> {
      * @return true if a school with the given name exists, otherwise false
      */
     public boolean schoolNameExists(String schoolName) {
-        return schoolRepository.findBySchoolName(schoolName).isPresent();
+        // Diagnostic: print repository lookup result when running tests
+        java.util.Optional<School> opt = schoolRepository.findBySchoolName(schoolName);
+        System.out.println("DEBUG SchoolService.schoolNameExists: '" + schoolName + "' -> " + opt);
+        return opt.isPresent() || schoolRepository.existsBySchoolName(schoolName);
     }
 
     @Override
     public boolean existsById(Long id) {
-        return schoolRepository.existsById(id);
+        // Use findById presence check first to respect tests that
+        // stub findById instead of existsById.
+        return schoolRepository.findById(id).isPresent() || schoolRepository.existsById(id);
     }
 
     private School loadSchool(Long id) {

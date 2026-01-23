@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing internship type update operations.
  * Automatically logs when an internship type is updated, capturing the new values.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Updated Internship Type information",
         captureNewValue = true
 )
-public @interface AuditedInternshipTypeUpdate {
-}
+public @interface AuditedInternshipTypeUpdate { }

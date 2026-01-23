@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 @Audited(
     action = AuditAction.VIEW,
     entityName = AuditEntityNames.ROLE,
-    description = "Viewed role by id",
+    description = "Viewed a role by id",
     captureNewValue = false
 )
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface RoleViewByIdAudit {}
+@Target({ ElementType.METHOD })
+public @interface RoleViewByIdAudit { }

@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for deleting a permission by its ID.
  * Automatically generates OpenAPI documentation with 204, 404, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Delete permission", description = "Deletes a permission by its ID")
 @ApiResponses(value = {
@@ -22,4 +22,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "404", description = "Permission not found"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface DeletePermissionDocs {}
+public @interface DeletePermissionDocs { }

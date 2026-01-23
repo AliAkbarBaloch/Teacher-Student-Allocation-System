@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing academic year delete operations.
  * Automatically logs when an academic year is deleted.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Deleted academic year",
         captureNewValue = false
 )
-public @interface AuditedAcademicYearDelete {
-}
+public @interface AuditedAcademicYearDelete { }

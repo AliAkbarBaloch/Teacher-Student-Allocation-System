@@ -64,7 +64,7 @@ public class ImprovedTeacherAllocationService {
         allocationService.allocateByPriority(plan, ctx, "PDP1");
         allocationService.allocateByPriority(plan, ctx, "PDP2");
 
-        log.info("Phase 1 Complete. Assignments: {}", ctx.totalAssignmentsCreated);
+        log.info("Phase 1 Complete. Assignments: {}", ctx.getTotalAssignmentsCreated());
 
         // --- PHASE 2: SUPPLY DRIVEN (Fixing the 150/28 issue) ---
         if (params.isForceUtilizationOfSurplus()) {
@@ -94,7 +94,7 @@ public class ImprovedTeacherAllocationService {
     }
 
     private List<Teacher> getUnderutilizedTeachers(AllocationContext ctx) {
-        return ctx.teachers.stream()
+        return ctx.getTeachers().stream()
                 .filter(t -> ctx.getAssignmentCount(t) < ctx.getTargetAssignments(t))
                 .collect(Collectors.toList());
     }
@@ -174,10 +174,10 @@ public class ImprovedTeacherAllocationService {
         }
 
         // 1. Check Hard Constraints
-        if (!AllocationHelper.isTeacherInAllowedZone(t, type, ctx.zoneConstraints)) {
+        if (!AllocationHelper.isTeacherInAllowedZone(t, type, ctx.getZoneConstraints())) {
             return false;
         }
-        if (!AllocationHelper.canTeacherBeAssignedToInternship(t, type, ctx.assignedTypes, ctx.combinationRules)) {
+        if (!AllocationHelper.canTeacherBeAssignedToInternship(t, type, ctx.getAssignedTypes(), ctx.getCombinationRules())) {
             return false;
         }
 
@@ -226,27 +226,27 @@ public class ImprovedTeacherAllocationService {
     }
 
     private void loadDataIntoContext(AllocationContext ctx, Long yearId) {
-        ctx.teachers = dataLoader.loadAvailableTeachers(yearId);
-        ctx.demands = dataLoader.loadInternshipDemands(yearId);
-        ctx.qualifications = dataLoader.loadTeacherQualifications();
-        ctx.exclusions = dataLoader.loadTeacherExclusions(yearId);
-        ctx.availabilities = dataLoader.loadTeacherAvailabilities(yearId);
-        ctx.teacherSubjects = dataLoader.loadTeacherSubjects(yearId);
-        ctx.internshipTypes = dataLoader.loadInternshipTypes();
-        ctx.zoneConstraints = dataLoader.loadZoneConstraints();
-        ctx.combinationRules = dataLoader.loadCombinationRules();
+        ctx.setTeachers(dataLoader.loadAvailableTeachers(yearId));
+        ctx.setDemands(dataLoader.loadInternshipDemands(yearId));
+        ctx.setQualifications(dataLoader.loadTeacherQualifications());
+        ctx.setExclusions(dataLoader.loadTeacherExclusions(yearId));
+        ctx.setAvailabilities(dataLoader.loadTeacherAvailabilities(yearId));
+        ctx.setTeacherSubjects(dataLoader.loadTeacherSubjects(yearId));
+        ctx.setInternshipTypes(dataLoader.loadInternshipTypes());
+        ctx.setZoneConstraints(dataLoader.loadZoneConstraints());
+        ctx.setCombinationRules(dataLoader.loadCombinationRules());
     }
 
     private void loadFallbackSubjects(AllocationContext ctx) {
         List<Subject> allSubjects = entityManager.createQuery("SELECT s FROM Subject s", Subject.class).getResultList();
-        ctx.fallbackSubjects.put("PRIMARY", allSubjects.stream()
-                .filter(s -> "Primary".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
-        ctx.fallbackSubjects.put("MIDDLE", allSubjects.stream()
-                .filter(s -> "Middle".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
+        ctx.getFallbackSubjects().put("PRIMARY", allSubjects.stream()
+            .filter(s -> "Primary".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
+        ctx.getFallbackSubjects().put("MIDDLE", allSubjects.stream()
+            .filter(s -> "Middle".equalsIgnoreCase(s.getSchoolType())).findFirst().orElse(null));
     }
 
     private void initializeTeacherTracking(AllocationContext ctx) {
-        for (Teacher t : ctx.teachers) {
+        for (Teacher t : ctx.getTeachers()) {
             ctx.initializeTeacherTracking(t);
         }
     }

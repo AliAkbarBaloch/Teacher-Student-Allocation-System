@@ -72,6 +72,7 @@ class TeacherAssignmentControllerTest {
 
     @Autowired
     TeacherAssignmentControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             AllocationPlanRepository allocationPlanRepository,

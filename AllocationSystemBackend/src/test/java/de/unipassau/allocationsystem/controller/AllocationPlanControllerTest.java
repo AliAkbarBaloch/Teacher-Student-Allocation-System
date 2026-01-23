@@ -61,6 +61,7 @@ class AllocationPlanControllerTest {
 
     @Autowired
     AllocationPlanControllerTest(
+            @Autowired
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             AllocationPlanRepository allocationPlanRepository,

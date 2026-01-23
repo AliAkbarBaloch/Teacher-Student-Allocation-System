@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Meta-annotation for auditing academic year get-by-id view operations.
  * Automatically logs when a specific academic year is viewed by its identifier.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Audited(
@@ -22,5 +22,4 @@ import java.lang.annotation.Target;
         description = "Viewed academic year by id",
         captureNewValue = false
 )
-public @interface AuditedAcademicYearViewById {
-}
+public @interface AuditedAcademicYearViewById { }

@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * Combines Swagger documentation for creating a new permission.
  * Automatically generates OpenAPI documentation with 201, 400, and 500 response codes.
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(summary = "Create new permission", description = "Creates a new permission with the provided details")
 @ApiResponses(value = {
@@ -26,4 +26,4 @@ import java.lang.annotation.Target;
     @ApiResponse(responseCode = "400", description = "Invalid input or duplicate permission"),
     @ApiResponse(responseCode = "500", description = "Internal server error")
 })
-public @interface CreatePermissionDocs {}
+public @interface CreatePermissionDocs { }

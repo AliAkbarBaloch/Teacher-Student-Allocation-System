@@ -24,25 +24,126 @@ import java.util.stream.Collectors;
  * Context object holding all data and state needed during the allocation process.
  */
 class AllocationContext {
-    AllocationParameters params;
-    List<Teacher> teachers;
-    List<InternshipDemand> demands;
+    private AllocationParameters params;
+    private List<Teacher> teachers;
+    private List<InternshipDemand> demands;
 
-    Map<Long, List<TeacherQualification>> qualifications;
-    Map<Long, List<TeacherSubjectExclusion>> exclusions;
-    Map<Long, List<TeacherAvailability>> availabilities;
-    Map<Long, List<TeacherSubject>> teacherSubjects;
-    List<InternshipType> internshipTypes;
-    Map<Integer, List<ZoneConstraint>> zoneConstraints;
-    Map<Long, List<InternshipCombinationRule>> combinationRules;
-    final Map<String, Subject> fallbackSubjects = new HashMap<>();
+    private Map<Long, List<TeacherQualification>> qualifications;
+    private Map<Long, List<TeacherSubjectExclusion>> exclusions;
+    private Map<Long, List<TeacherAvailability>> availabilities;
+    private Map<Long, List<TeacherSubject>> teacherSubjects;
+    private List<InternshipType> internshipTypes;
+    private Map<Integer, List<ZoneConstraint>> zoneConstraints;
+    private Map<Long, List<InternshipCombinationRule>> combinationRules;
+    private final Map<String, Subject> fallbackSubjects = new HashMap<>();
 
-    final Map<Long, Integer> currentAssignmentCount = new HashMap<>();
-    final Map<Teacher, List<InternshipType>> assignedTypes = new HashMap<>();
-    final Map<Long, Set<String>> uniqueAssignments = new HashMap<>();
+    private final Map<Long, Integer> currentAssignmentCount = new HashMap<>();
+    private final Map<Teacher, List<InternshipType>> assignedTypes = new HashMap<>();
+    private final Map<Long, Set<String>> uniqueAssignments = new HashMap<>();
 
-    final Map<Long, Integer> subjectCandidateCount = new HashMap<>();
-    int totalAssignmentsCreated = 0;
+    private final Map<Long, Integer> subjectCandidateCount = new HashMap<>();
+    private int totalAssignmentsCreated = 0;
+    // Accessors to satisfy visibility rules and for external use
+    AllocationParameters getParams() {
+        return params;
+    }
+
+    List<Teacher> getTeachers() {
+        return teachers;
+    }
+
+    List<InternshipDemand> getDemands() {
+        return demands;
+    }
+
+    Map<Long, List<TeacherQualification>> getQualifications() {
+        return qualifications;
+    }
+
+    Map<Long, List<TeacherSubjectExclusion>> getExclusions() {
+        return exclusions;
+    }
+
+    Map<Long, List<TeacherAvailability>> getAvailabilities() {
+        return availabilities;
+    }
+
+    Map<Long, List<TeacherSubject>> getTeacherSubjects() {
+        return teacherSubjects;
+    }
+
+    List<InternshipType> getInternshipTypes() {
+        return internshipTypes;
+    }
+
+    Map<Integer, List<ZoneConstraint>> getZoneConstraints() {
+        return zoneConstraints;
+    }
+
+    Map<Long, List<InternshipCombinationRule>> getCombinationRules() {
+        return combinationRules;
+    }
+
+    Map<String, Subject> getFallbackSubjects() {
+        return fallbackSubjects;
+    }
+
+    Map<Long, Integer> getCurrentAssignmentCount() {
+        return currentAssignmentCount;
+    }
+
+    Map<Teacher, List<InternshipType>> getAssignedTypes() {
+        return assignedTypes;
+    }
+
+    Map<Long, Set<String>> getUniqueAssignments() {
+        return uniqueAssignments;
+    }
+
+    Map<Long, Integer> getSubjectCandidateCount() {
+        return subjectCandidateCount;
+    }
+
+    int getTotalAssignmentsCreated() {
+        return totalAssignmentsCreated;
+    }
+
+    // Setters for initialization by the data loader
+    void setTeachers(List<Teacher> teachers) {
+        this.teachers = teachers;
+    }
+
+    void setDemands(List<InternshipDemand> demands) {
+        this.demands = demands;
+    }
+
+    void setQualifications(Map<Long, List<TeacherQualification>> qualifications) {
+        this.qualifications = qualifications;
+    }
+
+    void setExclusions(Map<Long, List<TeacherSubjectExclusion>> exclusions) {
+        this.exclusions = exclusions;
+    }
+
+    void setAvailabilities(Map<Long, List<TeacherAvailability>> availabilities) {
+        this.availabilities = availabilities;
+    }
+
+    void setTeacherSubjects(Map<Long, List<TeacherSubject>> teacherSubjects) {
+        this.teacherSubjects = teacherSubjects;
+    }
+
+    void setInternshipTypes(List<InternshipType> internshipTypes) {
+        this.internshipTypes = internshipTypes;
+    }
+
+    void setZoneConstraints(Map<Integer, List<ZoneConstraint>> zoneConstraints) {
+        this.zoneConstraints = zoneConstraints;
+    }
+
+    void setCombinationRules(Map<Long, List<InternshipCombinationRule>> combinationRules) {
+        this.combinationRules = combinationRules;
+    }
 
     AllocationContext(AllocationParameters params) {
         this.params = params;

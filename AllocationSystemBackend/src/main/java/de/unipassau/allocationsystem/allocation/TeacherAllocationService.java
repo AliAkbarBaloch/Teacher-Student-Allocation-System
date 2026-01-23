@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -54,7 +55,7 @@ public class TeacherAllocationService {
                                      SFPAllocationService sfpAllocationService,
                                      ZSPAllocationService zspAllocationService,
                                      PDPAllocationService pdpAllocationService,
-                                     @Autowired(required = false) TeacherAllocationService self) {
+                                     @Lazy TeacherAllocationService self) {
         this.dataLoader = dataLoader;
         this.teacherAssignmentRepository = teacherAssignmentRepository;
         this.sfpAllocationService = sfpAllocationService;
