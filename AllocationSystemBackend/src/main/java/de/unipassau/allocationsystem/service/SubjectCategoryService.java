@@ -120,7 +120,7 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     @Transactional(readOnly = true)
     @Override
     public List<SubjectCategory> getAll() {
-        return subjectCategoryRepository.findAll();
+        return getAllSubjectCategories();
     }
 
     @Audited(
@@ -132,6 +132,14 @@ public class SubjectCategoryService implements CrudService<SubjectCategory, Long
     @Transactional(readOnly = true)
     @Override
     public Optional<SubjectCategory> getById(Long id) {
+        return getSubjectCategoryById(id);
+    }
+
+    private List<SubjectCategory> getAllSubjectCategories() {
+        return subjectCategoryRepository.findAll();
+    }
+
+    private Optional<SubjectCategory> getSubjectCategoryById(Long id) {
         return subjectCategoryRepository.findById(id);
     }
 

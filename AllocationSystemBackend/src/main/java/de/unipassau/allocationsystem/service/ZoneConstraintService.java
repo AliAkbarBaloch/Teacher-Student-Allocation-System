@@ -173,7 +173,7 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     @Transactional(readOnly = true)
     @Override
     public List<ZoneConstraint> getAll() {
-        return zoneConstraintRepository.findAll();
+        return getAllZoneConstraints();
     }
 
     @Audited(
@@ -185,6 +185,14 @@ public class ZoneConstraintService implements CrudService<ZoneConstraint, Long> 
     @Transactional(readOnly = true)
     @Override
     public Optional<ZoneConstraint> getById(Long id) {
+        return getZoneConstraintById(id);
+    }
+
+    private List<ZoneConstraint> getAllZoneConstraints() {
+        return zoneConstraintRepository.findAll();
+    }
+
+    private Optional<ZoneConstraint> getZoneConstraintById(Long id) {
         return zoneConstraintRepository.findById(id);
     }
 

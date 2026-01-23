@@ -165,7 +165,7 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public List<Subject> getAll() {
-        return subjectRepository.findAll();
+        return getAllSubjects();
     }
 
     @Audited(
@@ -177,6 +177,14 @@ public class SubjectService implements CrudService<Subject, Long> {
     @Transactional(readOnly = true)
     @Override
     public Optional<Subject> getById(Long id) {
+        return getSubjectById(id);
+    }
+
+    private List<Subject> getAllSubjects() {
+        return subjectRepository.findAll();
+    }
+
+    private Optional<Subject> getSubjectById(Long id) {
         return subjectRepository.findById(id);
     }
 

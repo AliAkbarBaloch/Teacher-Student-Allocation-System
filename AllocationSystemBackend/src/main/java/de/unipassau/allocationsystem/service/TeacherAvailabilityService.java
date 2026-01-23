@@ -160,7 +160,7 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional(readOnly = true)
     @Override
     public List<TeacherAvailability> getAll() {
-        return teacherAvailabilityRepository.findAll();
+        return getAllTeacherAvailabilities();
     }
 
     @Audited(
@@ -172,6 +172,14 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional(readOnly = true)
     @Override
     public Optional<TeacherAvailability> getById(Long id) {
+        return getTeacherAvailabilityById(id);
+    }
+
+    private List<TeacherAvailability> getAllTeacherAvailabilities() {
+        return teacherAvailabilityRepository.findAll();
+    }
+
+    private Optional<TeacherAvailability> getTeacherAvailabilityById(Long id) {
         return teacherAvailabilityRepository.findById(id);
     }
 

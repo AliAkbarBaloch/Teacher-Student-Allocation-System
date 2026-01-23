@@ -29,15 +29,18 @@ import java.util.Optional;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
+
+/**
+ * Service class for managing TeacherSubject entities.
+ * Provides CRUD operations, search, pagination, and validation logic.
+ * Includes audit logging for all major actions.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-/**
- * Service for managing teacher-subject qualifications.
- * Handles CRUD operations for teacher subject associations.
- */
 public class TeacherSubjectService implements CrudService<TeacherSubject, Long> {
+
 
     private final TeacherSubjectRepository teacherSubjectRepository;
     private final AcademicYearRepository academicYearRepository;
@@ -45,26 +48,33 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     private final SubjectRepository subjectRepository;
 
     /**
-     * Returns the sortable fields metadata.
-     * 
-     * @return list of sort field metadata
+     * Returns the list of sortable fields for TeacherSubject entities.
+     * These fields are used for sorting in queries and pagination.
+     *
+     * @return list of maps containing field keys and metadata
      */
+    @Override
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", 
-            "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
+        return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
     }
 
     /**
-     * Returns the list of sortable field keys.
-     * 
+     * Returns the list of sortable field keys for TeacherSubject entities.
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Builds a search specification for TeacherSubject entities.
+     * Searches across availabilityStatus and notes fields.
+     *
+     * @param searchValue the value to search for
+     * @return specification for filtering TeacherSubject entities
+     */
     private Specification<TeacherSubject> buildSearchSpecification(String searchValue) {
-        // Search across availabilityStatus and notes
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
             new String[]{"availabilityStatus", "notes"}, searchValue
         );

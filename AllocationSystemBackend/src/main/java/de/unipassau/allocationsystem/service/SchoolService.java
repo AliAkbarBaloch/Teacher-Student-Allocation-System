@@ -194,7 +194,7 @@ public class SchoolService implements CrudService<School, Long> {
     @Transactional(readOnly = true)
     @Override
     public List<School> getAll() {
-        return schoolRepository.findAll();
+        return getAllSchools();
     }
 
     @Audited(
@@ -206,6 +206,14 @@ public class SchoolService implements CrudService<School, Long> {
     @Transactional(readOnly = true)
     @Override
     public Optional<School> getById(Long id) {
+        return getSchoolById(id);
+    }
+
+    private List<School> getAllSchools() {
+        return schoolRepository.findAll();
+    }
+
+    private Optional<School> getSchoolById(Long id) {
         return schoolRepository.findById(id);
     }
 
