@@ -33,10 +33,8 @@ import static de.unipassau.allocationsystem.allocation.TeacherAllocationTestData
 /**
  * Base integration test for {@link TeacherAllocationService} scenarios.
  * <p>
- * This class bootstraps the Spring context and persists a minimal, valid dataset
- * (academic year, schools, subjects, internship types, teachers, availabilities,
- * teacher-subject mappings, and internship demands). Concrete test classes extend
- * this base and focus on asserting allocation outcomes.
+ * Persists a minimal valid dataset required for allocation. Concrete test classes extend this base
+ * and assert allocation outcomes.
  * </p>
  */
 @SpringBootTest
@@ -45,53 +43,68 @@ import static de.unipassau.allocationsystem.allocation.TeacherAllocationTestData
 abstract class TeacherAllocationServiceBaseIT {
 
     /** Allocation service under test. */
-    @Autowired
-    protected TeacherAllocationService allocationService;
+    protected final TeacherAllocationService allocationService;
 
     /** Repository for persisting and loading academic years. */
-    @Autowired
-    protected AcademicYearRepository academicYearRepository;
+    protected final AcademicYearRepository academicYearRepository;
 
     /** Repository for teacher-subject mappings. */
-    @Autowired
-    protected TeacherSubjectRepository teacherSubjectRepository;
+    protected final TeacherSubjectRepository teacherSubjectRepository;
 
     /** Repository for teachers. */
-    @Autowired
-    protected TeacherRepository teacherRepository;
+    protected final TeacherRepository teacherRepository;
 
     /** Repository for internship demands. */
-    @Autowired
-    protected InternshipDemandRepository internshipDemandRepository;
+    protected final InternshipDemandRepository internshipDemandRepository;
 
     /** Repository for created teacher assignments. */
-    @Autowired
-    protected TeacherAssignmentRepository teacherAssignmentRepository;
+    protected final TeacherAssignmentRepository teacherAssignmentRepository;
 
     /** Repository for internship types. */
-    @Autowired
-    protected InternshipTypeRepository internshipTypeRepository;
+    protected final InternshipTypeRepository internshipTypeRepository;
 
     /** Repository for subjects. */
-    @Autowired
-    protected SubjectRepository subjectRepository;
+    protected final SubjectRepository subjectRepository;
 
     /** Repository for schools. */
-    @Autowired
-    protected SchoolRepository schoolRepository;
+    protected final SchoolRepository schoolRepository;
 
     /** Repository for subject categories. */
-    @Autowired
-    protected SubjectCategoryRepository subjectCategoryRepository;
+    protected final SubjectCategoryRepository subjectCategoryRepository;
 
     /** Persisted academic year used by each test run. */
     protected AcademicYear year;
 
     /**
-     * Persists a fresh dataset before each test method.
-     * <p>
-     * The context is dirtied before each test, so each test starts from a clean state.
-     * </p>
+     * Creates the base integration test using constructor injection.
+     */
+    @Autowired
+    protected TeacherAllocationServiceBaseIT(
+            TeacherAllocationService allocationService,
+            AcademicYearRepository academicYearRepository,
+            TeacherSubjectRepository teacherSubjectRepository,
+            TeacherRepository teacherRepository,
+            InternshipDemandRepository internshipDemandRepository,
+            TeacherAssignmentRepository teacherAssignmentRepository,
+            InternshipTypeRepository internshipTypeRepository,
+            SubjectRepository subjectRepository,
+            SchoolRepository schoolRepository,
+            SubjectCategoryRepository subjectCategoryRepository
+    ) {
+        this.allocationService = allocationService;
+        this.academicYearRepository = academicYearRepository;
+        this.teacherSubjectRepository = teacherSubjectRepository;
+        this.teacherRepository = teacherRepository;
+        this.internshipDemandRepository = internshipDemandRepository;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.internshipTypeRepository = internshipTypeRepository;
+        this.subjectRepository = subjectRepository;
+        this.schoolRepository = schoolRepository;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
+
+    /**
+     * Inserts a fresh dataset before each test method.
      */
     @BeforeEach
     void setup() {
@@ -118,7 +131,7 @@ abstract class TeacherAllocationServiceBaseIT {
     }
 
     /**
-     * Persists the given dataset to the database in the correct order to satisfy FK constraints.
+     * Persists the given dataset to the database in an order compatible with FK constraints.
      *
      * @param data dataset created by {@link #buildSetupData()}
      */
