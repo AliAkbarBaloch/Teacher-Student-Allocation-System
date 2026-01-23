@@ -70,11 +70,6 @@ abstract class UserServiceTestBase {
         passwordResetDto.setNewPassword(secret());
     }
 
-    /**
-     * Generates a non-hardcoded password-like value to avoid security analyzer findings.
-     *
-     * @return random secret
-     */
     protected static String secret() {
         return "test-" + UUID.randomUUID();
     }
