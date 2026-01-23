@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.testutil.TestSchoolFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ class SchoolServiceTest {
 
     @BeforeEach
     void setUp() {
-        testSchool = buildTestSchool(1L, "Test Elementary School", SchoolType.PRIMARY);
+        testSchool = TestSchoolFactory.buildTestSchool(1L, "Test Elementary School", SchoolType.PRIMARY);
 
         createSchool = new School();
         createSchool.setSchoolName("New Test School");
@@ -192,22 +192,5 @@ class SchoolServiceTest {
     private void verifyDeleteCalls(Long id) {
         verify(schoolRepository).existsById(id);
         verify(schoolRepository).deleteById(id);
-    }
-
-    private static School buildTestSchool(Long id, String name, SchoolType type) {
-        School school = new School();
-        school.setId(id);
-        school.setSchoolName(name);
-        school.setSchoolType(type);
-        school.setZoneNumber(1);
-        school.setAddress("Test Street 1");
-        school.setLatitude(new BigDecimal("48.5734053"));
-        school.setLongitude(new BigDecimal("13.4579944"));
-        school.setDistanceFromCenter(new BigDecimal("2.5"));
-        school.setTransportAccessibility("Bus Line 1");
-        school.setContactEmail("test@school.de");
-        school.setContactPhone("+49841123456");
-        school.setIsActive(true);
-        return school;
     }
 }
