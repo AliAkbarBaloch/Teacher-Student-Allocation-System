@@ -15,42 +15,83 @@ import org.springframework.stereotype.Component;
 /**
  * Dependency wrapper for teacher allocation integration tests.
  * <p>
- * Exposes required Spring beans via a single injectable component, keeping test constructors
- * small while avoiding constructors with excessive parameter counts.
+ * Uses setter injection to satisfy rules that forbid field injection while also avoiding
+ * constructors with too many parameters.
  * </p>
  */
 @Component
 final class TeacherAllocationTestDependencies {
 
-    @Autowired
     private TeacherAllocationService allocationService;
-
-    @Autowired
     private AcademicYearRepository academicYearRepository;
-
-    @Autowired
     private TeacherSubjectRepository teacherSubjectRepository;
-
-    @Autowired
     private TeacherRepository teacherRepository;
-
-    @Autowired
     private InternshipDemandRepository internshipDemandRepository;
-
-    @Autowired
     private TeacherAssignmentRepository teacherAssignmentRepository;
-
-    @Autowired
     private InternshipTypeRepository internshipTypeRepository;
-
-    @Autowired
     private SubjectRepository subjectRepository;
-
-    @Autowired
     private SchoolRepository schoolRepository;
-
-    @Autowired
     private SubjectCategoryRepository subjectCategoryRepository;
+
+    /** @param allocationService allocation service under test */
+    @Autowired
+    void setAllocationService(TeacherAllocationService allocationService) {
+        this.allocationService = allocationService;
+    }
+
+    /** @param academicYearRepository academic year repository */
+    @Autowired
+    void setAcademicYearRepository(AcademicYearRepository academicYearRepository) {
+        this.academicYearRepository = academicYearRepository;
+    }
+
+    /** @param teacherSubjectRepository teacher-subject repository */
+    @Autowired
+    void setTeacherSubjectRepository(TeacherSubjectRepository teacherSubjectRepository) {
+        this.teacherSubjectRepository = teacherSubjectRepository;
+    }
+
+    /** @param teacherRepository teacher repository */
+    @Autowired
+    void setTeacherRepository(TeacherRepository teacherRepository) {
+        this.teacherRepository = teacherRepository;
+    }
+
+    /** @param internshipDemandRepository internship demand repository */
+    @Autowired
+    void setInternshipDemandRepository(InternshipDemandRepository internshipDemandRepository) {
+        this.internshipDemandRepository = internshipDemandRepository;
+    }
+
+    /** @param teacherAssignmentRepository teacher assignment repository */
+    @Autowired
+    void setTeacherAssignmentRepository(TeacherAssignmentRepository teacherAssignmentRepository) {
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+    }
+
+    /** @param internshipTypeRepository internship type repository */
+    @Autowired
+    void setInternshipTypeRepository(InternshipTypeRepository internshipTypeRepository) {
+        this.internshipTypeRepository = internshipTypeRepository;
+    }
+
+    /** @param subjectRepository subject repository */
+    @Autowired
+    void setSubjectRepository(SubjectRepository subjectRepository) {
+        this.subjectRepository = subjectRepository;
+    }
+
+    /** @param schoolRepository school repository */
+    @Autowired
+    void setSchoolRepository(SchoolRepository schoolRepository) {
+        this.schoolRepository = schoolRepository;
+    }
+
+    /** @param subjectCategoryRepository subject category repository */
+    @Autowired
+    void setSubjectCategoryRepository(SubjectCategoryRepository subjectCategoryRepository) {
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
 
     TeacherAllocationService allocationService() {
         return allocationService;
