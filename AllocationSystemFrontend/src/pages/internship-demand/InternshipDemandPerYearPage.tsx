@@ -1,12 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 //hooks
 import React from "react";
 // useState - remember values
 // useEffect - runs code when something changes
 // useMemo - remember a calculated result
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 //styled button
 import { Button } from "@/components/ui/button";
@@ -21,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 //
 
 import // ...existing code...
-"@/components/ui/dialog";
+  "@/components/ui/dialog";
 
 import { InternshipDemandDialog } from "@/features/internship-demand/components/InternshipDemandDialog";
 
@@ -213,7 +210,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
   ];
 
   //function to load data from backend
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     //if year is empty - do nothing
     if (!filters.academicYearId) return;
 
@@ -231,14 +228,14 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
       //update data with new list
       setData(Array.isArray(list) ? list : []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       //if somethng goes wrongs set an error message
-      setError(e?.message ?? "Failed to load internship demand");
+      setError(e instanceof Error ? e.message : "Failed to load internship demand");
     } finally {
       //stop spinner
       setLoading(false);
     }
-  };
+  }, [filters]);
   //Academic years
   useEffect(() => {
     (async () => {
@@ -247,31 +244,31 @@ const InternshipDemandPerYearPage: React.FC = () => {
         const yearsRes = await fetchAcademicYears();
         const years = Array.isArray(yearsRes)
           ? yearsRes
-          : Array.isArray((yearsRes as any)?.data)
-          ? (yearsRes as any).data
-          : Array.isArray((yearsRes as any)?.content)
-          ? (yearsRes as any).content
-          : [];
+          : (Array.isArray((yearsRes as { data?: unknown })?.data)
+            ? (yearsRes as { data: AcademicYear[] }).data
+            : (Array.isArray((yearsRes as { content?: unknown })?.content)
+              ? (yearsRes as { content: AcademicYear[] }).content
+              : []));
         setAcademicYears(years);
         // get avaliable subjects
         const subjectsRes = await fetchSubjects();
         const subs = Array.isArray(subjectsRes)
           ? subjectsRes
-          : Array.isArray((subjectsRes as any)?.data)
-          ? (subjectsRes as any).data
-          : Array.isArray((subjectsRes as any)?.content)
-          ? (subjectsRes as any).content
-          : [];
+          : (Array.isArray((subjectsRes as { data?: unknown })?.data)
+            ? (subjectsRes as { data: Subject[] }).data
+            : (Array.isArray((subjectsRes as { content?: unknown })?.content)
+              ? (subjectsRes as { content: Subject[] }).content
+              : []));
         setSubjects(subs);
 
         const typesRes = await fetchInternshipTypes();
         const types = Array.isArray(typesRes)
           ? typesRes
-          : Array.isArray((typesRes as any)?.data)
-          ? (typesRes as any).data
-          : Array.isArray((typesRes as any)?.content)
-          ? (typesRes as any).content
-          : [];
+          : (Array.isArray((typesRes as { data?: unknown })?.data)
+            ? (typesRes as { data: InternshipType[] }).data
+            : (Array.isArray((typesRes as { content?: unknown })?.content)
+              ? (typesRes as { content: InternshipType[] }).content
+              : []));
         setInternshipTypes(types);
 
         console.log("academicYears response raw:", yearsRes);
@@ -290,13 +287,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
   // whenenver any filter changes -> run loadData(). the array after the comma - lists those dependencies
   useEffect(() => {
     loadData();
-  }, [
-    filters.academicYearId,
-    filters.internshipTypeId,
-    filters.schoolType,
-    filters.subjectId,
-    filters.onlyForecasted,
-  ]);
+  }, [loadData]);
   useEffect(() => {
     console.log(
       "academicYears in state:",
@@ -399,13 +390,13 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
     // Fill the form with current values from the row.
     setForm({
-      academicYearId: (row as any).academicYearId,
-      subjectId: (row as any).subjectId,
-      internshipTypeId: (row as any).internshipTypeId,
+      academicYearId: row.academicYearId ?? "",
+      subjectId: row.subjectId ?? "",
+      internshipTypeId: row.internshipTypeId ?? "",
       schoolType: row.schoolType,
       requiredTeachers: row.requiredTeachers,
       studentCount: row.studentCount,
-      isForecasted: (row as any).isForecasted,
+      isForecasted: row.isForecasted,
     });
 
     // Clear errors.
@@ -422,8 +413,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
   type FormKey = keyof DemandFormState | "academicYearId" | "subjectId";
 
-  const updateFormField = (field: FormKey, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value } as any));
+  const updateFormField = (field: FormKey, value: unknown) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   // Duplicate detection
@@ -448,12 +439,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
   const validateForm = () => {
     const errs: Record<string, string> = {};
 
-    if (!(form as any).academicYearId)
+    if (!form.academicYearId)
       errs.academicYearId = "Academic year is required";
     if (!form.internshipTypeId)
       errs.internshipTypeId = "Internship type is required";
     if (!form.schoolType) errs.schoolType = "School type is required";
-    if (!(form as any).subjectId) errs.subjectId = "Subject is required";
+    if (!form.subjectId) errs.subjectId = "Subject is required";
 
     if (form.requiredTeachers === "" || form.requiredTeachers === null) {
       errs.requiredTeachers = "Required teachers is required";
@@ -500,8 +491,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
       console.log("Reloading after save with filters:", filters);
       await loadData();
-    } catch (err: any) {
-      setBackendError(err?.message || "Failed to save internship demand");
+    } catch (err: unknown) {
+      setBackendError(err instanceof Error ? err.message : "Failed to save internship demand");
     } finally {
       setSubmitting(false);
     }
@@ -515,8 +506,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
       await deleteInternshipDemand(String(deleteTarget.id));
       setDeleteTarget(null);
       await loadData();
-    } catch (err: any) {
-      setError(err?.message || "Failed to delete internship demand");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete internship demand");
     } finally {
       setDeleting(false);
     }
@@ -525,9 +516,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
   // -------- DataTable actions config --------
   const tableActions: DataTableActions<InternshipDemand> | undefined = isAdmin
     ? {
-        onEdit: (row) => openEdit(row),
-        onDelete: (row) => setDeleteTarget(row),
-      }
+      onEdit: (row) => openEdit(row),
+      onDelete: (row) => setDeleteTarget(row),
+    }
     : undefined;
 
   return (
@@ -605,7 +596,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
         internshipTypes={internshipTypes}
         subjects={subjects}
         schoolTypes={schoolTypes}
-        onChangeField={(field, value) => updateFormField(field as any, value)}
+        onChangeField={(field, value) => updateFormField(field as FormKey, value)}
         onSubmit={handleSubmit}
         onCancel={() => setDialogOpen(false)}
       />
