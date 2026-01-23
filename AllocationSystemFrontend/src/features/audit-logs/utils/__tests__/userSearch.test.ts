@@ -40,21 +40,19 @@ describe("resolveUserSearch", () => {
   it("should cache numeric user ID", async () => {
     const result1 = await resolveUserSearch("456");
     const result2 = await resolveUserSearch("456");
-    
+
     expect(result1).toBe(456);
     expect(result2).toBe(456);
     expect(apiClient.get).not.toHaveBeenCalled();
   });
 
   it("should return null for zero or negative numbers", async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ content: [] });
     const result1 = await resolveUserSearch("0");
     expect(result1).toBeNull();
-    
+
     const result2 = await resolveUserSearch("-1");
     expect(result2).toBeNull();
-    
-    // Zero and negative numbers will try to lookup as email, so API might be called
-    // But should still return null
   });
 
   it("should lookup user by email and cache result", async () => {
@@ -112,14 +110,14 @@ describe("resolveUserSearch", () => {
   });
 
   it("should handle API errors gracefully", async () => {
-    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => { });
     vi.mocked(apiClient.get).mockRejectedValue(new Error("API Error"));
 
     const result = await resolveUserSearch("test@example.com");
-    
+
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalled();
-    
+
     consoleSpy.mockRestore();
   });
 
