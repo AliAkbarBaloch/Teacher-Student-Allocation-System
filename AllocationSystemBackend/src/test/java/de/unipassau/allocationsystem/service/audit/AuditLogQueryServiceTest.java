@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import de.unipassau.allocationsystem.testutil.TestUserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -48,20 +49,7 @@ class AuditLogQueryServiceTest {
         auditLogRepository.deleteAll();
         userRepository.deleteAll();
 
-        testUser = userRepository.save(newTestUser("test@example.com", "Test User"));
-    }
-
-    private static User newTestUser(String email, String fullName) {
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(generateTestPassword());
-        user.setFullName(fullName);
-        user.setEnabled(true);
-        return user;
-    }
-
-    private static String generateTestPassword() {
-        return "test-" + UUID.randomUUID();
+        testUser = userRepository.save(TestUserFactory.newEnabledUser("test@example.com", "Test User"));
     }
 
     @Test

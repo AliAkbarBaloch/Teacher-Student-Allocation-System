@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import de.unipassau.allocationsystem.testutil.TestUserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -31,9 +33,6 @@ class AuditLogServiceTest {
 
     private User testUser;
 
-    /**
-     * Constructor injection (preferred over field injection).
-     */
     @Autowired
     AuditLogServiceTest(AuditLogService auditLogService,
                         AuditLogRepository auditLogRepository,
@@ -48,20 +47,7 @@ class AuditLogServiceTest {
         auditLogRepository.deleteAll();
         userRepository.deleteAll();
 
-        testUser = userRepository.save(newTestUser("test@example.com", "Test User"));
-    }
-
-    private static User newTestUser(String email, String fullName) {
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(generateTestPassword()); // avoid hard-coded password
-        user.setFullName(fullName);
-        user.setEnabled(true);
-        return user;
-    }
-
-    private static String generateTestPassword() {
-        return "test-" + UUID.randomUUID();
+        testUser = userRepository.save(TestUserFactory.newEnabledUser("test@example.com", "Test User"));
     }
 
     @Test
@@ -92,7 +78,6 @@ class AuditLogServiceTest {
     void testLogCreateAsync() {
         auditLogService.logCreate("User", "456", Map.of("email", "newuser@example.com", "name", "New User"));
 
-        // Avoid Thread.sleep in tests: poll until the async entry appears or timeout.
         AuditLog log = awaitFirstAuditLogFor("User", "456", Duration.ofSeconds(5));
 
         assertNotNull(log);
@@ -122,10 +107,6 @@ class AuditLogServiceTest {
         assertEquals(2, userLogs.getTotalElements());
     }
 
-    /**
-     * Polls the repository until an audit log for the given entity/record exists or the timeout elapses.
-     * This avoids flaky tests caused by Thread.sleep.
-     */
     private AuditLog awaitFirstAuditLogFor(String entityName, String recordId, Duration timeout) {
         long deadlineNanos = System.nanoTime() + timeout.toNanos();
 
@@ -136,9 +117,6 @@ class AuditLogServiceTest {
             if (logs.hasContent()) {
                 return logs.getContent().get(0);
             }
-
-            // Small, cooperative backoff (not Thread.sleep)
-            // Works in plain JUnit without adding Awaitility dependency.
             Thread.onSpinWait();
         }
 
