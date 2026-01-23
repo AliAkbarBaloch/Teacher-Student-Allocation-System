@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for teacher-subject mapping response data.
+ * Includes detailed academic year, teacher, and subject information with grade levels and timestamps.
+ */
 @Data
 @Builder
 @NoArgsConstructor

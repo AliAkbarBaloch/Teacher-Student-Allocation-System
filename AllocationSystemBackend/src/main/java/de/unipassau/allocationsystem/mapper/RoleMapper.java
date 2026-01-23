@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between Role entities and DTOs.
+ * Handles role creation, updates, and response transformations for RBAC.
+ */
 public class RoleMapper implements BaseMapper<Role, RoleCreateDto, RoleUpdateDto, RoleResponseDto> {
 
     @Override

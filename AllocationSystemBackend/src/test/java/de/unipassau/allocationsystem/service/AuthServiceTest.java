@@ -32,6 +32,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link AuthService}.
+ * <p>
+ * This test class validates authentication, password reset, password change,
+ * and user profile update operations.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 

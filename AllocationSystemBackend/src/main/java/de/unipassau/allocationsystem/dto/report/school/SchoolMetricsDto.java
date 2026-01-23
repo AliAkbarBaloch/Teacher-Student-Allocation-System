@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+/**
+ * DTO for aggregated school metrics.
+ * Provides total counts and distribution breakdowns by type, zone, and accessibility.
+ */
 @Data
 @Builder
 @NoArgsConstructor

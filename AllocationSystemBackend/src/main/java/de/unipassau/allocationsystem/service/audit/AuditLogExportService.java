@@ -13,6 +13,10 @@ import java.util.List;
 
 @Service
 @Slf4j
+/**
+ * Service for exporting audit logs to various formats.
+ * Provides CSV export functionality with proper formatting and timestamps.
+ */
 public class AuditLogExportService {
     private static final String[] CSV_HEADERS = {
             "ID", "User", "Event Time", "Action", "Target Entity",

@@ -15,19 +15,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link TeacherSubjectController}.
+ * <p>
+ * This test class validates teacher-subject association operations and filtering.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
@@ -61,9 +62,6 @@ class TeacherSubjectControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private RequestMappingHandlerMapping handlerMapping;
-
     private Teacher testTeacher;
     private Subject testSubject;
     private AcademicYear testYear;
@@ -72,12 +70,6 @@ class TeacherSubjectControllerTest {
     void setUp() {
         // MockMvc is autoconfigured with security filters via @AutoConfigureMockMvc
         teacherSubjectRepository.deleteAll();
-
-        // Diagnostic: print registered mappings to help debug NoHandlerFoundException
-        System.out.println("--- Registered Request Mappings (diagnostic) ---");
-        for (Map.Entry<RequestMappingInfo, org.springframework.web.method.HandlerMethod> entry : handlerMapping.getHandlerMethods().entrySet()) {
-            System.out.println(entry.getKey() + " -> " + entry.getValue());
-        }
 
         // create and save a valid school required by Teacher
         var school = new de.unipassau.allocationsystem.entity.School();

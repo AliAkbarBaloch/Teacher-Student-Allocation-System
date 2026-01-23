@@ -18,11 +18,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing schools.
+ * Provides CRUD operations for school entities.
+ */
 @RestController
 @RequestMapping("/schools")
 @RequiredArgsConstructor
@@ -32,6 +45,11 @@ public class SchoolController {
     private final SchoolService schoolService;
     private final SchoolMapper schoolMapper;
 
+    /**
+     * Retrieves available fields for sorting schools.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting schools"
@@ -46,6 +64,13 @@ public class SchoolController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific school by its ID.
+     *
+     * @param id School ID
+     * @return School details
+     * @throws ResourceNotFoundException if school not found
+     */
     @Operation(
             summary = "Get school by ID",
             description = "Retrieves a specific school by its ID"
@@ -67,6 +92,14 @@ public class SchoolController {
         return ResponseHandler.success("School retrieved successfully", result);
     }
 
+    /**
+     * Retrieves schools with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param includeRelations Whether to include related entities
+     * @param searchValue Optional search term
+     * @return Paginated list of schools
+     */
     @Operation(
             summary = "Get paginated schools",
             description = "Retrieves schools with pagination, sorting, and optional search"
@@ -95,6 +128,12 @@ public class SchoolController {
         return ResponseHandler.success("Schools retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all schools without pagination.
+     *
+     * @param includeRelations Whether to include related entities
+     * @return List of all schools
+     */
     @Operation(
             summary = "Get all schools",
             description = "Retrieves all schools without pagination"
@@ -113,6 +152,12 @@ public class SchoolController {
         return ResponseHandler.success("Schools retrieved successfully", result);
     }
 
+    /**
+     * Creates a new school.
+     *
+     * @param dto School creation data
+     * @return Created school
+     */
     @Operation(
             summary = "Create new school",
             description = "Creates a new school with the provided details"
@@ -133,6 +178,13 @@ public class SchoolController {
         return ResponseHandler.created("School created successfully", schoolMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing school.
+     *
+     * @param id School ID
+     * @param dto Updated school data
+     * @return Updated school
+     */
     @Operation(
             summary = "Update school",
             description = "Updates an existing school with the provided details"
@@ -154,6 +206,13 @@ public class SchoolController {
         return ResponseHandler.updated("School updated successfully", schoolMapper.toResponseDto(updated));
     }
 
+    /**
+     * Updates the active status of a school.
+     *
+     * @param id School ID
+     * @param statusDto Status update data
+     * @return Updated school
+     */
     @Operation(
             summary = "Update school status",
             description = "Updates the active status of a school (activate/deactivate)"
@@ -176,6 +235,12 @@ public class SchoolController {
         return ResponseHandler.updated("School status updated successfully", schoolMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a school by its ID.
+     *
+     * @param id School ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete school",
             description = "Deletes a school by its ID"

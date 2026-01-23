@@ -3,6 +3,10 @@ package de.unipassau.allocationsystem.dto.allocation;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Configuration parameters for the teacher allocation algorithm.
+ * Defines hard constraints, group sizing limits, optimization weights, and allocation strategies.
+ */
 @Data
 @Builder
 public class AllocationParameters {

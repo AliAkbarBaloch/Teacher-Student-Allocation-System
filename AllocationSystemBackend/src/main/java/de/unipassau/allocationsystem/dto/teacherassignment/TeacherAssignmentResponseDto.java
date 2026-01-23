@@ -5,6 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for teacher assignment response data.
+ * Includes complete assignment details with plan, teacher, internship, and subject information.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,4 +1,3 @@
-// src/main/java/de/unipassau/allocationsystem/config/DataInitializer.java
 package de.unipassau.allocationsystem.config;
 
 import de.unipassau.allocationsystem.entity.AcademicYear;
@@ -16,6 +15,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Configuration class for initializing database with default data.
+ * Creates default users (test and admin) and academic years on application startup.
+ * Active only in non-test profiles.
+ * 
+ * WARNING: This class contains hardcoded passwords for development purposes.
+ * In production, use secure configuration management or remove this initializer.
+ */
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +33,12 @@ public class DataInitializer {
     private final AcademicYearRepository academicYearRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Initializes default data on application startup.
+     * Creates test users and academic years if they don't exist.
+     * 
+     * @return CommandLineRunner that executes the initialization logic
+     */
     @Bean
     public CommandLineRunner initData() {
         return args -> {
@@ -36,47 +49,44 @@ public class DataInitializer {
     }
 
     private void insertUsers() {
-        String[] rawPasswords = {"password123", "admin123"};
+        // WARNING: Hardcoded passwords - for development only. Change in production!
+        String testPassword = "password123";
+        String adminPassword = "admin123";
         
-        // Create test user
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword(passwordEncoder.encode(rawPasswords[0]));
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser.setIsActive(true);
-        testUser.setAccountLocked(false);
-        testUser.setFailedLoginAttempts(0);
-        testUser.setLoginAttempt(0);
-        testUser.setAccountStatus(User.AccountStatus.ACTIVE);
-        testUser.setRole(User.UserRole.USER);
-        testUser.setPhoneNumber("1234567890");
-
-        // Create admin user
-        User adminUser = new User();
-        adminUser.setEmail("admin@example.com");
-        adminUser.setPassword(passwordEncoder.encode(rawPasswords[1]));
-        adminUser.setFullName("Admin User");
-        adminUser.setEnabled(true);
-        adminUser.setIsActive(true);
-        adminUser.setAccountLocked(false);
-        adminUser.setFailedLoginAttempts(0);
-        adminUser.setLoginAttempt(0);
-        adminUser.setAccountStatus(User.AccountStatus.ACTIVE);
-        adminUser.setRole(User.UserRole.ADMIN);
-        adminUser.setPhoneNumber("0987654321");
+        User testUser = createUser("test@example.com", testPassword, "Test User", 
+                                   User.UserRole.USER, "1234567890");
+        User adminUser = createUser("admin@example.com", adminPassword, "Admin User", 
+                                    User.UserRole.ADMIN, "0987654321");
 
         List<User> users = List.of(testUser, adminUser);
+        String[] rawPasswords = {testPassword, adminPassword};
 
         log.info("Test Users Available:");
         for (int i = 0; i < users.size(); i++) {
-            String rawPassword = rawPasswords[i];
             if (userRepository.findByEmail(users.get(i).getEmail()).isEmpty()) {
                 userRepository.save(users.get(i));
             }
-            log.info("{} user created: {} / {}", users.get(i).getRole(), users.get(i).getEmail(), rawPassword);
+            log.info("{} user created: {} / {}", users.get(i).getRole(), 
+                    users.get(i).getEmail(), rawPasswords[i]);
         }
         log.info("====================================");
+    }
+    
+    private User createUser(String email, String rawPassword, String fullName, 
+                           User.UserRole role, String phoneNumber) {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setFullName(fullName);
+        user.setEnabled(true);
+        user.setIsActive(true);
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        user.setLoginAttempt(0);
+        user.setAccountStatus(User.AccountStatus.ACTIVE);
+        user.setRole(role);
+        user.setPhoneNumber(phoneNumber);
+        return user;
     }
 
     private void insertAcademicYears() {

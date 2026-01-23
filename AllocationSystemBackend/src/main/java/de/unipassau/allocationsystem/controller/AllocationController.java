@@ -13,7 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +42,7 @@ public class AllocationController {
      * This endpoint is used by the Create Allocation Plan functionality.
      * 
      * @param academicYearId The ID of the academic year to allocate
+     * @param requestBody Optional request body containing isCurrent and planVersion
      * @return ResponseEntity containing the created AllocationPlan details
      */
     @Operation(
@@ -51,12 +57,19 @@ public class AllocationController {
     public ResponseEntity<?> runAllocation(
             @PathVariable Long academicYearId,
             @RequestBody(required = false) Map<String, Object> requestBody) {
-        Boolean isCurrent = requestBody != null && requestBody.containsKey("isCurrent") 
-            ? (Boolean) requestBody.get("isCurrent") 
-            : false;
-        String customVersion = requestBody != null && requestBody.containsKey("planVersion")
-            ? (String) requestBody.get("planVersion")
-            : null;
+        Boolean isCurrent;
+        if (requestBody != null && requestBody.containsKey("isCurrent")) {
+            isCurrent = (Boolean) requestBody.get("isCurrent");
+        } else {
+            isCurrent = false;
+        }
+        
+        String customVersion;
+        if (requestBody != null && requestBody.containsKey("planVersion")) {
+            customVersion = (String) requestBody.get("planVersion");
+        } else {
+            customVersion = null;
+        }
         log.info("Allocation process triggered from API for academic year ID: {}, isCurrent: {}, customVersion: {}", 
                 academicYearId, isCurrent, customVersion);
         
@@ -107,22 +120,36 @@ public class AllocationController {
         log.info("Allocation triggered for Year ID: {}. Scarcity: {}, Surplus: {}",
                 academicYearId, requestDto.getPrioritizeScarcity(), requestDto.getForceUtilizationOfSurplus());
 
-        // 2. Map DTO to Domain Parameters
+        // 2. Map DTO to Domain Parameters with defaults
+        Boolean prioritizeScarcity = (requestDto.getPrioritizeScarcity() != null) 
+                ? requestDto.getPrioritizeScarcity() : true;
+        Boolean forceUtilizationOfSurplus = (requestDto.getForceUtilizationOfSurplus() != null) 
+                ? requestDto.getForceUtilizationOfSurplus() : true;
+        Boolean allowGroupSizeExpansion = (requestDto.getAllowGroupSizeExpansion() != null) 
+                ? requestDto.getAllowGroupSizeExpansion() : true;
+        Integer standardAssignments = (requestDto.getStandardAssignmentsPerTeacher() != null) 
+                ? requestDto.getStandardAssignmentsPerTeacher() : 2;
+        Integer maxAssignments = (requestDto.getMaxAssignmentsPerTeacher() != null) 
+                ? requestDto.getMaxAssignmentsPerTeacher() : 3;
+        Integer maxGroupWednesday = (requestDto.getMaxGroupSizeWednesday() != null) 
+                ? requestDto.getMaxGroupSizeWednesday() : 4;
+        Integer maxGroupBlock = (requestDto.getMaxGroupSizeBlock() != null) 
+                ? requestDto.getMaxGroupSizeBlock() : 2;
+        Integer weightMain = (requestDto.getWeightMainSubject() != null) 
+                ? requestDto.getWeightMainSubject() : 10;
+        Integer weightZone = (requestDto.getWeightZonePreference() != null) 
+                ? requestDto.getWeightZonePreference() : 5;
+        
         AllocationParameters params = AllocationParameters.builder()
-                // Strategy
-                .prioritizeScarcity(requestDto.getPrioritizeScarcity() != null ? requestDto.getPrioritizeScarcity() : true)
-                .forceUtilizationOfSurplus(requestDto.getForceUtilizationOfSurplus() != null ? requestDto.getForceUtilizationOfSurplus() : true)
-                .allowGroupSizeExpansion(requestDto.getAllowGroupSizeExpansion() != null ? requestDto.getAllowGroupSizeExpansion() : true)
-
-                // Limits
-                .standardAssignmentsPerTeacher(requestDto.getStandardAssignmentsPerTeacher() != null ? requestDto.getStandardAssignmentsPerTeacher() : 2)
-                .maxAssignmentsPerTeacher(requestDto.getMaxAssignmentsPerTeacher() != null ? requestDto.getMaxAssignmentsPerTeacher() : 3)
-                .maxGroupSizeWednesday(requestDto.getMaxGroupSizeWednesday() != null ? requestDto.getMaxGroupSizeWednesday() : 4)
-                .maxGroupSizeBlock(requestDto.getMaxGroupSizeBlock() != null ? requestDto.getMaxGroupSizeBlock() : 2)
-
-                // Weights
-                .weightMainSubject(requestDto.getWeightMainSubject() != null ? requestDto.getWeightMainSubject() : 10)
-                .weightZonePreference(requestDto.getWeightZonePreference() != null ? requestDto.getWeightZonePreference() : 5)
+                .prioritizeScarcity(prioritizeScarcity)
+                .forceUtilizationOfSurplus(forceUtilizationOfSurplus)
+                .allowGroupSizeExpansion(allowGroupSizeExpansion)
+                .standardAssignmentsPerTeacher(standardAssignments)
+                .maxAssignmentsPerTeacher(maxAssignments)
+                .maxGroupSizeWednesday(maxGroupWednesday)
+                .maxGroupSizeBlock(maxGroupBlock)
+                .weightMainSubject(weightMain)
+                .weightZonePreference(weightZone)
                 .build();
 
         // 3. Execute Algorithm
@@ -148,6 +175,13 @@ public class AllocationController {
         );
     }
 
+    /**
+     * Activates and approves an allocation plan.
+     * Promotes a Draft plan to APPROVED status and updates the official Credit Hour Tracking table.
+     * 
+     * @param planId The ID of the allocation plan to activate
+     * @return ResponseEntity confirming activation
+     */
     @Operation(
             summary = "Activate/Approve Allocation Plan",
             description = "Promotes a Draft plan to APPROVED status. This updates the official Credit Hour Tracking table."

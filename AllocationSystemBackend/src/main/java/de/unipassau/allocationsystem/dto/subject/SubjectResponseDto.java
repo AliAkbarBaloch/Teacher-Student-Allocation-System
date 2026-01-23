@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * DTO for subject response data.
+ * Includes all subject details with category information and timestamps.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

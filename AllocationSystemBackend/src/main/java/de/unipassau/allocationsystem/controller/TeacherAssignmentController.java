@@ -17,12 +17,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing teacher assignments.
+ * Provides CRUD operations for teacher assignment entities within allocation plans.
+ */
 @RestController
 @RequestMapping("/teacher-assignments")
 @RequiredArgsConstructor
@@ -33,6 +45,11 @@ public class TeacherAssignmentController {
     private final TeacherAssignmentService assignmentService;
     private final TeacherAssignmentMapper assignmentMapper;
 
+    /**
+     * Retrieves available fields for sorting teacher assignments.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
         summary = "Get sort fields",
         description = "Retrieves available fields that can be used for sorting teacher assignments"
@@ -48,6 +65,15 @@ public class TeacherAssignmentController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves teacher assignments with pagination and sorting.
+     *
+     * @param planId Allocation plan ID
+     * @param queryParams Pagination and sorting parameters
+     * @param includeRelations Whether to include related entities
+     * @param searchValue Optional search term
+     * @return Paginated list of assignments
+     */
     @Operation(
         summary = "Get paginated assignments",
         description = "Retrieves assignments with pagination, sorting, and optional search"
@@ -76,6 +102,12 @@ public class TeacherAssignmentController {
         return ResponseHandler.success("Assignments retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all teacher assignments without pagination.
+     *
+     * @param includeRelations Whether to include related entities
+     * @return List of all assignments
+     */
     @Operation(
         summary = "Get all assignments",
         description = "Retrieves all teacher assignments for the allocation plan"
@@ -91,6 +123,13 @@ public class TeacherAssignmentController {
         return ResponseHandler.success("Assignments retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific teacher assignment by its ID.
+     *
+     * @param id Assignment ID
+     * @return Assignment details
+     * @throws NoSuchElementException if assignment not found
+     */
     @Operation(
         summary = "Get assignment by ID",
         description = "Retrieves a specific teacher assignment by its ID"
@@ -109,6 +148,12 @@ public class TeacherAssignmentController {
         return ResponseHandler.success("Assignment retrieved successfully", result);
     }
 
+    /**
+     * Creates a new teacher assignment.
+     *
+     * @param dto Assignment creation data
+     * @return Created assignment
+     */
     @Operation(
         summary = "Create new assignment",
         description = "Creates a new teacher assignment with the provided details"
@@ -126,6 +171,13 @@ public class TeacherAssignmentController {
         return ResponseHandler.created("Assignment created successfully", assignmentMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing teacher assignment.
+     *
+     * @param id Assignment ID
+     * @param dto Updated assignment data
+     * @return Updated assignment
+     */
     @Operation(
         summary = "Update assignment",
         description = "Updates an existing teacher assignment with the provided details"
@@ -144,6 +196,12 @@ public class TeacherAssignmentController {
         return ResponseHandler.updated("Assignment updated successfully", assignmentMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a teacher assignment by its ID.
+     *
+     * @param id Assignment ID
+     * @return No content response
+     */
     @Operation(
         summary = "Delete assignment",
         description = "Deletes a teacher assignment by its ID"

@@ -28,6 +28,10 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing academic years.
+ * Handles CRUD operations and validation for academic year entities.
+ */
 public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
     private final AcademicYearRepository academicYearRepository;
@@ -37,6 +41,11 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return SortFieldUtils.getSortFields("id", "yearName", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -48,6 +57,12 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         );
     }
 
+    /**
+     * Checks if an academic year with the given name exists.
+     * 
+     * @param yearName the year name to check
+     * @return true if year name exists, false otherwise
+     */
     public boolean yearNameExists(String yearName) {
         return academicYearRepository.findByYearName(yearName).isPresent();
     }

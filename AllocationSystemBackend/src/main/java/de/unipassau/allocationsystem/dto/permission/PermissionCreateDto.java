@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for creating a new permission.
+ * Defines access control permissions for the role-based access system.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

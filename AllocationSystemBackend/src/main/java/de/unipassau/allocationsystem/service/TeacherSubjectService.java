@@ -34,6 +34,10 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+/**
+ * Service for managing teacher-subject qualifications.
+ * Handles CRUD operations for teacher subject associations.
+ */
 public class TeacherSubjectService implements CrudService<TeacherSubject, Long> {
 
     private final TeacherSubjectRepository teacherSubjectRepository;
@@ -41,11 +45,21 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", 
             "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -112,6 +126,12 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
         captureNewValue = false
     )
     @Transactional(readOnly = true)
+    /**
+     * Retrieves all subject qualifications for a specific teacher.
+     * 
+     * @param teacherId the teacher ID
+     * @return list of teacher-subject associations
+     */
     public List<TeacherSubject> getByTeacherId(Long teacherId) {
         return teacherSubjectRepository.findByTeacherId(teacherId);
     }

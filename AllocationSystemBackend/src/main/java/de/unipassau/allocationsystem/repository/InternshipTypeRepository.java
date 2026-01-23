@@ -12,6 +12,19 @@ import java.util.Optional;
  */
 @Repository
 public interface InternshipTypeRepository extends JpaRepository<InternshipType, Long>, JpaSpecificationExecutor<InternshipType> {
+    /**
+     * Find internship type by code.
+     * 
+     * @param internshipCode the internship code
+     * @return optional containing the internship type if found
+     */
     Optional<InternshipType> findByInternshipCode(String internshipCode);
+    
+    /**
+     * Check if internship type with the given code exists.
+     * 
+     * @param internshipCode the internship code
+     * @return true if code exists, false otherwise
+     */
     boolean existsByInternshipCode(String internshipCode);
 }

@@ -41,6 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 
  
 
+/**
+ * REST controller for managing plan change logs.
+ * Provides read-only access to allocation plan change history.
+ */
 @RestController
 @RequestMapping("/plan-change-logs")
 @RequiredArgsConstructor
@@ -51,6 +55,11 @@ public class PlanChangeLogController {
     private final PlanChangeLogService planChangeLogService;
     private final PlanChangeLogMapper planChangeLogMapper;
 
+    /**
+     * Retrieves available fields for sorting plan change logs.
+     * 
+     * @return ResponseEntity containing list of sortable fields
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting plan change logs"
@@ -66,6 +75,13 @@ public class PlanChangeLogController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves plan change logs with pagination and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated plan change logs
+     */
     @Operation(
             summary = "Get paginated plan change logs",
             description = "Retrieves plan change logs with pagination and sorting"
@@ -93,6 +109,11 @@ public class PlanChangeLogController {
         return ResponseHandler.success("Plan change logs retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all plan change logs without pagination.
+     * 
+     * @return ResponseEntity containing list of all plan change logs
+     */
     @Operation(
             summary = "Get all plan change logs",
             description = "Retrieves all plan change logs without pagination"
@@ -112,6 +133,13 @@ public class PlanChangeLogController {
         return ResponseHandler.success("Plan change logs retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific plan change log by its ID.
+     * 
+     * @param id The ID of the plan change log
+     * @return ResponseEntity containing the plan change log details
+     * @throws NoSuchElementException if plan change log not found
+     */
     @Operation(
             summary = "Get plan change log by ID",
             description = "Retrieves a specific plan change log by its ID"
@@ -134,6 +162,12 @@ public class PlanChangeLogController {
         return ResponseHandler.success("Plan change log retrieved successfully", result);
     }
 
+    /**
+     * Creates a new plan change log entry.
+     * 
+     * @param dto Plan change log creation data
+     * @return ResponseEntity containing the created plan change log
+     */
     @Operation(
             summary = "Create new plan change log",
             description = "Creates a new plan change log with the provided details"
@@ -155,6 +189,13 @@ public class PlanChangeLogController {
         return ResponseHandler.created("Plan change log created successfully", planChangeLogMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing plan change log.
+     * 
+     * @param id The ID of the plan change log to update
+     * @param dto Plan change log update data
+     * @return ResponseEntity containing the updated plan change log
+     */
     @Operation(
             summary = "Update plan change log",
             description = "Updates an existing plan change log with the provided details"
@@ -177,6 +218,12 @@ public class PlanChangeLogController {
         return ResponseHandler.updated("Plan change log updated successfully", planChangeLogMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a plan change log by its ID.
+     * 
+     * @param id The ID of the plan change log to delete
+     * @return ResponseEntity with no content
+     */
     @Operation(
             summary = "Delete plan change log",
             description = "Deletes a plan change log by its ID"
@@ -193,6 +240,13 @@ public class PlanChangeLogController {
         return ResponseHandler.noContent();
     }
 
+    /**
+     * Retrieves change logs for a specific allocation plan with filtering.
+     * 
+     * @param planId The ID of the allocation plan
+     * @param filter Filter criteria for change logs
+     * @return ResponseEntity containing paginated change logs for the plan
+     */
     @GetMapping("/plans/{planId}/change-logs")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -227,6 +281,13 @@ public class PlanChangeLogController {
         return ResponseHandler.success("Plan change logs retrieved successfully", logs.map(planChangeLogMapper::toResponseDto));
     }
 
+    /**
+     * Retrieves change logs across all plans with optional filters.
+     * Supports filtering by plan, entity type, change type, and date range.
+     * 
+     * @param filter Filter criteria for change logs
+     * @return ResponseEntity containing paginated change logs
+     */
     @GetMapping("/filter")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(

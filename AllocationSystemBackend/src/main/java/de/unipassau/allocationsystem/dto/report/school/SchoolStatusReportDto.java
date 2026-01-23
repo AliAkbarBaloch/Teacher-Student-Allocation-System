@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * DTO for school status report.
+ * Provides aggregated metrics and detailed profiles for all schools.
+ */
 @Data
 @Builder
 @NoArgsConstructor

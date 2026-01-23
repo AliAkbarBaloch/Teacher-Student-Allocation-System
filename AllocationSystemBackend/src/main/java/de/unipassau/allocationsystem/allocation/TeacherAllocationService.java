@@ -1,7 +1,20 @@
 package de.unipassau.allocationsystem.allocation;
 
-import de.unipassau.allocationsystem.entity.*;
-import static de.unipassau.allocationsystem.allocation.AllocationHelper.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.entity.AllocationWarning;
+import de.unipassau.allocationsystem.entity.CreditHourTracking;
+import de.unipassau.allocationsystem.entity.InternshipCombinationRule;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.Subject;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
+import de.unipassau.allocationsystem.entity.TeacherQualification;
+import de.unipassau.allocationsystem.entity.TeacherSubject;
+import de.unipassau.allocationsystem.entity.TeacherSubjectExclusion;
+import de.unipassau.allocationsystem.entity.ZoneConstraint;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,8 +24,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static de.unipassau.allocationsystem.allocation.AllocationHelper.canTeacherBeAssignedToInternship;
+import static de.unipassau.allocationsystem.allocation.AllocationHelper.isTeacherExcludedFromSubject;
+import static de.unipassau.allocationsystem.allocation.AllocationHelper.isTeacherInAllowedZone;
+import static de.unipassau.allocationsystem.allocation.AllocationHelper.isTeacherQualifiedForSubject;
 
 /**
  * Service class for performing teacher allocation algorithm.

@@ -7,6 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for creating a new role-permission mapping.
+ * Associates a specific permission with a role at a defined access level.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

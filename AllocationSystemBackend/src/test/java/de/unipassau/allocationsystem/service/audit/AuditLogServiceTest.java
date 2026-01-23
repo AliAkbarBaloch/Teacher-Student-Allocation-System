@@ -18,6 +18,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link AuditLogService}.
+ * <p>
+ * This test class validates audit log creation, querying, and asynchronous logging.
+ * </p>
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

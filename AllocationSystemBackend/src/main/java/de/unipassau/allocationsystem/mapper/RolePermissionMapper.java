@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between RolePermission entities and DTOs.
+ * Handles role-permission association mapping with role and permission resolution.
+ */
 public class RolePermissionMapper implements BaseMapper<RolePermission, RolePermissionCreateDto, RolePermissionUpdateDto, RolePermissionResponseDto> {
 
     private final RoleRepository roleRepository;

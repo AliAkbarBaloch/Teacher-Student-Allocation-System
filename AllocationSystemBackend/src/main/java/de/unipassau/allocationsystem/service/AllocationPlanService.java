@@ -63,6 +63,11 @@ public class AllocationPlanService {
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -74,6 +79,11 @@ public class AllocationPlanService {
         );
     }
 
+    /**
+     * Retrieves all allocation plans without pagination.
+     * 
+     * @return list of all allocation plans
+     */
     @Transactional(readOnly = true)
     public List<AllocationPlan> getAll() {
         return allocationPlanRepository.findAll();

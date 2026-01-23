@@ -1,6 +1,13 @@
 package de.unipassau.allocationsystem.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +22,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Entity representing a permission in the role-based access control system.
+ * Defines specific access rights that can be granted to roles.
+ */
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

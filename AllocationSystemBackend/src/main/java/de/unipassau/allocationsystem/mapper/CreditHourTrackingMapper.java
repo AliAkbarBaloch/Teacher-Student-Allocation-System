@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between CreditHourTracking entities and DTOs.
+ * Handles credit hour tracking with teacher and academic year resolution.
+ */
 public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, CreditHourTrackingCreateDto, CreditHourTrackingUpdateDto, CreditHourTrackingResponseDto> {
 
     private final TeacherRepository teacherRepository;

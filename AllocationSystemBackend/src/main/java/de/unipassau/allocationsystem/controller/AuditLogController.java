@@ -1,6 +1,7 @@
 package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.auditlog.AuditLogDto;
+import de.unipassau.allocationsystem.dto.auditlog.AuditLogFilterDto;
 import de.unipassau.allocationsystem.dto.auditlog.AuditLogStatsDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
@@ -27,7 +28,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,6 +57,10 @@ public class AuditLogController {
 
     /**
      * Get all audit logs with pagination and optional filters.
+     * Uses DTO wrapper to encapsulate query parameters.
+     *
+     * @param filterDto DTO containing all filter and pagination parameters
+     * @return ResponseEntity containing paginated audit logs
      */
         @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -64,37 +74,21 @@ public class AuditLogController {
             @ApiResponse(responseCode = "400", description = "Invalid pagination or filter parameters"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
-        public ResponseEntity<?> getAuditLogs(
-        @Parameter(description = "User ID to filter by") 
-        @RequestParam(required = false) Long userId,
-        
-        @Parameter(description = "Action type to filter by") 
-        @RequestParam(required = false) AuditAction action,
-        
-        @Parameter(description = "Target entity to filter by") 
-        @RequestParam(required = false) String targetEntity,
-        
-        @Parameter(description = "Start date (ISO format)") 
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-        
-        @Parameter(description = "End date (ISO format)") 
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-        
-        @Parameter(description = "Page number (0-indexed)") 
-        @RequestParam(defaultValue = "0") int page,
-        
-        @Parameter(description = "Page size") 
-        @RequestParam(defaultValue = "20") int size,
-        
-        @Parameter(description = "Sort field") 
-        @RequestParam(defaultValue = "eventTimestamp") String sortBy,
-        
-        @Parameter(description = "Sort direction (ASC or DESC)") 
-        @RequestParam(defaultValue = "DESC") String sortDirection
-    ) {
-        Pageable pageable = createPageable(page, size, sortBy, sortDirection);
+        public ResponseEntity<?> getAuditLogs(@ModelAttribute AuditLogFilterDto filterDto) {
+        Pageable pageable = createPageable(
+            filterDto.getPage() != null ? filterDto.getPage() : 0, 
+            filterDto.getSize() != null ? filterDto.getSize() : 10, 
+            filterDto.getSortBy(), 
+            filterDto.getSortDirection()
+        );
         Page<AuditLog> auditLogs = queryService.getAuditLogs(
-            userId, action, targetEntity, startDate, endDate, pageable);
+            filterDto.getUserId(), 
+            filterDto.getAction(), 
+            filterDto.getTargetEntity(), 
+            filterDto.getStartDate(), 
+            filterDto.getEndDate(), 
+            pageable
+        );
 
         return ResponseHandler.success("Audit logs retrieved successfully", auditLogs.map(auditLogMapper::toDto));
     }
@@ -253,9 +247,11 @@ public class AuditLogController {
     }
 
     private Pageable createPageable(int page, int size, String sortBy, String sortDirection) {
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC")
+        // Default sort field and direction if not provided
+        String actualSortBy = (sortBy != null && !sortBy.isEmpty()) ? sortBy : "eventTimestamp";
+        Sort.Direction direction = (sortDirection != null && sortDirection.equalsIgnoreCase("ASC"))
                 ? Sort.Direction.ASC
                 : Sort.Direction.DESC;
-        return PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return PageRequest.of(page, size, Sort.by(direction, actualSortBy));
     }
 }

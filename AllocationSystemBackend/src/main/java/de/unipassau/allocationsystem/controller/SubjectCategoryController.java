@@ -17,11 +17,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing subject categories.
+ * Provides CRUD operations for subject category entities.
+ */
 @RestController
 @RequestMapping("/subject-categories")
 @RequiredArgsConstructor
@@ -31,6 +43,11 @@ public class SubjectCategoryController {
     private final SubjectCategoryService subjectCategoryService;
     private final SubjectCategoryMapper subjectCategoryMapper;
 
+    /**
+     * Retrieves available fields for sorting subject categories.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting subject categories"
@@ -45,6 +62,13 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific subject category by its ID.
+     *
+     * @param id Subject category ID
+     * @return Subject category details
+     * @throws ResourceNotFoundException if subject category not found
+     */
     @Operation(
             summary = "Get subject category by ID",
             description = "Retrieves a specific subject category by its ID"
@@ -66,6 +90,14 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Subject category retrieved successfully", result);
     }
 
+    /**
+     * Retrieves subject categories with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param includeRelations Whether to include related entities
+     * @param searchValue Optional search term
+     * @return Paginated list of subject categories
+     */
     @Operation(
             summary = "Get paginated subject categories",
             description = "Retrieves subject categories with pagination, sorting, and optional search"
@@ -85,6 +117,12 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Subject categories retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all subject categories without pagination.
+     *
+     * @param includeRelations Whether to include related entities
+     * @return List of all subject categories
+     */
     @Operation(
             summary = "Get all subject categories",
             description = "Retrieves all subject categories without pagination"
@@ -103,6 +141,12 @@ public class SubjectCategoryController {
         return ResponseHandler.success("Subject categories retrieved successfully", result);
     }
 
+    /**
+     * Creates a new subject category.
+     *
+     * @param dto Subject category creation data
+     * @return Created subject category
+     */
     @Operation(
             summary = "Create new subject category",
             description = "Creates a new subject category with the provided details"
@@ -123,6 +167,13 @@ public class SubjectCategoryController {
         return ResponseHandler.created("Subject category created successfully", subjectCategoryMapper.toResponseDto(created));
     }
 
+    /**
+     * Updates an existing subject category.
+     *
+     * @param id Subject category ID
+     * @param dto Updated subject category data
+     * @return Updated subject category
+     */
     @Operation(
             summary = "Update subject category",
             description = "Updates an existing subject category with the provided details"
@@ -144,6 +195,12 @@ public class SubjectCategoryController {
         return ResponseHandler.updated("Subject category updated successfully", subjectCategoryMapper.toResponseDto(updated));
     }
 
+    /**
+     * Deletes a subject category by its ID.
+     *
+     * @param id Subject category ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete subject category",
             description = "Deletes a subject category by its ID"

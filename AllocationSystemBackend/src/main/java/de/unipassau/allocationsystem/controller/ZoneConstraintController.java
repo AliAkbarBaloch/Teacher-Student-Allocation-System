@@ -3,6 +3,7 @@ package de.unipassau.allocationsystem.controller;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintCreateDto;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintResponseDto;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintUpdateDto;
+import de.unipassau.allocationsystem.entity.ZoneConstraint;
 import de.unipassau.allocationsystem.mapper.ZoneConstraintMapper;
 import de.unipassau.allocationsystem.service.ZoneConstraintService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
@@ -15,7 +16,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +43,11 @@ public class ZoneConstraintController {
     private final ZoneConstraintService zoneConstraintService;
     private final ZoneConstraintMapper zoneConstraintMapper;
 
+    /**
+     * Retrieves available fields for sorting zone constraints.
+     *
+     * @return Available sort fields with labels
+     */
     @Operation(
             summary = "Get sort fields",
             description = "Retrieves available fields that can be used for sorting zone constraints"
@@ -48,6 +62,13 @@ public class ZoneConstraintController {
         return ResponseHandler.success("Sort fields retrieved successfully", result);
     }
 
+    /**
+     * Retrieves a specific zone constraint by its ID.
+     *
+     * @param id Zone constraint ID
+     * @return Zone constraint details
+     * @throws NoSuchElementException if zone constraint not found
+     */
     @Operation(
             summary = "Get zone constraint by ID",
             description = "Retrieves a specific zone constraint by its ID"
@@ -69,6 +90,13 @@ public class ZoneConstraintController {
         return ResponseHandler.success("Zone constraint retrieved successfully", result);
     }
 
+    /**
+     * Retrieves zone constraints with pagination and sorting.
+     *
+     * @param queryParams Pagination and sorting parameters
+     * @param searchValue Optional search term
+     * @return Paginated list of zone constraints
+     */
     @Operation(
             summary = "Get paginated zone constraints",
             description = "Retrieves zone constraints with pagination, sorting, and optional search"
@@ -87,14 +115,20 @@ public class ZoneConstraintController {
 
         // Convert items to DTOs to avoid lazy loading serialization issues
         if (result.containsKey("items")) {
-            List<?> items = (List<?>) result.get("items");
-            List<ZoneConstraintResponseDto> dtoItems = zoneConstraintMapper.toResponseDtoList((List) items);
+            @SuppressWarnings("unchecked")
+            List<ZoneConstraint> items = (List<ZoneConstraint>) result.get("items");
+            List<ZoneConstraintResponseDto> dtoItems = zoneConstraintMapper.toResponseDtoList(items);
             result.put("items", dtoItems);
         }
 
         return ResponseHandler.success("Zone constraints retrieved successfully (paginated)", result);
     }
 
+    /**
+     * Retrieves all zone constraints without pagination.
+     *
+     * @return List of all zone constraints
+     */
     @Operation(
             summary = "Get all zone constraints",
             description = "Retrieves all zone constraints without pagination"
@@ -113,6 +147,12 @@ public class ZoneConstraintController {
         return ResponseHandler.success("Zone constraints retrieved successfully", result);
     }
 
+    /**
+     * Creates a new zone constraint.
+     *
+     * @param dto Zone constraint creation data
+     * @return Created zone constraint
+     */
     @Operation(
             summary = "Create new zone constraint",
             description = "Creates a new zone constraint with the provided details"
@@ -132,6 +172,13 @@ public class ZoneConstraintController {
         return ResponseHandler.created("Zone constraint created successfully", created);
     }
 
+    /**
+     * Updates an existing zone constraint.
+     *
+     * @param id Zone constraint ID
+     * @param dto Updated zone constraint data
+     * @return Updated zone constraint
+     */
     @Operation(
             summary = "Update zone constraint",
             description = "Updates an existing zone constraint with the provided details"
@@ -152,6 +199,12 @@ public class ZoneConstraintController {
         return ResponseHandler.updated("Zone constraint updated successfully", updated);
     }
 
+    /**
+     * Deletes a zone constraint by its ID.
+     *
+     * @param id Zone constraint ID
+     * @return No content response
+     */
     @Operation(
             summary = "Delete zone constraint",
             description = "Deletes a zone constraint by its ID"

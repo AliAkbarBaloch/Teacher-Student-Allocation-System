@@ -69,26 +69,61 @@ public class AuditLogService {
     }
 
     // ==================== Convenience Methods ====================
+    /**
+     * Logs a CREATE action for an entity.
+     * 
+     * @param entityName the entity type name
+     * @param recordId the created record ID
+     * @param newValue the new entity value
+     */
     public void logCreate(String entityName, String recordId, Object newValue) {
         logWithCurrentUser(AuditAction.CREATE, entityName, recordId, null, newValue,
                 String.format("Created %s with ID: %s", entityName, recordId));
     }
 
+    /**
+     * Logs an UPDATE action for an entity.
+     * 
+     * @param entityName the entity type name
+     * @param recordId the updated record ID
+     * @param previousValue the previous entity value
+     * @param newValue the new entity value
+     */
     public void logUpdate(String entityName, String recordId, Object previousValue, Object newValue) {
         logWithCurrentUser(AuditAction.UPDATE, entityName, recordId, previousValue, newValue,
                 String.format("Updated %s with ID: %s", entityName, recordId));
     }
 
+    /**
+     * Logs a DELETE action for an entity.
+     * 
+     * @param entityName the entity type name
+     * @param recordId the deleted record ID
+     * @param previousValue the deleted entity value
+     */
     public void logDelete(String entityName, String recordId, Object previousValue) {
         logWithCurrentUser(AuditAction.DELETE, entityName, recordId, previousValue, null,
                 String.format("Deleted %s with ID: %s", entityName, recordId));
     }
 
+    /**
+     * Logs a VIEW action for an entity.
+     * 
+     * @param entityName the entity type name
+     * @param recordId the viewed record ID
+     */
     public void logView(String entityName, String recordId) {
         logWithCurrentUser(AuditAction.VIEW, entityName, recordId, null, null,
                 String.format("Viewed %s with ID: %s", entityName, recordId));
     }
 
+    /**
+     * Asynchronously logs a custom action.
+     * 
+     * @param action the audit action type
+     * @param targetEntity the target entity type
+     * @param description the action description
+     */
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logAction(AuditAction action, String targetEntity, String description) {

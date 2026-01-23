@@ -13,10 +13,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Service for generating school-related reports.
+ * Provides school status and metrics reporting.
+ */
 public class SchoolReportService {
 
     private final SchoolRepository schoolRepository;
 
+    /**
+     * Generates a comprehensive school status report.
+     * Includes metrics and profiles for all schools.
+     * 
+     * @return school status report DTO
+     */
     @Transactional(readOnly = true)
     public SchoolStatusReportDto generateSchoolStatusReport() {
         // 1. Fetch detailed profiles (includes teacher counts)

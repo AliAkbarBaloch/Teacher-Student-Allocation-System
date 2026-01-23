@@ -4,8 +4,20 @@ import de.unipassau.allocationsystem.dto.report.allocation.health.AllocationHeal
 import de.unipassau.allocationsystem.dto.report.allocation.health.BudgetMetric;
 import de.unipassau.allocationsystem.dto.report.subject.SubjectBottleneckDto;
 import de.unipassau.allocationsystem.dto.report.teacher.TeacherUtilizationReportDto;
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.repository.*;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.entity.CreditHourTracking;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.entity.TeacherAvailability;
+import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
+import de.unipassau.allocationsystem.repository.CreditHourTrackingRepository;
+import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
+import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
+import de.unipassau.allocationsystem.repository.TeacherAvailabilityRepository;
+import de.unipassau.allocationsystem.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +30,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Service for generating various allocation system reports.
+ * Provides health reports, bottleneck analysis, and utilization reports.
+ */
 public class ReportService {
 
     private final AllocationPlanRepository planRepository;
@@ -30,6 +46,13 @@ public class ReportService {
     // ==========================================
     // 1. Health & Budget Report
     // ==========================================
+    /**
+     * Generates a health report for an allocation plan.
+     * Includes budget metrics and allocation status.
+     * 
+     * @param planId the allocation plan ID
+     * @return health report DTO
+     */
     @Transactional(readOnly = true)
     public AllocationHealthReportDto generateHealthReport(Long planId) {
         AllocationPlan plan = planRepository.findById(planId)
@@ -165,6 +188,12 @@ public class ReportService {
     // ==========================================
     // 3. Teacher Utilization Report
     // ==========================================
+    /**
+     * Generates a teacher utilization report showing assignment counts and available hours.
+     * 
+     * @param planId the allocation plan ID
+     * @return list of teacher utilization report DTOs
+     */
     @Transactional(readOnly = true)
     public List<TeacherUtilizationReportDto> generateUtilizationReport(Long planId) {
         AllocationPlan plan = planRepository.findById(planId)

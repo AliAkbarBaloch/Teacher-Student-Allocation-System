@@ -24,6 +24,13 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration tests for the {@link UserController}.
+ * <p>
+ * This test class validates comprehensive user management operations including CRUD,
+ * filtering, pagination, sorting, user activation/deactivation, and password reset.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")

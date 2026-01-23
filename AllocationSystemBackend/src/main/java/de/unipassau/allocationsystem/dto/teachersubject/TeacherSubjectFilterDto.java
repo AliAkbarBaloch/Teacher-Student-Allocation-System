@@ -5,6 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for filtering and paginating teacher-subject mappings.
+ * Supports filtering by academic year, teacher, subject, availability status, and grade levels.
+ */
 @Data
 @Builder
 @NoArgsConstructor

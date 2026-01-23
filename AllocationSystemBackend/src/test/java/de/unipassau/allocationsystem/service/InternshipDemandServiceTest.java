@@ -13,6 +13,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link InternshipDemandService}.
+ * <p>
+ * This test class validates internship demand aggregation and reporting.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class InternshipDemandServiceTest {
 

@@ -16,12 +16,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between TeacherAvailability entities and DTOs.
+ * Handles availability mapping with teacher, academic year, and internship type resolution.
+ */
 public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability, TeacherAvailabilityCreateDto, TeacherAvailabilityUpdateDto, TeacherAvailabilityResponseDto> {
 
     private final TeacherRepository teacherRepository;
     private final AcademicYearRepository academicYearRepository;
     private final InternshipTypeRepository internshipTypeRepository;
 
+    /**
+     * Constructs a TeacherAvailabilityMapper with required repositories.
+     * 
+     * @param teacherRepository repository for teacher operations
+     * @param academicYearRepository repository for academic year operations
+     * @param internshipTypeRepository repository for internship type operations
+     */
     public TeacherAvailabilityMapper(
             TeacherRepository teacherRepository,
             AcademicYearRepository academicYearRepository,

@@ -20,10 +20,21 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Service for generating teacher-related reports.
+ * Provides teacher status reports with metrics and profiles.
+ */
 public class TeacherReportService {
     private final TeacherRepository teacherRepository;
     private final TeacherAvailabilityRepository availabilityRepository;
 
+    /**
+     * Generates a comprehensive teacher status report.
+     * Includes metrics and individual teacher profiles with qualifications and availability.
+     * 
+     * @param academicYearId optional academic year ID for filtering availability
+     * @return teacher status report DTO
+     */
     @Transactional(readOnly = true)
     public TeacherStatusReportDto generateTeacherStatusReport(Long academicYearId) {
         // 1. Fetch all teachers with qualifications loaded

@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for comprehensive allocation report.
+ * Aggregates header, budget summary, assignments, and utilization analysis.
+ */
 @Data
 @Builder
 public class AllocationReportDto {

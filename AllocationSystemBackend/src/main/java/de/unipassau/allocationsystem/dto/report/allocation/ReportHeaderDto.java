@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for report header information.
+ * Contains metadata about the allocation plan including name, version, and generation timestamp.
+ */
 @Data
 @Builder
 public class ReportHeaderDto {

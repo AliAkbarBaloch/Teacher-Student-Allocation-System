@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for updating an existing role-permission mapping.
+ * All fields are optional for partial updates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

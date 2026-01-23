@@ -8,6 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for updating teacher availability for specific academic years and internship types.
+ * All fields except teacher ID are optional for partial updates.
+ */
 @Data
 @Builder
 @NoArgsConstructor

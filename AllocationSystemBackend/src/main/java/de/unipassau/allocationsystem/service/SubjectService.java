@@ -47,6 +47,11 @@ public class SubjectService implements CrudService<Subject, Long> {
         );
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         List<String> keys = new ArrayList<>();
         for (Map<String, String> field : getSortFields()) {

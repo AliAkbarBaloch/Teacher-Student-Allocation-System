@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
+/**
+ * Global exception handler for REST API endpoints.
+ * Provides centralized exception handling and standardized error responses.
+ */
 public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -37,6 +41,12 @@ public class GlobalExceptionHandler {
         return body;
     }
 
+    /**
+     * Handles validation errors from bean validation annotations.
+     * 
+     * @param ex the validation exception
+     * @return response entity with validation error details
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -50,6 +60,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    /**
+     * Handles resource not found exceptions.
+     * 
+     * @param ex the resource not found exception
+     * @return response entity with 404 status
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
         LOGGER.warn("Resource not found: {}", ex.getMessage());
@@ -57,6 +73,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    /**
+     * Handles duplicate resource exceptions.
+     * 
+     * @param ex the duplicate resource exception
+     * @return response entity with 409 conflict status
+     */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
         LOGGER.warn("Duplicate resource: {}", ex.getMessage());
@@ -64,6 +86,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    /**
+     * Handles data integrity constraint violations from the database.
+     * 
+     * @param ex the data integrity violation exception
+     * @return response entity with 409 conflict status
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         LOGGER.error("Data integrity violation: {}", ex.getMessage());
@@ -71,6 +99,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    /**
+     * Handles authentication failures including bad credentials and user not found.
+     * 
+     * @param ex the authentication exception
+     * @return response entity with 401 unauthorized status
+     */
     @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleAuthenticationException(Exception ex) {
         LOGGER.warn("Authentication failed: {}", ex.getMessage());
@@ -78,6 +112,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    /**
+     * Handles locked account exceptions.
+     * 
+     * @param ex the locked exception
+     * @return response entity with 401 unauthorized status
+     */
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<Map<String, Object>> handleAccountLocked(LockedException ex) {
         LOGGER.warn("Account locked: {}", ex.getMessage());
@@ -85,6 +125,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    /**
+     * Handles disabled account exceptions.
+     * 
+     * @param ex the disabled exception
+     * @return response entity with 401 unauthorized status
+     */
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<Map<String, Object>> handleAccountDisabled(DisabledException ex) {
         LOGGER.warn("Account disabled: {}", ex.getMessage());
@@ -92,6 +138,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    /**
+     * Handles illegal argument exceptions.
+     * 
+     * @param ex the illegal argument exception
+     * @return response entity with 400 bad request status
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         LOGGER.warn("Invalid argument: {}", ex.getMessage());
@@ -99,6 +151,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    /**
+     * Handles illegal state exceptions.
+     * 
+     * @param ex the illegal state exception
+     * @return response entity with 401 unauthorized status
+     */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
         LOGGER.warn("Invalid state: {}", ex.getMessage());
@@ -106,6 +164,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    /**
+     * Handles authorization denied exceptions.
+     * 
+     * @param ex the authorization denied exception
+     * @return response entity with 403 forbidden status
+     */
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
         LOGGER.warn("Authorization denied: {}", ex.getMessage());
@@ -113,6 +177,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
+    /**
+     * Handles all unhandled exceptions as a fallback.
+     * 
+     * @param ex the generic exception
+     * @return response entity with 500 internal server error status
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         LOGGER.error("Unhandled exception", ex);
@@ -120,6 +190,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
+    /**
+     * Handles no such element exceptions.
+     * 
+     * @param ex the no such element exception
+     * @return response entity with 404 not found status
+     */
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Map<String, Object>> handleNoSuchElement(NoSuchElementException ex) {
         LOGGER.warn("No such element: {}", ex.getMessage());
@@ -127,6 +203,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    /**
+     * Handles malformed or unreadable HTTP request body exceptions.
+     * 
+     * @param ex the message not readable exception
+     * @return response entity with 400 bad request status
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         LOGGER.warn("Invalid request body: {}", ex.getMessage());
@@ -135,6 +217,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    /**
+     * Handles I/O exceptions during file operations.
+     * 
+     * @param ex the I/O exception
+     * @return response entity with 500 internal server error status
+     */
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, Object>> handleIOException(IOException ex) {
         LOGGER.error("I/O error occurred: {}", ex.getMessage(), ex);

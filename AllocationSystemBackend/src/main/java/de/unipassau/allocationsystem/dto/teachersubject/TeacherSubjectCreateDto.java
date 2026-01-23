@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for creating a new teacher-subject mapping.
+ * Defines which subjects a teacher is qualified to teach with grade level specifications.
+ */
 @Data
 @Builder
 @NoArgsConstructor

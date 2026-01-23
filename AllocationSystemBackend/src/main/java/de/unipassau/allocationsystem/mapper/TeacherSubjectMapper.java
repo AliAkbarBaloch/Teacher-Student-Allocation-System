@@ -19,6 +19,10 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between TeacherSubject entities and DTOs.
+ * Handles teacher-subject association mapping with academic year, teacher, and subject resolution.
+ */
 public class TeacherSubjectMapper implements BaseMapper<TeacherSubject, TeacherSubjectCreateDto, TeacherSubjectUpdateDto, TeacherSubjectResponseDto> {
 
     private final AcademicYearRepository academicYearRepository;

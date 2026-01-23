@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO for updating an existing internship demand record.
+ * All fields except academic year ID are optional for partial updates.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

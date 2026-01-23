@@ -1,24 +1,16 @@
 package de.unipassau.allocationsystem;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Integration test for database migrations.
+ * <p>
+ * Note: Tests are currently disabled pending migration strategy updates.
+ * </p>
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 class AllocationMigrationIntegrationTest {
-
-    /*@Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Test
-    void flywayAppliedAndAllocationsExist() {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM allocations", Integer.class);
-        assertThat(count).isNotNull().isGreaterThanOrEqualTo(1);
-    }*/
 
 }

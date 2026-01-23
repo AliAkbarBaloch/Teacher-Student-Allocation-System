@@ -27,14 +27,28 @@ import java.util.Optional;
 @Service
 @Slf4j
 @Transactional
+/**
+ * Service for managing user roles.
+ * Handles CRUD operations for role entities.
+ */
 public class RoleService  implements CrudService<Role, Long> {
 
     private final RoleRepository roleRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     * 
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields("id", "title", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     * 
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -46,6 +60,12 @@ public class RoleService  implements CrudService<Role, Long> {
         );
     }
 
+    /**
+     * Checks if a role with the given title exists.
+     * 
+     * @param title the role title to check
+     * @return true if title exists, false otherwise
+     */
     public boolean titleExists(String title) {
         return roleRepository.findByTitle(title).isPresent();
     }
