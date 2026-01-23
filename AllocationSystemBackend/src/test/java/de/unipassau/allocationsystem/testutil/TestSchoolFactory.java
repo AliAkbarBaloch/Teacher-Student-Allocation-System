@@ -15,24 +15,21 @@ public final class TestSchoolFactory {
         // utility class
     }
 
-    /**
-     * Creates a fully populated {@link School} suitable for service-layer tests.
-     *
-     * @param id school id
-     * @param name school name
-     * @param type school type
-     * @return school entity
-     */
     public static School buildTestSchool(Long id, String name, SchoolType type) {
-        School school = new School();
+        School school = withDefaultValues();
         school.setId(id);
         school.setSchoolName(name);
         school.setSchoolType(type);
+        return school;
+    }
+
+    private static School withDefaultValues() {
+        School school = new School();
         school.setZoneNumber(1);
         school.setAddress("Test Street 1");
-        school.setLatitude(new BigDecimal("48.5734053"));
-        school.setLongitude(new BigDecimal("13.4579944"));
-        school.setDistanceFromCenter(new BigDecimal("2.5"));
+        school.setLatitude(BigDecimal.valueOf(48.5734053));
+        school.setLongitude(BigDecimal.valueOf(13.4579944));
+        school.setDistanceFromCenter(BigDecimal.valueOf(2.5));
         school.setTransportAccessibility("Bus Line 1");
         school.setContactEmail("test@school.de");
         school.setContactPhone("+49841123456");
