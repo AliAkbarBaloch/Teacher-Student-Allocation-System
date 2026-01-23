@@ -20,12 +20,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration tests for {@link AuditLogQueryService}.
- * <p>
- * This test class validates audit log querying, filtering, and pagination.
- * </p>
- */
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -38,9 +32,6 @@ class AuditLogQueryServiceTest {
 
     private User testUser;
 
-    /**
-     * Constructor injection (preferred over field injection).
-     */
     @Autowired
     AuditLogQueryServiceTest(AuditLogQueryService auditLogQueryService,
                             AuditLogService auditLogService,
@@ -54,17 +45,12 @@ class AuditLogQueryServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up repositories to keep tests isolated and deterministic
         auditLogRepository.deleteAll();
         userRepository.deleteAll();
 
         testUser = userRepository.save(newTestUser("test@example.com", "Test User"));
     }
 
-    /**
-     * Helper method to avoid repeated setter blocks (often flagged as "clone" by analyzers).
-     * Also avoids hard-coded password values by generating a unique one.
-     */
     private static User newTestUser(String email, String fullName) {
         User user = new User();
         user.setEmail(email);
@@ -74,12 +60,7 @@ class AuditLogQueryServiceTest {
         return user;
     }
 
-    /**
-     * Generates a non-hardcoded password for tests.
-     * The actual value doesn't matter as long as it's valid for persistence.
-     */
     private static String generateTestPassword() {
-        // Keeping it simple + deterministic structure, but not hard-coded.
         return "test-" + UUID.randomUUID();
     }
 
