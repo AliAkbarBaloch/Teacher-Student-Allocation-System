@@ -62,14 +62,19 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         responseDto = TeacherFormSubmissionServiceTestFixtures.responseDto(now);
     }
 
+    private TeacherFormSubmissionCreateDto createDto(long teacherId, long yearId, String formToken) {
+        TeacherFormSubmissionCreateDto dto = new TeacherFormSubmissionCreateDto();
+        dto.setTeacherId(teacherId);
+        dto.setYearId(yearId);
+        dto.setFormToken(formToken);
+        dto.setSubmittedAt(now);
+        return dto;
+    }
+
     @Test
     @DisplayName("Should create form submission successfully")
     void shouldCreateFormSubmissionSuccessfully() {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(1L);
-        createDto.setYearId(1L);
-        createDto.setFormToken("new-token-456");
-        createDto.setSubmittedAt(now);
+        TeacherFormSubmissionCreateDto createDto = createDto(1L, 1L, "new-token-456");
 
         TeacherFormSubmission mappedSubmission = new TeacherFormSubmission();
         mappedSubmission.setTeacher(teacher);
@@ -90,7 +95,8 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
                 .thenReturn(responseDto);
 
-        TeacherFormSubmissionResponseDto result = teacherFormSubmissionService.createFormSubmission(createDto);
+        TeacherFormSubmissionResponseDto result =
+                teacherFormSubmissionService.createFormSubmission(createDto);
 
         assertNotNull(result);
 
@@ -103,11 +109,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     @Test
     @DisplayName("Should throw ResourceNotFoundException when teacher not found")
     void shouldThrowExceptionWhenTeacherNotFound() {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(999L);
-        createDto.setYearId(1L);
-        createDto.setFormToken("token");
-        createDto.setSubmittedAt(now);
+        TeacherFormSubmissionCreateDto createDto = createDto(999L, 1L, "token");
 
         when(teacherRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -123,11 +125,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     @Test
     @DisplayName("Should throw ResourceNotFoundException when academic year not found")
     void shouldThrowExceptionWhenAcademicYearNotFound() {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(1L);
-        createDto.setYearId(999L);
-        createDto.setFormToken("token");
-        createDto.setSubmittedAt(now);
+        TeacherFormSubmissionCreateDto createDto = createDto(1L, 999L, "token");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(999L)).thenReturn(Optional.empty());
@@ -146,11 +144,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     void shouldThrowExceptionWhenAcademicYearIsLocked() {
         academicYear = TeacherFormSubmissionServiceTestFixtures.academicYear(true);
 
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(1L);
-        createDto.setYearId(1L);
-        createDto.setFormToken("token");
-        createDto.setSubmittedAt(now);
+        TeacherFormSubmissionCreateDto createDto = createDto(1L, 1L, "token");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
@@ -167,11 +161,7 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
     @Test
     @DisplayName("Should throw DuplicateResourceException when form token already exists")
     void shouldThrowExceptionWhenFormTokenExists() {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(1L);
-        createDto.setYearId(1L);
-        createDto.setFormToken("existing-token");
-        createDto.setSubmittedAt(now);
+        TeacherFormSubmissionCreateDto createDto = createDto(1L, 1L, "existing-token");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
