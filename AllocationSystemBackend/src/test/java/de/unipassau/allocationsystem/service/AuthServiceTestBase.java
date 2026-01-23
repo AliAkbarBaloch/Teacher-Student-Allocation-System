@@ -58,9 +58,6 @@ abstract class AuthServiceTestBase {
 
     protected User user;
 
-    /**
-     * Initializes a default enabled user and clears the {@link SecurityContextHolder}.
-     */
     @BeforeEach
     void setUpBase() {
         user = new User();
@@ -75,11 +72,12 @@ abstract class AuthServiceTestBase {
         user.setCreatedAt(LocalDateTime.now());
 
         SecurityContextHolder.clearContext();
-        // Default mock behaviours to avoid nulls and simplify individual tests
+
+        // Default mock behaviours to avoid nulls and simplify individual tests.
         when(passwordEncoder.encode(org.mockito.ArgumentMatchers.anyString()))
-            .thenAnswer(inv -> "enc-" + inv.getArgument(0));
+                .thenAnswer(inv -> "enc-" + inv.getArgument(0));
         when(jwtService.generateToken(org.mockito.ArgumentMatchers.any()))
-            .thenReturn("test-jwt-token");
+                .thenReturn("test-jwt-token");
     }
 
     /**
@@ -94,6 +92,10 @@ abstract class AuthServiceTestBase {
 
     /**
      * Builds a {@link LoginRequestDto}.
+     *
+     * @param email user email
+     * @param password user password
+     * @return login request DTO
      */
     protected LoginRequestDto loginRequest(String email, String password) {
         LoginRequestDto req = new LoginRequestDto();
@@ -104,6 +106,9 @@ abstract class AuthServiceTestBase {
 
     /**
      * Builds a {@link PasswordForgotRequestDto}.
+     *
+     * @param email user email
+     * @return forgot-password request DTO
      */
     protected PasswordForgotRequestDto forgotRequest(String email) {
         PasswordForgotRequestDto req = new PasswordForgotRequestDto();
@@ -113,6 +118,10 @@ abstract class AuthServiceTestBase {
 
     /**
      * Builds a {@link PasswordResetRequestDto}.
+     *
+     * @param token reset token value
+     * @param newPassword new password
+     * @return reset-password request DTO
      */
     protected PasswordResetRequestDto resetRequest(String token, String newPassword) {
         PasswordResetRequestDto req = new PasswordResetRequestDto();
@@ -123,6 +132,10 @@ abstract class AuthServiceTestBase {
 
     /**
      * Builds a {@link PasswordChangeRequestDto}.
+     *
+     * @param currentPassword current password
+     * @param newPassword new password
+     * @return change-password request DTO
      */
     protected PasswordChangeRequestDto changeRequest(String currentPassword, String newPassword) {
         PasswordChangeRequestDto req = new PasswordChangeRequestDto();
@@ -133,6 +146,11 @@ abstract class AuthServiceTestBase {
 
     /**
      * Builds a {@link UserProfileUpdateRequest}.
+     *
+     * @param email new email
+     * @param fullName new full name
+     * @param phone new phone number
+     * @return profile update request DTO
      */
     protected UserProfileUpdateRequest profileRequest(String email, String fullName, String phone) {
         UserProfileUpdateRequest req = new UserProfileUpdateRequest();
@@ -144,6 +162,9 @@ abstract class AuthServiceTestBase {
 
     /**
      * Creates Spring Security {@link UserDetails} for the given domain {@link User}.
+     *
+     * @param u domain user
+     * @return user details instance
      */
     protected UserDetails userDetailsFrom(User u) {
         return org.springframework.security.core.userdetails.User
@@ -155,6 +176,8 @@ abstract class AuthServiceTestBase {
 
     /**
      * Sets the {@link SecurityContextHolder} with an authenticated {@link Authentication} object.
+     *
+     * @param authentication authentication to set
      */
     protected void setAuthenticated(Authentication authentication) {
         SecurityContext sc = mock(SecurityContext.class);
@@ -164,6 +187,10 @@ abstract class AuthServiceTestBase {
 
     /**
      * Creates a valid, unused {@link PasswordResetToken} expiring in the future.
+     *
+     * @param tokenValue token value
+     * @param tokenUser associated user
+     * @return valid password reset token
      */
     protected PasswordResetToken validResetToken(String tokenValue, User tokenUser) {
         PasswordResetToken prt = new PasswordResetToken();
