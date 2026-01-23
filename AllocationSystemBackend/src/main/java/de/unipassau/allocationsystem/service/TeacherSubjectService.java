@@ -113,7 +113,7 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     @Transactional(readOnly = true)
     @Override
     public List<TeacherSubject> getAll() {
-        return getAllTeacherSubjects();
+        return teacherSubjectRepository.findAll();
     }
 
     @Audited(
@@ -125,17 +125,9 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     @Transactional(readOnly = true)
     @Override
     public Optional<TeacherSubject> getById(Long id) {
-        return getTeacherSubjectById(id);
-    }
-
-    // Helper methods to reduce code clones
-    private List<TeacherSubject> getAllTeacherSubjects() {
-        return teacherSubjectRepository.findAll();
-    }
-
-    private Optional<TeacherSubject> getTeacherSubjectById(Long id) {
         return teacherSubjectRepository.findById(id);
     }
+
 
     @Audited(
         action = AuditLog.AuditAction.VIEW,
