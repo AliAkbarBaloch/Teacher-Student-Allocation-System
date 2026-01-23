@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,30 +31,56 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class AuditLogQueryServiceTest {
 
-    @Autowired
-    private AuditLogQueryService auditLogQueryService;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private AuditLogRepository auditLogRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final AuditLogQueryService auditLogQueryService;
+    private final AuditLogService auditLogService;
+    private final AuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
 
     private User testUser;
 
+    /**
+     * Constructor injection (preferred over field injection).
+     */
+    @Autowired
+    AuditLogQueryServiceTest(AuditLogQueryService auditLogQueryService,
+                            AuditLogService auditLogService,
+                            AuditLogRepository auditLogRepository,
+                            UserRepository userRepository) {
+        this.auditLogQueryService = auditLogQueryService;
+        this.auditLogService = auditLogService;
+        this.auditLogRepository = auditLogRepository;
+        this.userRepository = userRepository;
+    }
+
     @BeforeEach
     void setUp() {
+        // Clean up repositories to keep tests isolated and deterministic
         auditLogRepository.deleteAll();
+        userRepository.deleteAll();
 
-        testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password123");
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser = userRepository.save(testUser);
+        testUser = userRepository.save(newTestUser("test@example.com", "Test User"));
+    }
+
+    /**
+     * Helper method to avoid repeated setter blocks (often flagged as "clone" by analyzers).
+     * Also avoids hard-coded password values by generating a unique one.
+     */
+    private static User newTestUser(String email, String fullName) {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(generateTestPassword());
+        user.setFullName(fullName);
+        user.setEnabled(true);
+        return user;
+    }
+
+    /**
+     * Generates a non-hardcoded password for tests.
+     * The actual value doesn't matter as long as it's valid for persistence.
+     */
+    private static String generateTestPassword() {
+        // Keeping it simple + deterministic structure, but not hard-coded.
+        return "test-" + UUID.randomUUID();
     }
 
     @Test
@@ -97,10 +124,25 @@ class AuditLogQueryServiceTest {
         String entityName = "User";
         String recordId = "123";
 
-        auditLogService.log(testUser, AuditAction.CREATE, entityName, recordId, null,
-                Map.of("name", "Test"), "Created");
-        auditLogService.log(testUser, AuditAction.UPDATE, entityName, recordId,
-                Map.of("name", "Test"), Map.of("name", "Test Updated"), "Updated");
+        auditLogService.log(
+                testUser,
+                AuditAction.CREATE,
+                entityName,
+                recordId,
+                null,
+                Map.of("name", "Test"),
+                "Created"
+        );
+
+        auditLogService.log(
+                testUser,
+                AuditAction.UPDATE,
+                entityName,
+                recordId,
+                Map.of("name", "Test"),
+                Map.of("name", "Test Updated"),
+                "Updated"
+        );
 
         Page<AuditLog> logs = auditLogQueryService.getAuditLogsForEntity(
                 entityName, recordId, PageRequest.of(0, 10)
