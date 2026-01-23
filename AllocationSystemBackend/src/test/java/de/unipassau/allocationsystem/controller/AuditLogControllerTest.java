@@ -1,6 +1,5 @@
 package de.unipassau.allocationsystem.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
@@ -15,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,12 +24,11 @@ import java.util.Map;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,6 +56,8 @@ class AuditLogControllerTest {
      */
     private static final String TEST_USER_PASSWORD = "test-password";
     private static final String ADMIN_PASSWORD = "admin-password";
+
+    private static final String AUDIT_LOGS_ENDPOINT = "/api/audit-logs";
 
     private final MockMvc mockMvc;
     private final AuditLogRepository auditLogRepository;
@@ -161,237 +162,274 @@ class AuditLogControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAllAuditLogs() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$.data.totalElements").value(greaterThan(0)))
-                .andExpect(jsonPath("$.data.content[0].id").exists())
-                .andExpect(jsonPath("$.data.content[0].userIdentifier").exists())
-                .andExpect(jsonPath("$.data.content[0].action").exists())
-                .andExpect(jsonPath("$.data.content[0].targetEntity").exists());
+        ResultActions result = getAuditLogsPage(0, 10);
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        assertHasMinimumElements(result, 1);
+        assertHasBasicAuditFields(result);
     }
 
     @Test
     void testGetAuditLogsWithoutAuthentication() throws Exception {
-        mockMvc.perform(get("/api/audit-logs"))
+        mockMvc.perform(get(AUDIT_LOGS_ENDPOINT))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsWithFilters() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("action", "CREATE")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[*].action", everyItem(is("CREATE"))));
+        ResultActions result = getAuditLogsFiltered("CREATE", null, 0, 10);
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        result.andExpect(jsonPath("$.data.content[*].action", everyItem(is("CREATE"))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsWithTargetEntityFilter() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("targetEntity", "User")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
+        ResultActions result = getAuditLogsFiltered(null, "User", 0, 10);
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        result.andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsWithDateRangeFilter() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate = now.minusDays(1);
-        LocalDateTime endDate = now.plusDays(1);
+        DateRange range = DateRange.aroundNowDays(1);
 
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("startDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        .param("endDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray());
+        ResultActions result = getAuditLogsWithDateRange(range, 0, 10);
+
+        assertOkJson(result);
+        assertHasContentArray(result);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsWithSorting() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT)
                         .param("page", "0")
                         .param("size", "10")
                         .param("sortBy", "eventTimestamp")
-                        .param("sortDirection", "ASC"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray());
+                        .param("sortDirection", "ASC"));
+
+        assertOkJson(result);
+        assertHasContentArray(result);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsForEntity() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/entity/User/1")
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/entity/User/1")
                         .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))))
-                .andExpect(jsonPath("$.data.content[*].targetRecordId", everyItem(is("1"))));
+                        .param("size", "10"));
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        result.andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
+        result.andExpect(jsonPath("$.data.content[*].targetRecordId", everyItem(is("1"))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsForUser() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/user/" + testUser.getEmail())
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/user/" + testUser.getEmail())
                         .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[*].userIdentifier",
-                        everyItem(is(testUser.getEmail()))));
+                        .param("size", "10"));
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        result.andExpect(jsonPath("$.data.content[*].userIdentifier", everyItem(is(testUser.getEmail()))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetRecentAuditLogs() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/recent"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data", hasSize(lessThanOrEqualTo(100))));
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/recent"));
+
+        assertOkJson(result);
+        result.andExpect(jsonPath("$.data").isArray());
+        result.andExpect(jsonPath("$.data", hasSize(lessThanOrEqualTo(100))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetStatistics() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate = now.minusDays(1);
-        LocalDateTime endDate = now.plusDays(1);
+        DateRange range = DateRange.aroundNowDays(1);
 
-        mockMvc.perform(get("/api/audit-logs/statistics")
-                        .param("startDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        .param("endDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.actionStatistics").exists())
-                .andExpect(jsonPath("$.data.entityStatistics").exists())
-                .andExpect(jsonPath("$.data.userActivityStatistics").exists())
-                .andExpect(jsonPath("$.data.totalLogs").exists())
-                .andExpect(jsonPath("$.data.totalLogs").value(greaterThan(0)));
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/statistics")
+                        .param("startDate", range.startIso())
+                        .param("endDate", range.endIso()));
+
+        assertOkJson(result);
+        result.andExpect(jsonPath("$.data.actionStatistics").exists());
+        result.andExpect(jsonPath("$.data.entityStatistics").exists());
+        result.andExpect(jsonPath("$.data.userActivityStatistics").exists());
+        result.andExpect(jsonPath("$.data.totalLogs").exists());
+        result.andExpect(jsonPath("$.data.totalLogs").value(greaterThan(0)));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testExportAuditLogs() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate = now.minusDays(1);
-        LocalDateTime endDate = now.plusDays(1);
+        DateRange range = DateRange.aroundNowDays(1);
 
-        mockMvc.perform(get("/api/audit-logs/export")
-                        .param("startDate", startDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        .param("endDate", endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        .param("maxRecords", "1000"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().string("Content-Type", containsString("text/csv")))
-                .andExpect(header().exists("Content-Disposition"))
-                .andExpect(content().string(containsString("ID,User,Event Time,Action")));
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/export")
+                        .param("startDate", range.startIso())
+                        .param("endDate", range.endIso())
+                        .param("maxRecords", "1000"));
+
+        result.andExpect(status().isOk());
+        result.andExpect(header().string("Content-Type", containsString("text/csv")));
+        result.andExpect(header().exists("Content-Disposition"));
+        result.andExpect(content().string(containsString("ID,User,Event Time,Action")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testExportAuditLogsWithActionFilter() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/export")
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/export")
                         .param("action", "CREATE")
-                        .param("maxRecords", "1000"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(header().string("Content-Type", containsString("text/csv")));
+                        .param("maxRecords", "1000"));
+
+        result.andExpect(status().isOk());
+        result.andExpect(header().string("Content-Type", containsString("text/csv")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testPaginationWorks() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("page", "0")
-                        .param("size", "2"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content", hasSize(lessThanOrEqualTo(2))))
-                .andExpect(jsonPath("$.data.number").value(0))
-                .andExpect(jsonPath("$.data.size").value(2));
+        ResultActions firstPage = getAuditLogsPage(0, 2);
 
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("page", "1")
-                        .param("size", "2"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.number").value(1));
+        assertOkJson(firstPage);
+        firstPage.andExpect(jsonPath("$.data.content", hasSize(lessThanOrEqualTo(2))));
+        firstPage.andExpect(jsonPath("$.data.number").value(0));
+        firstPage.andExpect(jsonPath("$.data.size").value(2));
+
+        ResultActions secondPage = getAuditLogsPage(1, 2);
+
+        assertOkJson(secondPage);
+        secondPage.andExpect(jsonPath("$.data.number").value(1));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsWithMultipleFilters() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("action", "UPDATE")
-                        .param("targetEntity", "User")
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content[*].action", everyItem(is("UPDATE"))))
-                .andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
+        ResultActions result = getAuditLogsFiltered("UPDATE", "User", 0, 10);
+
+        assertOkJson(result);
+        assertHasContentArray(result);
+        result.andExpect(jsonPath("$.data.content[*].action", everyItem(is("UPDATE"))));
+        result.andExpect(jsonPath("$.data.content[*].targetEntity", everyItem(is("User"))));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsForNonExistentEntity() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/entity/NonExistent/999")
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/entity/NonExistent/999")
                         .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isEmpty());
+                        .param("size", "10"));
+
+        assertOkJson(result);
+        result.andExpect(jsonPath("$.data.content").isEmpty());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetAuditLogsForNonExistentUser() throws Exception {
-        mockMvc.perform(get("/api/audit-logs/user/nonexistent@example.com")
+        ResultActions result = mockMvc.perform(get(AUDIT_LOGS_ENDPOINT + "/user/nonexistent@example.com")
                         .param("page", "0")
-                        .param("size", "10"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content").isEmpty());
+                        .param("size", "10"));
+
+        assertOkJson(result);
+        result.andExpect(jsonPath("$.data.content").isEmpty());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void testAuditLogContainsAllRequiredFields() throws Exception {
-        mockMvc.perform(get("/api/audit-logs")
-                        .param("page", "0")
-                        .param("size", "1"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].id").exists())
-                .andExpect(jsonPath("$.data.content[0].userIdentifier").exists())
-                .andExpect(jsonPath("$.data.content[0].eventTimestamp").exists())
-                .andExpect(jsonPath("$.data.content[0].action").exists())
-                .andExpect(jsonPath("$.data.content[0].targetEntity").exists())
-                .andExpect(jsonPath("$.data.content[0].createdAt").exists());
+        ResultActions result = getAuditLogsPage(0, 1);
+
+        assertOkJson(result);
+        assertHasRequiredAuditFields(result);
+    }
+
+    private ResultActions getAuditLogsPage(int page, int size) throws Exception {
+        return mockMvc.perform(get(AUDIT_LOGS_ENDPOINT)
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size)));
+    }
+
+    private ResultActions getAuditLogsFiltered(String action, String targetEntity, int page, int size) throws Exception {
+        org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request =
+                get(AUDIT_LOGS_ENDPOINT)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size));
+
+        if (action != null) {
+            request = request.param("action", action);
+        }
+        if (targetEntity != null) {
+            request = request.param("targetEntity", targetEntity);
+        }
+
+        return mockMvc.perform(request);
+    }
+
+    private ResultActions getAuditLogsWithDateRange(DateRange range, int page, int size) throws Exception {
+        return mockMvc.perform(get(AUDIT_LOGS_ENDPOINT)
+                .param("startDate", range.startIso())
+                .param("endDate", range.endIso())
+                .param("page", String.valueOf(page))
+                .param("size", String.valueOf(size)));
+    }
+
+    private void assertOkJson(ResultActions result) throws Exception {
+        result.andExpect(status().isOk());
+        result.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private void assertHasContentArray(ResultActions result) throws Exception {
+        result.andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    private void assertHasMinimumElements(ResultActions result, int minimum) throws Exception {
+        result.andExpect(jsonPath("$.data.totalElements").value(greaterThanOrEqualTo(minimum)));
+        result.andExpect(jsonPath("$.data.content", hasSize(greaterThanOrEqualTo(minimum))));
+    }
+
+    private void assertHasBasicAuditFields(ResultActions result) throws Exception {
+        result.andExpect(jsonPath("$.data.content[0].id").exists());
+        result.andExpect(jsonPath("$.data.content[0].userIdentifier").exists());
+        result.andExpect(jsonPath("$.data.content[0].action").exists());
+        result.andExpect(jsonPath("$.data.content[0].targetEntity").exists());
+    }
+
+    private void assertHasRequiredAuditFields(ResultActions result) throws Exception {
+        result.andExpect(jsonPath("$.data.content[0].id").exists());
+        result.andExpect(jsonPath("$.data.content[0].userIdentifier").exists());
+        result.andExpect(jsonPath("$.data.content[0].eventTimestamp").exists());
+        result.andExpect(jsonPath("$.data.content[0].action").exists());
+        result.andExpect(jsonPath("$.data.content[0].targetEntity").exists());
+        result.andExpect(jsonPath("$.data.content[0].createdAt").exists());
+    }
+
+    private record DateRange(LocalDateTime start, LocalDateTime end) {
+
+        static DateRange aroundNowDays(int days) {
+            LocalDateTime now = LocalDateTime.now();
+            return new DateRange(now.minusDays(days), now.plusDays(days));
+        }
+
+        String startIso() {
+            return start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        }
+
+        String endIso() {
+            return end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        }
     }
 }
