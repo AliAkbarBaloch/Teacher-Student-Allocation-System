@@ -19,30 +19,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for {@link TeacherFormSubmissionService}.
- * <p>
- * This test class validates form submission CRUD operations, status updates,
- * filtering, pagination, and duplicate submission detection.
- * </p>
+ * Unit tests for {@link TeacherFormSubmissionService} (CREATE + UPDATE operations).
  */
 @ExtendWith(MockitoExtension.class)
-class TeacherFormSubmissionServiceTest {
+class TeacherFormSubmissionServiceCreateUpdateTests {
 
     @Mock
     private TeacherFormSubmissionRepository teacherFormSubmissionRepository;
@@ -99,132 +89,6 @@ class TeacherFormSubmissionServiceTest {
                 .build();
     }
 
-    // GET ALL Tests
-    @Test
-    @DisplayName("Should get all form submissions without filters")
-    void shouldGetAllFormSubmissionsWithoutFilters() {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("page", "1");
-        queryParams.put("pageSize", "10");
-
-        Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
-
-        when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(page);
-        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
-                .thenReturn(responseDto);
-
-        Map<String, Object> result = teacherFormSubmissionService
-                .getFormSubmissions(null, null, null, queryParams);
-
-        assertNotNull(result);
-        assertEquals(1L, result.get("totalItems"));
-
-        verify(teacherFormSubmissionRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Should get form submissions filtered by teacher ID")
-    void shouldGetFormSubmissionsFilteredByTeacherId() {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("page", "1");
-        queryParams.put("pageSize", "10");
-
-        Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
-
-        when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(page);
-        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
-                .thenReturn(responseDto);
-
-        Map<String, Object> result = teacherFormSubmissionService
-                .getFormSubmissions(1L, null, null, queryParams);
-
-        assertNotNull(result);
-        assertEquals(1L, result.get("totalItems"));
-
-        verify(teacherFormSubmissionRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Should get form submissions filtered by year ID")
-    void shouldGetFormSubmissionsFilteredByYearId() {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("page", "1");
-        queryParams.put("pageSize", "10");
-
-        Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
-
-        when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(page);
-        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
-                .thenReturn(responseDto);
-
-        Map<String, Object> result = teacherFormSubmissionService
-                .getFormSubmissions(null, 1L, null, queryParams);
-
-        assertNotNull(result);
-        assertEquals(1L, result.get("totalItems"));
-
-        verify(teacherFormSubmissionRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    @Test
-    @DisplayName("Should get form submissions filtered by processed status")
-    void shouldGetFormSubmissionsFilteredByProcessedStatus() {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("page", "1");
-        queryParams.put("pageSize", "10");
-
-        Page<TeacherFormSubmission> page = new PageImpl<>(List.of(submission));
-
-        when(teacherFormSubmissionRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(page);
-        when(teacherFormSubmissionMapper.toResponseDto(any(TeacherFormSubmission.class)))
-                .thenReturn(responseDto);
-
-        Map<String, Object> result = teacherFormSubmissionService
-                .getFormSubmissions(null, null, false, queryParams);
-
-        assertNotNull(result);
-        assertEquals(1L, result.get("totalItems"));
-
-        verify(teacherFormSubmissionRepository).findAll(any(Specification.class), any(Pageable.class));
-    }
-
-    // GET BY ID Tests
-    @Test
-    @DisplayName("Should get form submission by ID successfully")
-    void shouldGetFormSubmissionByIdSuccessfully() {
-        when(teacherFormSubmissionRepository.findById(1L))
-                .thenReturn(Optional.of(submission));
-        when(teacherFormSubmissionMapper.toResponseDto(submission))
-                .thenReturn(responseDto);
-
-        TeacherFormSubmissionResponseDto result = teacherFormSubmissionService
-                .getFormSubmissionById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("unique-token-123", result.getFormToken());
-
-        verify(teacherFormSubmissionRepository).findById(1L);
-        verify(teacherFormSubmissionMapper).toResponseDto(submission);
-    }
-
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException when form submission not found by ID")
-    void shouldThrowExceptionWhenFormSubmissionNotFoundById() {
-        when(teacherFormSubmissionRepository.findById(1L))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () ->
-                teacherFormSubmissionService.getFormSubmissionById(1L)
-        );
-
-        verify(teacherFormSubmissionRepository).findById(1L);
-    }
-
     // CREATE Tests
     @Test
     @DisplayName("Should create form submission successfully")
@@ -263,7 +127,6 @@ class TeacherFormSubmissionServiceTest {
         verify(academicYearRepository).findById(1L);
         verify(teacherFormSubmissionRepository).existsByFormToken("new-token-456");
         verify(teacherFormSubmissionRepository).save(any(TeacherFormSubmission.class));
-        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
@@ -374,7 +237,6 @@ class TeacherFormSubmissionServiceTest {
 
         verify(teacherFormSubmissionRepository).findById(1L);
         verify(teacherFormSubmissionRepository).save(any(TeacherFormSubmission.class));
-        // Audit logging is now handled by @Audited annotation via AOP
     }
 
     @Test
