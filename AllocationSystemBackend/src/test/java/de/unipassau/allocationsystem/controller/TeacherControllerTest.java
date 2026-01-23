@@ -19,11 +19,17 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for TeacherController (updated to match controller/service).
@@ -34,53 +40,66 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class TeacherControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/teachers";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private TeacherRepository teacherRepository;
-
-    @Autowired
-    private SchoolRepository schoolRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final TeacherRepository teacherRepository;
+    private final SchoolRepository schoolRepository;
 
     private School testSchool;
     private Teacher testTeacher;
+
+    @Autowired
+    TeacherControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            TeacherRepository teacherRepository,
+            SchoolRepository schoolRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.teacherRepository = teacherRepository;
+        this.schoolRepository = schoolRepository;
+    }
 
     @BeforeEach
     void setUp() {
         teacherRepository.deleteAll();
         schoolRepository.deleteAll();
 
-        // Create test school
-        testSchool = new School();
-        testSchool.setSchoolName("Test School");
-        testSchool.setSchoolType(SchoolType.PRIMARY);
-        testSchool.setZoneNumber(1);
-        testSchool.setIsActive(true);
-        testSchool = schoolRepository.save(testSchool);
+        testSchool = schoolRepository.save(buildSchool());
+        testTeacher = teacherRepository.save(buildTeacher(testSchool));
+    }
 
-        // Create test teacher
-        testTeacher = new Teacher();
-        testTeacher.setSchool(testSchool);
-        testTeacher.setFirstName("John");
-        testTeacher.setLastName("Doe");
-        testTeacher.setEmail("john.doe@school.de");
-        testTeacher.setPhone("+49841123456");
-        testTeacher.setIsPartTime(false);
-        testTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        testTeacher.setUsageCycle(UsageCycle.FLEXIBLE);
-        testTeacher = teacherRepository.save(testTeacher);
+    private School buildSchool() {
+        School school = new School();
+        school.setSchoolName("Test School");
+        school.setSchoolType(SchoolType.PRIMARY);
+        school.setZoneNumber(1);
+        school.setIsActive(true);
+        return school;
+    }
+
+    private Teacher buildTeacher(School school) {
+        Teacher t = new Teacher();
+        t.setSchool(school);
+        t.setFirstName("John");
+        t.setLastName("Doe");
+        t.setEmail("john.doe@school.de");
+        t.setPhone("+49841123456");
+        t.setIsPartTime(false);
+        t.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        t.setUsageCycle(UsageCycle.FLEXIBLE);
+        return t;
     }
 
     // ==================== GET /api/teachers (non-paginated) ====================
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAllTeachers_Success() throws Exception {
-        mockMvc.perform(get("/api/teachers"))
+    void getAllTeachersSuccess() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Teachers retrieved successfully"))
@@ -92,14 +111,14 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void getAllTeachers_WithUserRole_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/teachers"))
+    void getAllTeachersWithUserRoleShouldSucceed() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk());
     }
 
     @Test
-    void getAllTeachers_WithoutAuth_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/teachers"))
+    void getAllTeachersWithoutAuthShouldFail() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isUnauthorized());
     }
 
@@ -107,8 +126,8 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getTeachersPaginate_Success() throws Exception {
-        mockMvc.perform(get("/api/teachers/paginate"))
+    void getTeachersPaginateSuccess() throws Exception {
+        performGet(BASE_URL + "/paginate")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.items").isArray());
@@ -116,8 +135,8 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getTeachersPaginate_WithSearchFilter_Success() throws Exception {
-        mockMvc.perform(get("/api/teachers/paginate")
+    void getTeachersPaginateWithSearchFilterSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/paginate")
                         .param("searchValue", "John"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray());
@@ -127,8 +146,8 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getTeacherById_Success() throws Exception {
-        mockMvc.perform(get("/api/teachers/{id}", testTeacher.getId()))
+    void getTeacherByIdSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testTeacher.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Teacher retrieved successfully"))
@@ -142,15 +161,15 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getTeacherById_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/teachers/{id}", 99999L))
+    void getTeacherByIdNotFoundShouldFail() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", 99999L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void getTeacherById_WithUserRole_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/teachers/{id}", testTeacher.getId()))
+    void getTeacherByIdWithUserRoleShouldSucceed() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testTeacher.getId()))
                 .andExpect(status().isOk());
     }
 
@@ -158,7 +177,7 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createTeacher_Success() throws Exception {
+    void createTeacherSuccess() throws Exception {
         TeacherCreateDto dto = new TeacherCreateDto();
         dto.setSchoolId(testSchool.getId());
         dto.setFirstName("Jane");
@@ -169,9 +188,7 @@ class TeacherControllerTest {
         dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
         dto.setUsageCycle(UsageCycle.FLEXIBLE);
 
-        mockMvc.perform(post("/api/teachers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Teacher created successfully"))
@@ -182,36 +199,31 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createTeacher_DuplicateEmail_ShouldFail() throws Exception {
+    void createTeacherDuplicateEmailShouldFail() throws Exception {
         TeacherCreateDto dto = new TeacherCreateDto();
         dto.setSchoolId(testSchool.getId());
         dto.setFirstName("Another");
         dto.setLastName("Teacher");
-        dto.setEmail(testTeacher.getEmail()); // Duplicate email
+        dto.setEmail(testTeacher.getEmail());
         dto.setIsPartTime(false);
         dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
 
-        mockMvc.perform(post("/api/teachers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isConflict());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createTeacher_MissingRequiredFields_ShouldFail() throws Exception {
+    void createTeacherMissingRequiredFieldsShouldFail() throws Exception {
         TeacherCreateDto dto = new TeacherCreateDto();
-        // Missing required fields
 
-        mockMvc.perform(post("/api/teachers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void createTeacher_WithUserRole_ShouldFail() throws Exception {
+    void createTeacherWithUserRoleShouldSucceed() throws Exception {
         TeacherCreateDto dto = new TeacherCreateDto();
         dto.setSchoolId(testSchool.getId());
         dto.setFirstName("Test");
@@ -220,9 +232,7 @@ class TeacherControllerTest {
         dto.setIsPartTime(false);
         dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
 
-        mockMvc.perform(post("/api/teachers")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().is2xxSuccessful());
     }
 
@@ -230,15 +240,13 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateTeacher_Success() throws Exception {
+    void updateTeacherSuccess() throws Exception {
         TeacherUpdateDto dto = new TeacherUpdateDto();
         dto.setFirstName("Updated");
         dto.setLastName("Name");
         dto.setEmail("updated@school.de");
 
-        mockMvc.perform(put("/api/teachers/{id}", testTeacher.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", testTeacher.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Teacher updated successfully"))
@@ -249,48 +257,44 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateTeacher_NotFound_ShouldFail() throws Exception {
+    void updateTeacherNotFoundShouldFail() throws Exception {
         TeacherUpdateDto dto = new TeacherUpdateDto();
         dto.setFirstName("Updated");
 
-        mockMvc.perform(put("/api/teachers/{id}", 99999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", 99999L, dto)
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateTeacher_DuplicateEmail_ShouldFail() throws Exception {
-        // Create another teacher
-        Teacher anotherTeacher = new Teacher();
-        anotherTeacher.setSchool(testSchool);
-        anotherTeacher.setFirstName("Another");
-        anotherTeacher.setLastName("Teacher");
-        anotherTeacher.setEmail("another@school.de");
-        anotherTeacher.setIsPartTime(false);
-        anotherTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        teacherRepository.save(anotherTeacher);
+    void updateTeacherDuplicateEmailShouldFail() throws Exception {
+        teacherRepository.save(buildTeacherWithEmail(testSchool, "another@school.de"));
 
-        // Try to update testTeacher with anotherTeacher's email
         TeacherUpdateDto dto = new TeacherUpdateDto();
         dto.setEmail("another@school.de");
 
-        mockMvc.perform(put("/api/teachers/{id}", testTeacher.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", testTeacher.getId(), dto)
                 .andExpect(status().isConflict());
+    }
+
+    private Teacher buildTeacherWithEmail(School school, String email) {
+        Teacher t = new Teacher();
+        t.setSchool(school);
+        t.setFirstName("Another");
+        t.setLastName("Teacher");
+        t.setEmail(email);
+        t.setIsPartTime(false);
+        t.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        return t;
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void updateTeacher_WithUserRole_ShouldFail() throws Exception {
+    void updateTeacherWithUserRoleShouldSucceed() throws Exception {
         TeacherUpdateDto dto = new TeacherUpdateDto();
         dto.setFirstName("Updated");
 
-        mockMvc.perform(put("/api/teachers/{id}", testTeacher.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", testTeacher.getId(), dto)
                 .andExpect(status().isOk());
     }
 
@@ -298,26 +302,45 @@ class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteTeacher_Success() throws Exception {
-        mockMvc.perform(delete("/api/teachers/{id}", testTeacher.getId()))
+    void deleteTeacherSuccess() throws Exception {
+        performDelete(BASE_URL + "/{id}", testTeacher.getId())
                 .andExpect(status().isNoContent());
 
-        // Verify teacher was removed
         boolean exists = teacherRepository.findById(testTeacher.getId()).isPresent();
         assert !exists;
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteTeacher_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/teachers/{id}", 99999L))
+    void deleteTeacherNotFoundShouldFail() throws Exception {
+        performDelete(BASE_URL + "/{id}", 99999L)
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void deleteTeacher_WithUserRole_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/teachers/{id}", testTeacher.getId()))
+    void deleteTeacherWithUserRoleShouldSucceed() throws Exception {
+        performDelete(BASE_URL + "/{id}", testTeacher.getId())
                 .andExpect(status().isNoContent());
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url));
+    }
+
+    private ResultActions performPost(String url, Object body) throws Exception {
+        return mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performPut(String url, Object pathVar, Object body) throws Exception {
+        return mockMvc.perform(put(url, pathVar)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performDelete(String url, Object pathVar) throws Exception {
+        return mockMvc.perform(delete(url, pathVar));
     }
 }
