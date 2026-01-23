@@ -15,6 +15,14 @@ public final class TestSchoolFactory {
         // utility class
     }
 
+    /**
+     * Builds a {@link School} with deterministic default values and the provided id/name/type.
+     *
+     * @param id the school id
+     * @param name the school name
+     * @param type the school type
+     * @return a fully populated {@link School} for tests
+     */
     public static School buildTestSchool(Long id, String name, SchoolType type) {
         School school = withDefaultValues();
         school.setId(id);
