@@ -1,4 +1,3 @@
-// java
 package de.unipassau.allocationsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,11 +16,15 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,20 +42,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser(roles = "ADMIN")
 class SubjectControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/subjects";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final SubjectRepository subjectRepository;
+    private final SubjectCategoryRepository subjectCategoryRepository;
 
     private SubjectCategory testCategory;
     private Subject testSubject;
+
+    @Autowired
+    SubjectControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            SubjectRepository subjectRepository,
+            SubjectCategoryRepository subjectCategoryRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.subjectRepository = subjectRepository;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
 
     @BeforeEach
     void setUp() {
@@ -73,8 +84,8 @@ class SubjectControllerTest {
     }
 
     @Test
-    void getSortFields_ShouldReturnConfiguredFields() throws Exception {
-        mockMvc.perform(get("/api/subjects/sort-fields"))
+    void getSortFieldsShouldReturnConfiguredFields() throws Exception {
+        performGet(BASE_URL + "/sort-fields")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data", hasSize(7)))
@@ -82,16 +93,10 @@ class SubjectControllerTest {
     }
 
     @Test
-    void getPaginate_ShouldReturnFilteredItems() throws Exception {
-        Subject subject2 = new Subject();
-        subject2.setSubjectCode("PHYS101");
-        subject2.setSubjectTitle("Physics");
-        subject2.setSubjectCategory(testCategory);
-        subject2.setSchoolType("High School");
-        subject2.setIsActive(true);
-        subjectRepository.save(subject2);
+    void getPaginateShouldReturnFilteredItems() throws Exception {
+        subjectRepository.save(buildSubject("PHYS101", "Physics", testCategory, "High School", true));
 
-        mockMvc.perform(get("/api/subjects/paginate")
+        mockMvc.perform(get(BASE_URL + "/paginate")
                         .param("page", "1")
                         .param("pageSize", "2")
                         .param("sortBy", "subjectCode")
@@ -107,23 +112,18 @@ class SubjectControllerTest {
     }
 
     @Test
-    void getAll_ShouldReturnAllSubjects() throws Exception {
-        Subject subject2 = new Subject();
-        subject2.setSubjectCode("PHYS101");
-        subject2.setSubjectTitle("Physics");
-        subject2.setSubjectCategory(testCategory);
-        subject2.setIsActive(true);
-        subjectRepository.save(subject2);
+    void getAllShouldReturnAllSubjects() throws Exception {
+        subjectRepository.save(buildSubject("PHYS101", "Physics", testCategory, null, true));
 
-        mockMvc.perform(get("/api/subjects"))
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data", hasSize(2)));
     }
 
     @Test
-    void getById_ShouldReturnSubject() throws Exception {
-        mockMvc.perform(get("/api/subjects/" + testSubject.getId()))
+    void getByIdShouldReturnSubject() throws Exception {
+        performGet(BASE_URL + "/" + testSubject.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(testSubject.getId()))
@@ -132,13 +132,13 @@ class SubjectControllerTest {
     }
 
     @Test
-    void getById_NotFound_ShouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/subjects/9999"))
+    void getByIdNotFoundShouldReturn404() throws Exception {
+        performGet(BASE_URL + "/9999")
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void create_ShouldPersistSubject() throws Exception {
+    void createShouldPersistSubject() throws Exception {
         SubjectCreateDto dto = new SubjectCreateDto();
         dto.setSubjectCode("CHEM101");
         dto.setSubjectTitle("Chemistry");
@@ -146,9 +146,7 @@ class SubjectControllerTest {
         dto.setSchoolType("High School");
         dto.setIsActive(true);
 
-        mockMvc.perform(post("/api/subjects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").exists())
@@ -157,39 +155,32 @@ class SubjectControllerTest {
     }
 
     @Test
-    void create_DuplicateCode_ShouldReturnBadRequest() throws Exception {
+    void createDuplicateCodeShouldReturnConflict() throws Exception {
         SubjectCreateDto dto = new SubjectCreateDto();
-        dto.setSubjectCode("MATH101"); // Duplicate
+        dto.setSubjectCode("MATH101");
         dto.setSubjectTitle("Different Title");
         dto.setSubjectCategoryId(testCategory.getId());
 
-        mockMvc.perform(post("/api/subjects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isConflict());
     }
 
     @Test
-    void create_InvalidInput_ShouldReturnBadRequest() throws Exception {
+    void createInvalidInputShouldReturnBadRequest() throws Exception {
         SubjectCreateDto dto = new SubjectCreateDto();
-        // Missing required fields
         dto.setSubjectCode("");
 
-        mockMvc.perform(post("/api/subjects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void update_ShouldModifySubject() throws Exception {
+    void updateShouldModifySubject() throws Exception {
         SubjectUpdateDto dto = new SubjectUpdateDto();
         dto.setSubjectTitle("Advanced Mathematics");
         dto.setSchoolType("High School");
 
-        mockMvc.perform(put("/api/subjects/" + testSubject.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/" + testSubject.getId(), dto)
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.subjectTitle").value("Advanced Mathematics"))
@@ -197,28 +188,60 @@ class SubjectControllerTest {
     }
 
     @Test
-    void update_NotFound_ShouldReturnNotFound() throws Exception {
+    void updateNotFoundShouldReturnNotFound() throws Exception {
         SubjectUpdateDto dto = new SubjectUpdateDto();
         dto.setSubjectTitle("Non Existing");
 
-        mockMvc.perform(put("/api/subjects/9999")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/9999", dto)
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void delete_ShouldRemoveSubject() throws Exception {
-        mockMvc.perform(delete("/api/subjects/" + testSubject.getId()))
+    void deleteShouldRemoveSubject() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/" + testSubject.getId()))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/subjects"))
+        performGet(BASE_URL)
                 .andExpect(jsonPath("$.data", hasSize(0)));
     }
 
     @Test
-    void delete_NotFound_ShouldReturnNotFound() throws Exception {
-        mockMvc.perform(delete("/api/subjects/9999"))
+    void deleteNotFoundShouldReturnNotFound() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/9999"))
                 .andExpect(status().isNotFound());
+    }
+
+    private Subject buildSubject(
+            String code,
+            String title,
+            SubjectCategory category,
+            String schoolType,
+            boolean active
+    ) {
+        Subject s = new Subject();
+        s.setSubjectCode(code);
+        s.setSubjectTitle(title);
+        s.setSubjectCategory(category);
+        if (schoolType != null) {
+            s.setSchoolType(schoolType);
+        }
+        s.setIsActive(active);
+        return s;
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url));
+    }
+
+    private ResultActions performPost(String url, Object body) throws Exception {
+        return mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performPut(String url, Object body) throws Exception {
+        return mockMvc.perform(put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
     }
 }
