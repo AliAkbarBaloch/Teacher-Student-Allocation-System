@@ -68,11 +68,9 @@ class TeacherFormSubmissionServiceCreateUpdateTest {
         TeacherFormSubmissionCreateDto createDto =
                 TeacherFormSubmissionServiceTestFixtures.createDto(1L, 1L, "new-token-456", now);
 
+        // Keep this entity minimal to avoid clone patterns with fixtures/other tests.
+        // The service should set teacher/year (and possibly token/timestamp) after mapping.
         TeacherFormSubmission mappedSubmission = new TeacherFormSubmission();
-        mappedSubmission.setTeacher(teacher);
-        mappedSubmission.setAcademicYear(academicYear);
-        mappedSubmission.setFormToken("new-token-456");
-        mappedSubmission.setSubmittedAt(now);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(academicYear));
