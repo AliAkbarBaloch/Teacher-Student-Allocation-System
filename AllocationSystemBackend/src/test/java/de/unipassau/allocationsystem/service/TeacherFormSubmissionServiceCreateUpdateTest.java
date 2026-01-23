@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
  * Unit tests for {@link TeacherFormSubmissionService} (CREATE + UPDATE operations).
  */
 @ExtendWith(MockitoExtension.class)
-class TeacherFormSubmissionServiceCreateUpdateTests {
+class TeacherFormSubmissionServiceCreateUpdateTest {
 
     @Mock
     private TeacherFormSubmissionRepository teacherFormSubmissionRepository;

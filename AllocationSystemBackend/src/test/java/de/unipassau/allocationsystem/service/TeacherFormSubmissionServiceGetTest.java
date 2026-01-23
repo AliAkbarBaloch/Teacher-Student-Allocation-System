@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  * Unit tests for {@link TeacherFormSubmissionService} (GET operations).
  */
 @ExtendWith(MockitoExtension.class)
-class TeacherFormSubmissionServiceGetTests {
+class TeacherFormSubmissionServiceGetTest {
 
     @Mock
     private TeacherFormSubmissionRepository teacherFormSubmissionRepository;
