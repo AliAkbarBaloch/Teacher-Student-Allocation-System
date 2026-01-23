@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionCreateDto;
 import de.unipassau.allocationsystem.dto.teacher.formsubmission.TeacherFormSubmissionResponseDto;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Teacher;
@@ -53,5 +54,16 @@ final class TeacherFormSubmissionServiceTestFixtures {
                 .submittedAt(now)
                 .isProcessed(false)
                 .build();
+    }
+
+    static TeacherFormSubmissionCreateDto createDto(
+            long teacherId, long yearId, String formToken, LocalDateTime submittedAt
+    ) {
+        TeacherFormSubmissionCreateDto dto = new TeacherFormSubmissionCreateDto();
+        dto.setTeacherId(teacherId);
+        dto.setYearId(yearId);
+        dto.setFormToken(formToken);
+        dto.setSubmittedAt(submittedAt);
+        return dto;
     }
 }
