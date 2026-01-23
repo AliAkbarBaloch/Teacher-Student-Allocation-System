@@ -46,70 +46,144 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TeacherAllocationServiceIntegrationTest {
 
     /**
-     * Holds all Spring-managed dependencies required by this integration test.
-     * <p>
-     * Using a parameter object avoids constructors with an excessive number of
-     * parameters while still keeping constructor injection.
-     * </p>
-     *
-     * @param allocationService            the allocation service under test
-     * @param academicYearRepository       repository for academic years
-     * @param teacherSubjectRepository     repository for teacher-subject mappings
-     * @param teacherRepository            repository for teachers
-     * @param internshipDemandRepository   repository for internship demands
-     * @param teacherAssignmentRepository  repository for teacher assignments
-     * @param internshipTypeRepository     repository for internship types
-     * @param subjectRepository            repository for subjects
-     * @param schoolRepository             repository for schools
-     * @param subjectCategoryRepository    repository for subject categories
+     * Simple dependency holder used to keep constructor injection while avoiding
+     * constructors with too many parameters.
      */
-    interface Dependencies {
-        TeacherAllocationService allocationService();
+    static final class Dependencies {
 
-        AcademicYearRepository academicYearRepository();
+        private final TeacherAllocationService allocationService;
+        private final AcademicYearRepository academicYearRepository;
+        private final TeacherSubjectRepository teacherSubjectRepository;
+        private final TeacherRepository teacherRepository;
+        private final InternshipDemandRepository internshipDemandRepository;
+        private final TeacherAssignmentRepository teacherAssignmentRepository;
+        private final InternshipTypeRepository internshipTypeRepository;
+        private final SubjectRepository subjectRepository;
+        private final SchoolRepository schoolRepository;
+        private final SubjectCategoryRepository subjectCategoryRepository;
 
-        TeacherSubjectRepository teacherSubjectRepository();
+        /**
+         * Creates a new dependency holder.
+         *
+         * @param allocationService the allocation service under test
+         * @param academicYearRepository repository for academic years
+         * @param teacherSubjectRepository repository for teacher-subject mappings
+         * @param teacherRepository repository for teachers
+         * @param internshipDemandRepository repository for internship demands
+         * @param teacherAssignmentRepository repository for teacher assignments
+         * @param internshipTypeRepository repository for internship types
+         * @param subjectRepository repository for subjects
+         * @param schoolRepository repository for schools
+         * @param subjectCategoryRepository repository for subject categories
+         */
+        @Autowired
+        Dependencies(
+                TeacherAllocationService allocationService,
+                AcademicYearRepository academicYearRepository,
+                TeacherSubjectRepository teacherSubjectRepository,
+                TeacherRepository teacherRepository,
+                InternshipDemandRepository internshipDemandRepository,
+                TeacherAssignmentRepository teacherAssignmentRepository,
+                InternshipTypeRepository internshipTypeRepository,
+                SubjectRepository subjectRepository,
+                SchoolRepository schoolRepository,
+                SubjectCategoryRepository subjectCategoryRepository
+        ) {
+            this.allocationService = allocationService;
+            this.academicYearRepository = academicYearRepository;
+            this.teacherSubjectRepository = teacherSubjectRepository;
+            this.teacherRepository = teacherRepository;
+            this.internshipDemandRepository = internshipDemandRepository;
+            this.teacherAssignmentRepository = teacherAssignmentRepository;
+            this.internshipTypeRepository = internshipTypeRepository;
+            this.subjectRepository = subjectRepository;
+            this.schoolRepository = schoolRepository;
+            this.subjectCategoryRepository = subjectCategoryRepository;
+        }
 
-        TeacherRepository teacherRepository();
+        /**
+         * @return the allocation service under test
+         */
+        TeacherAllocationService allocationService() {
+            return allocationService;
+        }
 
-        InternshipDemandRepository internshipDemandRepository();
+        /**
+         * @return repository for academic years
+         */
+        AcademicYearRepository academicYearRepository() {
+            return academicYearRepository;
+        }
 
-        TeacherAssignmentRepository teacherAssignmentRepository();
+        /**
+         * @return repository for teacher-subject mappings
+         */
+        TeacherSubjectRepository teacherSubjectRepository() {
+            return teacherSubjectRepository;
+        }
 
-        InternshipTypeRepository internshipTypeRepository();
+        /**
+         * @return repository for teachers
+         */
+        TeacherRepository teacherRepository() {
+            return teacherRepository;
+        }
 
-        SubjectRepository subjectRepository();
+        /**
+         * @return repository for internship demands
+         */
+        InternshipDemandRepository internshipDemandRepository() {
+            return internshipDemandRepository;
+        }
 
-        SchoolRepository schoolRepository();
+        /**
+         * @return repository for teacher assignments
+         */
+        TeacherAssignmentRepository teacherAssignmentRepository() {
+            return teacherAssignmentRepository;
+        }
 
-        SubjectCategoryRepository subjectCategoryRepository();
+        /**
+         * @return repository for internship types
+         */
+        InternshipTypeRepository internshipTypeRepository() {
+            return internshipTypeRepository;
+        }
+
+        /**
+         * @return repository for subjects
+         */
+        SubjectRepository subjectRepository() {
+            return subjectRepository;
+        }
+
+        /**
+         * @return repository for schools
+         */
+        SchoolRepository schoolRepository() {
+            return schoolRepository;
+        }
+
+        /**
+         * @return repository for subject categories
+         */
+        SubjectCategoryRepository subjectCategoryRepository() {
+            return subjectCategoryRepository;
+        }
     }
 
-    private final TeacherAllocationService allocationService;
-    private final AcademicYearRepository academicYearRepository;
-    private final TeacherSubjectRepository teacherSubjectRepository;
-    private final TeacherRepository teacherRepository;
-    private final InternshipDemandRepository internshipDemandRepository;
-    private final TeacherAssignmentRepository teacherAssignmentRepository;
-    private final InternshipTypeRepository internshipTypeRepository;
-    private final SubjectRepository subjectRepository;
-    private final SchoolRepository schoolRepository;
-    private final SubjectCategoryRepository subjectCategoryRepository;
+    private final Dependencies deps;
 
     private AcademicYear year;
 
+    /**
+     * Creates the integration test using constructor injection.
+     *
+     * @param deps all dependencies required by this test
+     */
     @Autowired
     public TeacherAllocationServiceIntegrationTest(Dependencies deps) {
-        this.allocationService = deps.allocationService();
-        this.academicYearRepository = deps.academicYearRepository();
-        this.teacherSubjectRepository = deps.teacherSubjectRepository();
-        this.teacherRepository = deps.teacherRepository();
-        this.internshipDemandRepository = deps.internshipDemandRepository();
-        this.teacherAssignmentRepository = deps.teacherAssignmentRepository();
-        this.internshipTypeRepository = deps.internshipTypeRepository();
-        this.subjectRepository = deps.subjectRepository();
-        this.schoolRepository = deps.schoolRepository();
-        this.subjectCategoryRepository = deps.subjectCategoryRepository();
+        this.deps = deps;
     }
 
     @BeforeEach
@@ -120,27 +194,27 @@ public class TeacherAllocationServiceIntegrationTest {
 
     @Test
     void testAllocateTeachersToSFP() {
-        allocationService.performAllocation(year.getId());
+        deps.allocationService().performAllocation(year.getId());
 
-        List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
+        List<TeacherAssignment> assignments = deps.teacherAssignmentRepository().findAll();
         assertThat(assignments)
                 .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("SFP"));
     }
 
     @Test
     void testAllocateTeachersToZSP() {
-        allocationService.performAllocation(year.getId());
+        deps.allocationService().performAllocation(year.getId());
 
-        List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
+        List<TeacherAssignment> assignments = deps.teacherAssignmentRepository().findAll();
         assertThat(assignments)
                 .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("ZSP"));
     }
 
     @Test
     void testAllocateTeachersToPDP1AndPDP2() {
-        allocationService.performAllocation(year.getId());
+        deps.allocationService().performAllocation(year.getId());
 
-        List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
+        List<TeacherAssignment> assignments = deps.teacherAssignmentRepository().findAll();
         assertThat(assignments)
                 .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("PDP1"));
         assertThat(assignments)
@@ -150,9 +224,9 @@ public class TeacherAllocationServiceIntegrationTest {
     @Test
     void testInternshipCombinationRules() {
         // This test should be extended to set up combination rules and check enforcement
-        allocationService.performAllocation(year.getId());
+        deps.allocationService().performAllocation(year.getId());
 
-        List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
+        List<TeacherAssignment> assignments = deps.teacherAssignmentRepository().findAll();
         assertThat(assignments).isNotNull();
     }
 
@@ -170,26 +244,26 @@ public class TeacherAllocationServiceIntegrationTest {
     }
 
     private void persistSetupData(TestSetupData data) {
-        this.year = academicYearRepository.save(data.year());
+        this.year = deps.academicYearRepository().save(data.year());
 
-        schoolRepository.saveAll(List.of(data.schools().school1(), data.schools().school2()));
-        subjectCategoryRepository.save(data.subjects().category());
-        subjectRepository.saveAll(List.of(data.subjects().english(), data.subjects().social()));
-        subjectRepository.flush();
+        deps.schoolRepository().saveAll(List.of(data.schools().school1(), data.schools().school2()));
+        deps.subjectCategoryRepository().save(data.subjects().category());
+        deps.subjectRepository().saveAll(List.of(data.subjects().english(), data.subjects().social()));
+        deps.subjectRepository().flush();
 
-        internshipTypeRepository.saveAll(List.of(
+        deps.internshipTypeRepository().saveAll(List.of(
                 data.internshipTypes().sfp(),
                 data.internshipTypes().zsp(),
                 data.internshipTypes().pdp1(),
                 data.internshipTypes().pdp2()
         ));
 
-        teacherRepository.saveAll(List.of(
+        deps.teacherRepository().saveAll(List.of(
                 data.teachers().t1(),
                 data.teachers().t2(),
                 data.teachers().t3()
         ));
-        teacherRepository.flush();
+        deps.teacherRepository().flush();
 
         createAndPersistTeacherSubjects(data.year(), data.subjects(), data.teachers());
         createAndPersistDemands(data.year(), data.subjects(), data.internshipTypes());
@@ -314,8 +388,8 @@ public class TeacherAllocationServiceIntegrationTest {
         TeacherSubject ts2 = createTeacherSubject(createdYear, teachers.t2(), subjects.social());
         TeacherSubject ts3 = createTeacherSubject(createdYear, teachers.t3(), subjects.english());
 
-        teacherSubjectRepository.saveAll(List.of(ts1, ts2, ts3));
-        teacherSubjectRepository.flush();
+        deps.teacherSubjectRepository().saveAll(List.of(ts1, ts2, ts3));
+        deps.teacherSubjectRepository().flush();
     }
 
     private TeacherSubject createTeacherSubject(AcademicYear createdYear, Teacher teacher, Subject subject) {
@@ -333,7 +407,7 @@ public class TeacherAllocationServiceIntegrationTest {
         InternshipDemand d3 = createDemand(createdYear, types.pdp1(), subjects.english(), 1, School.SchoolType.MIDDLE);
         InternshipDemand d4 = createDemand(createdYear, types.pdp2(), subjects.english(), 1, School.SchoolType.MIDDLE);
 
-        internshipDemandRepository.saveAll(List.of(d1, d2, d3, d4));
+        deps.internshipDemandRepository().saveAll(List.of(d1, d2, d3, d4));
     }
 
     private InternshipDemand createDemand(
