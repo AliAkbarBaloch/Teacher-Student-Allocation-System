@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,257 +45,300 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 public class TeacherAllocationServiceIntegrationTest {
 
-
-    @Autowired
-    private TeacherAllocationService allocationService;
-    @Autowired
-    private AcademicYearRepository academicYearRepository;
-    @Autowired
-    private TeacherSubjectRepository teacherSubjectRepository;
-    @Autowired
-    private TeacherRepository teacherRepository;
-    @Autowired
-    private InternshipDemandRepository internshipDemandRepository;
-    @Autowired
-    private TeacherAssignmentRepository teacherAssignmentRepository;
-    @Autowired
-    private InternshipTypeRepository internshipTypeRepository;
-    @Autowired
-    private SubjectRepository subjectRepository;
-    @Autowired
-    private SchoolRepository schoolRepository;
-    @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
+    private final TeacherAllocationService allocationService;
+    private final AcademicYearRepository academicYearRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
+    private final TeacherRepository teacherRepository;
+    private final InternshipDemandRepository internshipDemandRepository;
+    private final TeacherAssignmentRepository teacherAssignmentRepository;
+    private final InternshipTypeRepository internshipTypeRepository;
+    private final SubjectRepository subjectRepository;
+    private final SchoolRepository schoolRepository;
+    private final SubjectCategoryRepository subjectCategoryRepository;
 
     private AcademicYear year;
 
+    @Autowired
+    public TeacherAllocationServiceIntegrationTest(
+            TeacherAllocationService allocationService,
+            AcademicYearRepository academicYearRepository,
+            TeacherSubjectRepository teacherSubjectRepository,
+            TeacherRepository teacherRepository,
+            InternshipDemandRepository internshipDemandRepository,
+            TeacherAssignmentRepository teacherAssignmentRepository,
+            InternshipTypeRepository internshipTypeRepository,
+            SubjectRepository subjectRepository,
+            SchoolRepository schoolRepository,
+            SubjectCategoryRepository subjectCategoryRepository
+    ) {
+        this.allocationService = allocationService;
+        this.academicYearRepository = academicYearRepository;
+        this.teacherSubjectRepository = teacherSubjectRepository;
+        this.teacherRepository = teacherRepository;
+        this.internshipDemandRepository = internshipDemandRepository;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.internshipTypeRepository = internshipTypeRepository;
+        this.subjectRepository = subjectRepository;
+        this.schoolRepository = schoolRepository;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
+
     @BeforeEach
     void setup() {
-        // Setup minimal dummy data for all scenarios
-        year = new AcademicYear();
-        year.setYearName("2025/2026-" + System.nanoTime()); // ensure unique year name
-        year.setIsLocked(false);
-        year.setTotalCreditHours(100); // required field
-        year.setElementarySchoolHours(40); // required field
-        year.setMiddleSchoolHours(60); // required field
-        year.setBudgetAnnouncementDate(java.time.LocalDateTime.now()); // required field
-        year.setAllocationDeadline(java.time.LocalDateTime.now().plusMonths(1)); // optional, but safe
-        academicYearRepository.save(year);
-
-        School school1 = new School();
-        school1.setSchoolName("School 1");
-        school1.setZoneNumber(1);
-        school1.setSchoolType(School.SchoolType.PRIMARY); // Required field
-        schoolRepository.save(school1);
-
-        School school2 = new School();
-        school2.setSchoolName("School 2");
-        school2.setZoneNumber(2);
-        school2.setSchoolType(School.SchoolType.MIDDLE); // Required field
-        schoolRepository.save(school2);
-
-        // Create and save a SubjectCategory
-        SubjectCategory category = new SubjectCategory();
-        category.setCategoryTitle("General Studies");
-        subjectCategoryRepository.save(category);
-
-        Subject english = new Subject();
-        english.setSubjectCode("EN");
-        english.setSubjectTitle("English");
-        english.setSubjectCategory(category);
-        english.setIsActive(true);
-        subjectRepository.save(english);
-        subjectRepository.flush();
-
-        Subject social = new Subject();
-        social.setSubjectCode("SO");
-        social.setSubjectTitle("Social Studies");
-        social.setSubjectCategory(category);
-        social.setIsActive(true);
-        subjectRepository.save(social);
-        subjectRepository.flush();
-
-        String uniqueSuffix = "-" + System.nanoTime();
-        InternshipType sfp = new InternshipType();
-        sfp.setInternshipCode("SFP" + uniqueSuffix);
-        sfp.setFullName("Schulpraktikum SFP");
-        sfp.setSemester(1);
-        internshipTypeRepository.save(sfp);
-
-        InternshipType zsp = new InternshipType();
-        zsp.setInternshipCode("ZSP" + uniqueSuffix);
-        zsp.setFullName("Zwischenpraktikum ZSP");
-        zsp.setSemester(2);
-        internshipTypeRepository.save(zsp);
-
-        InternshipType pdp1 = new InternshipType();
-        pdp1.setInternshipCode("PDP1" + uniqueSuffix);
-        pdp1.setFullName("Pädagogisch-didaktisches Praktikum 1");
-        pdp1.setSemester(3);
-        internshipTypeRepository.save(pdp1);
-
-        InternshipType pdp2 = new InternshipType();
-        pdp2.setInternshipCode("PDP2" + uniqueSuffix);
-        pdp2.setFullName("Pädagogisch-didaktisches Praktikum 2");
-        pdp2.setSemester(4);
-        internshipTypeRepository.save(pdp2);
-
-        // Teachers for SFP
-        Teacher t1 = new Teacher();
-        t1.setFirstName("Alice");
-        t1.setLastName("SFP");
-        t1.setSchool(school1);
-        t1.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
-        t1.setEmail("alice.sfp." + System.nanoTime() + "@test.com");
-        teacherRepository.save(t1);
-        TeacherQualification tq1 = new TeacherQualification();
-        tq1.setTeacher(t1); tq1.setSubject(english); tq1.setIsMainSubject(true);
-        // Save qualification explicitly
-        t1.getQualifications().add(tq1);
-        // Teachers for ZSP
-        Teacher t2 = new Teacher();
-        t2.setFirstName("Bob");
-        t2.setLastName("ZSP");
-        t2.setSchool(school2);
-        t2.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
-        t2.setEmail("bob.zsp." + System.nanoTime() + "@test.com");
-        teacherRepository.save(t2);
-        TeacherQualification tq2 = new TeacherQualification();
-        tq2.setTeacher(t2); tq2.setSubject(social); tq2.setIsMainSubject(true);
-        t2.getQualifications().add(tq2);
-        // Teachers for PDP
-        Teacher t3 = new Teacher();
-        t3.setFirstName("Carol");
-        t3.setLastName("PDP");
-        t3.setSchool(school2);
-        t3.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
-        t3.setEmail("carol.pdp." + System.nanoTime() + "@test.com");
-        teacherRepository.save(t3);
-        TeacherQualification tq3 = new TeacherQualification();
-        tq3.setTeacher(t3); tq3.setSubject(english); tq3.setIsMainSubject(true);
-        t3.getQualifications().add(tq3);
-
-        // Save all TeacherQualifications explicitly (if not cascaded)
-        // (No direct repository available, handled by teacherRepository if cascaded)
-
-        // Add and save availabilities for each teacher and internship type
-        TeacherAvailability ta1 = new TeacherAvailability();
-        ta1.setTeacher(t1);
-        ta1.setAcademicYear(year);
-        ta1.setInternshipType(sfp);
-        ta1.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
-        ta1.setIsAvailable(true);
-        t1.getAvailabilities().add(ta1);
-
-        TeacherAvailability ta2 = new TeacherAvailability();
-        ta2.setTeacher(t2);
-        ta2.setAcademicYear(year);
-        ta2.setInternshipType(zsp);
-        ta2.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
-        ta2.setIsAvailable(true);
-        t2.getAvailabilities().add(ta2);
-
-        TeacherAvailability ta3 = new TeacherAvailability();
-        ta3.setTeacher(t3);
-        ta3.setAcademicYear(year);
-        ta3.setInternshipType(pdp1);
-        ta3.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
-        ta3.setIsAvailable(true);
-        t3.getAvailabilities().add(ta3);
-
-        TeacherAvailability ta4 = new TeacherAvailability();
-        ta4.setTeacher(t3);
-        ta4.setAcademicYear(year);
-        ta4.setInternshipType(pdp2);
-        ta4.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
-        ta4.setIsAvailable(true);
-        t3.getAvailabilities().add(ta4);
-
-        // Save all teachers again to persist relationships
-        teacherRepository.saveAll(List.of(t1, t2, t3));
-        teacherRepository.flush();
-        // (No direct TeacherAvailabilityRepository available)
-
-        // Create and persist TeacherSubject entities for each teacher/subject/year
-        TeacherSubject ts1 = new TeacherSubject();
-        ts1.setAcademicYear(year);
-        ts1.setTeacher(t1);
-        ts1.setSubject(english);
-        ts1.setAvailabilityStatus("AVAILABLE");
-        TeacherSubject ts2 = new TeacherSubject();
-        ts2.setAcademicYear(year);
-        ts2.setTeacher(t2);
-        ts2.setSubject(social);
-        ts2.setAvailabilityStatus("AVAILABLE");
-        TeacherSubject ts3 = new TeacherSubject();
-        ts3.setAcademicYear(year);
-        ts3.setTeacher(t3);
-        ts3.setSubject(english);
-        ts3.setAvailabilityStatus("AVAILABLE");
-        teacherSubjectRepository.save(ts1);
-        teacherSubjectRepository.save(ts2);
-        teacherSubjectRepository.save(ts3);
-        teacherSubjectRepository.flush();
-
-        // Demands
-        InternshipDemand d1 = new InternshipDemand();
-        d1.setAcademicYear(year);
-        d1.setInternshipType(sfp);
-        d1.setSubject(english);
-        d1.setRequiredTeachers(1);
-        d1.setSchoolType(School.SchoolType.PRIMARY);
-        internshipDemandRepository.save(d1);
-        InternshipDemand d2 = new InternshipDemand();
-        d2.setAcademicYear(year);
-        d2.setInternshipType(zsp);
-        d2.setSubject(social);
-        d2.setRequiredTeachers(1);
-        d2.setSchoolType(School.SchoolType.MIDDLE);
-        internshipDemandRepository.save(d2);
-        InternshipDemand d3 = new InternshipDemand();
-        d3.setAcademicYear(year);
-        d3.setInternshipType(pdp1);
-        d3.setSubject(english);
-        d3.setRequiredTeachers(1);
-        d3.setSchoolType(School.SchoolType.MIDDLE);
-        internshipDemandRepository.save(d3);
-        InternshipDemand d4 = new InternshipDemand();
-        d4.setAcademicYear(year);
-        d4.setInternshipType(pdp2);
-        d4.setSubject(english);
-        d4.setRequiredTeachers(1);
-        d4.setSchoolType(School.SchoolType.MIDDLE);
-        internshipDemandRepository.save(d4);
+        TestSetupData data = buildSetupData();
+        persistSetupData(data);
     }
 
     @Test
     void testAllocateTeachersToSFP() {
         allocationService.performAllocation(year.getId());
+
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
-        assertThat(assignments).anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("SFP"));
+        assertThat(assignments)
+                .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("SFP"));
     }
 
     @Test
     void testAllocateTeachersToZSP() {
         allocationService.performAllocation(year.getId());
+
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
-        assertThat(assignments).anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("ZSP"));
+        assertThat(assignments)
+                .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("ZSP"));
     }
 
     @Test
     void testAllocateTeachersToPDP1AndPDP2() {
         allocationService.performAllocation(year.getId());
+
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
-        assertThat(assignments).anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("PDP1"));
-        assertThat(assignments).anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("PDP2"));
+        assertThat(assignments)
+                .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("PDP1"));
+        assertThat(assignments)
+                .anyMatch(a -> a.getInternshipType().getInternshipCode().startsWith("PDP2"));
     }
 
     @Test
     void testInternshipCombinationRules() {
         // This test should be extended to set up combination rules and check enforcement
         allocationService.performAllocation(year.getId());
+
         List<TeacherAssignment> assignments = teacherAssignmentRepository.findAll();
-        // Example: check that no teacher is assigned to an invalid combination (customize as needed)
-        // assertThat(...)
+
+        // Minimal assertion to avoid "initial value never read" / unused variable issues
+        // while keeping the test ready for future rule assertions.
+        assertThat(assignments).isNotNull();
     }
+
+    private TestSetupData buildSetupData() {
+        AcademicYear createdYear = createAcademicYear();
+
+        Schools schools = createSchools();
+        Subjects subjects = createSubjects();
+        InternshipTypes internshipTypes = createInternshipTypes();
+
+        Teachers teachers = createTeachersWithQualifications(schools, subjects);
+        attachAvailabilities(createdYear, internshipTypes, teachers);
+
+        return new TestSetupData(createdYear, schools, subjects, internshipTypes, teachers);
+    }
+
+    private void persistSetupData(TestSetupData data) {
+        this.year = academicYearRepository.save(data.year());
+
+        schoolRepository.saveAll(List.of(data.schools().school1(), data.schools().school2()));
+        subjectCategoryRepository.save(data.subjects().category());
+        subjectRepository.saveAll(List.of(data.subjects().english(), data.subjects().social()));
+        subjectRepository.flush();
+
+        internshipTypeRepository.saveAll(List.of(
+                data.internshipTypes().sfp(),
+                data.internshipTypes().zsp(),
+                data.internshipTypes().pdp1(),
+                data.internshipTypes().pdp2()
+        ));
+
+        teacherRepository.saveAll(List.of(
+                data.teachers().t1(),
+                data.teachers().t2(),
+                data.teachers().t3()
+        ));
+        teacherRepository.flush();
+
+        createAndPersistTeacherSubjects(data.year(), data.subjects(), data.teachers());
+        createAndPersistDemands(data.year(), data.subjects(), data.internshipTypes());
+    }
+
+    private AcademicYear createAcademicYear() {
+        AcademicYear createdYear = new AcademicYear();
+        createdYear.setYearName("2025/2026-" + System.nanoTime()); // ensure unique year name
+        createdYear.setIsLocked(false);
+        createdYear.setTotalCreditHours(100); // required field
+        createdYear.setElementarySchoolHours(40); // required field
+        createdYear.setMiddleSchoolHours(60); // required field
+        createdYear.setBudgetAnnouncementDate(LocalDateTime.now()); // required field
+        createdYear.setAllocationDeadline(LocalDateTime.now().plusMonths(1)); // optional, but safe
+        return createdYear;
+    }
+
+    private Schools createSchools() {
+        School school1 = new School();
+        school1.setSchoolName("School 1");
+        school1.setZoneNumber(1);
+        school1.setSchoolType(School.SchoolType.PRIMARY); // Required field
+
+        School school2 = new School();
+        school2.setSchoolName("School 2");
+        school2.setZoneNumber(2);
+        school2.setSchoolType(School.SchoolType.MIDDLE); // Required field
+
+        return new Schools(school1, school2);
+    }
+
+    private Subjects createSubjects() {
+        SubjectCategory category = new SubjectCategory();
+        category.setCategoryTitle("General Studies");
+
+        Subject english = new Subject();
+        english.setSubjectCode("EN");
+        english.setSubjectTitle("English");
+        english.setSubjectCategory(category);
+        english.setIsActive(true);
+
+        Subject social = new Subject();
+        social.setSubjectCode("SO");
+        social.setSubjectTitle("Social Studies");
+        social.setSubjectCategory(category);
+        social.setIsActive(true);
+
+        return new Subjects(category, english, social);
+    }
+
+    private InternshipTypes createInternshipTypes() {
+        String uniqueSuffix = "-" + System.nanoTime();
+
+        InternshipType sfp = createInternshipType("SFP", uniqueSuffix, "Schulpraktikum SFP", 1);
+        InternshipType zsp = createInternshipType("ZSP", uniqueSuffix, "Zwischenpraktikum ZSP", 2);
+        InternshipType pdp1 = createInternshipType("PDP1", uniqueSuffix, "Pädagogisch-didaktisches Praktikum 1", 3);
+        InternshipType pdp2 = createInternshipType("PDP2", uniqueSuffix, "Pädagogisch-didaktisches Praktikum 2", 4);
+
+        return new InternshipTypes(sfp, zsp, pdp1, pdp2);
+    }
+
+    private InternshipType createInternshipType(String codePrefix, String suffix, String fullName, int semester) {
+        InternshipType type = new InternshipType();
+        type.setInternshipCode(codePrefix + suffix);
+        type.setFullName(fullName);
+        type.setSemester(semester);
+        return type;
+    }
+
+    private Teachers createTeachersWithQualifications(Schools schools, Subjects subjects) {
+        Teacher t1 = createTeacher("Alice", "SFP", schools.school1(), "alice.sfp");
+        addQualification(t1, subjects.english(), true);
+
+        Teacher t2 = createTeacher("Bob", "ZSP", schools.school2(), "bob.zsp");
+        addQualification(t2, subjects.social(), true);
+
+        Teacher t3 = createTeacher("Carol", "PDP", schools.school2(), "carol.pdp");
+        addQualification(t3, subjects.english(), true);
+
+        return new Teachers(t1, t2, t3);
+    }
+
+    private Teacher createTeacher(String firstName, String lastName, School school, String emailPrefix) {
+        Teacher teacher = new Teacher();
+        teacher.setFirstName(firstName);
+        teacher.setLastName(lastName);
+        teacher.setSchool(school);
+        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
+        teacher.setEmail(emailPrefix + "." + System.nanoTime() + "@test.com");
+        return teacher;
+    }
+
+    private void addQualification(Teacher teacher, Subject subject, boolean isMainSubject) {
+        TeacherQualification qualification = new TeacherQualification();
+        qualification.setTeacher(teacher);
+        qualification.setSubject(subject);
+        qualification.setIsMainSubject(isMainSubject);
+
+        teacher.getQualifications().add(qualification);
+    }
+
+    private void attachAvailabilities(AcademicYear createdYear, InternshipTypes internshipTypes, Teachers teachers) {
+        teachers.t1().getAvailabilities().add(createAvailability(createdYear, internshipTypes.sfp(), teachers.t1()));
+        teachers.t2().getAvailabilities().add(createAvailability(createdYear, internshipTypes.zsp(), teachers.t2()));
+
+        teachers.t3().getAvailabilities().add(createAvailability(createdYear, internshipTypes.pdp1(), teachers.t3()));
+        teachers.t3().getAvailabilities().add(createAvailability(createdYear, internshipTypes.pdp2(), teachers.t3()));
+    }
+
+    private TeacherAvailability createAvailability(AcademicYear createdYear, InternshipType type, Teacher teacher) {
+        TeacherAvailability availability = new TeacherAvailability();
+        availability.setTeacher(teacher);
+        availability.setAcademicYear(createdYear);
+        availability.setInternshipType(type);
+        availability.setStatus(TeacherAvailability.AvailabilityStatus.AVAILABLE);
+        availability.setIsAvailable(true);
+        return availability;
+    }
+
+    private void createAndPersistTeacherSubjects(AcademicYear createdYear, Subjects subjects, Teachers teachers) {
+        TeacherSubject ts1 = createTeacherSubject(createdYear, teachers.t1(), subjects.english());
+        TeacherSubject ts2 = createTeacherSubject(createdYear, teachers.t2(), subjects.social());
+        TeacherSubject ts3 = createTeacherSubject(createdYear, teachers.t3(), subjects.english());
+
+        teacherSubjectRepository.saveAll(List.of(ts1, ts2, ts3));
+        teacherSubjectRepository.flush();
+    }
+
+    private TeacherSubject createTeacherSubject(AcademicYear createdYear, Teacher teacher, Subject subject) {
+        TeacherSubject teacherSubject = new TeacherSubject();
+        teacherSubject.setAcademicYear(createdYear);
+        teacherSubject.setTeacher(teacher);
+        teacherSubject.setSubject(subject);
+        teacherSubject.setAvailabilityStatus("AVAILABLE");
+        return teacherSubject;
+    }
+
+    private void createAndPersistDemands(AcademicYear createdYear, Subjects subjects, InternshipTypes types) {
+        InternshipDemand d1 = createDemand(createdYear, types.sfp(), subjects.english(), 1, School.SchoolType.PRIMARY);
+        InternshipDemand d2 = createDemand(createdYear, types.zsp(), subjects.social(), 1, School.SchoolType.MIDDLE);
+        InternshipDemand d3 = createDemand(createdYear, types.pdp1(), subjects.english(), 1, School.SchoolType.MIDDLE);
+        InternshipDemand d4 = createDemand(createdYear, types.pdp2(), subjects.english(), 1, School.SchoolType.MIDDLE);
+
+        internshipDemandRepository.saveAll(List.of(d1, d2, d3, d4));
+    }
+
+    private InternshipDemand createDemand(
+            AcademicYear createdYear,
+            InternshipType type,
+            Subject subject,
+            int requiredTeachers,
+            School.SchoolType schoolType
+    ) {
+        InternshipDemand demand = new InternshipDemand();
+        demand.setAcademicYear(createdYear);
+        demand.setInternshipType(type);
+        demand.setSubject(subject);
+        demand.setRequiredTeachers(requiredTeachers);
+        demand.setSchoolType(schoolType);
+        return demand;
+    }
+
+    private record Schools(School school1, School school2) { }
+
+    private record Subjects(SubjectCategory category, Subject english, Subject social) { }
+
+    private record InternshipTypes(InternshipType sfp, InternshipType zsp, InternshipType pdp1, InternshipType pdp2) { }
+
+    private record Teachers(Teacher t1, Teacher t2, Teacher t3) { }
+
+    private record TestSetupData(
+            AcademicYear year,
+            Schools schools,
+            Subjects subjects,
+            InternshipTypes internshipTypes,
+            Teachers teachers
+    ) { }
 }

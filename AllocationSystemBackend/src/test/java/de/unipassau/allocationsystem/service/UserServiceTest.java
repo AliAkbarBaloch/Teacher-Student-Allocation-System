@@ -561,12 +561,17 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            null, null, null, null, 0, 10, "id", "ASC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .page(0)
+            .size(10)
+            .sortBy("id")
+            .sortDirection("ASC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
@@ -580,12 +585,18 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            User.UserRole.USER, null, null, null, 0, 10, "id", "ASC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .role(User.UserRole.USER)
+            .page(0)
+            .size(10)
+            .sortBy("id")
+            .sortDirection("ASC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
@@ -599,12 +610,18 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            null, User.AccountStatus.ACTIVE, null, null, 0, 10, "id", "ASC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .status(User.AccountStatus.ACTIVE)
+            .page(0)
+            .size(10)
+            .sortBy("id")
+            .sortDirection("ASC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
@@ -618,12 +635,18 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            null, null, true, null, 0, 10, "id", "ASC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .enabled(true)
+            .page(0)
+            .size(10)
+            .sortBy("id")
+            .sortDirection("ASC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
@@ -637,12 +660,18 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            null, null, null, "test", 0, 10, "id", "ASC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .search("test")
+            .page(0)
+            .size(10)
+            .sortBy("id")
+            .sortDirection("ASC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
@@ -656,19 +685,21 @@ class UserServiceTest {
         List<User> users = Arrays.asList(testUser);
         Page<User> userPage = new PageImpl<>(users);
 
+        //noinspection unchecked
         when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(userPage);
 
         // Act
-        Page<UserResponseDto> result = userService.getAllUsers(
-            User.UserRole.USER, 
-            User.AccountStatus.ACTIVE, 
-            true, 
-            "test", 
-            0, 
-            10, 
-            "email", 
-            "DESC"
-        );
+        UserQuery query = new UserQuery.Builder()
+            .role(User.UserRole.USER)
+            .status(User.AccountStatus.ACTIVE)
+            .enabled(true)
+            .search("test")
+            .page(0)
+            .size(10)
+            .sortBy("email")
+            .sortDirection("DESC")
+            .build();
+        Page<UserResponseDto> result = userService.getAllUsers(query);
 
         // Assert
         assertNotNull(result);
