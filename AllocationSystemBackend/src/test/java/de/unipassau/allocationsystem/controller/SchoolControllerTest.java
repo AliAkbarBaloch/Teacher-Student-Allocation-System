@@ -6,6 +6,7 @@ import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.testutil.TestSchoolFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
@@ -62,23 +62,12 @@ class SchoolControllerTest {
     @BeforeEach
     void setUp() {
         schoolRepository.deleteAll();
-        testSchool = schoolRepository.save(buildTestSchool());
-    }
 
-    private School buildTestSchool() {
-        School school = new School();
-        school.setSchoolName("Test Elementary School");
-        school.setSchoolType(SchoolType.PRIMARY);
-        school.setZoneNumber(1);
-        school.setAddress("Test Street 1");
-        school.setLatitude(new BigDecimal("48.5734053"));
-        school.setLongitude(new BigDecimal("13.4579944"));
-        school.setDistanceFromCenter(new BigDecimal("2.5"));
-        school.setTransportAccessibility("Bus Line 1");
-        school.setContactEmail("test@school.de");
-        school.setContactPhone("+49841123456");
-        school.setIsActive(true);
-        return school;
+        // Centralized test data creation to avoid clone warnings.
+        School school = TestSchoolFactory.buildTestSchool(1L, "Test Elementary School", SchoolType.PRIMARY);
+        school.setZoneNumber(1); // keep explicit to match assertions and avoid DB constraints variability
+
+        testSchool = schoolRepository.save(school);
     }
 
     // ==================== GET /schools ====================
