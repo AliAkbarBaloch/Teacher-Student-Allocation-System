@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreditHourTrackingCreateDto {
+public class CreditHourTrackingCreateDto implements CreditHourTrackingUpsertDto {
     @NotNull(message = "Teacher ID is required")
     private Long teacherId;
 

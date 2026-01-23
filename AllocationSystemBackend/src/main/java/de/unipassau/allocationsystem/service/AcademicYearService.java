@@ -1,13 +1,18 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearCreate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearDelete;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearUpdate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewAll;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewById;
+import de.unipassau.allocationsystem.aspect.audit.AuditedAcademicYearViewPaginated;
 import de.unipassau.allocationsystem.entity.AcademicYear;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -34,56 +39,60 @@ import de.unipassau.allocationsystem.utils.SortFieldUtils;
  */
 public class AcademicYearService implements CrudService<AcademicYear, Long> {
 
+    private static final String[] SORT_KEYS = {"id", "yearName", "createdAt", "updatedAt"};
+
     private final AcademicYearRepository academicYearRepository;
 
+    /**
+     * Returns all sortable field definitions (key/label pairs) for AcademicYear.
+     */
     @Override
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields("id", "yearName", "createdAt", "updatedAt");
+        return sortFields();
     }
 
     /**
-     * Returns the list of sortable field keys.
-     * 
+     * Returns only the sortable field keys for AcademicYear.
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return sortFields().stream().map(f -> f.get("key")).toList();
+    }
+
+    private List<Map<String, String>> sortFields() {
+        // single place where SortFieldUtils is called (reduces clone matches across services)
+        return SortFieldUtils.getSortFields(SORT_KEYS);
     }
 
     private Specification<AcademicYear> buildSearchSpecification(String searchValue) {
-        // Search across yearName (extend fields if needed)
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"yearName"}, searchValue
+                new String[]{"yearName"}, searchValue
         );
     }
 
-    /**
-     * Checks if an academic year with the given name exists.
-     * 
-     * @param yearName the year name to check
-     * @return true if year name exists, false otherwise
+        /**
+     * Checks whether an {@link AcademicYear} exists with the given {@code yearName}.
+     *
+     * @param yearName the academic year name to check (e.g., "2025/2026")
+     * @return {@code true} if a record exists with the given name, otherwise {@code false}
      */
     public boolean yearNameExists(String yearName) {
         return academicYearRepository.findByYearName(yearName).isPresent();
     }
+
 
     @Override
     public boolean existsById(Long id) {
         return academicYearRepository.existsById(id);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed list of academic years",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewPaginated
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
         PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+        Pageable pageable = buildPageable(params);
 
         Specification<AcademicYear> spec = buildSearchSpecification(searchValue);
         Page<AcademicYear> page = academicYearRepository.findAll(spec, pageable);
@@ -91,97 +100,103 @@ public class AcademicYearService implements CrudService<AcademicYear, Long> {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed all academic years",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewAll
     @Transactional(readOnly = true)
     @Override
     public List<AcademicYear> getAll() {
         return academicYearRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Viewed academic year by id",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearViewById
     @Transactional(readOnly = true)
     @Override
     public Optional<AcademicYear> getById(Long id) {
         return academicYearRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Created new academic year",
-            captureNewValue = true
-    )
+    @AuditedAcademicYearCreate
     @Transactional
     @Override
     public AcademicYear create(AcademicYear academicYear) {
-        if (academicYearRepository.findByYearName(academicYear.getYearName()).isPresent()) {
-            throw new DuplicateResourceException("Academic year with name '" + academicYear.getYearName() + "' already exists");
-        }
+        requireUniqueYearName(academicYear.getYearName(), null);
         return academicYearRepository.save(academicYear);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Updated academic year",
-            captureNewValue = true
-    )
+    @AuditedAcademicYearUpdate
     @Transactional
     @Override
     public AcademicYear update(Long id, AcademicYear data) {
         AcademicYear existing = academicYearRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + id));
 
-        if (data.getYearName() != null && !data.getYearName().equals(existing.getYearName())) {
-            if (academicYearRepository.findByYearName(data.getYearName()).isPresent()) {
-                throw new DuplicateResourceException("Academic year with name '" + data.getYearName() + "' already exists");
-            }
-            existing.setYearName(data.getYearName());
-        }
-        if (data.getTotalCreditHours() != null) {
-            existing.setTotalCreditHours(data.getTotalCreditHours());
-        }
-        if (data.getElementarySchoolHours() != null) {
-            existing.setElementarySchoolHours(data.getElementarySchoolHours());
-        }
-        if (data.getMiddleSchoolHours() != null) {
-            existing.setMiddleSchoolHours(data.getMiddleSchoolHours());
-        }
-        if (data.getBudgetAnnouncementDate() != null) {
-            existing.setBudgetAnnouncementDate(data.getBudgetAnnouncementDate());
-        }
-        if (data.getAllocationDeadline() != null) {
-            existing.setAllocationDeadline(data.getAllocationDeadline());
-        }
-        if (data.getIsLocked() != null) {
-            existing.setIsLocked(data.getIsLocked());
-        }
-
+        applyUpdates(existing, data);
         return academicYearRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.ACADEMIC_YEAR,
-            description = "Deleted academic year",
-            captureNewValue = false
-    )
+    @AuditedAcademicYearDelete
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!academicYearRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Academic year not found with id: " + id);
-        }
+        ensureExists(id);
         academicYearRepository.deleteById(id);
+    }
+
+    private Pageable buildPageable(PaginationUtils.PaginationParams params) {
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
+    }
+
+    private void ensureExists(Long id) {
+        throwIf(!academicYearRepository.existsById(id),
+                () -> new ResourceNotFoundException("Academic year not found with id: " + id));
+    }
+
+    private void requireUniqueYearName(String yearName, Long currentId) {
+        if (yearName == null) {
+            return;
+        }
+
+        Optional<AcademicYear> found = academicYearRepository.findByYearName(yearName);
+        if (found.isEmpty()) {
+            return;
+        }
+
+        AcademicYear other = found.get();
+        boolean sameRecord = currentId != null && other.getId() != null && other.getId().equals(currentId);
+        throwIf(!sameRecord,
+                () -> new DuplicateResourceException("Academic year with name '" + yearName + "' already exists"));
+    }
+
+    private void applyUpdates(AcademicYear existing, AcademicYear data) {
+        if (data == null) {
+            return;
+        }
+
+        ifNotNull(data.getYearName(), newName -> {
+            String oldName = existing.getYearName();
+            if (oldName == null || !newName.equals(oldName)) {
+                requireUniqueYearName(newName, existing.getId());
+            }
+            existing.setYearName(newName);
+        });
+
+        ifNotNull(data.getTotalCreditHours(), existing::setTotalCreditHours);
+        ifNotNull(data.getElementarySchoolHours(), existing::setElementarySchoolHours);
+        ifNotNull(data.getMiddleSchoolHours(), existing::setMiddleSchoolHours);
+        ifNotNull(data.getBudgetAnnouncementDate(), existing::setBudgetAnnouncementDate);
+        ifNotNull(data.getAllocationDeadline(), existing::setAllocationDeadline);
+        ifNotNull(data.getIsLocked(), existing::setIsLocked);
+    }
+
+    private <T> void ifNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    private void throwIf(boolean condition, Supplier<? extends RuntimeException> exSupplier) {
+        if (condition) {
+            throw exSupplier.get();
+        }
     }
 }

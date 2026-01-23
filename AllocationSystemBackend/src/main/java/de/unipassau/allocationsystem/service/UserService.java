@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Service for managing users with automatic audit logging via @Audited annotation.
@@ -41,70 +42,69 @@ public class UserService {
     /**
      * Create a new user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Created new user",
+            captureNewValue = true
     )
     public User createUser(String email, String password, String fullName) {
-        log.info("Creating new user: {}", email);
+        UserCreateDto dto = new UserCreateDto();
+        dto.setEmail(email);
+        dto.setPassword(password);
+        dto.setFullName(fullName);
 
+        // Create and return the saved entity directly to avoid an extra lookup
         User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setFullName(fullName);
-        user.setEnabled(true);
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setFullName(dto.getFullName());
+        user.setRole(dto.getRole());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setEnabled(defaultTrue(dto.getEnabled()));
+        user.setIsActive(defaultTrue(dto.getIsActive()));
+        user.setAccountStatus(defaultAccountStatus(dto.getAccountStatus()));
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        user.setLoginAttempt(0);
 
-        User savedUser = userRepository.save(user);
-
-        // The @Audited annotation will automatically create an audit log entry
-        return savedUser;
+        return userRepository.save(user);
     }
 
     /**
      * Update user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user",
+            captureNewValue = true
     )
     public User updateUser(Long userId, String newEmail, String newFullName) {
-        log.info("Updating user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Update user
-        user.setEmail(newEmail);
-        user.setFullName(newFullName);
-        User updatedUser = userRepository.save(user);
-
-        return updatedUser;
+        User user = requireUser(userId);
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(newEmail)) {
+                throw new DuplicateResourceException("User with email " + newEmail + " already exists");
+            }
+            user.setEmail(newEmail);
+        }
+        if (newFullName != null) {
+            user.setFullName(newFullName);
+        }
+        return userRepository.save(user);
     }
 
     /**
      * Delete user with automatic audit logging using @Audited annotation.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.DELETE,
-        entityName = AuditEntityNames.USER,
-        description = "Deleted user",
-        captureNewValue = false
+            action = AuditAction.DELETE,
+            entityName = AuditEntityNames.USER,
+            description = "Deleted user",
+            captureNewValue = false
     )
     public void deleteUser(Long userId) {
-        log.info("Deleting user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        // Delete user
-        userRepository.delete(user);
+        userRepository.delete(requireUser(userId));
     }
 
     /**
@@ -118,19 +118,13 @@ public class UserService {
     /**
      * Change user password.
      */
-    @Transactional
     public void changePassword(Long userId, String oldPassword, String newPassword) {
-        log.info("Changing password for user: {}", userId);
+        User user = requireUser(userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Verify old password
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new RuntimeException("Invalid old password");
+            throw new IllegalArgumentException("Invalid old password");
         }
 
-        // Update password
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
@@ -138,40 +132,30 @@ public class UserService {
     /**
      * Enable or disable user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user enabled status",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user enabled status",
+            captureNewValue = true
     )
     public User setUserEnabled(Long userId, boolean enabled) {
-        log.info("Setting user {} enabled status to: {}", userId, enabled);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User user = requireUser(userId);
         user.setEnabled(enabled);
-        User updatedUser = userRepository.save(user);
-
-        return updatedUser;
+        return userRepository.save(user);
     }
 
-    // ========== NEW COMPREHENSIVE CRUD METHODS ==========
+    // ========== DTO-BASED CRUD METHODS ==========
 
     /**
      * Create user with DTO.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.CREATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin created new user",
-        captureNewValue = true
+            action = AuditAction.CREATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin created new user",
+            captureNewValue = true
     )
     public UserResponseDto createUserWithDto(UserCreateDto dto) {
-        log.info("Creating new user with DTO: {}", dto.getEmail());
-
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("User with email " + dto.getEmail() + " already exists");
         }
@@ -182,135 +166,102 @@ public class UserService {
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
         user.setPhoneNumber(dto.getPhoneNumber());
-        user.setEnabled(dto.getEnabled() != null ? dto.getEnabled() : true);
-        user.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        user.setAccountStatus(dto.getAccountStatus() != null ? dto.getAccountStatus() : User.AccountStatus.ACTIVE);
+        user.setEnabled(defaultTrue(dto.getEnabled()));
+        user.setIsActive(defaultTrue(dto.getIsActive()));
+        user.setAccountStatus(defaultAccountStatus(dto.getAccountStatus()));
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
         user.setLoginAttempt(0);
 
-        User savedUser = userRepository.save(user);
-        return mapToResponseDto(savedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Update user with DTO.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Updated user with DTO",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Updated user with DTO",
+            captureNewValue = true
     )
     public UserResponseDto updateUserWithDto(Long userId, UserUpdateDto dto) {
-        log.info("Updating user with DTO: {}", userId);
+        User user = requireUser(userId);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(dto.getEmail())) {
-                throw new DuplicateResourceException("User with email " + dto.getEmail() + " already exists");
+        String incomingEmail = dto.getEmail();
+        if (incomingEmail != null && !incomingEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(incomingEmail)) {
+                throw new DuplicateResourceException("User with email " + incomingEmail + " already exists");
             }
-            user.setEmail(dto.getEmail());
-        }
-        if (dto.getFullName() != null) {
-            user.setFullName(dto.getFullName());
-        }
-        if (dto.getRole() != null) {
-            user.setRole(dto.getRole());
-        }
-        if (dto.getPhoneNumber() != null) {
-            user.setPhoneNumber(dto.getPhoneNumber());
-        }
-        if (dto.getEnabled() != null) {
-            user.setEnabled(dto.getEnabled());
-        }
-        if (dto.getIsActive() != null) {
-            user.setIsActive(dto.getIsActive());
-        }
-        if (dto.getAccountStatus() != null) {
-            user.setAccountStatus(dto.getAccountStatus());
+            user.setEmail(incomingEmail);
         }
 
-        User updatedUser = userRepository.save(user);
+        setIfPresent(dto.getFullName(), user::setFullName);
+        setIfPresent(dto.getRole(), user::setRole);
+        setIfPresent(dto.getPhoneNumber(), user::setPhoneNumber);
+        setIfPresent(dto.getEnabled(), user::setEnabled);
+        setIfPresent(dto.getIsActive(), user::setIsActive);
+        setIfPresent(dto.getAccountStatus(), user::setAccountStatus);
 
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Activate user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Activated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Activated user account",
+            captureNewValue = true
     )
     public UserResponseDto activateUser(Long userId) {
-        log.info("Activating user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setEnabled(true);
         user.setAccountStatus(User.AccountStatus.ACTIVE);
         user.setAccountLocked(false);
         user.setFailedLoginAttempts(0);
 
-        User updatedUser = userRepository.save(user);
-
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Deactivate user account.
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Deactivated user account",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Deactivated user account",
+            captureNewValue = true
     )
     public UserResponseDto deactivateUser(Long userId) {
-        log.info("Deactivating user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setEnabled(false);
         user.setAccountStatus(User.AccountStatus.INACTIVE);
 
-        User updatedUser = userRepository.save(user);
-
-        return mapToResponseDto(updatedUser);
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
      * Reset user password (admin function).
      */
-    @Transactional
     @Audited(
-        action = AuditAction.UPDATE,
-        entityName = AuditEntityNames.USER,
-        description = "Admin reset user password",
-        captureNewValue = true
+            action = AuditAction.UPDATE,
+            entityName = AuditEntityNames.USER,
+            description = "Admin reset user password",
+            captureNewValue = true
     )
     public UserResponseDto resetUserPassword(Long userId, PasswordResetDto dto) {
-        log.info("Admin resetting password for user: {}", userId);
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = requireUser(userId);
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        user.setLastPasswordResetDate(LocalDateTime.now());
-        user.setPasswordUpdateDate(LocalDateTime.now());
-        User savedUser = userRepository.save(user);
-        
-        return mapToResponseDto(savedUser);
+        LocalDateTime now = LocalDateTime.now();
+        user.setLastPasswordResetDate(now);
+        user.setPasswordUpdateDate(now);
+
+        return mapToResponseDto(userRepository.save(user));
     }
 
     /**
@@ -318,55 +269,17 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponseDto getUserByIdDto(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        return mapToResponseDto(user);
+        return mapToResponseDto(requireUser(userId));
     }
 
     /**
      * Get all users with pagination, filtering, and search.
      */
     @Transactional(readOnly = true)
-    public Page<UserResponseDto> getAllUsers(
-            User.UserRole role,
-            User.AccountStatus status,
-            Boolean enabled,
-            String search,
-            int page,
-            int size,
-            String sortBy,
-            String sortDirection
-    ) {
-        log.info("Getting users - role: {}, status: {}, enabled: {}, search: {}", role, status, enabled, search);
-
-        Pageable pageable = PageRequest.of(
-            page,
-            size,
-            sortDirection.equalsIgnoreCase("DESC") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending()
-        );
-
-        Specification<User> spec = Specification.allOf();
-
-        if (role != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), role));
-        }
-        if (status != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("accountStatus"), status));
-        }
-        if (enabled != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("enabled"), enabled));
-        }
-        if (search != null && !search.trim().isEmpty()) {
-            String searchPattern = "%" + search.toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                cb.like(cb.lower(root.get("email")), searchPattern),
-                cb.like(cb.lower(root.get("fullName")), searchPattern)
-            ));
-        }
-
-        Page<User> users = userRepository.findAll(spec, pageable);
-        return users.map(this::mapToResponseDto);
+    public Page<UserResponseDto> getAllUsers(UserQuery query) {
+        Pageable pageable = buildPageable(query.page(), query.size(), query.sortBy(), query.sortDirection());
+        Specification<User> spec = buildUserFilterSpec(query);
+        return userRepository.findAll(spec, pageable).map(this::mapToResponseDto);
     }
 
     /**
@@ -374,8 +287,6 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserStatisticsDto getUserStatistics() {
-        log.info("Getting user statistics");
-
         UserStatisticsDto stats = new UserStatisticsDto();
         stats.setTotalUsers(userRepository.count());
         stats.setActiveUsers(userRepository.countByAccountStatus(User.AccountStatus.ACTIVE));
@@ -384,7 +295,6 @@ public class UserService {
         stats.setLockedUsers(userRepository.countByAccountLocked(true));
         stats.setAdminUsers(userRepository.countByRole(User.UserRole.ADMIN));
         stats.setRegularUsers(userRepository.countByRole(User.UserRole.USER));
-
         return stats;
     }
 
@@ -411,5 +321,65 @@ public class UserService {
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
         return dto;
+    }
+
+    private User requireUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    }
+
+    private boolean defaultTrue(Boolean value) {
+        return value == null || value;
+    }
+
+    private User.AccountStatus defaultAccountStatus(User.AccountStatus value) {
+        return value == null ? User.AccountStatus.ACTIVE : value;
+    }
+
+    private Pageable buildPageable(int page, int size, String sortBy, String sortDirection) {
+        Sort sort;
+        if (sortDirection != null && sortDirection.equalsIgnoreCase("DESC")) {
+            sort = Sort.by(sortBy).descending();
+        } else {
+            sort = Sort.by(sortBy).ascending();
+        }
+        return PageRequest.of(page, size, sort);
+    }
+
+    private Specification<User> buildUserFilterSpec(UserQuery query) {
+        Specification<User> spec = Specification.allOf();
+
+        if (query.role() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("role"), query.role()));
+        }
+        if (query.status() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("accountStatus"), query.status()));
+        }
+        if (query.enabled() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("enabled"), query.enabled()));
+        }
+        if (query.search() != null && !query.search().trim().isEmpty()) {
+            String pattern = "%" + query.search().toLowerCase() + "%";
+            spec = spec.and((root, q, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("email")), pattern),
+                    cb.like(cb.lower(root.get("fullName")), pattern)
+            ));
+        }
+
+        return spec;
+    }
+
+    private static <T> void setIfPresent(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    /**
+     * Converts the DTO response back to an entity by reloading it.
+     * Keeps legacy methods compatible without duplicating logic.
+     */
+    private User toEntity(UserResponseDto dto) {
+        return requireUser(dto.getId());
     }
 }

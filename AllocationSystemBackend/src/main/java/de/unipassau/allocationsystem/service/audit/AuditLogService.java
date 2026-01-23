@@ -10,12 +10,16 @@ import de.unipassau.allocationsystem.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -34,47 +38,78 @@ public class AuditLogService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    // ==================== Public API Methods ====================
+    /**
+     * Self proxy to ensure {@link Async} and {@link Transactional} are applied (avoids self-invocation).
+     * Injected lazily via field injection to avoid constructor circular dependencies.
+     */
+    @Lazy
+    @org.springframework.beans.factory.annotation.Autowired
+    private AuditLogService self;
 
     /**
-     * Synchronously log an audit event with an explicit user.
+     * Synchronously logs an audit event with an explicit user.
+     *
+     * @param user the user that performed the action (may be {@code null} for system actions)
+     * @param action the audit action type
+     * @param targetEntity the target entity type name
+     * @param targetRecordId the target record identifier (may be {@code null})
+     * @param previousValue previous value snapshot (may be {@code null})
+     * @param newValue new value snapshot (may be {@code null})
+     * @param description human-readable description
+     * @return persisted {@link AuditLog}
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public AuditLog log(User user, AuditAction action, String targetEntity, String targetRecordId, Object previousValue, Object newValue, String description) {
+    public AuditLog log(User user, AuditAction action, String targetEntity, String targetRecordId,
+                        Object previousValue, Object newValue, String description) {
         AuditLogContext context = captureContext(user);
-        return persistAuditLog(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        return persistAuditLog(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     /**
-     * Asynchronously log an audit event with explicit user.
+     * Asynchronously logs an audit event with an explicit user.
+     *
+     * @param user the user that performed the action (may be {@code null} for system actions)
+     * @param action the audit action type
+     * @param targetEntity the target entity type name
+     * @param targetRecordId the target record identifier (may be {@code null})
+     * @param previousValue previous value snapshot (may be {@code null})
+     * @param newValue new value snapshot (may be {@code null})
+     * @param description human-readable description
      */
     public void logAsync(User user, AuditAction action, String targetEntity,
-                        String targetRecordId, Object previousValue, Object newValue,
-                        String description) {
+                         String targetRecordId, Object previousValue, Object newValue,
+                         String description) {
         AuditLogContext context = captureContext(user);
-        logAsyncInternal(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        // IMPORTANT: call through proxy, not "this"
+        self.logAsyncInternal(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     /**
-     * Asynchronously log an audit event with current authenticated user.
+     * Asynchronously logs an audit event using the currently authenticated user.
+     *
+     * @param action the audit action type
+     * @param targetEntity the target entity type name
+     * @param targetRecordId the target record identifier (may be {@code null})
+     * @param previousValue previous value snapshot (may be {@code null})
+     * @param newValue new value snapshot (may be {@code null})
+     * @param description human-readable description
      */
     public void logWithCurrentUser(AuditAction action, String targetEntity,
                                    String targetRecordId, Object previousValue,
                                    Object newValue, String description) {
         AuditLogContext context = captureContext(getCurrentUser());
-        logAsyncInternal(context, action, targetEntity, targetRecordId,
-                previousValue, newValue, description);
+        // IMPORTANT: call through proxy, not "this"
+        self.logAsyncInternal(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
     }
 
     // ==================== Convenience Methods ====================
+
     /**
-     * Logs a CREATE action for an entity.
-     * 
+     * Convenience helper that logs a {@link AuditAction#CREATE} action for an entity using the current user.
+     *
      * @param entityName the entity type name
-     * @param recordId the created record ID
-     * @param newValue the new entity value
+     * @param recordId the created record identifier
+     * @param newValue the new value snapshot (typically the created entity or DTO)
      */
     public void logCreate(String entityName, String recordId, Object newValue) {
         logWithCurrentUser(AuditAction.CREATE, entityName, recordId, null, newValue,
@@ -82,12 +117,12 @@ public class AuditLogService {
     }
 
     /**
-     * Logs an UPDATE action for an entity.
-     * 
+     * Convenience helper that logs a {@link AuditAction#UPDATE} action for an entity using the current user.
+     *
      * @param entityName the entity type name
-     * @param recordId the updated record ID
-     * @param previousValue the previous entity value
-     * @param newValue the new entity value
+     * @param recordId the updated record identifier
+     * @param previousValue the previous value snapshot
+     * @param newValue the new value snapshot
      */
     public void logUpdate(String entityName, String recordId, Object previousValue, Object newValue) {
         logWithCurrentUser(AuditAction.UPDATE, entityName, recordId, previousValue, newValue,
@@ -95,11 +130,11 @@ public class AuditLogService {
     }
 
     /**
-     * Logs a DELETE action for an entity.
-     * 
+     * Convenience helper that logs a {@link AuditAction#DELETE} action for an entity using the current user.
+     *
      * @param entityName the entity type name
-     * @param recordId the deleted record ID
-     * @param previousValue the deleted entity value
+     * @param recordId the deleted record identifier
+     * @param previousValue the deleted value snapshot (typically the entity before deletion)
      */
     public void logDelete(String entityName, String recordId, Object previousValue) {
         logWithCurrentUser(AuditAction.DELETE, entityName, recordId, previousValue, null,
@@ -107,10 +142,10 @@ public class AuditLogService {
     }
 
     /**
-     * Logs a VIEW action for an entity.
-     * 
+     * Convenience helper that logs a {@link AuditAction#VIEW} action for an entity using the current user.
+     *
      * @param entityName the entity type name
-     * @param recordId the viewed record ID
+     * @param recordId the viewed record identifier
      */
     public void logView(String entityName, String recordId) {
         logWithCurrentUser(AuditAction.VIEW, entityName, recordId, null, null,
@@ -118,11 +153,11 @@ public class AuditLogService {
     }
 
     /**
-     * Asynchronously logs a custom action.
-     * 
+     * Asynchronously logs a custom action using the current user.
+     *
      * @param action the audit action type
-     * @param targetEntity the target entity type
-     * @param description the action description
+     * @param targetEntity the target entity type name
+     * @param description human-readable description
      */
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -131,15 +166,15 @@ public class AuditLogService {
     }
 
     // ==================== Internal Methods ====================
+
     @Async("auditExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void logAsyncInternal(AuditLogContext context, AuditAction action,
-                                  String targetEntity, String targetRecordId,
-                                  Object previousValue, Object newValue, String description) {
+                                    String targetEntity, String targetRecordId,
+                                    Object previousValue, Object newValue, String description) {
         try {
-            persistAuditLog(context, action, targetEntity, targetRecordId,
-                    previousValue, newValue, description);
-        } catch (Exception e) {
+            persistAuditLog(context, action, targetEntity, targetRecordId, previousValue, newValue, description);
+        } catch (DataAccessException | TransactionException e) {
             log.error("Failed to create audit log asynchronously", e);
         }
     }
@@ -169,38 +204,35 @@ public class AuditLogService {
         String ipAddress = null;
         String userAgent = null;
 
-        try {
-            ServletRequestAttributes attributes =
-                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attributes != null) {
-                HttpServletRequest request = attributes.getRequest();
-                ipAddress = extractClientIpAddress(request);
-                userAgent = request.getHeader("User-Agent");
-            }
-        } catch (Exception e) {
-            log.debug("Could not capture request context", e);
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes servletAttrs) {
+            HttpServletRequest request = servletAttrs.getRequest();
+            ipAddress = extractClientIpAddress(request);
+            userAgent = request.getHeader("User-Agent");
         }
 
         return new AuditLogContext(user, userIdentifier, ipAddress, userAgent);
     }
 
     private User getCurrentUser() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() != null) {
-                Object principal = authentication.getPrincipal();
-
-                if (principal instanceof User) {
-                    return (User) principal;
-                }
-
-                if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
-                    return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-                }
-            }
-        } catch (Exception e) {
-            log.debug("Could not retrieve current user from security context", e);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
         }
+
+        Object principal = authentication.getPrincipal();
+        if (principal == null) {
+            return null;
+        }
+
+        if (principal instanceof User u) {
+            return u;
+        }
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            return userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        }
+
         return null;
     }
 
@@ -238,9 +270,9 @@ public class AuditLogService {
 
     @lombok.Value
     private static class AuditLogContext {
-        private User user;
-        private String userIdentifier;
-        private String ipAddress;
-        private String userAgent;
+        private final User user;
+        private final String userIdentifier;
+        private final String ipAddress;
+        private final String userAgent;
     }
 }

@@ -107,12 +107,14 @@ public class AuditLog {
 
     /**
      * Additional context or metadata about the action.
+     * Provides descriptive information about what changed.
      */
     @Column(name = "description", length = DESCRIPTION_LENGTH)
     private String description;
 
     /**
      * IP address of the user performing the action.
+     * Used for security auditing and tracking.
      */
     @Column(name = "ip_address", length = IP_ADDRESS_LENGTH)
     private String ipAddress;

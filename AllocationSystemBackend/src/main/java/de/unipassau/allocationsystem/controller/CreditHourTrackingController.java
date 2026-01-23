@@ -1,5 +1,12 @@
 package de.unipassau.allocationsystem.controller;
 
+import de.unipassau.allocationsystem.controller.docs.CreateDocs;
+import de.unipassau.allocationsystem.controller.docs.DeleteDocs;
+import de.unipassau.allocationsystem.controller.docs.GetAllDocs;
+import de.unipassau.allocationsystem.controller.docs.GetByIdDocs;
+import de.unipassau.allocationsystem.controller.docs.GetPaginatedDocs;
+import de.unipassau.allocationsystem.controller.docs.GetSortFieldsDocs;
+import de.unipassau.allocationsystem.controller.docs.UpdateDocs;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingCreateDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingResponseDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingUpdateDto;
@@ -7,11 +14,6 @@ import de.unipassau.allocationsystem.entity.CreditHourTracking;
 import de.unipassau.allocationsystem.mapper.CreditHourTrackingMapper;
 import de.unipassau.allocationsystem.service.CreditHourTrackingService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,14 +52,7 @@ public class CreditHourTrackingController {
      * 
      * @return ResponseEntity containing list of sortable fields
      */
-    @Operation(
-            summary = "Get sort fields",
-            description = "Retrieves available fields that can be used for sorting credit hour tracking"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sort fields retrieved successfully"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetSortFieldsDocs
     @GetMapping("/sort-fields")
     public ResponseEntity<?> getSortFields() {
         List<Map<String, String>> result = service.getSortFields();
@@ -71,15 +66,14 @@ public class CreditHourTrackingController {
      * @param searchValue Optional search term for filtering
      * @return ResponseEntity containing paginated credit hour tracking entries
      */
-    @Operation(
-            summary = "Get paginated credit hour tracking",
-            description = "Retrieves credit hour tracking with pagination, sorting, and optional search"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Entries retrieved successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    /**
+     * Retrieves credit hour tracking with pagination, sorting, and optional search.
+     * 
+     * @param queryParams Map containing pagination parameters (page, size, sort)
+     * @param searchValue Optional search term for filtering
+     * @return ResponseEntity containing paginated credit hour tracking entries
+     */
+    @GetPaginatedDocs
     @GetMapping("/paginate")
     public ResponseEntity<?> getPaginate(
             @RequestParam Map<String, String> queryParams,
@@ -89,6 +83,7 @@ public class CreditHourTrackingController {
 
         // Convert items to DTOs to avoid lazy loading serialization issues
         if (result.containsKey("items")) {
+            @SuppressWarnings("unchecked")
             List<CreditHourTracking> items = (List<CreditHourTracking>) result.get("items");
             List<CreditHourTrackingResponseDto> dtoItems = mapper.toResponseDtoList(items);
             result.put("items", dtoItems);
@@ -102,18 +97,7 @@ public class CreditHourTrackingController {
      * 
      * @return ResponseEntity containing list of all credit hour tracking entries
      */
-    @Operation(
-            summary = "Get all credit hour tracking entries",
-            description = "Retrieves all credit hour tracking entries without pagination"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Entries retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetAllDocs
     @GetMapping
     public ResponseEntity<?> getAll() {
         List<CreditHourTrackingResponseDto> result = mapper.toResponseDtoList(service.getAll());
@@ -127,19 +111,7 @@ public class CreditHourTrackingController {
      * @return ResponseEntity containing the entry details
      * @throws NoSuchElementException if entry not found
      */
-    @Operation(
-            summary = "Get credit hour tracking by ID",
-            description = "Retrieves a specific credit hour tracking entry by its ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Entry found",
-                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Entry not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @GetByIdDocs
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         CreditHourTrackingResponseDto result = service.getById(id)
@@ -154,19 +126,7 @@ public class CreditHourTrackingController {
      * @param dto Credit hour tracking creation data
      * @return ResponseEntity containing the created entry
      */
-    @Operation(
-            summary = "Create new credit hour tracking entry",
-            description = "Creates a new credit hour tracking entry with the provided details"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Entry created successfully",
-                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input or duplicate entry"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @CreateDocs
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreditHourTrackingCreateDto dto) {
         CreditHourTracking entity = mapper.toEntityCreate(dto);
@@ -181,20 +141,7 @@ public class CreditHourTrackingController {
      * @param dto Credit hour tracking update data
      * @return ResponseEntity containing the updated entry
      */
-    @Operation(
-            summary = "Update credit hour tracking entry",
-            description = "Updates an existing credit hour tracking entry with the provided details"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Entry updated successfully",
-                    content = @Content(schema = @Schema(implementation = CreditHourTrackingResponseDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "Entry not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @UpdateDocs
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody CreditHourTrackingUpdateDto dto) {
         CreditHourTracking entity = mapper.toEntityUpdate(dto);
@@ -208,15 +155,7 @@ public class CreditHourTrackingController {
      * @param id The ID of the entry to delete
      * @return ResponseEntity with no content
      */
-    @Operation(
-            summary = "Delete credit hour tracking entry",
-            description = "Deletes a credit hour tracking entry by its ID"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Entry deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Entry not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @DeleteDocs
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         service.delete(id);

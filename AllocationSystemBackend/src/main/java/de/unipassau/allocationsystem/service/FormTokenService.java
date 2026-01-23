@@ -1,11 +1,14 @@
 package de.unipassau.allocationsystem.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.repository.TeacherFormSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import java.util.regex.Pattern;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +25,21 @@ public class FormTokenService {
 
     private final TeacherFormSubmissionRepository teacherFormSubmissionRepository;
     private final ObjectMapper objectMapper;
+    private static final Pattern BASE64URL_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$");
 
     /**
-     * Inner class to hold decoded token data.
-     * Contains teacher ID and academic year ID from token.
+     * Decoded token payload containing the teacher ID and academic year ID.
      */
     public static class TokenData {
         private final Long teacherId;
         private final Long yearId;
 
+        /**
+         * Creates a decoded token data holder.
+         *
+         * @param teacherId teacher identifier
+         * @param yearId academic year identifier
+         */
         public TokenData(Long teacherId, Long yearId) {
             this.teacherId = teacherId;
             this.yearId = yearId;
@@ -47,15 +56,17 @@ public class FormTokenService {
 
     /**
      * Generate a unique form token encoding teacherId and yearId.
-     * Format: base64(json({teacherId, yearId, uuid}))
+     * Format: base64url(json({teacherId, yearId, uuid}))
      * Retries up to 5 times if token collision occurs.
      *
      * @param teacherId The teacher ID
      * @param yearId The academic year ID
      * @return A unique form token
+     * @throws IllegalStateException if token uniqueness cannot be ensured (extremely unlikely)
      */
     public String generateUniqueFormToken(Long teacherId, Long yearId) {
         final int maxRetries = 5;
+
         Map<String, Object> tokenData = new HashMap<>();
         tokenData.put("teacherId", teacherId);
         tokenData.put("yearId", yearId);
@@ -64,7 +75,6 @@ public class FormTokenService {
             tokenData.put("uuid", UUID.randomUUID().toString());
             String formToken = encodeToken(tokenData);
 
-            // Verify token is unique (should be extremely rare collision)
             if (!teacherFormSubmissionRepository.existsByFormToken(formToken)) {
                 return formToken;
             }
@@ -73,49 +83,69 @@ public class FormTokenService {
                     attempt + 1, teacherId, yearId);
         }
 
-        // If all retries failed (extremely unlikely), throw exception
         log.error("Failed to generate unique token after {} attempts for teacherId: {}, yearId: {}",
                 maxRetries, teacherId, yearId);
-        throw new RuntimeException("Failed to generate unique form token after " + maxRetries + " attempts");
+        throw new IllegalStateException("Failed to generate unique form token after " + maxRetries + " attempts");
     }
 
     /**
-     * Encode token data to base64 URL-safe string.
+     * Encode token data to a Base64 URL-safe string.
      *
      * @param tokenData The token data map
      * @return Base64 URL-safe encoded token string
+     * @throws IllegalStateException if encoding fails
      */
     public String encodeToken(Map<String, Object> tokenData) {
         try {
             String jsonData = objectMapper.writeValueAsString(tokenData);
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(jsonData.getBytes());
-        } catch (Exception e) {
+            byte[] bytes = jsonData.getBytes(StandardCharsets.UTF_8);
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        } catch (JsonProcessingException e) {
             log.error("Failed to encode form token", e);
-            throw new RuntimeException("Failed to generate form token", e);
+            throw new IllegalStateException("Failed to encode form token", e);
         }
     }
 
     /**
-     * Decode form token and extract teacherId and yearId.
+     * Decode a form token and extract teacherId and yearId.
      *
      * @param formToken The form token to decode
      * @return TokenData containing teacherId and yearId
      * @throws IllegalArgumentException if token is invalid or corrupted
      */
     public TokenData decodeFormToken(String formToken) {
-        try {
-            byte[] decodedBytes = Base64.getUrlDecoder().decode(formToken);
-            String jsonData = new String(decodedBytes);
-            Map<String, Object> tokenData = objectMapper.readValue(jsonData, Map.class);
+    if (formToken == null || formToken.isBlank() || !BASE64URL_PATTERN.matcher(formToken).matches()) {
+        throw new IllegalArgumentException("Invalid or corrupted form token");
+    }
 
-            Long teacherId = Long.valueOf(tokenData.get("teacherId").toString());
-            Long yearId = Long.valueOf(tokenData.get("yearId").toString());
+    try {
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(formToken);
+        String jsonData = new String(decodedBytes, StandardCharsets.UTF_8);
 
-            return new TokenData(teacherId, yearId);
-        } catch (Exception e) {
-            log.error("Failed to decode form token", e);
-            throw new IllegalArgumentException("Invalid or corrupted form token");
-        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tokenData = objectMapper.readValue(jsonData, Map.class);
+
+        Long teacherId = parseRequiredLong(tokenData, "teacherId");
+        Long yearId = parseRequiredLong(tokenData, "yearId");
+
+        return new TokenData(teacherId, yearId);
+
+    } catch (IOException e) {
+        log.error("Failed to decode form token (invalid json)", e);
+        throw new IllegalArgumentException("Invalid or corrupted form token", e);
     }
 }
 
+
+    private Long parseRequiredLong(Map<String, Object> tokenData, String key) {
+        Object value = tokenData.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Invalid or corrupted form token");
+        }
+        try {
+            return Long.valueOf(value.toString());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid or corrupted form token", e);
+        }
+    }
+}

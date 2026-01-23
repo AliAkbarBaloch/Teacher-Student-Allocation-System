@@ -7,6 +7,7 @@ import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
 import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
 import de.unipassau.allocationsystem.service.UserService;
+import de.unipassau.allocationsystem.service.UserQuery;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -149,10 +150,17 @@ public class UserController {
             @ModelAttribute UserFilterDto filterDto
     ) {
         log.info("Getting all users with filters");
-        Page<UserResponseDto> users = userService.getAllUsers(
-            filterDto.getRole(), filterDto.getStatus(), filterDto.getEnabled(), filterDto.getSearch(), 
-            filterDto.getPage(), filterDto.getSize(), filterDto.getSortBy(), filterDto.getSortDirection()
+        UserQuery query = new UserQuery(
+            filterDto.getRole(),
+            filterDto.getStatus(),
+            filterDto.getEnabled(),
+            filterDto.getSearch(),
+            filterDto.getPage(),
+            filterDto.getSize(),
+            filterDto.getSortBy(),
+            filterDto.getSortDirection()
         );
+        Page<UserResponseDto> users = userService.getAllUsers(query);
         return ResponseHandler.success("Users retrieved successfully", users);
     }
 

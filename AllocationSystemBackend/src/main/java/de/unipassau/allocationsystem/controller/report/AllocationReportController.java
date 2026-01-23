@@ -2,6 +2,7 @@ package de.unipassau.allocationsystem.controller.report;
 
 import de.unipassau.allocationsystem.dto.report.allocation.AllocationReportDto;
 import de.unipassau.allocationsystem.service.report.AllocationReportService;
+import de.unipassau.allocationsystem.service.report.AllocationReportExcelService;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ import java.io.IOException;
 public class AllocationReportController {
 
     private final AllocationReportService reportService;
+    private final AllocationReportExcelService excelService;
 
     /**
      * Retrieves the latest allocation report.
@@ -67,7 +69,7 @@ public class AllocationReportController {
     @GetMapping("/allocation-export/{planId}")
     public ResponseEntity<byte[]> exportExcel(@PathVariable Long planId) throws IOException {
         log.info("Generating Excel report for plan ID: {}", planId);
-        byte[] excelContent = reportService.generateExcelReport(planId);
+        byte[] excelContent = excelService.generateExcelReport(planId);
         log.info("Successfully generated Excel report for plan ID: {}, size: {} bytes", planId, excelContent.length);
 
         return ResponseEntity.ok()

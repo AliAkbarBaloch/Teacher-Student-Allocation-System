@@ -29,26 +29,27 @@ public class AuditAspect {
         returning = "result"
     )
     public void auditMethodExecution(JoinPoint joinPoint, Audited audited, Object result) {
+        String entityName;
+        if (audited.entityName().isEmpty()) {
+            entityName = extractEntityNameFromMethod(joinPoint);
+        } else {
+            entityName = audited.entityName();
+        }
+        
+        AuditAction action = audited.action();
+        String description;
+        if (audited.description().isEmpty()) {
+            description = generateDescription(joinPoint, action, entityName);
+        } else {
+            description = audited.description();
+        }
+
+        Object recordId = extractRecordId(joinPoint, result);
+        // Note: Previous value capture not yet implemented - would require database query or ThreadLocal
+        Object previousValue = audited.capturePreviousValue() ? null : null;
+        Object newValue = audited.captureNewValue() ? result : null;
+
         try {
-            String entityName;
-            if (audited.entityName().isEmpty()) {
-                entityName = extractEntityNameFromMethod(joinPoint);
-            } else {
-                entityName = audited.entityName();
-            }
-            
-            AuditAction action = audited.action();
-            String description;
-            if (audited.description().isEmpty()) {
-                description = generateDescription(joinPoint, action, entityName);
-            } else {
-                description = audited.description();
-            }
-
-            Object recordId = extractRecordId(joinPoint, result);
-            Object previousValue = audited.capturePreviousValue() ? extractPreviousValue() : null;
-            Object newValue = audited.captureNewValue() ? result : null;
-
             auditLogService.logWithCurrentUser(
                 action,
                 entityName,
@@ -57,8 +58,8 @@ public class AuditAspect {
                 newValue,
                 description
             );
-        } catch (RuntimeException e) {
-            log.error("Failed to create audit log for method: {}", joinPoint.getSignature().getName(), e);
+        } catch (SecurityException e) {
+            log.error("Security error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
 
@@ -147,16 +148,5 @@ public class AuditAspect {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    private Object extractPreviousValue() {
-        // In a real implementation, you might want to:
-        // 1. Query the database for the current state before the operation
-        // 2. Use a ThreadLocal to store the "before" state
-        // 3. Implement a more sophisticated change tracking mechanism
-        
-        // For now, return null - the previous value should be passed explicitly
-        // or captured via other means (e.g., in the service method itself)
-        return null;
     }
 }

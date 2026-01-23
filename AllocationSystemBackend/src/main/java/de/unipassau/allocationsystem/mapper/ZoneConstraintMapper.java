@@ -3,6 +3,7 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintCreateDto;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintResponseDto;
 import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintUpdateDto;
+import de.unipassau.allocationsystem.dto.zoneconstraint.ZoneConstraintUpsertDto;
 import de.unipassau.allocationsystem.entity.ZoneConstraint;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,40 +26,24 @@ public class ZoneConstraintMapper implements BaseMapper<ZoneConstraint, ZoneCons
 
     @Override
     public ZoneConstraint toEntityCreate(ZoneConstraintCreateDto createDto) {
-        if (createDto == null) {
-            return null;
-        }
-        ZoneConstraint zoneConstraint = new ZoneConstraint();
-        zoneConstraint.setZoneNumber(createDto.getZoneNumber());
-        zoneConstraint.setIsAllowed(createDto.getIsAllowed());
-        zoneConstraint.setDescription(createDto.getDescription());
-
-        if (createDto.getInternshipTypeId() != null) {
-            InternshipType internshipType = internshipTypeRepository.findById(createDto.getInternshipTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with id: " + createDto.getInternshipTypeId()));
-            zoneConstraint.setInternshipType(internshipType);
-        }
-
-        return zoneConstraint;
+        return toNewEntity((ZoneConstraintUpsertDto) createDto, ZoneConstraint::new, this::populateEntity);
     }
 
     @Override
     public ZoneConstraint toEntityUpdate(ZoneConstraintUpdateDto updateDto) {
-        if (updateDto == null) {
-            return null;
-        }
-        ZoneConstraint zoneConstraint = new ZoneConstraint();
-        zoneConstraint.setZoneNumber(updateDto.getZoneNumber());
-        zoneConstraint.setIsAllowed(updateDto.getIsAllowed());
-        zoneConstraint.setDescription(updateDto.getDescription());
+        return toNewEntity((ZoneConstraintUpsertDto) updateDto, ZoneConstraint::new, this::populateEntity);
+    }
 
-        if (updateDto.getInternshipTypeId() != null) {
-            InternshipType internshipType = internshipTypeRepository.findById(updateDto.getInternshipTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with id: " + updateDto.getInternshipTypeId()));
+    private void populateEntity(ZoneConstraint zoneConstraint, ZoneConstraintUpsertDto dto) {
+        zoneConstraint.setZoneNumber(dto.getZoneNumber());
+        zoneConstraint.setIsAllowed(dto.getIsAllowed());
+        zoneConstraint.setDescription(dto.getDescription());
+
+        if (dto.getInternshipTypeId() != null) {
+            InternshipType internshipType = internshipTypeRepository.findById(dto.getInternshipTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Internship type not found with id: " + dto.getInternshipTypeId()));
             zoneConstraint.setInternshipType(internshipType);
         }
-
-        return zoneConstraint;
     }
 
     @Override
@@ -65,12 +51,13 @@ public class ZoneConstraintMapper implements BaseMapper<ZoneConstraint, ZoneCons
         if (zoneConstraint == null) {
             return null;
         }
+        InternshipType type = zoneConstraint.getInternshipType();
         return new ZoneConstraintResponseDto(
                 zoneConstraint.getId(),
                 zoneConstraint.getZoneNumber(),
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getId() : null,
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getInternshipCode() : null,
-                zoneConstraint.getInternshipType() != null ? zoneConstraint.getInternshipType().getFullName() : null,
+                Optional.ofNullable(type).map(InternshipType::getId).orElse(null),
+                Optional.ofNullable(type).map(InternshipType::getInternshipCode).orElse(null),
+                Optional.ofNullable(type).map(InternshipType::getFullName).orElse(null),
                 zoneConstraint.getIsAllowed(),
                 zoneConstraint.getDescription(),
                 zoneConstraint.getCreatedAt(),

@@ -66,7 +66,7 @@ class TeacherSubjectServiceTest {
     }
 
     @Test
-    void create_Success() {
+    void createSuccess() {
         TeacherSubject entity = TeacherSubject.builder()
                 .academicYear(year)
                 .teacher(teacher)
@@ -94,7 +94,7 @@ class TeacherSubjectServiceTest {
     }
 
     @Test
-    void create_Duplicate_Throws() {
+    void createDuplicateThrows() {
         TeacherSubject entity = TeacherSubject.builder()
                 .academicYear(year)
                 .teacher(teacher)
@@ -102,12 +102,18 @@ class TeacherSubjectServiceTest {
                 .availabilityStatus("AVAILABLE")
                 .build();
 
-        TeacherSubject existing = TeacherSubject.builder().id(5L).academicYear(year).teacher(teacher).subject(subject).build();
+        TeacherSubject existing = TeacherSubject.builder()
+                .id(5L)
+                .academicYear(year)
+                .teacher(teacher)
+                .subject(subject)
+                .build();
 
         when(academicYearRepository.findById(1L)).thenReturn(Optional.of(year));
         when(teacherRepository.findById(2L)).thenReturn(Optional.of(teacher));
         when(subjectRepository.findById(3L)).thenReturn(Optional.of(subject));
-        when(teacherSubjectRepository.findByTeacherIdAndAcademicYearId(2L, 1L)).thenReturn(List.of(existing));
+        when(teacherSubjectRepository.findByTeacherIdAndAcademicYearId(2L, 1L))
+                .thenReturn(List.of(existing));
 
         assertThrows(DuplicateResourceException.class, () -> teacherSubjectService.create(entity));
     }

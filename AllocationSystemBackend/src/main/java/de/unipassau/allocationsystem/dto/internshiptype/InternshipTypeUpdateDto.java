@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InternshipTypeUpdateDto {
+public class InternshipTypeUpdateDto implements InternshipTypeUpsertDto {
     private String internshipCode;
     private String fullName;
     private String timing;

@@ -3,11 +3,10 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.permission.PermissionCreateDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionResponseDto;
 import de.unipassau.allocationsystem.dto.permission.PermissionUpdateDto;
+import de.unipassau.allocationsystem.dto.permission.PermissionUpsertDto;
 import de.unipassau.allocationsystem.entity.Permission;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 /**
@@ -18,48 +17,28 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
 
     @Override
     public Permission toEntityCreate(PermissionCreateDto createDto) {
-        if (createDto == null) {
-            return null;
-        }
-        Permission entity = new Permission();
-        entity.setTitle(createDto.getTitle());
-        entity.setDescription(createDto.getDescription());
-        return entity;
+        return toNewEntity(createDto, Permission::new, this::populateEntity);
     }
 
     @Override
     public Permission toEntityUpdate(PermissionUpdateDto updateDto) {
-        if (updateDto == null) {
-            return null;
-        }
-        Permission entity = new Permission();
-        entity.setTitle(updateDto.getTitle());
-        entity.setDescription(updateDto.getDescription());
-        return entity;
+        return toNewEntity(updateDto, Permission::new, this::populateEntity);
+    }
+
+    /**
+     * Populates entity from DTO using common interface.
+     * 
+     * @param entity Target entity
+     * @param dto Source DTO (create or update)
+     */
+    private void populateEntity(Permission entity, PermissionUpsertDto dto) {
+        entity.setTitle(dto.getTitle());
+        entity.setDescription(dto.getDescription());
     }
 
     @Override
     public PermissionResponseDto toResponseDto(Permission entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new PermissionResponseDto(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getDescription(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
-    }
-
-    @Override
-    public List<PermissionResponseDto> toResponseDtoList(List<Permission> entities) {
-        if (entities == null) {
-            return null;
-        }
-        return entities.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
+        return PermissionResponseDto.fromEntity(entity);
     }
 
     @Override
@@ -67,11 +46,7 @@ public class PermissionMapper implements BaseMapper<Permission, PermissionCreate
         if (updateDto == null || entity == null) {
             return;
         }
-        if (updateDto.getTitle() != null) {
-            entity.setTitle(updateDto.getTitle());
-        }
-        if (updateDto.getDescription() != null) {
-            entity.setDescription(updateDto.getDescription());
-        }
+        MapperUtil.updateTitleAndDescription(updateDto.getTitle(), updateDto.getDescription(),
+                entity::setTitle, entity::setDescription);
     }
 }

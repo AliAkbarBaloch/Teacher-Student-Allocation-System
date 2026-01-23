@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionCreateDto {
+public class PermissionCreateDto implements PermissionUpsertDto {
     @NotBlank(message = "Title is required")
     @Size(max = 255)
     private String title;

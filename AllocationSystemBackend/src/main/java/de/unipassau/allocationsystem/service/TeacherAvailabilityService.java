@@ -62,6 +62,71 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
         );
     }
 
+    /**
+     * Validates the 3-part composite unique key for teacher availability.
+     * 
+     * @param teacherId the teacher ID
+     * @param academicYearId the academic year ID
+     * @param internshipTypeId the internship type ID
+     * @throws DuplicateResourceException if a duplicate availability exists
+     */
+    private void validateCompositeUniqueness(Long teacherId, Long academicYearId, Long internshipTypeId) {
+        if (teacherAvailabilityRepository.existsByTeacherIdAndAcademicYearIdAndInternshipTypeId(
+                teacherId, academicYearId, internshipTypeId)) {
+            throw new DuplicateResourceException("Teacher availability already exists for this teacher, year, and internship type");
+        }
+    }
+
+    /**
+     * Validates the 3-part composite unique key for updates, allowing self-updates.
+     * 
+     * @param teacherId the teacher ID
+     * @param academicYearId the academic year ID
+     * @param internshipTypeId the internship type ID
+     * @param existingId the ID of the existing availability being updated
+     * @throws DuplicateResourceException if a different availability has the same composite key
+     */
+    private void validateCompositeUniquenessForUpdate(Long teacherId, Long academicYearId, Long internshipTypeId, Long existingId) {
+        if (teacherAvailabilityRepository.existsByTeacherIdAndYearIdAndInternshipTypeIdAndIdNot(
+                teacherId, academicYearId, internshipTypeId, existingId)) {
+            throw new DuplicateResourceException("Teacher availability already exists for this teacher, year, and internship type");
+        }
+    }
+
+    /**
+     * Validates that a teacher availability exists and returns it.
+     * 
+     * @param id the availability ID
+     * @return the existing TeacherAvailability
+     * @throws ResourceNotFoundException if the availability does not exist
+     */
+    private TeacherAvailability validateExistence(Long id) {
+        return teacherAvailabilityRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Teacher availability not found with id: " + id));
+    }
+
+    /**
+     * Applies field updates from data object to existing availability.
+     * Consolidates null-check-and-set for: notes, status, preferenceRank, isAvailable.
+     * 
+     * @param existing the existing TeacherAvailability to update
+     * @param data the new data to apply
+     */
+    private void applyFieldUpdates(TeacherAvailability existing, TeacherAvailability data) {
+        if (data.getNotes() != null) {
+            existing.setNotes(data.getNotes());
+        }
+        if (data.getStatus() != null) {
+            existing.setStatus(data.getStatus());
+        }
+        if (data.getPreferenceRank() != null) {
+            existing.setPreferenceRank(data.getPreferenceRank());
+        }
+        if (data.getIsAvailable() != null) {
+            existing.setIsAvailable(data.getIsAvailable());
+        }
+    }
+
     @Override
     public boolean existsById(Long id) {
         return teacherAvailabilityRepository.findById(id).isPresent();
@@ -95,7 +160,7 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional(readOnly = true)
     @Override
     public List<TeacherAvailability> getAll() {
-        return teacherAvailabilityRepository.findAll();
+        return getAllTeacherAvailabilities();
     }
 
     @Audited(
@@ -107,6 +172,14 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional(readOnly = true)
     @Override
     public Optional<TeacherAvailability> getById(Long id) {
+        return getTeacherAvailabilityById(id);
+    }
+
+    private List<TeacherAvailability> getAllTeacherAvailabilities() {
+        return teacherAvailabilityRepository.findAll();
+    }
+
+    private Optional<TeacherAvailability> getTeacherAvailabilityById(Long id) {
         return teacherAvailabilityRepository.findById(id);
     }
 
@@ -119,13 +192,12 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional
     @Override
     public TeacherAvailability create(TeacherAvailability availability) {
-        // Example duplicate check, adjust as needed
-        if (teacherAvailabilityRepository.existsByTeacherIdAndAcademicYearIdAndInternshipTypeId(
-                availability.getTeacher().getId(),
-                availability.getAcademicYear().getId(),
-                availability.getInternshipType().getId())) {
-            throw new DuplicateResourceException("Teacher availability already exists for this teacher, year, and internship type");
-        }
+        // Validate composite uniqueness
+        validateCompositeUniqueness(
+            availability.getTeacher().getId(),
+            availability.getAcademicYear().getId(),
+            availability.getInternshipType().getId()
+        );
         return teacherAvailabilityRepository.save(availability);
     }
 
@@ -138,20 +210,17 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional
     @Override
     public TeacherAvailability update(Long id, TeacherAvailability data) {
-        TeacherAvailability existing = teacherAvailabilityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher availability not found with id: " + id));
+        TeacherAvailability existing = validateExistence(id);
 
-        // Example update logic, adjust as needed
-        if (data.getNotes() != null) {
-            existing.setNotes(data.getNotes());
-        }
-        if (data.getStatus() != null) {
-            existing.setStatus(data.getStatus());
-        }
-        if (data.getPreferenceRank() != null) {
-            existing.setPreferenceRank(data.getPreferenceRank());
-        }
-        // Add more fields as needed
+        // Validate composite uniqueness for update, allowing self-updates
+        validateCompositeUniquenessForUpdate(
+            data.getTeacher().getId(),
+            data.getAcademicYear().getId(),
+            data.getInternshipType().getId(),
+            id
+        );
+
+        applyFieldUpdates(existing, data);
 
         return teacherAvailabilityRepository.save(existing);
     }
@@ -165,9 +234,7 @@ public class TeacherAvailabilityService implements CrudService<TeacherAvailabili
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!teacherAvailabilityRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Teacher availability not found with id: " + id);
-        }
+        validateExistence(id);
         teacherAvailabilityRepository.deleteById(id);
     }
 }

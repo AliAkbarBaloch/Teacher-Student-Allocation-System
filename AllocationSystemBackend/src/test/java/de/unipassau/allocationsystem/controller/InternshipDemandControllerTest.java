@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.InternshipDemand;
 import de.unipassau.allocationsystem.entity.InternshipType;
@@ -13,20 +14,25 @@ import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,128 +45,133 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * </p>
  */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
-@AutoConfigureMockMvc(addFilters = true)
-@ActiveProfiles("test")
+@AutoConfigureMockMvc
 @Transactional
 class InternshipDemandControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private InternshipDemandRepository internshipDemandRepository;
-
-    @Autowired
-    private InternshipTypeRepository internshipTypeRepository;
-
-    @Autowired
-    private AcademicYearRepository academicYearRepository;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-    @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final InternshipDemandRepository internshipDemandRepository;
+    private final InternshipTypeRepository internshipTypeRepository;
+    private final AcademicYearRepository academicYearRepository;
+    private final SubjectRepository subjectRepository;
+    private final SubjectCategoryRepository subjectCategoryRepository;
 
     private AcademicYear testYear;
     private InternshipType it1;
     private InternshipType it2;
-    private InternshipType it3;
     private Subject testSubject;
+
+        @Autowired
+        InternshipDemandControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            InternshipDemandRepository internshipDemandRepository,
+            InternshipTypeRepository internshipTypeRepository,
+            AcademicYearRepository academicYearRepository,
+            SubjectRepository subjectRepository,
+            SubjectCategoryRepository subjectCategoryRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.internshipDemandRepository = internshipDemandRepository;
+        this.internshipTypeRepository = internshipTypeRepository;
+        this.academicYearRepository = academicYearRepository;
+        this.subjectRepository = subjectRepository;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
 
     @BeforeEach
     void setUp() {
+        clearRepositories();
+        seedData();
+    }
+
+    private void clearRepositories() {
         internshipDemandRepository.deleteAll();
         internshipTypeRepository.deleteAll();
         academicYearRepository.deleteAll();
         subjectRepository.deleteAll();
         subjectCategoryRepository.deleteAll();
+    }
 
-        // create academic year
-        testYear = new AcademicYear();
-        testYear.setYearName("2024/2025");
-        testYear.setBudgetAnnouncementDate(LocalDateTime.now());
-        testYear.setElementarySchoolHours(100);
-        testYear.setMiddleSchoolHours(100);
-        testYear.setTotalCreditHours(200);
-        testYear = academicYearRepository.save(testYear);
+    private void seedData() {
+        testYear = createAndPersistAcademicYear("2024/2025");
 
-        // create internship types
-        it1 = new InternshipType();
-        it1.setInternshipCode("IT1");
-        it1.setFullName("Type 1");
-        it1.setSemester(1);
-        it1 = internshipTypeRepository.save(it1);
+        it1 = createAndPersistInternshipType("IT1", "Type 1", 1);
+        it2 = createAndPersistInternshipType("IT2", "Type 2", 2);
 
-        it2 = new InternshipType();
-        it2.setInternshipCode("IT2");
-        it2.setFullName("Type 2");
-        it2.setSemester(2);
-        it2 = internshipTypeRepository.save(it2);
+        SubjectCategory cat = createAndPersistSubjectCategory("General");
+        testSubject = createAndPersistSubject("MATH", "Mathematics", cat);
 
-        it3 = new InternshipType();
-        it3.setInternshipCode("IT3");
-        it3.setFullName("Type 3");
-        it3.setSemester(1);
-        it3 = internshipTypeRepository.save(it3);
+        createAndPersistDemand(testYear, it1, testSubject, 7);
+        createAndPersistDemand(testYear, it2, testSubject, 3);
+    }
 
+    private AcademicYear createAndPersistAcademicYear(String yearName) {
+        AcademicYear year = new AcademicYear();
+        year.setYearName(yearName);
+        year.setBudgetAnnouncementDate(LocalDateTime.now());
+        year.setElementarySchoolHours(100);
+        year.setMiddleSchoolHours(100);
+        year.setTotalCreditHours(200);
+        return academicYearRepository.save(year);
+    }
+
+    private InternshipType createAndPersistInternshipType(String code, String fullName, int semester) {
+        InternshipType type = new InternshipType();
+        type.setInternshipCode(code);
+        type.setFullName(fullName);
+        type.setSemester(semester);
+        return internshipTypeRepository.save(type);
+    }
+
+    private SubjectCategory createAndPersistSubjectCategory(String title) {
         SubjectCategory cat = new SubjectCategory();
-        cat.setCategoryTitle("General");
-        cat = subjectCategoryRepository.save(cat);
+        cat.setCategoryTitle(title);
+        return subjectCategoryRepository.save(cat);
+    }
 
-        testSubject = new Subject();
-        testSubject.setSubjectCode("MATH");
-        testSubject.setSubjectTitle("Mathematics");
-        testSubject.setSubjectCategory(cat);
-        testSubject.setIsActive(true);
-        testSubject = subjectRepository.save(testSubject);
+    private Subject createAndPersistSubject(String code, String title, SubjectCategory category) {
+        Subject subject = new Subject();
+        subject.setSubjectCode(code);
+        subject.setSubjectTitle(title);
+        subject.setSubjectCategory(category);
+        subject.setIsActive(true);
+        return subjectRepository.save(subject);
+    }
 
-        InternshipDemand d1 = new InternshipDemand();
-        d1.setAcademicYear(testYear);
-        d1.setInternshipType(it1);
-        d1.setSchoolType(School.SchoolType.PRIMARY);
-        d1.setSubject(testSubject);
-        d1.setRequiredTeachers(7);
-        d1.setIsForecasted(false);
-        internshipDemandRepository.save(d1);
-
-        InternshipDemand d2 = new InternshipDemand();
-        d2.setAcademicYear(testYear);
-        d2.setInternshipType(it2);
-        d2.setSchoolType(School.SchoolType.PRIMARY);
-        d2.setSubject(testSubject);
-        d2.setRequiredTeachers(3);
-        d2.setIsForecasted(false);
-        internshipDemandRepository.save(d2);
+    private void createAndPersistDemand(AcademicYear year, InternshipType type, Subject subject, int requiredTeachers) {
+        InternshipDemand demand = new InternshipDemand();
+        demand.setAcademicYear(year);
+        demand.setInternshipType(type);
+        demand.setSchoolType(School.SchoolType.PRIMARY);
+        demand.setSubject(subject);
+        demand.setRequiredTeachers(requiredTeachers);
+        demand.setIsForecasted(false);
+        internshipDemandRepository.save(demand);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getSortFields_Success() throws Exception {
-        mockMvc.perform(get("/api/internship-demands/sort-fields")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getSortFieldsSuccess() throws Exception {
+        performGet("/api/internship-demands/sort-fields")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", not(empty())));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getPaginate_Success() throws Exception {
-        mockMvc.perform(get("/api/internship-demands/paginate")
-                        .param("page", "1")
-                        .param("pageSize", "10")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getPaginateSuccess() throws Exception {
+        performGet("/api/internship-demands/paginate", Map.of("page", "1", "pageSize", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items", not(empty())));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAll_Success() throws Exception {
-        mockMvc.perform(get("/api/internship-demands")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getAllSuccess() throws Exception {
+        performGet("/api/internship-demands")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", not(empty())))
                 .andExpect(jsonPath("$.data[0].id", notNullValue()));
@@ -168,25 +179,25 @@ class InternshipDemandControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void listFilter_Success() throws Exception {
-        mockMvc.perform(get("/api/internship-demands/list-filter")
-                        .param("academic_year_id", String.valueOf(testYear.getId()))
-                        .param("school_type", "PRIMARY")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sort", "id")
-                        .param("direction", "ASC")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void listFilterSuccess() throws Exception {
+        performGet("/api/internship-demands/list-filter", Map.of(
+                "academic_year_id", String.valueOf(testYear.getId()),
+                "school_type", "PRIMARY",
+                "page", "0",
+                "size", "10",
+                "sort", "id",
+                "direction", "ASC"
+        ))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content", not(empty())));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void aggregateByYear_Success() throws Exception {
-        mockMvc.perform(get("/api/internship-demands/aggregate")
-                        .param("academic_year_id", String.valueOf(testYear.getId()))
-                        .contentType(MediaType.APPLICATION_JSON))
+    void aggregateByYearSuccess() throws Exception {
+        performGet("/api/internship-demands/aggregate", Map.of(
+                "academic_year_id", String.valueOf(testYear.getId())
+        ))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", isA(Iterable.class)))
                 .andExpect(jsonPath("$.data", hasSize(greaterThanOrEqualTo(1))))
@@ -195,8 +206,8 @@ class InternshipDemandControllerTest {
     }
 
     @Test
-    void create_Unauthorized_ShouldFail() throws Exception {
-        var createPayload = java.util.Map.<String, Object>of(
+    void createUnauthorizedShouldFail() throws Exception {
+        Map<String, Object> createPayload = Map.of(
                 "yearId", testYear.getId(),
                 "internshipTypeId", it1.getId(),
                 "schoolType", "PRIMARY",
@@ -208,5 +219,20 @@ class InternshipDemandControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createPayload)))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions performGet(String url, Map<String, String> params) throws Exception {
+        org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request =
+                get(url).contentType(MediaType.APPLICATION_JSON);
+
+        for (Map.Entry<String, String> e : params.entrySet()) {
+            request = request.param(e.getKey(), e.getValue());
+        }
+
+        return mockMvc.perform(request);
     }
 }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * REST Controller for executing the teacher allocation process.
@@ -121,36 +122,7 @@ public class AllocationController {
                 academicYearId, requestDto.getPrioritizeScarcity(), requestDto.getForceUtilizationOfSurplus());
 
         // 2. Map DTO to Domain Parameters with defaults
-        Boolean prioritizeScarcity = (requestDto.getPrioritizeScarcity() != null) 
-                ? requestDto.getPrioritizeScarcity() : true;
-        Boolean forceUtilizationOfSurplus = (requestDto.getForceUtilizationOfSurplus() != null) 
-                ? requestDto.getForceUtilizationOfSurplus() : true;
-        Boolean allowGroupSizeExpansion = (requestDto.getAllowGroupSizeExpansion() != null) 
-                ? requestDto.getAllowGroupSizeExpansion() : true;
-        Integer standardAssignments = (requestDto.getStandardAssignmentsPerTeacher() != null) 
-                ? requestDto.getStandardAssignmentsPerTeacher() : 2;
-        Integer maxAssignments = (requestDto.getMaxAssignmentsPerTeacher() != null) 
-                ? requestDto.getMaxAssignmentsPerTeacher() : 3;
-        Integer maxGroupWednesday = (requestDto.getMaxGroupSizeWednesday() != null) 
-                ? requestDto.getMaxGroupSizeWednesday() : 4;
-        Integer maxGroupBlock = (requestDto.getMaxGroupSizeBlock() != null) 
-                ? requestDto.getMaxGroupSizeBlock() : 2;
-        Integer weightMain = (requestDto.getWeightMainSubject() != null) 
-                ? requestDto.getWeightMainSubject() : 10;
-        Integer weightZone = (requestDto.getWeightZonePreference() != null) 
-                ? requestDto.getWeightZonePreference() : 5;
-        
-        AllocationParameters params = AllocationParameters.builder()
-                .prioritizeScarcity(prioritizeScarcity)
-                .forceUtilizationOfSurplus(forceUtilizationOfSurplus)
-                .allowGroupSizeExpansion(allowGroupSizeExpansion)
-                .standardAssignmentsPerTeacher(standardAssignments)
-                .maxAssignmentsPerTeacher(maxAssignments)
-                .maxGroupSizeWednesday(maxGroupWednesday)
-                .maxGroupSizeBlock(maxGroupBlock)
-                .weightMainSubject(weightMain)
-                .weightZonePreference(weightZone)
-                .build();
+        AllocationParameters params = buildAllocationParameters(requestDto);
 
         // 3. Execute Algorithm
         // Note: The improved service generates its own version number internally for consistency
@@ -214,5 +186,19 @@ public class AllocationController {
             "Use /api/allocation-plans/" + planId + " to get full plan details",
             Map.of("planId", planId)
         );
+    }
+
+    private AllocationParameters buildAllocationParameters(AllocationRequestDto requestDto) {
+        return AllocationParameters.builder()
+                .prioritizeScarcity(Optional.ofNullable(requestDto.getPrioritizeScarcity()).orElse(true))
+                .forceUtilizationOfSurplus(Optional.ofNullable(requestDto.getForceUtilizationOfSurplus()).orElse(true))
+                .allowGroupSizeExpansion(Optional.ofNullable(requestDto.getAllowGroupSizeExpansion()).orElse(true))
+                .standardAssignmentsPerTeacher(Optional.ofNullable(requestDto.getStandardAssignmentsPerTeacher()).orElse(2))
+                .maxAssignmentsPerTeacher(Optional.ofNullable(requestDto.getMaxAssignmentsPerTeacher()).orElse(3))
+                .maxGroupSizeWednesday(Optional.ofNullable(requestDto.getMaxGroupSizeWednesday()).orElse(4))
+                .maxGroupSizeBlock(Optional.ofNullable(requestDto.getMaxGroupSizeBlock()).orElse(2))
+                .weightMainSubject(Optional.ofNullable(requestDto.getWeightMainSubject()).orElse(10))
+                .weightZonePreference(Optional.ofNullable(requestDto.getWeightZonePreference()).orElse(5))
+                .build();
     }
 }

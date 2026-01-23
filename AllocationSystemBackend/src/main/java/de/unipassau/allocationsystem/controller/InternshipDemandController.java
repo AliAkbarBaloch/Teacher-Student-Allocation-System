@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandCreateDto;
+import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandFilterDto;
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandResponseDto;
 import de.unipassau.allocationsystem.dto.internshipdemand.InternshipDemandUpdateDto;
 import de.unipassau.allocationsystem.entity.InternshipDemand;
@@ -96,6 +98,7 @@ public ResponseEntity<?> getPaginate(
         var result = service.getPaginated(queryParams, searchValue);
         // Convert items to DTOs to avoid lazy loading serialization issues
         if (result.containsKey("items")) {
+                @SuppressWarnings("unchecked")
                 List<InternshipDemand> items = (List<InternshipDemand>) result.get("items");
                 List<InternshipDemandResponseDto> dtoItems = internshipDemandMapper.toResponseDtoList(items);
                 result.put("items", dtoItems);
@@ -131,15 +134,7 @@ public ResponseEntity<?> getAll() {
  * Lists internship demand entries filtered by year and optional dimensions.
  * Supports pagination and filtering by multiple criteria.
  * 
- * @param yearId Required academic year ID
- * @param internshipTypeId Optional internship type filter
- * @param schoolType Optional school type filter
- * @param subjectId Optional subject filter
- * @param isForecasted Optional forecast flag filter
- * @param page Page number (0-indexed)
- * @param size Page size
- * @param sort Sort field
- * @param direction Sort direction (ASC or DESC)
+ * @param filterDto Filter criteria including yearId, internshipTypeId, schoolType, subjectId, isForecasted, page, size, sort, direction
  * @return ResponseEntity containing paginated and filtered demand entries
  */
 @Operation(summary = "Get internship demand list", description = "List internship demand entries filtered by year and optional dimensions")
@@ -152,29 +147,52 @@ public ResponseEntity<?> getAll() {
 
 @GetMapping("list-filter")
 @PreAuthorize("hasRole('ADMIN')")
-public ResponseEntity<?> list(
-        @RequestParam(name = "academic_year_id") Long yearId,
-        @RequestParam(name = "internship_type_id", required = false) Long internshipTypeId,
-        @RequestParam(name = "school_type", required = false) String schoolType,
-        @RequestParam(name = "subject_id", required = false) Long subjectId,
-        @RequestParam(name = "is_forecasted", required = false) Boolean isForecasted,
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "20") int size,
-        @RequestParam(name = "sort", defaultValue = "id") String sort,
-        @RequestParam(name = "direction", defaultValue = "ASC") String direction
-) {
-        Sort.Direction dir = Sort.Direction.fromString(Objects.requireNonNull(direction));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sort));
+public ResponseEntity<?> list(@ModelAttribute InternshipDemandFilterDto filterDto,
+                              @RequestParam(value = "academic_year_id", required = false) Long academicYearId) {
+        String direction = Objects.requireNonNullElse(filterDto.getDirection(), "ASC");
+        Sort.Direction dir = Sort.Direction.fromString(direction);
+        Pageable pageable = createPageable(filterDto, dir);
+        de.unipassau.allocationsystem.entity.School.SchoolType schoolType = parseSchoolType(filterDto.getSchoolType());
+
+        Long yearId = filterDto.getYearId() != null ? filterDto.getYearId() : academicYearId;
+
         Page<InternshipDemand> result = service.listByYearWithFilters(
                 yearId,
-                internshipTypeId,
-                schoolType != null ? de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(schoolType) : null,
-                subjectId,
-                isForecasted,
+                filterDto.getInternshipTypeId(),
+                schoolType,
+                filterDto.getSubjectId(),
+                filterDto.getIsForecasted(),
                 pageable
         );
         Page<InternshipDemandResponseDto> dtoPage = result.map(internshipDemandMapper::toResponseDto);
         return ResponseHandler.success("Internship demand retrieved successfully", dtoPage);
+}
+
+/**
+ * Creates a Pageable object from filter parameters with defaults.
+ * 
+ * @param filterDto Filter data containing pagination parameters
+ * @param direction Sort direction
+ * @return Pageable instance with validated parameters
+ */
+private Pageable createPageable(InternshipDemandFilterDto filterDto, Sort.Direction direction) {
+        Integer page = filterDto.getPage() != null ? filterDto.getPage() : 0;
+        Integer size = filterDto.getSize() != null ? filterDto.getSize() : 20;
+        String sort = filterDto.getSort() != null ? filterDto.getSort() : "id";
+        return PageRequest.of(page, size, Sort.by(direction, sort));
+}
+
+/**
+ * Parses school type from string representation.
+ * 
+ * @param schoolTypeString School type as string, may be null
+ * @return Parsed SchoolType or null if not provided
+ */
+private de.unipassau.allocationsystem.entity.School.SchoolType parseSchoolType(String schoolTypeString) {
+        if (schoolTypeString != null) {
+                return de.unipassau.allocationsystem.entity.School.SchoolType.valueOf(schoolTypeString);
+        }
+        return null;
 }
 
 /**

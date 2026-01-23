@@ -4,16 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
 import java.util.function.Function;
 
 /**
@@ -33,13 +31,11 @@ import java.util.function.Function;
  *   <li>Internal claim resolution for custom use cases</li>
  * </ul>
  */
+@Slf4j
 @Component
 public class JWTUtil {
     @Value("${jwt.secret}")
     private String secretKey;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -59,10 +55,10 @@ public class JWTUtil {
      * Extracts the expiration date from the JWT token.
      * 
      * @param token the JWT token
-     * @return the expiration date
+     * @return the expiration instant
      */
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Instant extractExpiration(String token) {
+        return extractClaim(token, claims -> claims.getExpiration().toInstant());
     }
 
     /**
@@ -87,28 +83,7 @@ public class JWTUtil {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    /**
-     * Generates a new JWT token for the authenticated user.
-     * 
-     * @param userDetails the user details containing username and authorities
-     * @return the generated JWT token
-     */
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return extractExpiration(token).isBefore(Instant.now());
     }
 
     /**
@@ -120,12 +95,7 @@ public class JWTUtil {
      * @return true if token is valid, false otherwise
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            final String username = extractUsername(token);
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (ExpiredJwtException e) {
-            return false;
-        }
+        return validateTokenInternal(token, username -> username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     /**
@@ -135,13 +105,22 @@ public class JWTUtil {
      * @return true if token is valid, false otherwise
      */
     public Boolean validateToken(String token) {
+        return validateTokenInternal(token, username -> true);
+    }
+    
+    private Boolean validateTokenInternal(String token, java.util.function.Predicate<String> additionalCheck) {
         try {
             Jwts.parser()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
+            String username = extractUsername(token);
+            return additionalCheck.test(username);
+        } catch (ExpiredJwtException e) {
+            log.debug("JWT token expired: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InternshipTypeCreateDto {
+public class InternshipTypeCreateDto implements InternshipTypeUpsertDto {
     @NotBlank(message = "Internship code is required")
     private String internshipCode;
 

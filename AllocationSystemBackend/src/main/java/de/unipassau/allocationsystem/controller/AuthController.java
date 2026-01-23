@@ -41,10 +41,10 @@ public class AuthController {
     private final AuthService authService;
 
     /**
-     * Authenticates a user and returns access tokens.
+     * login: authenticates the user with provided credentials and returns access tokens.
      * 
-     * @param request Login credentials (email and password)
-     * @return ResponseEntity containing login response with tokens
+     * @param request Login request containing email and password
+     * @return ResponseEntity containing authentication tokens and user information
      */
     @Operation(summary = "Login", description = "Authenticate user and return access tokens")
     @ApiResponses(value = {
@@ -55,13 +55,13 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto request) {
-        log.info("Login attempt for email: {}", request.getEmail());
-        LoginResponseDto response = authService.login(request);
-        return ResponseHandler.success("Login successful", response);
-    }
+                log.info("Login attempt for email: {}", request.getEmail());
+                LoginResponseDto response = authService.login(request);
+                return ResponseHandler.success("Login successful", response);
+        }
 
     /**
-     * Logs out the current user by invalidating their session/tokens.
+     * logout: invalidates the current user's session and tokens.
      * 
      * @return ResponseEntity confirming logout
      */
@@ -78,8 +78,7 @@ public class AuthController {
     }
 
     /**
-     * Initiates password reset process.
-     * Sends password reset email if the account exists.
+     * forgotPassword: initiates the password reset process by sending a reset email.
      * 
      * @param request Email address for password reset
      * @return ResponseEntity confirming reset request
@@ -97,7 +96,7 @@ public class AuthController {
     }
 
     /**
-     * Completes password reset using a valid token.
+     * resetPassword: completes the password reset process using a valid token.
      * 
      * @param request Reset token and new password
      * @return ResponseEntity confirming password reset
@@ -116,8 +115,7 @@ public class AuthController {
     }
 
     /**
-     * Changes password for the authenticated user.
-     * Requires current password for verification.
+     * changePassword: changes the password for the authenticated user after verifying current password.
      * 
      * @param request Current and new password
      * @return ResponseEntity confirming password change
@@ -136,7 +134,7 @@ public class AuthController {
     }
 
     /**
-     * Retrieves profile information for the authenticated user.
+     * getProfile: retrieves the profile information for the authenticated user.
      * 
      * @return ResponseEntity containing user profile data
      */
@@ -155,7 +153,7 @@ public class AuthController {
     }
 
     /**
-     * Updates profile information for the authenticated user.
+     * updateProfile: updates the profile information for the authenticated user.
      * 
      * @param request Updated profile data
      * @return ResponseEntity containing updated user profile
