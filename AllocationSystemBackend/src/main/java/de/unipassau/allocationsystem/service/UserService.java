@@ -1,19 +1,8 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
-import de.unipassau.allocationsystem.dto.user.UserCreateDto;
-import de.unipassau.allocationsystem.dto.user.UserResponseDto;
-import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
-import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.entity.User;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
-import de.unipassau.allocationsystem.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +17,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Service for managing users with automatic audit logging via @Audited annotation.
+ * Service for managing users with automatic audit logging via @Audited
+ * annotation.
  */
 @Service
 @RequiredArgsConstructor
@@ -38,6 +28,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final RoleRepository roleRepository;
 
     /**
      * Create a new user with automatic audit logging using @Audited annotation.
@@ -165,6 +157,20 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setFullName(dto.getFullName());
         user.setRole(dto.getRole());
+
+        //set roleEntity 
+        // Prefer roleId if provided
+        if (dto.getRoleId() != null) {
+            Role roleEntity = roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + dto.getRoleId()));
+            user.setRoleEntity(roleEntity);
+        } else if (dto.getRole() != null) {
+            // Fallback: resolve Role entity by title (must match DB titles like "USER"/"ADMIN"/"MODERATOR")
+            Role roleEntity = roleRepository.findByTitle(dto.getRole().name())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with title: " + dto.getRole().name()));
+            user.setRoleEntity(roleEntity);
+        }
+
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setEnabled(defaultTrue(dto.getEnabled()));
         user.setIsActive(defaultTrue(dto.getIsActive()));
