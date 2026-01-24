@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.service;
 
+import de.unipassau.allocationsystem.allocation.TeacherAllocationService;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanCreateDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanResponseDto;
 import de.unipassau.allocationsystem.dto.allocationplan.AllocationPlanUpdateDto;
@@ -9,20 +10,14 @@ import de.unipassau.allocationsystem.entity.AllocationPlan.PlanStatus;
 import de.unipassau.allocationsystem.mapper.AllocationPlanMapper;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.AllocationPlanRepository;
-import de.unipassau.allocationsystem.allocation.TeacherAllocationService;
-import de.unipassau.allocationsystem.service.AllocationPlanWriteSupport;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import java.time.LocalDateTime;
 
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
-import de.unipassau.allocationsystem.entity.AllocationPlan;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 abstract class AllocationPlanServiceTestBase {
 
