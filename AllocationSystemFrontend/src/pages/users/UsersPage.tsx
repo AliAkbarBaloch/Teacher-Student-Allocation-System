@@ -5,7 +5,7 @@ import { useUsersPage } from "@/features/users/hooks/useUsersPage";
 import { UsersFilters } from "@/features/users/components/UsersFilters";
 import { DataTable } from "@/components/common/DataTable";
 import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
-import { UserDialogs } from "@/features/users/components/UserDialogs";
+import { UserDialogs } from "@/features/users/components/UserDialogs/UserDialogs";
 import type { User } from "@/features/users/types/user.types";
 
 import i18n from "@/lib/i18n";
