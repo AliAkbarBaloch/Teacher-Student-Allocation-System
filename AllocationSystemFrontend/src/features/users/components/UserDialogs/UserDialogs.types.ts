@@ -2,6 +2,11 @@
 import type { Role } from "@/features/roles/types/role.types";
 import type { User, CreateUserRequest, UpdateUserRequest } from "../../types/user.types";
 
+/**
+ * Props for the UserDialogs component.
+ * Controls which user dialogs are open (create/edit/view/status/delete/reset),
+ * provides the selected user + roles, and exposes submit/confirm handlers.
+ */
 export interface UserDialogsProps {
     isCreateDialogOpen: boolean;
     setIsCreateDialogOpen: (open: boolean) => void;
