@@ -3,14 +3,18 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
 import de.unipassau.allocationsystem.dto.user.UserCreateDto;
 import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
+import de.unipassau.allocationsystem.entity.Role;
 import de.unipassau.allocationsystem.entity.User;
+import de.unipassau.allocationsystem.repository.RoleRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -25,6 +29,9 @@ abstract class UserServiceTestBase {
     @Mock
     protected PasswordEncoder passwordEncoder;
 
+    @Mock
+    protected RoleRepository roleRepository;
+
     @InjectMocks
     protected UserService userService;
 
@@ -35,6 +42,13 @@ abstract class UserServiceTestBase {
 
     @BeforeEach
     void setUpBase() {
+        Role defaultRole = new Role();
+        defaultRole.setId(1L);
+        defaultRole.setTitle("ROLE_USER");
+        // mark this stub lenient to avoid UnnecessaryStubbingException in tests that don't use it
+        Mockito.lenient().when(roleRepository.findByTitle(Mockito.anyString()))
+                .thenReturn(Optional.of(defaultRole));
+
         testUser = new User();
         testUser.setId(1L);
         testUser.setEmail("test@example.com");

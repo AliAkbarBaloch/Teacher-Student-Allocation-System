@@ -1,8 +1,21 @@
 package de.unipassau.allocationsystem.service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
+import de.unipassau.allocationsystem.aspect.Audited;
+import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.user.UserCreateDto;
+import de.unipassau.allocationsystem.dto.user.UserResponseDto;
+import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
+import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
+import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
+import de.unipassau.allocationsystem.entity.Role;
+import de.unipassau.allocationsystem.entity.User;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.repository.RoleRepository;
+import de.unipassau.allocationsystem.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
