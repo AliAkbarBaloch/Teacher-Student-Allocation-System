@@ -44,7 +44,6 @@ class PlanChangeLogControllerTest {
     private final AllocationPlanRepository allocationPlanRepository;
     private final AcademicYearRepository academicYearRepository;
     private final PlanChangeLogRepository planChangeLogRepository;
-    private User testUser;
     private AllocationPlan testPlan;
 
     @Autowired

@@ -27,6 +27,9 @@ public final class TestSchoolFactory {
         School school = withDefaultValues();
         // Do not set ID here; let JPA assign the identifier to avoid
         // merge/update behavior and optimistic locking issues in tests.
+        if (id != null) {
+            school.setId(id);
+        }
         school.setSchoolName(name);
         school.setSchoolType(type);
         return school;
