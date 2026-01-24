@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreditHourTrackingUpdateDto {
+public class CreditHourTrackingUpdateDto implements CreditHourTrackingUpsertDto {
     private Long teacherId;
     private Long academicYearId;
     @Min(0)

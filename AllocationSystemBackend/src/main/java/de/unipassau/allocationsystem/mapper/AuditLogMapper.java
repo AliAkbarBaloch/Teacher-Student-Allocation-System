@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -68,7 +69,7 @@ public class AuditLogMapper {
         }
         return AuditLogDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUser() != null ? entity.getUser().getId() : 0L)
+                .userId(Optional.ofNullable(entity.getUser()).map(User::getId).orElse(0L))
                 .userIdentifier(entity.getUserIdentifier())
                 .eventTimestamp(entity.getEventTimestamp())
                 .action(entity.getAction())

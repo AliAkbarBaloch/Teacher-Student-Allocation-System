@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for {@link InternshipDemandService}.
  * <p>
- * This test class validates internship demand aggregation and reporting.
+ * Validates internship demand aggregation and reporting.
  * </p>
  */
 @ExtendWith(MockitoExtension.class)
@@ -25,37 +25,35 @@ class InternshipDemandServiceTest {
     @Mock
     private InternshipDemandRepository repository;
 
-    // other dependencies can be mocked but are not used by the tested method
-    @Mock
-    private de.unipassau.allocationsystem.repository.InternshipTypeRepository internshipTypeRepository;
-    @Mock
-    private de.unipassau.allocationsystem.repository.SubjectRepository subjectRepository;
-    @Mock
-    private de.unipassau.allocationsystem.repository.AcademicYearRepository academicYearRepository;
-    @Mock
-    private de.unipassau.allocationsystem.mapper.InternshipDemandMapper mapper;
-
     @InjectMocks
     private InternshipDemandService service;
 
     @Test
-    void getAggregationForYear_returnsMappedDtos() {
+    void getAggregationForYearReturnsMappedDtos() {
         Long yearId = 2025L;
 
         InternshipDemandAggregation a1 = new InternshipDemandAggregation() {
             @Override
-            public Long getInternshipTypeId() { return 1L; }
+            public Long getInternshipTypeId() {
+                return 1L;
+            }
 
             @Override
-            public Integer getTotalRequiredTeachers() { return 10; }
+            public Integer getTotalRequiredTeachers() {
+                return 10;
+            }
         };
 
         InternshipDemandAggregation a2 = new InternshipDemandAggregation() {
             @Override
-            public Long getInternshipTypeId() { return 2L; }
+            public Long getInternshipTypeId() {
+                return 2L;
+            }
 
             @Override
-            public Integer getTotalRequiredTeachers() { return 5; }
+            public Integer getTotalRequiredTeachers() {
+                return 5;
+            }
         };
 
         when(repository.aggregateByYear(yearId)).thenReturn(List.of(a1, a2));

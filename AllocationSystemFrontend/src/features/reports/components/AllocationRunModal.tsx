@@ -120,7 +120,7 @@ export default function AllocationRunModal({
       );
 
       if (response.success) {
-        toast.success(response.success);
+        toast.success(response.message);
         toast.info(
           `Created Plan: ${response.data.planName} (${response.data.planVersion})`
         );

@@ -9,19 +9,25 @@ import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.repository.ZoneConstraintRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for ZoneConstraintController.
@@ -33,49 +39,99 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class ZoneConstraintControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/zone-constraints";
+    private static final String TYPE_CODE = "TEST-INT-01";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ZoneConstraintRepository zoneConstraintRepository;
-
-    @Autowired
-    private InternshipTypeRepository internshipTypeRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final ZoneConstraintRepository zoneConstraintRepository;
+    private final InternshipTypeRepository internshipTypeRepository;
 
     private InternshipType testInternshipType;
     private ZoneConstraint testConstraint;
 
-    @BeforeEach
-    void setUp() {
-        // Clean up
-        zoneConstraintRepository.deleteAll();
-
-        // Create test internship type
-        testInternshipType = new InternshipType();
-        testInternshipType.setInternshipCode("TEST-INT-01");
-        testInternshipType.setFullName("Test Internship Type");
-        testInternshipType.setIsSubjectSpecific(false);
-        testInternshipType.setSemester(1); // <-- required to satisfy @NotNull validation
-        testInternshipType = internshipTypeRepository.save(testInternshipType);
-
-        // Create test constraint
-        testConstraint = new ZoneConstraint();
-        testConstraint.setZoneNumber(1);
-        testConstraint.setInternshipType(testInternshipType);
-        testConstraint.setIsAllowed(true);
-        testConstraint.setDescription("Test constraint for zone 1");
-        testConstraint = zoneConstraintRepository.save(testConstraint);
+        @Autowired
+        ZoneConstraintControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            ZoneConstraintRepository zoneConstraintRepository,
+            InternshipTypeRepository internshipTypeRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.zoneConstraintRepository = zoneConstraintRepository;
+        this.internshipTypeRepository = internshipTypeRepository;
     }
 
-    // ========== GET ALL CONSTRAINTS TESTS ==========
+    @BeforeEach
+    void setUp() {
+        zoneConstraintRepository.deleteAll();
+        testInternshipType = internshipTypeRepository.save(buildInternshipType());
+        testConstraint = zoneConstraintRepository.save(buildConstraint(testInternshipType));
+    }
+
+    private InternshipType buildInternshipType() {
+        InternshipType it = new InternshipType();
+        it.setInternshipCode(TYPE_CODE);
+        it.setFullName("Test Internship Type");
+        it.setIsSubjectSpecific(false);
+        it.setSemester(1);
+        return it;
+    }
+
+    private ZoneConstraint buildConstraint(InternshipType internshipType) {
+        ZoneConstraint c = new ZoneConstraint();
+        c.setZoneNumber(1);
+        c.setInternshipType(internshipType);
+        c.setIsAllowed(true);
+        c.setDescription("Test constraint for zone 1");
+        return c;
+    }
+
+    private ResultActions getAll() throws Exception {
+        return mockMvc.perform(get(BASE_URL).accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions getPaginated(String searchValue) throws Exception {
+        var req = get(BASE_URL + "/paginate")
+                .param("page", "1")
+                .param("pageSize", "10")
+                .param("sortBy", "id")
+                .param("sortOrder", "asc");
+        if (searchValue != null) {
+            req = req.param("searchValue", searchValue);
+        }
+        return mockMvc.perform(req.accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions getById(long id) throws Exception {
+        return mockMvc.perform(get(BASE_URL + "/{id}", id).accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions create(ZoneConstraintCreateDto dto) throws Exception {
+        return mockMvc.perform(post(BASE_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)));
+    }
+
+    private ResultActions update(long id, ZoneConstraintUpdateDto dto) throws Exception {
+        return mockMvc.perform(put(BASE_URL + "/{id}", id)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)));
+    }
+
+    private ResultActions remove(long id) throws Exception {
+        return mockMvc.perform(delete(BASE_URL + "/{id}", id).with(csrf()));
+    }
+
+    // -------------------- GET ALL --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllZoneConstraints_Success() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints"))
+    void getAllZoneConstraintsSuccess() throws Exception {
+        getAll()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.message", is("Zone constraints retrieved successfully")))
@@ -86,12 +142,8 @@ class ZoneConstraintControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllZoneConstraints_Paginated() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/paginate")
-                        .param("page", "1")
-                        .param("pageSize", "10")
-                        .param("sortBy", "id")
-                        .param("sortOrder", "asc"))
+    void getAllZoneConstraintsPaginated() throws Exception {
+        getPaginated(null)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.items", hasSize(1)))
@@ -101,13 +153,8 @@ class ZoneConstraintControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetAllZoneConstraints_WithSearch() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/paginate")
-                        .param("page", "1")
-                        .param("pageSize", "10")
-                        .param("sortBy", "zoneNumber")
-                        .param("sortOrder", "asc")
-                        .param("searchValue", "1"))
+    void getAllZoneConstraintsWithSearch() throws Exception {
+        getPaginated("1")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.items", hasSize(1)))
@@ -116,78 +163,72 @@ class ZoneConstraintControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetSortFields_Success() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/sort-fields"))
+    void getSortFieldsSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/sort-fields"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data").isArray());
     }
 
     @Test
-    void testGetAllZoneConstraints_Unauthorized() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints"))
-                .andExpect(status().isUnauthorized());
+    void getAllZoneConstraintsUnauthorized() throws Exception {
+        getAll().andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void testGetAllZoneConstraints_UserRole() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints"))
+    void getAllZoneConstraintsUserRole() throws Exception {
+        getAll()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)));
     }
 
-    // ========== GET CONSTRAINT BY ID TESTS ==========
+    // -------------------- GET BY ID --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetZoneConstraintById_Success() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/" + testConstraint.getId()))
+    void getZoneConstraintByIdSuccess() throws Exception {
+        getById(testConstraint.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.message", is("Zone constraint retrieved successfully")))
                 .andExpect(jsonPath("$.data.id", is(testConstraint.getId().intValue())))
                 .andExpect(jsonPath("$.data.zoneNumber", is(1)))
-                .andExpect(jsonPath("$.data.internshipTypeCode", is("TEST-INT-01")))
+                .andExpect(jsonPath("$.data.internshipTypeCode", is(TYPE_CODE)))
                 .andExpect(jsonPath("$.data.isAllowed", is(true)));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testGetZoneConstraintById_NotFound() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/99999"))
-                .andExpect(status().isNotFound());
+    void getZoneConstraintByIdNotFound() throws Exception {
+        getById(99999L).andExpect(status().isNotFound());
     }
 
     @Test
-    void testGetZoneConstraintById_Unauthorized() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/" + testConstraint.getId()))
-                .andExpect(status().isUnauthorized());
+    void getZoneConstraintByIdUnauthorized() throws Exception {
+        getById(testConstraint.getId()).andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void testGetZoneConstraintById_UserRole() throws Exception {
-        mockMvc.perform(get("/api/zone-constraints/" + testConstraint.getId()))
+    void getZoneConstraintByIdUserRole() throws Exception {
+        getById(testConstraint.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)));
     }
 
-    // ========== CREATE CONSTRAINT TESTS ==========
+    // -------------------- CREATE --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_Success() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        createDto.setIsAllowed(false);
-        createDto.setDescription("Zone 2 constraint");
+    void createZoneConstraintSuccess() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(false);
+        dto.setDescription("Zone 2 constraint");
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+        create(dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.message", is("Zone constraint created successfully")))
@@ -198,137 +239,104 @@ class ZoneConstraintControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_InvalidData_MissingZoneNumber() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        // Missing zone number
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        createDto.setIsAllowed(true);
+    void createZoneConstraintMissingZoneNumber() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isBadRequest());
+        create(dto).andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_InvalidData_NegativeZoneNumber() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(-1); // Invalid: must be positive
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        createDto.setIsAllowed(true);
+    void createZoneConstraintNegativeZoneNumber() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(-1);
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isBadRequest());
+        create(dto).andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_InvalidData_MissingInternshipTypeId() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        // Missing internship type ID
-        createDto.setIsAllowed(true);
+    void createZoneConstraintMissingInternshipTypeId() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isBadRequest());
+        create(dto).andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_InvalidData_MissingIsAllowed() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        // Missing isAllowed flag
+    void createZoneConstraintMissingIsAllowed() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setInternshipTypeId(testInternshipType.getId());
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isBadRequest());
+        create(dto).andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_DuplicateConstraint() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(1); // Same as existing
-        createDto.setInternshipTypeId(testInternshipType.getId()); // Same as existing
-        createDto.setIsAllowed(false);
+    void createZoneConstraintDuplicateConstraint() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(1);
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(false);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isConflict());
+        create(dto).andExpect(status().isConflict());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testCreateZoneConstraint_InvalidInternshipType() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        createDto.setInternshipTypeId(99999L); // Non-existent
-        createDto.setIsAllowed(true);
+    void createZoneConstraintInvalidInternshipType() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setInternshipTypeId(99999L);
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isNotFound());
+        create(dto).andExpect(status().isNotFound());
     }
 
     @Test
-    void testCreateZoneConstraint_Unauthorized() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        createDto.setIsAllowed(true);
+    void createZoneConstraintUnauthorized() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
+        mockMvc.perform(post(BASE_URL)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void testCreateZoneConstraint_UserRole() throws Exception {
-        ZoneConstraintCreateDto createDto = new ZoneConstraintCreateDto();
-        createDto.setZoneNumber(2);
-        createDto.setInternshipTypeId(testInternshipType.getId());
-        createDto.setIsAllowed(true);
+    void createZoneConstraintUserRole() throws Exception {
+        ZoneConstraintCreateDto dto = new ZoneConstraintCreateDto();
+        dto.setZoneNumber(2);
+        dto.setInternshipTypeId(testInternshipType.getId());
+        dto.setIsAllowed(true);
 
-        mockMvc.perform(post("/api/zone-constraints")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+        create(dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success", is(true)));
     }
 
-    // ========== UPDATE CONSTRAINT TESTS ==========
+    // -------------------- UPDATE --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testUpdateZoneConstraint_Success() throws Exception {
-        ZoneConstraintUpdateDto updateDto = new ZoneConstraintUpdateDto();
-        updateDto.setIsAllowed(false);
-        updateDto.setDescription("Updated description");
+    void updateZoneConstraintSuccess() throws Exception {
+        ZoneConstraintUpdateDto dto = new ZoneConstraintUpdateDto();
+        dto.setIsAllowed(false);
+        dto.setDescription("Updated description");
 
-        mockMvc.perform(put("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+        update(testConstraint.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.message", is("Zone constraint updated successfully")))
@@ -338,89 +346,72 @@ class ZoneConstraintControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testUpdateZoneConstraint_PartialUpdate() throws Exception {
-        ZoneConstraintUpdateDto updateDto = new ZoneConstraintUpdateDto();
-        updateDto.setZoneNumber(5); // Only update zone number
+    void updateZoneConstraintPartialUpdate() throws Exception {
+        ZoneConstraintUpdateDto dto = new ZoneConstraintUpdateDto();
+        dto.setZoneNumber(5);
 
-        mockMvc.perform(put("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+        update(testConstraint.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.zoneNumber", is(5)))
-                .andExpect(jsonPath("$.data.isAllowed", is(true))); // Unchanged
+                .andExpect(jsonPath("$.data.isAllowed", is(true)));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testUpdateZoneConstraint_NotFound() throws Exception {
-        ZoneConstraintUpdateDto updateDto = new ZoneConstraintUpdateDto();
-        updateDto.setIsAllowed(false);
+    void updateZoneConstraintNotFound() throws Exception {
+        ZoneConstraintUpdateDto dto = new ZoneConstraintUpdateDto();
+        dto.setIsAllowed(false);
 
-        mockMvc.perform(put("/api/zone-constraints/99999")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isNotFound());
+        update(99999L, dto).andExpect(status().isNotFound());
     }
 
     @Test
-    void testUpdateZoneConstraint_Unauthorized() throws Exception {
-        ZoneConstraintUpdateDto updateDto = new ZoneConstraintUpdateDto();
-        updateDto.setIsAllowed(false);
+    void updateZoneConstraintUnauthorized() throws Exception {
+        ZoneConstraintUpdateDto dto = new ZoneConstraintUpdateDto();
+        dto.setIsAllowed(false);
 
-        mockMvc.perform(put("/api/zone-constraints/" + testConstraint.getId())
+        mockMvc.perform(put(BASE_URL + "/{id}", testConstraint.getId())
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void testUpdateZoneConstraint_UserRole() throws Exception {
-        ZoneConstraintUpdateDto updateDto = new ZoneConstraintUpdateDto();
-        updateDto.setIsAllowed(false);
+    void updateZoneConstraintUserRole() throws Exception {
+        ZoneConstraintUpdateDto dto = new ZoneConstraintUpdateDto();
+        dto.setIsAllowed(false);
 
-        mockMvc.perform(put("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+        update(testConstraint.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success", is(true)));
     }
 
-    // ========== DELETE CONSTRAINT TESTS ==========
+    // -------------------- DELETE --------------------
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testDeleteZoneConstraint_Success() throws Exception {
-        mockMvc.perform(delete("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
+    void deleteZoneConstraintSuccess() throws Exception {
+        remove(testConstraint.getId()).andExpect(status().isNoContent());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void testDeleteZoneConstraint_NotFound() throws Exception {
-        mockMvc.perform(delete("/api/zone-constraints/99999")
-                        .with(csrf()))
-                .andExpect(status().isNotFound());
+    void deleteZoneConstraintNotFound() throws Exception {
+        remove(99999L).andExpect(status().isNotFound());
     }
 
     @Test
-    void testDeleteZoneConstraint_Unauthorized() throws Exception {
-        mockMvc.perform(delete("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf()))
+    void deleteZoneConstraintUnauthorized() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/{id}", testConstraint.getId()).with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void testDeleteZoneConstraint_UserRole() throws Exception {
-        mockMvc.perform(delete("/api/zone-constraints/" + testConstraint.getId())
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
+    void deleteZoneConstraintUserRole() throws Exception {
+        remove(testConstraint.getId()).andExpect(status().isNoContent());
     }
 }

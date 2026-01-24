@@ -22,26 +22,17 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Configures Spring Security for the allocation system application.
- * <p>
  * This class defines security policies, authentication mechanisms, and filters to manage user access and protect API endpoints.
  * It integrates JWT authentication for stateless security and customizes the filter chain for fine-grained control.
- * <p>
+ * 
  * Main responsibilities:
- * <ul>
- *   <li>Enables web and method-level security annotations via EnableWebSecurity and EnableMethodSecurity.</li>
- *   <li>Sets up the CustomUserDetailsService for loading user details from the database.</li>
- *   <li>Configures an AuthenticationProvider using BCrypt password encoding.</li>
- *   <li>Defines JWT authentication and exception handling using JwtAuthenticationFilter and JwtAuthenticationEntryPoint.</li>
- *   <li>Establishes CORS rules to control allowed origins, methods, and headers for cross-domain requests.</li>
- *   <li>Configures HTTP security policy:
- *     - Allows unauthenticated access to certain endpoints (authentication, public APIs, H2 console).
- *     - Secures all other /api/** routes to require authentication.
- *     - Permits all other routes for frontend SPA compatibility.
- *     - Disables CSRF (for stateless JWT usage) and restricts frame options for H2 console access.
- *     - Sets session creation policy to stateless, suitable for JWT authentication.
- *   </li>
- * </ul>
- * <p>
+ * - Enables web and method-level security annotations via EnableWebSecurity and EnableMethodSecurity.
+ * - Sets up the CustomUserDetailsService for loading user details from the database.
+ * - Configures an AuthenticationProvider using BCrypt password encoding.
+ * - Defines JWT authentication and exception handling using JwtAuthenticationFilter and JwtAuthenticationEntryPoint.
+ * - Establishes CORS rules to control allowed origins, methods, and headers for cross-domain requests.
+ * - Configures HTTP security policy (unauthenticated endpoints, secured routes, CSRF, session management).
+ * 
  * The configuration ensures robust security for RESTful endpoints, while maintaining flexibility for public routes and development tools.
  */
 @Configuration

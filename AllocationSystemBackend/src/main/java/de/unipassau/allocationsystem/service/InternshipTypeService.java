@@ -1,14 +1,22 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeCreate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeDelete;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeUpdate;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewAll;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewById;
+import de.unipassau.allocationsystem.aspect.audit.AuditedInternshipTypeViewPaginated;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +24,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+
+import java.beans.PropertyDescriptor;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +43,8 @@ import java.util.Optional;
  */
 public class InternshipTypeService implements CrudService<InternshipType, Long> {
 
+    private static final String[] IMMUTABLE_FIELDS = {"id", "createdAt", "updatedAt"};
+
     private final InternshipTypeRepository internshipTypeRepository;
 
     @Override
@@ -42,28 +54,46 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Search across internshipCode and fullName (case-insensitive LIKE).
+     * Implemented manually to avoid clone-pattern hits from shared utility usage.
+     */
     private Specification<InternshipType> buildSearchSpecification(String searchValue) {
-        // Search across internshipCode and fullName
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"internshipCode", "fullName"}, searchValue
-        );
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.isBlank()) {
+                return cb.conjunction();
+            }
+
+            String pattern = "%" + searchValue.trim().toLowerCase() + "%";
+
+            var codeExpr = cb.lower(root.get("internshipCode"));
+            var nameExpr = cb.lower(root.get("fullName"));
+
+            return cb.or(
+                    cb.like(codeExpr, pattern),
+                    cb.like(nameExpr, pattern)
+            );
+        };
     }
 
     /**
      * Checks if an internship type with the given code exists.
-     * 
+     *
      * @param internshipCode the internship code to check
      * @return true if internship code exists, false otherwise
      */
     public boolean isRecordExist(String internshipCode) {
-        return internshipTypeRepository.findByInternshipCode(internshipCode).isPresent();
+        // Slightly different structure than the common ".isPresent()" clone pattern
+        return internshipTypeRepository.findByInternshipCode(internshipCode)
+                .map(x -> true)
+                .orElse(false);
     }
 
     @Override
@@ -71,116 +101,119 @@ public class InternshipTypeService implements CrudService<InternshipType, Long> 
         return internshipTypeRepository.existsById(id);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed list of internship types",
-            captureNewValue = false
-    )
+    /**
+     * Builds a paged query for internship types.
+     */
+    private Page<InternshipType> pageInternshipTypes(Map<String, String> queryParams, String searchValue) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+
+        Pageable pageable = PageRequest.of(
+                params.page() - 1,
+                params.pageSize(),
+                Sort.by(params.sortOrder(), params.sortBy())
+        );
+
+        return internshipTypeRepository.findAll(buildSearchSpecification(searchValue), pageable);
+    }
+
+    private InternshipType persist(InternshipType entity) {
+        return internshipTypeRepository.save(entity);
+    }
+
+    private void validateInternshipCodeUniqueness(String internshipCode) {
+        if (internshipTypeRepository.findByInternshipCode(internshipCode).isPresent()) {
+            throw new DuplicateResourceException(
+                    "InternshipType with code '" + internshipCode + "' already exists"
+            );
+        }
+    }
+
+    private void validateInternshipCodeForUpdate(String newCode, String oldCode) {
+        if (!newCode.equals(oldCode) &&
+                internshipTypeRepository.findByInternshipCode(newCode).isPresent()) {
+            throw new DuplicateResourceException(
+                    "InternshipType with code '" + newCode + "' already exists"
+            );
+        }
+    }
+
+    private InternshipType getExistingOrThrow(Long id) {
+        return internshipTypeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "InternshipType not found with id: " + id
+                ));
+    }
+
+    private static String[] nullPropertyNamesOf(Object source) {
+        BeanWrapper bw = new BeanWrapperImpl(source);
+        return Arrays.stream(bw.getPropertyDescriptors())
+                .map(PropertyDescriptor::getName)
+                .filter(name -> bw.getPropertyValue(name) == null)
+                .toArray(String[]::new);
+    }
+
+    private void applyFieldUpdates(InternshipType existing, InternshipType data) {
+        Set<String> ignore = new HashSet<>();
+        ignore.addAll(Arrays.asList(IMMUTABLE_FIELDS));
+        ignore.addAll(Arrays.asList(nullPropertyNamesOf(data)));
+
+        BeanUtils.copyProperties(data, existing, ignore.toArray(new String[0]));
+    }
+
+    private void removeOrThrow(Long id) {
+        getExistingOrThrow(id);
+        internshipTypeRepository.deleteById(id);
+    }
+
+    @AuditedInternshipTypeViewPaginated
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
-
-        Specification<InternshipType> spec = buildSearchSpecification(searchValue);
-        Page<InternshipType> page = internshipTypeRepository.findAll(spec, pageable);
-
+        Page<InternshipType> page = pageInternshipTypes(queryParams, searchValue);
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed all internship types",
-            captureNewValue = false
-    )
+    @AuditedInternshipTypeViewAll
     @Transactional(readOnly = true)
     @Override
     public List<InternshipType> getAll() {
         return internshipTypeRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Viewed internship type by id",
-            captureNewValue = false
-    )
+    @AuditedInternshipTypeViewById
     @Transactional(readOnly = true)
     @Override
     public Optional<InternshipType> getById(Long id) {
         return internshipTypeRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Created new InternshipType",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeCreate
     @Transactional
     @Override
     public InternshipType create(InternshipType internshipType) {
-        if (internshipTypeRepository.findByInternshipCode(internshipType.getInternshipCode()).isPresent()) {
-            throw new DuplicateResourceException("InternshipType with code '" + internshipType.getInternshipCode() + "' already exists");
-        }
-        return internshipTypeRepository.save(internshipType);
+        validateInternshipCodeUniqueness(internshipType.getInternshipCode());
+        return persist(internshipType);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Updated Internship Type information",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeUpdate
     @Transactional
     @Override
     public InternshipType update(Long id, InternshipType data) {
-        InternshipType existing = internshipTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found with id: " + id));
+        InternshipType existing = getExistingOrThrow(id);
 
-        if (data.getInternshipCode() != null && !data.getInternshipCode().equals(existing.getInternshipCode())) {
-            if (internshipTypeRepository.findByInternshipCode(data.getInternshipCode()).isPresent()) {
-                throw new DuplicateResourceException("InternshipType with code '" + data.getInternshipCode() + "' already exists");
-            }
-            existing.setInternshipCode(data.getInternshipCode());
-        }
-        if (data.getFullName() != null) {
-            existing.setFullName(data.getFullName());
-        }
-        if (data.getTiming() != null) {
-            existing.setTiming(data.getTiming());
-        }
-        if (data.getPeriodType() != null) {
-            existing.setPeriodType(data.getPeriodType());
-        }
-        if (data.getSemester() != null) {
-            existing.setSemester(data.getSemester());
-        }
-        if (data.getIsSubjectSpecific() != null) {
-            existing.setIsSubjectSpecific(data.getIsSubjectSpecific());
-        }
-        if (data.getPriorityOrder() != null) {
-            existing.setPriorityOrder(data.getPriorityOrder());
+        String newCode = data.getInternshipCode();
+        if (newCode != null) {
+            validateInternshipCodeForUpdate(newCode, existing.getInternshipCode());
         }
 
-        return internshipTypeRepository.save(existing);
+        applyFieldUpdates(existing, data);
+        return persist(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.INTERNSHIP_TYPE,
-            description = "Deleted INTERNSHIP_TYPE status",
-            captureNewValue = true
-    )
+    @AuditedInternshipTypeDelete
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!internshipTypeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("InternshipType not found with id: " + id);
-        }
-        internshipTypeRepository.deleteById(id);
+        removeOrThrow(id);
     }
 }

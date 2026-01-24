@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZoneConstraintUpdateDto {
+public class ZoneConstraintUpdateDto implements ZoneConstraintUpsertDto {
 
     @Min(value = 1, message = "Zone number must be positive")
     private Integer zoneNumber;

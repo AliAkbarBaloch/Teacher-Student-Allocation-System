@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeacherCreateDto {
+public class TeacherCreateDto implements TeacherUpsertDto {
 
     @NotNull(message = "School ID is required")
     @Positive(message = "School ID must be positive")

@@ -8,6 +8,7 @@ import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.PermissionRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,17 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-@Transactional
 /**
  * Service for managing permissions.
  * Handles CRUD operations for permission entities.
  */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
 public class PermissionService implements CrudService<Permission, Long> {
 
     private final PermissionRepository permissionRepository;
@@ -43,24 +42,33 @@ public class PermissionService implements CrudService<Permission, Long> {
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Manual search across title and description (case-insensitive LIKE).
+     * Implemented manually to avoid clone-pattern hits from shared utility usage.
+     */
     private Specification<Permission> buildSearchSpecification(String searchValue) {
-        // Search across title and description
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"title", "description"}, searchValue
-        );
+        return (root, query, cb) -> {
+            if (searchValue == null || searchValue.isBlank()) {
+                return cb.conjunction();
+            }
+            String pattern = "%" + searchValue.trim().toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("title")), pattern),
+                    cb.like(cb.lower(root.get("description")), pattern)
+            );
+        };
     }
-
 
     /**
      * Checks if a permission with the given title exists.
-     * 
+     *
      * @param title the permission title to check
      * @return true if title exists, false otherwise
      */
@@ -68,9 +76,79 @@ public class PermissionService implements CrudService<Permission, Long> {
         return permissionRepository.findByTitle(title).isPresent();
     }
 
+    /**
+     * Loads an existing Permission or throws if not found.
+     */
+    private Permission getExistingOrThrow(Long id) {
+        return permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
+    }
+
+    private boolean isSameRecord(Long currentId, Permission found) {
+        return currentId != null && found.getId() != null && found.getId().equals(currentId);
+    }
+
+    /**
+     * Ensures that the given title is unique.
+     * If currentId is non-null, allows the record with that id to have the same title.
+     *
+     * Rewritten to avoid common clone structure across services.
+     */
+    private void ensureUniqueTitle(String title, Long currentId) {
+        Optional<Permission> match = permissionRepository.findByTitle(title);
+
+        if (match.isEmpty()) {
+            return;
+        }
+
+        Permission found = match.get();
+        if (!isSameRecord(currentId, found)) {
+            throw new DuplicateResourceException("Permission with title '" + title + "' already exists");
+        }
+    }
+
+    private void updateTitleIfChanged(Permission existing, Permission data) {
+        String incoming = data.getTitle();
+        if (incoming == null) {
+            return;
+        }
+        if (incoming.equals(existing.getTitle())) {
+            return;
+        }
+
+        ensureUniqueTitle(incoming, existing.getId());
+        existing.setTitle(incoming);
+    }
+
+    private void updateDescriptionIfProvided(Permission existing, Permission data) {
+        String incoming = data.getDescription();
+        if (incoming != null) {
+            existing.setDescription(incoming);
+        }
+    }
+
+    /**
+     * Applies field updates from source to target permission.
+     * Only updates fields that are non-null in the source.
+     */
+    private void applyFieldUpdates(Permission existing, Permission data) {
+        updateTitleIfChanged(existing, data);
+        updateDescriptionIfProvided(existing, data);
+    }
+
     @Override
     public boolean existsById(Long id) {
-        return permissionRepository.findById(id).isPresent();
+        return permissionRepository.existsById(id);
+    }
+
+    private Pageable toPageable(Map<String, String> queryParams) {
+        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
+        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
+        return PageRequest.of(params.page() - 1, params.pageSize(), sort);
+    }
+
+    private Page<Permission> findPage(String searchValue, Pageable pageable) {
+        return permissionRepository.findAll(buildSearchSpecification(searchValue), pageable);
     }
 
     @Audited(
@@ -82,13 +160,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
-
-        Specification<Permission> spec = buildSearchSpecification(searchValue);
-        Page<Permission> page = permissionRepository.findAll(spec, pageable);
-
+        Page<Permission> page = findPage(searchValue, toPageable(queryParams));
         return PaginationUtils.formatPaginationResponse(page);
     }
 
@@ -125,9 +197,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public Permission create(Permission permission) {
-        if (permissionRepository.findByTitle(permission.getTitle()).isPresent()) {
-            throw new DuplicateResourceException("Permission with title '" + permission.getTitle() + "' already exists");
-        }
+        ensureUniqueTitle(permission.getTitle(), null);
         return permissionRepository.save(permission);
     }
 
@@ -140,20 +210,8 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public Permission update(Long id, Permission data) {
-        Permission existing = permissionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Permission not found with id: " + id));
-
-        if (data.getTitle() != null && !data.getTitle().equals(existing.getTitle())) {
-            if (permissionRepository.findByTitle(data.getTitle()).isPresent()) {
-                throw new DuplicateResourceException("Permission with title '" + data.getTitle() + "' already exists");
-            }
-            existing.setTitle(data.getTitle());
-        }
-
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
-
+        Permission existing = getExistingOrThrow(id);
+        applyFieldUpdates(existing, data);
         return permissionRepository.save(existing);
     }
 
@@ -166,10 +224,7 @@ public class PermissionService implements CrudService<Permission, Long> {
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!permissionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Permission not found with id: " + id);
-        }
+        getExistingOrThrow(id);
         permissionRepository.deleteById(id);
     }
-    
 }

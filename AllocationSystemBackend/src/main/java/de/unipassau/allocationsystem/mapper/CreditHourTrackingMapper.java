@@ -3,16 +3,19 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingCreateDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingResponseDto;
 import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingUpdateDto;
+import de.unipassau.allocationsystem.dto.credittracking.CreditHourTrackingUpsertDto;
 import de.unipassau.allocationsystem.entity.CreditHourTracking;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,65 +31,78 @@ public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, 
 
     @Override
     public CreditHourTracking toEntityCreate(CreditHourTrackingCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        CreditHourTracking entity = new CreditHourTracking();
-        entity.setAssignmentsCount(dto.getAssignmentsCount());
-        entity.setCreditHoursAllocated(dto.getCreditHoursAllocated());
-        entity.setCreditBalance(dto.getCreditBalance());
-        entity.setNotes(dto.getNotes());
-
-        if (dto.getTeacherId() != null) {
-            Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + dto.getTeacherId()));
-            entity.setTeacher(teacher);
-        }
-        if (dto.getAcademicYearId() != null) {
-            AcademicYear year = academicYearRepository.findById(dto.getAcademicYearId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + dto.getAcademicYearId()));
-            entity.setAcademicYear(year);
-        }
-
-        return entity;
+        return toNewEntity(dto, CreditHourTracking::new, this::populateEntity);
     }
 
     @Override
     public CreditHourTracking toEntityUpdate(CreditHourTrackingUpdateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        CreditHourTracking entity = new CreditHourTracking();
+        return toNewEntity(dto, CreditHourTracking::new, this::populateEntity);
+    }
+
+    /**
+     * Populates entity from DTO using common interface.
+     * 
+     * @param entity Target entity
+     * @param dto Source DTO (create or update)
+     */
+    private void populateEntity(CreditHourTracking entity, CreditHourTrackingUpsertDto dto) {
         entity.setAssignmentsCount(dto.getAssignmentsCount());
         entity.setCreditHoursAllocated(dto.getCreditHoursAllocated());
         entity.setCreditBalance(dto.getCreditBalance());
         entity.setNotes(dto.getNotes());
 
-        if (dto.getTeacherId() != null) {
-            Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + dto.getTeacherId()));
+        resolveAndSetTeacher(entity, dto.getTeacherId());
+        resolveAndSetAcademicYear(entity, dto.getAcademicYearId());
+    }
+
+    /**
+     * Resolves and sets teacher entity.
+     * 
+     * @param entity Target entity
+     * @param teacherId Teacher ID
+     */
+    private void resolveAndSetTeacher(CreditHourTracking entity, Long teacherId) {
+        if (teacherId != null) {
+            Teacher teacher = teacherRepository.findById(teacherId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
             entity.setTeacher(teacher);
         }
-        if (dto.getAcademicYearId() != null) {
-            AcademicYear year = academicYearRepository.findById(dto.getAcademicYearId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + dto.getAcademicYearId()));
+    }
+
+    /**
+     * Resolves and sets academic year entity.
+     * 
+     * @param entity Target entity
+     * @param academicYearId Academic year ID
+     */
+    private void resolveAndSetAcademicYear(CreditHourTracking entity, Long academicYearId) {
+        if (academicYearId != null) {
+            AcademicYear year = academicYearRepository.findById(academicYearId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + academicYearId));
             entity.setAcademicYear(year);
         }
-
-        return entity;
     }
 
     @Override
     public CreditHourTrackingResponseDto toResponseDto(CreditHourTracking entity) {
-        if (entity == null) {
-            return null;
-        }
+        return entity == null ? null : buildResponseDto(entity);
+    }
+
+    /**
+     * Builds response DTO from entity.
+     * 
+     * @param entity Source entity
+     * @return Response DTO
+     */
+    private CreditHourTrackingResponseDto buildResponseDto(CreditHourTracking entity) {
+        Teacher teacher = entity.getTeacher();
+        AcademicYear year = entity.getAcademicYear();
         return new CreditHourTrackingResponseDto(
                 entity.getId(),
-                entity.getTeacher() != null ? entity.getTeacher().getId() : null,
-                entity.getTeacher() != null ? (entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName()) : null,
-                entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null,
-                entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null,
+                Optional.ofNullable(teacher).map(Teacher::getId).orElse(null),
+                Optional.ofNullable(teacher).map(t -> t.getFirstName() + " " + t.getLastName()).orElse(null),
+                Optional.ofNullable(year).map(AcademicYear::getId).orElse(null),
+                Optional.ofNullable(year).map(AcademicYear::getYearName).orElse(null),
                 entity.getAssignmentsCount(),
                 entity.getCreditHoursAllocated(),
                 entity.getCreditBalance(),
@@ -111,27 +127,12 @@ public class CreditHourTrackingMapper implements BaseMapper<CreditHourTracking, 
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getAssignmentsCount() != null) {
-            entity.setAssignmentsCount(dto.getAssignmentsCount());
-        }
-        if (dto.getCreditHoursAllocated() != null) {
-            entity.setCreditHoursAllocated(dto.getCreditHoursAllocated());
-        }
-        if (dto.getCreditBalance() != null) {
-            entity.setCreditBalance(dto.getCreditBalance());
-        }
-        if (dto.getNotes() != null) {
-            entity.setNotes(dto.getNotes());
-        }
-        if (dto.getTeacherId() != null) {
-            Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + dto.getTeacherId()));
-            entity.setTeacher(teacher);
-        }
-        if (dto.getAcademicYearId() != null) {
-            AcademicYear year = academicYearRepository.findById(dto.getAcademicYearId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + dto.getAcademicYearId()));
-            entity.setAcademicYear(year);
-        }
+        MapperUtil.setIfNotNull(dto.getAssignmentsCount(), entity::setAssignmentsCount);
+        MapperUtil.setIfNotNull(dto.getCreditHoursAllocated(), entity::setCreditHoursAllocated);
+        MapperUtil.setIfNotNull(dto.getCreditBalance(), entity::setCreditBalance);
+        MapperUtil.setIfNotNull(dto.getNotes(), entity::setNotes);
+        
+        resolveAndSetTeacher(entity, dto.getTeacherId());
+        resolveAndSetAcademicYear(entity, dto.getAcademicYearId());
     }
 }

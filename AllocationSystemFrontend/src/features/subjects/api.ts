@@ -5,10 +5,7 @@ function getAuthHeader(): Record<string, string> {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export type Subject = {
-    id: number;
-    subjectTitle: string;
-};
+import type { Subject } from "./types/subject.types";
 
 
 export async function fetchSubjects() {

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademicYearUpdateDto {
+public class AcademicYearUpdateDto implements AcademicYearUpsertDto {
     private String yearName;
     private Integer totalCreditHours;
     private Integer elementarySchoolHours;

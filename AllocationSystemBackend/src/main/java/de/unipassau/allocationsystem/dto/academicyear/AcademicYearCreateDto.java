@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademicYearCreateDto {
+public class AcademicYearCreateDto implements AcademicYearUpsertDto {
     @NotBlank(message = "Year is required")
     private String yearName;
 

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { INTERNSHIP_DEMAND_LIST_URL } from "@/config.ts";
 import { INTERNSHIP_DEMAND_CRUD_URL } from "@/config.ts";
 import type {
@@ -68,7 +66,7 @@ async function handleResponse(res: Response) {
     const body = await res.json();
     //if body has message field, use this field as error text
     // else convert the whole body object to a string
-    msg = (body as any).message || JSON.stringify(body);
+    msg = (body as { message?: string }).message || JSON.stringify(body);
   } catch {
     //try to read body as raw text instead
     msg = await res.text();
@@ -108,15 +106,16 @@ export async function fetchInternshipDemand(
   const json = await handleResponse(res);
 
   // IMPORTANT: list-filter returns ResponseHandler.success + Page
-  const list = Array.isArray(json)
-    ? json
-    : Array.isArray((json as any)?.content)
-    ? (json as any).content
-    : Array.isArray((json as any)?.data?.content)
-    ? (json as any).data.content
-    : Array.isArray((json as any)?.data?.items)
-    ? (json as any).data.items
-    : [];
+  // Attempt to robustly unpack the response, handling Spring Page<T> or direct list
+  const list: InternshipDemand[] = Array.isArray(json)
+    ? (json as InternshipDemand[])
+    : (Array.isArray((json as { content?: unknown })?.content)
+      ? ((json as { content: InternshipDemand[] }).content)
+      : (Array.isArray((json as { data?: { content?: unknown } })?.data?.content)
+        ? ((json as { data: { content: InternshipDemand[] } }).data.content)
+        : (Array.isArray((json as { data?: { items?: unknown } })?.data?.items)
+          ? ((json as { data: { items: InternshipDemand[] } }).data.items)
+          : [])));
 
   console.log("FETCH URL", url);
   console.log("EXTRACTED rows", list.length);

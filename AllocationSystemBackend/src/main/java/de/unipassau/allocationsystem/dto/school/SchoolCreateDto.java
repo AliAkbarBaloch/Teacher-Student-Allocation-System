@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SchoolCreateDto {
+public class SchoolCreateDto implements SchoolUpsertDto {
     private Long id;
 
     @NotBlank(message = "School name is required")

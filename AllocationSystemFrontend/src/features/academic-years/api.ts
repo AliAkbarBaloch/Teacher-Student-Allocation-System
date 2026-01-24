@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function getAuthHeader(): Record<string, string> {
@@ -6,11 +5,8 @@ function getAuthHeader(): Record<string, string> {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export type AcademicYear = {
-    id: number;
-    yearName: string;
-    isLocked: boolean;
-};
+import type { AcademicYear } from "./types/academicYear.types";
+
 export async function fetchAcademicYears(): Promise<AcademicYear[]> {
     const res = await fetch(`${API_BASE}/academic-years?includeRelations=true`, {
         headers: { "Content-Type": "application/json", ...getAuthHeader() },

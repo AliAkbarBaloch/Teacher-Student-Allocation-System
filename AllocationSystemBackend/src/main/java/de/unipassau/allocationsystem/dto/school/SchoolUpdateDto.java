@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SchoolUpdateDto {
+public class SchoolUpdateDto implements SchoolUpsertDto {
 
     @Size(min = 3, message = "School name must be at least 3 characters")
     private String schoolName;

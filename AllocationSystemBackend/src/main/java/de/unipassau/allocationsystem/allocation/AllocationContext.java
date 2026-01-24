@@ -1,9 +1,10 @@
 package de.unipassau.allocationsystem.allocation;
 
-import de.unipassau.allocationsystem.entity.AllocationPlan;
+import de.unipassau.allocationsystem.dto.allocation.AllocationParameters;
 import de.unipassau.allocationsystem.entity.InternshipCombinationRule;
 import de.unipassau.allocationsystem.entity.InternshipDemand;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherAvailability;
 import de.unipassau.allocationsystem.entity.TeacherQualification;
@@ -11,108 +12,276 @@ import de.unipassau.allocationsystem.entity.TeacherSubject;
 import de.unipassau.allocationsystem.entity.TeacherSubjectExclusion;
 import de.unipassau.allocationsystem.entity.ZoneConstraint;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Context object encapsulating all data needed for teacher allocation process.
- * This reduces parameter count and improves code maintainability.
+ * Context object holding all data and state needed during the allocation process.
  */
-public class AllocationContext {
-    
-    private final AllocationPlan allocationPlan;
-    private final List<Teacher> teachers;
-    private final List<InternshipDemand> demands;
-    private final Map<Long, List<TeacherQualification>> teacherQualifications;
-    private final Map<Long, List<TeacherSubjectExclusion>> teacherExclusions;
-    private final Map<Long, List<TeacherAvailability>> teacherAvailabilities;
-    private final Map<Long, List<TeacherSubject>> teacherSubjects;
-    private final Map<Integer, List<ZoneConstraint>> zoneConstraints;
-    private final Map<Teacher, Integer> assignmentsCount;
-    private final Map<Teacher, List<InternshipType>> assignedTypes;
-    private final Map<Long, List<InternshipCombinationRule>> combinationRules;
+class AllocationContext {
+    private AllocationParameters params;
+    private List<Teacher> teachers;
+    private List<InternshipDemand> demands;
 
-    /**
-     * Constructs an AllocationContext with all necessary data.
-     * 
-     * @param allocationPlan The allocation plan being created
-     * @param teachers List of all available teachers
-     * @param demands List of all internship demands
-     * @param teacherQualifications Map of teacher qualifications indexed by teacher ID
-     * @param teacherExclusions Map of teacher exclusions indexed by teacher ID
-     * @param teacherAvailabilities Map of teacher availabilities indexed by teacher ID
-     * @param teacherSubjects Map of teacher subjects indexed by teacher ID
-     * @param zoneConstraints Map of zone constraints indexed by zone number
-     * @param assignmentsCount Map tracking assignment count per teacher
-     * @param assignedTypes Map tracking assigned internship types per teacher
-     * @param combinationRules Map of internship combination rules indexed by first type ID
-     */
-    public AllocationContext(
-            AllocationPlan allocationPlan,
-            List<Teacher> teachers,
-            List<InternshipDemand> demands,
-            Map<Long, List<TeacherQualification>> teacherQualifications,
-            Map<Long, List<TeacherSubjectExclusion>> teacherExclusions,
-            Map<Long, List<TeacherAvailability>> teacherAvailabilities,
-            Map<Long, List<TeacherSubject>> teacherSubjects,
-            Map<Integer, List<ZoneConstraint>> zoneConstraints,
-            Map<Teacher, Integer> assignmentsCount,
-            Map<Teacher, List<InternshipType>> assignedTypes,
-            Map<Long, List<InternshipCombinationRule>> combinationRules) {
-        this.allocationPlan = allocationPlan;
-        this.teachers = teachers;
-        this.demands = demands;
-        this.teacherQualifications = teacherQualifications;
-        this.teacherExclusions = teacherExclusions;
-        this.teacherAvailabilities = teacherAvailabilities;
-        this.teacherSubjects = teacherSubjects;
-        this.zoneConstraints = zoneConstraints;
-        this.assignmentsCount = assignmentsCount;
-        this.assignedTypes = assignedTypes;
-        this.combinationRules = combinationRules;
+    private Map<Long, List<TeacherQualification>> qualifications;
+    private Map<Long, List<TeacherSubjectExclusion>> exclusions;
+    private Map<Long, List<TeacherAvailability>> availabilities;
+    private Map<Long, List<TeacherSubject>> teacherSubjects;
+    private List<InternshipType> internshipTypes;
+    private Map<Integer, List<ZoneConstraint>> zoneConstraints;
+    private Map<Long, List<InternshipCombinationRule>> combinationRules;
+    private final Map<String, Subject> fallbackSubjects = new HashMap<>();
+
+    private final Map<Long, Integer> currentAssignmentCount = new HashMap<>();
+    private final Map<Teacher, List<InternshipType>> assignedTypes = new HashMap<>();
+    private final Map<Long, Set<String>> uniqueAssignments = new HashMap<>();
+
+    private final Map<Long, Integer> subjectCandidateCount = new HashMap<>();
+    private int totalAssignmentsCreated = 0;
+    // Accessors to satisfy visibility rules and for external use
+    AllocationParameters getParams() {
+        return params;
     }
 
-    public AllocationPlan getAllocationPlan() {
-        return allocationPlan;
-    }
-
-    public List<Teacher> getTeachers() {
+    List<Teacher> getTeachers() {
         return teachers;
     }
 
-    public List<InternshipDemand> getDemands() {
+    List<InternshipDemand> getDemands() {
         return demands;
     }
 
-    public Map<Long, List<TeacherQualification>> getTeacherQualifications() {
-        return teacherQualifications;
+    Map<Long, List<TeacherQualification>> getQualifications() {
+        return qualifications;
     }
 
-    public Map<Long, List<TeacherSubjectExclusion>> getTeacherExclusions() {
-        return teacherExclusions;
+    Map<Long, List<TeacherSubjectExclusion>> getExclusions() {
+        return exclusions;
     }
 
-    public Map<Long, List<TeacherAvailability>> getTeacherAvailabilities() {
-        return teacherAvailabilities;
+    Map<Long, List<TeacherAvailability>> getAvailabilities() {
+        return availabilities;
     }
 
-    public Map<Long, List<TeacherSubject>> getTeacherSubjects() {
+    Map<Long, List<TeacherSubject>> getTeacherSubjects() {
         return teacherSubjects;
     }
 
-    public Map<Integer, List<ZoneConstraint>> getZoneConstraints() {
+    List<InternshipType> getInternshipTypes() {
+        return internshipTypes;
+    }
+
+    Map<Integer, List<ZoneConstraint>> getZoneConstraints() {
         return zoneConstraints;
     }
 
-    public Map<Teacher, Integer> getAssignmentsCount() {
-        return assignmentsCount;
+    Map<Long, List<InternshipCombinationRule>> getCombinationRules() {
+        return combinationRules;
     }
 
-    public Map<Teacher, List<InternshipType>> getAssignedTypes() {
+    Map<String, Subject> getFallbackSubjects() {
+        return fallbackSubjects;
+    }
+
+    Map<Long, Integer> getCurrentAssignmentCount() {
+        return currentAssignmentCount;
+    }
+
+    Map<Teacher, List<InternshipType>> getAssignedTypes() {
         return assignedTypes;
     }
 
-    public Map<Long, List<InternshipCombinationRule>> getCombinationRules() {
-        return combinationRules;
+    Map<Long, Set<String>> getUniqueAssignments() {
+        return uniqueAssignments;
+    }
+
+    Map<Long, Integer> getSubjectCandidateCount() {
+        return subjectCandidateCount;
+    }
+
+    int getTotalAssignmentsCreated() {
+        return totalAssignmentsCreated;
+    }
+
+    // Setters for initialization by the data loader
+    void setTeachers(List<Teacher> teachers) {
+        this.teachers = teachers;
+    }
+
+    void setDemands(List<InternshipDemand> demands) {
+        this.demands = demands;
+    }
+
+    void setQualifications(Map<Long, List<TeacherQualification>> qualifications) {
+        this.qualifications = qualifications;
+    }
+
+    void setExclusions(Map<Long, List<TeacherSubjectExclusion>> exclusions) {
+        this.exclusions = exclusions;
+    }
+
+    void setAvailabilities(Map<Long, List<TeacherAvailability>> availabilities) {
+        this.availabilities = availabilities;
+    }
+
+    void setTeacherSubjects(Map<Long, List<TeacherSubject>> teacherSubjects) {
+        this.teacherSubjects = teacherSubjects;
+    }
+
+    void setInternshipTypes(List<InternshipType> internshipTypes) {
+        this.internshipTypes = internshipTypes;
+    }
+
+    void setZoneConstraints(Map<Integer, List<ZoneConstraint>> zoneConstraints) {
+        this.zoneConstraints = zoneConstraints;
+    }
+
+    void setCombinationRules(Map<Long, List<InternshipCombinationRule>> combinationRules) {
+        this.combinationRules = combinationRules;
+    }
+
+    AllocationContext(AllocationParameters params) {
+        this.params = params;
+    }
+
+    /**
+     * Gets internship type by code.
+     * 
+     * @param code The internship code
+     * @return The matching internship type or null
+     */
+    public InternshipType getInternshipType(String code) {
+        return internshipTypes.stream()
+                .filter(t -> t.getInternshipCode().equals(code))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Gets demands filtered by internship type.
+     * 
+     * @param typeId The internship type ID
+     * @return List of demands for the type
+     */
+    public List<InternshipDemand> getDemandsByType(Long typeId) {
+        return demands.stream()
+                .filter(d -> d.getInternshipType().getId().equals(typeId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Records a new assignment for tracking.
+     * 
+     * @param t The teacher
+     * @param type The internship type
+     * @param s The subject
+     */
+    public void recordAssignment(Teacher t, InternshipType type, Subject s) {
+        currentAssignmentCount.put(t.getId(), currentAssignmentCount.get(t.getId()) + 1);
+        assignedTypes.get(t).add(type);
+        uniqueAssignments.get(t.getId()).add(type.getId() + "-" + s.getId());
+        totalAssignmentsCreated++;
+    }
+
+    /**
+     * Checks if a specific assignment already exists.
+     * 
+     * @param t The teacher
+     * @param type The internship type
+     * @param s The subject
+     * @return true if assignment exists
+     */
+    public boolean hasAssignment(Teacher t, InternshipType type, Subject s) {
+        Set<String> teacherAssignments = uniqueAssignments.get(t.getId());
+        return teacherAssignments != null && teacherAssignments.contains(type.getId() + "-" + s.getId());
+    }
+
+    /**
+     * Gets current assignment count for teacher.
+     * 
+     * @param t The teacher
+     * @return Number of assignments
+     */
+    public int getAssignmentCount(Teacher t) {
+        return currentAssignmentCount.getOrDefault(t.getId(), 0);
+    }
+
+    /**
+     * Gets target assignment count for teacher based on credit balance.
+     * 
+     * @param t The teacher
+     * @return Target number of assignments
+     */
+    public int getTargetAssignments(Teacher t) {
+        if (t.getCreditHourBalance() != null && t.getCreditHourBalance() < 0) {
+            return params.getMaxAssignmentsPerTeacher();
+        }
+        return params.getStandardAssignmentsPerTeacher();
+    }
+
+    /**
+     * Checks if teacher has reached their assignment limit.
+     * 
+     * @param t The teacher
+     * @return true if fully booked
+     */
+    public boolean isTeacherFullyBooked(Teacher t) {
+        return getAssignmentCount(t) >= getTargetAssignments(t);
+    }
+
+    /**
+     * Increments the candidate count for a subject.
+     * 
+     * @param subjectId The subject ID
+     */
+    public void incrementCandidateCount(Long subjectId) {
+        subjectCandidateCount.put(subjectId, subjectCandidateCount.getOrDefault(subjectId, 0) + 1);
+    }
+
+    /**
+     * Gets candidate count for a subject.
+     * 
+     * @param subjectId The subject ID
+     * @return Number of candidates
+     */
+    public int getCandidateCountForSubject(Long subjectId) {
+        return subjectCandidateCount.getOrDefault(subjectId, 0);
+    }
+
+    /**
+     * Gets first qualified subject for teacher.
+     * 
+     * @param t The teacher
+     * @return First qualified subject or null
+     */
+    public Subject getFirstQualifiedSubject(Teacher t) {
+        List<TeacherSubject> subjects = teacherSubjects.get(t.getId());
+        return (subjects != null && !subjects.isEmpty()) ? subjects.get(0).getSubject() : null;
+    }
+
+    /**
+     * Gets fallback subject for internship type.
+     * 
+     * @param type The internship type code
+     * @return Fallback subject or null
+     */
+    public Subject getFallbackSubject(String type) {
+        return fallbackSubjects.get(type.toUpperCase());
+    }
+
+    /**
+     * Initializes tracking data structures for a teacher.
+     * 
+     * @param t The teacher to initialize tracking for
+     */
+    public void initializeTeacherTracking(Teacher t) {
+        currentAssignmentCount.put(t.getId(), 0);
+        assignedTypes.put(t, new ArrayList<>());
+        uniqueAssignments.put(t.getId(), new HashSet<>());
     }
 }

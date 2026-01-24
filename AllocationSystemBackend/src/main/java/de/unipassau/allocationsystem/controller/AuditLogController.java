@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -75,12 +76,9 @@ public class AuditLogController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
         })
         public ResponseEntity<?> getAuditLogs(@ModelAttribute AuditLogFilterDto filterDto) {
-        Pageable pageable = createPageable(
-            filterDto.getPage() != null ? filterDto.getPage() : 0, 
-            filterDto.getSize() != null ? filterDto.getSize() : 10, 
-            filterDto.getSortBy(), 
-            filterDto.getSortDirection()
-        );
+        int page = Optional.ofNullable(filterDto.getPage()).orElse(0);
+        int size = Optional.ofNullable(filterDto.getSize()).orElse(10);
+        Pageable pageable = createPageable(page, size, filterDto.getSortBy(), filterDto.getSortDirection());
         Page<AuditLog> auditLogs = queryService.getAuditLogs(
             filterDto.getUserId(), 
             filterDto.getAction(), 

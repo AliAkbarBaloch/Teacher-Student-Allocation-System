@@ -6,11 +6,13 @@ import de.unipassau.allocationsystem.dto.subject.SubjectUpdateDto;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.SubjectCategory;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import de.unipassau.allocationsystem.repository.SubjectCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,42 +27,36 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
 
     @Override
     public Subject toEntityCreate(SubjectCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Subject entity = new Subject();
-        entity.setSubjectCode(dto.getSubjectCode());
-        entity.setSubjectTitle(dto.getSubjectTitle());
-        entity.setSchoolType(dto.getSchoolType());
-        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        
-        if (dto.getSubjectCategoryId() != null) {
-            SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
-            entity.setSubjectCategory(category);
-        }
-        
-        return entity;
+        return toNewEntity(dto, Subject::new, this::populateEntityCreate);
     }
 
     @Override
     public Subject toEntityUpdate(SubjectUpdateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        Subject entity = new Subject();
+        return toNewEntity(dto, Subject::new, this::populateEntityUpdate);
+    }
+
+    private void populateEntityCreate(Subject entity, SubjectCreateDto dto) {
         entity.setSubjectCode(dto.getSubjectCode());
         entity.setSubjectTitle(dto.getSubjectTitle());
         entity.setSchoolType(dto.getSchoolType());
-        entity.setIsActive(dto.getIsActive());
-        
+        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
-        
-        return entity;
+    }
+
+    private void populateEntityUpdate(Subject entity, SubjectUpdateDto dto) {
+        entity.setSubjectCode(dto.getSubjectCode());
+        entity.setSubjectTitle(dto.getSubjectTitle());
+        entity.setSchoolType(dto.getSchoolType());
+        entity.setIsActive(dto.getIsActive());
+        if (dto.getSubjectCategoryId() != null) {
+            SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
+            entity.setSubjectCategory(category);
+        }
     }
 
     @Override
@@ -68,12 +64,13 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         if (entity == null) {
             return null;
         }
+        SubjectCategory category = entity.getSubjectCategory();
         return new SubjectResponseDto(
                 entity.getId(),
                 entity.getSubjectCode(),
                 entity.getSubjectTitle(),
-                entity.getSubjectCategory() != null ? entity.getSubjectCategory().getId() : null,
-                entity.getSubjectCategory() != null ? entity.getSubjectCategory().getCategoryTitle() : null,
+                Optional.ofNullable(category).map(SubjectCategory::getId).orElse(null),
+                Optional.ofNullable(category).map(SubjectCategory::getCategoryTitle).orElse(null),
                 entity.getSchoolType(),
                 entity.getIsActive(),
                 entity.getCreatedAt(),
@@ -96,23 +93,17 @@ public class SubjectMapper implements BaseMapper<Subject, SubjectCreateDto, Subj
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getSubjectCode() != null) {
-            entity.setSubjectCode(dto.getSubjectCode());
-        }
-        if (dto.getSubjectTitle() != null) {
-            entity.setSubjectTitle(dto.getSubjectTitle());
-        }
+        MapperUtil.setIfNotNull(dto.getSubjectCode(), entity::setSubjectCode);
+        MapperUtil.setIfNotNull(dto.getSubjectTitle(), entity::setSubjectTitle);
+        
         if (dto.getSubjectCategoryId() != null) {
             SubjectCategory category = subjectCategoryRepository.findById(dto.getSubjectCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Subject category not found with id: " + dto.getSubjectCategoryId()));
             entity.setSubjectCategory(category);
         }
-        if (dto.getSchoolType() != null) {
-            entity.setSchoolType(dto.getSchoolType());
-        }
-        if (dto.getIsActive() != null) {
-            entity.setIsActive(dto.getIsActive());
-        }
+        
+        MapperUtil.setIfNotNull(dto.getSchoolType(), entity::setSchoolType);
+        MapperUtil.setIfNotNull(dto.getIsActive(), entity::setIsActive);
     }
 }
 

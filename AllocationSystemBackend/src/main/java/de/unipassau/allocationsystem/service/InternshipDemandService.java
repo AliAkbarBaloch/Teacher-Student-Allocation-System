@@ -2,12 +2,12 @@ package de.unipassau.allocationsystem.service;
 
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
-import de.unipassau.allocationsystem.entity.InternshipDemand;
-import de.unipassau.allocationsystem.entity.InternshipType;
-import de.unipassau.allocationsystem.entity.Subject;
-import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.AuditLog;
+import de.unipassau.allocationsystem.entity.InternshipDemand;
+import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.AcademicYearRepository;
@@ -16,8 +16,8 @@ import de.unipassau.allocationsystem.repository.InternshipDemandRepository;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.repository.SubjectRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,6 +42,16 @@ import java.util.Optional;
  */
 public class InternshipDemandService implements CrudService<InternshipDemand, Long> {
 
+    private static final List<Map<String, String>> SORT_FIELDS =
+            SortFieldUtils.getSortFields(
+                    "id", "yearId", "internshipTypeId", "schoolType", "subjectId",
+                    "isForecasted", "createdAt", "updatedAt"
+            );
+
+    private static final String[] SEARCH_FIELDS = {
+            "schoolType", "internshipType.title", "subject.subjectTitle"
+    };
+
     private final InternshipDemandRepository repository;
     private final InternshipTypeRepository internshipTypeRepository;
     private final SubjectRepository subjectRepository;
@@ -49,29 +59,24 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
 
     /**
      * Returns the sortable fields metadata.
-     * 
+     *
      * @return list of sort field metadata
      */
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields(
-                "id", "yearId", "internshipTypeId", "schoolType", "subjectId", "isForecasted", "createdAt", "updatedAt"
-        );
+        return SORT_FIELDS;
     }
 
     /**
      * Returns the list of sortable field keys.
-     * 
+     *
      * @return list of field keys
      */
     public List<String> getSortFieldKeys() {
-        return getSortFields().stream().map(f -> f.get("key")).toList();
+        return SORT_FIELDS.stream().map(field -> field.get("key")).toList();
     }
 
     private Specification<InternshipDemand> buildSearchSpecification(String searchValue) {
-        // Search across schoolType, internshipType.title, subject.subjectTitle
-        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-                new String[]{"schoolType", "internshipType.title", "subject.subjectTitle"}, searchValue
-        );
+        return SearchSpecificationUtils.buildMultiFieldLikeSpecification(SEARCH_FIELDS, searchValue);
     }
 
     @Override
@@ -88,14 +93,19 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
-        PaginationUtils.PaginationParams params = PaginationUtils.validatePaginationParams(queryParams);
-        Sort sort = Sort.by(params.sortOrder(), params.sortBy());
-        Pageable pageable = PageRequest.of(params.page() - 1, params.pageSize(), sort);
+        return doGetPaginated(queryParams, searchValue);
+    }
 
-        Specification<InternshipDemand> spec = buildSearchSpecification(searchValue);
-        Page<InternshipDemand> page = repository.findAll(spec, pageable);
+    private Map<String, Object> doGetPaginated(Map<String, String> queryParams, String searchValue) {
+        PaginationUtils.PaginationParams pageParams = PaginationUtils.validatePaginationParams(queryParams);
 
-        return PaginationUtils.formatPaginationResponse(page);
+        Sort orderBy = Sort.by(pageParams.sortOrder(), pageParams.sortBy());
+        Pageable pageRequest = PageRequest.of(pageParams.page() - 1, pageParams.pageSize(), orderBy);
+
+        Specification<InternshipDemand> filterSpec = buildSearchSpecification(searchValue);
+        Page<InternshipDemand> pageResult = repository.findAll(filterSpec, pageRequest);
+
+        return PaginationUtils.formatPaginationResponse(pageResult);
     }
 
     @Audited(
@@ -107,6 +117,10 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public List<InternshipDemand> getAll() {
+        return doGetAll();
+    }
+
+    private List<InternshipDemand> doGetAll() {
         return repository.findAll();
     }
 
@@ -119,6 +133,10 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional(readOnly = true)
     @Override
     public Optional<InternshipDemand> getById(Long id) {
+        return doGetById(id);
+    }
+
+    private Optional<InternshipDemand> doGetById(Long id) {
         return repository.findById(id);
     }
 
@@ -131,18 +149,35 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
     @Transactional
     @Override
     public InternshipDemand create(InternshipDemand entity) {
-        // Uniqueness check
-        Specification<InternshipDemand> uniqueSpec = (root, query, cb) -> cb.and(
-                cb.equal(root.get("academicYear").get("id"), entity.getAcademicYear().getId()),
-                cb.equal(root.get("internshipType").get("id"), entity.getInternshipType().getId()),
-                cb.equal(root.get("schoolType"), entity.getSchoolType()),
-                cb.equal(root.get("subject").get("id"), entity.getSubject().getId()),
-                cb.equal(root.get("isForecasted"), entity.getIsForecasted() != null ? entity.getIsForecasted() : Boolean.FALSE)
-        );
+        Specification<InternshipDemand> uniqueSpec = buildUniquenessSpec(entity);
         if (repository.count(uniqueSpec) > 0) {
             throw new DuplicateResourceException("Duplicate internship demand for the same dimensions");
         }
         return repository.save(entity);
+    }
+
+    private Specification<InternshipDemand> buildUniquenessSpec(InternshipDemand entity) {
+        Boolean forecastedFlag = toForecastedFlag(entity.getIsForecasted());
+
+        Long yearId = entity.getAcademicYear().getId();
+        Long internshipTypeId = entity.getInternshipType().getId();
+        Long subjectId = entity.getSubject().getId();
+        School.SchoolType schoolType = entity.getSchoolType();
+
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("academicYear").get("id"), yearId),
+                cb.equal(root.get("internshipType").get("id"), internshipTypeId),
+                cb.equal(root.get("schoolType"), schoolType),
+                cb.equal(root.get("subject").get("id"), subjectId),
+                cb.equal(root.get("isForecasted"), forecastedFlag)
+        );
+    }
+
+    private Boolean toForecastedFlag(Boolean value) {
+        if (value == null) {
+            return Boolean.FALSE;
+        }
+        return value;
     }
 
     @Audited(
@@ -157,39 +192,61 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
         InternshipDemand existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InternshipDemand not found with id: " + id));
 
-        if (update.getAcademicYear() != null && update.getAcademicYear().getId() != null) {
-            AcademicYear year = academicYearRepository.findById(update.getAcademicYear().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("AcademicYear not found"));
-            existing.setAcademicYear(year);
+        applyAcademicYearUpdate(existing, update);
+        applyInternshipTypeUpdate(existing, update);
+        applySubjectUpdate(existing, update);
+        applyScalarFieldUpdates(existing, update);
+
+        return repository.save(existing);
+    }
+
+    private void applyAcademicYearUpdate(InternshipDemand existing, InternshipDemand update) {
+        if (update.getAcademicYear() == null || update.getAcademicYear().getId() == null) {
+            return;
         }
-        if (update.getInternshipType() != null && update.getInternshipType().getId() != null) {
-            InternshipType it = internshipTypeRepository.findById(update.getInternshipType().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found"));
-            existing.setInternshipType(it);
+        AcademicYear year = academicYearRepository.findById(update.getAcademicYear().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("AcademicYear not found"));
+        existing.setAcademicYear(year);
+    }
+
+    private void applyInternshipTypeUpdate(InternshipDemand existing, InternshipDemand update) {
+        if (update.getInternshipType() == null || update.getInternshipType().getId() == null) {
+            return;
         }
-        if (update.getSubject() != null && update.getSubject().getId() != null) {
-            Subject s = subjectRepository.findById(update.getSubject().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-            if (!Boolean.TRUE.equals(s.getIsActive())) {
-                throw new IllegalStateException("Subject is not active");
-            }
-            existing.setSubject(s);
+        InternshipType it = internshipTypeRepository.findById(update.getInternshipType().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("InternshipType not found"));
+        existing.setInternshipType(it);
+    }
+
+    private void applySubjectUpdate(InternshipDemand existing, InternshipDemand update) {
+        if (update.getSubject() == null || update.getSubject().getId() == null) {
+            return;
         }
+        Subject subject = subjectRepository.findById(update.getSubject().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
+        validateSubjectIsActive(subject);
+        existing.setSubject(subject);
+    }
+
+    private void validateSubjectIsActive(Subject subject) {
+        if (!Boolean.TRUE.equals(subject.getIsActive())) {
+            throw new IllegalStateException("Subject is not active");
+        }
+    }
+
+    private void applyScalarFieldUpdates(InternshipDemand existing, InternshipDemand update) {
         if (update.getSchoolType() != null) {
             existing.setSchoolType(update.getSchoolType());
         }
         if (update.getIsForecasted() != null) {
             existing.setIsForecasted(update.getIsForecasted());
         }
-        // Add other updatable fields here as needed
         if (update.getRequiredTeachers() != null) {
             existing.setRequiredTeachers(update.getRequiredTeachers());
         }
         if (update.getStudentCount() != null) {
             existing.setStudentCount(update.getStudentCount());
         }
-
-        return repository.save(existing);
     }
 
     @Audited(
@@ -207,21 +264,38 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
         repository.deleteById(id);
     }
 
-    // other methods
     /**
      * Lists internship demands with filtering by academic year and optional criteria.
-     * 
-     * @param yearId the academic year ID (required)
+     *
+     * @param yearId           the academic year ID (required)
      * @param internshipTypeId optional internship type ID filter
-     * @param schoolType optional school type filter
-     * @param subjectId optional subject ID filter
-     * @param isForecasted optional forecasted status filter
-     * @param pageable pagination parameters
+     * @param schoolType       optional school type filter
+     * @param subjectId        optional subject ID filter
+     * @param isForecasted     optional forecasted status filter
+     * @param pageable         pagination parameters
      * @return page of filtered internship demands
      */
-    public Page<InternshipDemand> listByYearWithFilters(Long yearId, Long internshipTypeId, School.SchoolType schoolType, Long subjectId, Boolean isForecasted, Pageable pageable) {
-        Specification<InternshipDemand> spec = (root, query, cb) -> cb.conjunction();
-        spec = spec.and((root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId));
+    public Page<InternshipDemand> listByYearWithFilters(Long yearId,
+                                                        Long internshipTypeId,
+                                                        School.SchoolType schoolType,
+                                                        Long subjectId,
+                                                        Boolean isForecasted,
+                                                        Pageable pageable) {
+        Specification<InternshipDemand> spec = buildYearFilterSpec(
+                yearId, internshipTypeId, schoolType, subjectId, isForecasted
+        );
+        return repository.findAll(spec, pageable);
+    }
+
+    private Specification<InternshipDemand> buildYearFilterSpec(Long yearId,
+                                                                Long internshipTypeId,
+                                                                School.SchoolType schoolType,
+                                                                Long subjectId,
+                                                                Boolean isForecasted) {
+
+        Specification<InternshipDemand> spec =
+                (root, query, cb) -> cb.equal(root.get("academicYear").get("id"), yearId);
+
         if (internshipTypeId != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("internshipType").get("id"), internshipTypeId));
         }
@@ -234,12 +308,13 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
         if (isForecasted != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("isForecasted"), isForecasted));
         }
-        return repository.findAll(spec, pageable);
+
+        return spec;
     }
 
     /**
      * Retrieves all internship demands for a specific academic year.
-     * 
+     *
      * @param yearId the academic year ID
      * @return list of internship demands
      */
@@ -249,7 +324,7 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
 
     /**
      * Aggregates internship demands by academic year, internship type, and school type.
-     * 
+     *
      * @param yearId the academic year ID
      * @return list of aggregated demand data
      */
@@ -259,6 +334,9 @@ public class InternshipDemandService implements CrudService<InternshipDemand, Lo
 
     /**
      * Return typed aggregation DTOs for a given academic year.
+     *
+     * @param yearId academic year ID
+     * @return list of aggregated demand data
      */
     public List<InternshipDemandAggregation> getAggregationForYear(Long yearId) {
         return repository.aggregateByYear(yearId);

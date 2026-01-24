@@ -66,6 +66,82 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
         );
     }
 
+    /**
+     * Validates the 4-part composite unique key for teacher assignments.
+     * 
+     * @param teacherId the teacher ID
+     * @param planId the allocation plan ID
+     * @param internshipTypeId the internship type ID
+     * @param subjectId the subject ID
+     * @throws DuplicateResourceException if a duplicate assignment exists
+     */
+    private void validateCompositeUniqueness(Long teacherId, Long planId, Long internshipTypeId, Long subjectId) {
+        if (teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
+                planId, teacherId, internshipTypeId, subjectId)) {
+            throw new DuplicateResourceException("Duplicate assignment for same plan/teacher/internship/subject");
+        }
+    }
+
+    /**
+     * Validates the 4-part composite unique key for updates, allowing self-updates.
+     * 
+     * @param teacherId the teacher ID
+     * @param planId the allocation plan ID
+     * @param internshipTypeId the internship type ID
+     * @param subjectId the subject ID
+     * @param existingId the ID of the existing assignment being updated
+     * @throws DuplicateResourceException if a different assignment has the same composite key
+     */
+    private void validateCompositeUniquenessForUpdate(Long teacherId, Long planId, Long internshipTypeId, Long subjectId, Long existingId) {
+        Optional<TeacherAssignment> existingAssignment = teacherAssignmentRepository.findByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
+                planId, teacherId, internshipTypeId, subjectId);
+        
+        if (existingAssignment.isPresent() && !existingAssignment.get().getId().equals(existingId)) {
+            throw new DuplicateResourceException("Duplicate assignment for same plan/teacher/internship/subject");
+        }
+    }
+
+    /**
+     * Validates that a teacher assignment exists and returns it.
+     * 
+     * @param id the assignment ID
+     * @return the existing TeacherAssignment
+     * @throws ResourceNotFoundException if the assignment does not exist
+     */
+    private TeacherAssignment validateExistence(Long id) {
+        return teacherAssignmentRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("TeacherAssignment not found with id: " + id));
+    }
+
+    /**
+     * Applies field updates from data object to existing assignment.
+     * Consolidates null-check-and-set for: studentGroupSize, assignmentStatus, isManualOverride, notes.
+     * 
+     * @param existing the existing TeacherAssignment to update
+     * @param data the new data to apply
+     * @return true if a recalculation is needed, false otherwise
+     */
+    private boolean applyFieldUpdates(TeacherAssignment existing, TeacherAssignment data) {
+        boolean recalcNeeded = false;
+
+        if (data.getStudentGroupSize() != null && !data.getStudentGroupSize().equals(existing.getStudentGroupSize())) {
+            existing.setStudentGroupSize(data.getStudentGroupSize());
+            recalcNeeded = true;
+        }
+        if (data.getAssignmentStatus() != null && !data.getAssignmentStatus().equals(existing.getAssignmentStatus())) {
+            existing.setAssignmentStatus(data.getAssignmentStatus());
+            recalcNeeded = true;
+        }
+        if (data.getIsManualOverride() != null) {
+            existing.setIsManualOverride(data.getIsManualOverride());
+        }
+        if (data.getNotes() != null) {
+            existing.setNotes(data.getNotes());
+        }
+
+        return recalcNeeded;
+    }
+
     @Override
     public boolean existsById(Long id) {
         return teacherAssignmentRepository.existsById(id);
@@ -123,18 +199,18 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     @Transactional
     @Override
     public TeacherAssignment create(TeacherAssignment entity) {
-        // Uniqueness check
-        if (teacherAssignmentRepository.existsByAllocationPlanIdAndTeacherIdAndInternshipTypeIdAndSubjectId(
-                entity.getAllocationPlan().getId(),
-                entity.getTeacher().getId(),
-                entity.getInternshipType().getId(),
-                entity.getSubject().getId())) {
-            throw new DuplicateResourceException("Duplicate assignment for same plan/teacher/internship/subject");
-        }
+        // Validate composite uniqueness
+        validateCompositeUniqueness(
+            entity.getTeacher().getId(),
+            entity.getAllocationPlan().getId(),
+            entity.getInternshipType().getId(),
+            entity.getSubject().getId()
+        );
+        
         entity.setAssignedAt(java.time.LocalDateTime.now());
         TeacherAssignment saved = teacherAssignmentRepository.save(entity);
 
-        // update credit tracking
+        // Update credit tracking
         Long yearId = saved.getAllocationPlan().getAcademicYear().getId();
         creditHourTrackingService.recalculateForTeacherAndYear(saved.getTeacher().getId(), yearId);
 
@@ -150,25 +226,46 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     @Transactional
     @Override
     public TeacherAssignment update(Long id, TeacherAssignment data) {
-        TeacherAssignment existing = teacherAssignmentRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("TeacherAssignment not found with id: " + id));
+        TeacherAssignment existing = validateExistence(id);
 
-        boolean recalcNeeded = false;
+        // Determine effective composite key values: use provided data if present,
+        // otherwise fall back to existing entity values. This allows partial
+        // updates (e.g., only studentGroupSize) without requiring all nested
+        // references to be provided by the client.
+        Long teacherId = null;
+        if (data.getTeacher() != null && data.getTeacher().getId() != null) {
+            teacherId = data.getTeacher().getId();
+        } else if (existing.getTeacher() != null) {
+            teacherId = existing.getTeacher().getId();
+        }
 
-        if (data.getStudentGroupSize() != null && !data.getStudentGroupSize().equals(existing.getStudentGroupSize())) {
-            existing.setStudentGroupSize(data.getStudentGroupSize());
-            recalcNeeded = true;
+        Long planId = null;
+        if (data.getAllocationPlan() != null && data.getAllocationPlan().getId() != null) {
+            planId = data.getAllocationPlan().getId();
+        } else if (existing.getAllocationPlan() != null) {
+            planId = existing.getAllocationPlan().getId();
         }
-        if (data.getAssignmentStatus() != null && !data.getAssignmentStatus().equals(existing.getAssignmentStatus())) {
-            existing.setAssignmentStatus(data.getAssignmentStatus());
-            recalcNeeded = true;
+
+        Long internshipTypeId = null;
+        if (data.getInternshipType() != null && data.getInternshipType().getId() != null) {
+            internshipTypeId = data.getInternshipType().getId();
+        } else if (existing.getInternshipType() != null) {
+            internshipTypeId = existing.getInternshipType().getId();
         }
-        if (data.getIsManualOverride() != null) {
-            existing.setIsManualOverride(data.getIsManualOverride());
+
+        Long subjectId = null;
+        if (data.getSubject() != null && data.getSubject().getId() != null) {
+            subjectId = data.getSubject().getId();
+        } else if (existing.getSubject() != null) {
+            subjectId = existing.getSubject().getId();
         }
-        if (data.getNotes() != null) {
-            existing.setNotes(data.getNotes());
+
+        // Only validate composite uniqueness when all parts of the composite key are available.
+        if (teacherId != null && planId != null && internshipTypeId != null && subjectId != null) {
+            validateCompositeUniquenessForUpdate(teacherId, planId, internshipTypeId, subjectId, id);
         }
+
+        boolean recalcNeeded = applyFieldUpdates(existing, data);
 
         TeacherAssignment updated = teacherAssignmentRepository.save(existing);
 
@@ -189,11 +286,10 @@ public class TeacherAssignmentService implements CrudService<TeacherAssignment, 
     @Transactional
     @Override
     public void delete(Long id) {
-        TeacherAssignment existing = teacherAssignmentRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("TeacherAssignment not found with id: " + id));
+        TeacherAssignment existing = validateExistence(id);
         teacherAssignmentRepository.delete(existing);
 
-        // recalc credit hours
+        // Recalculate credit hours
         Long yearId = existing.getAllocationPlan().getAcademicYear().getId();
         creditHourTrackingService.recalculateForTeacherAndYear(existing.getTeacher().getId(), yearId);
     }

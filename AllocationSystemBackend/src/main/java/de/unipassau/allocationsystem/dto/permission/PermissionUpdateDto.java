@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionUpdateDto {
+public class PermissionUpdateDto implements PermissionUpsertDto {
     @Size(max = 255)
     private String title;  // Optional
 

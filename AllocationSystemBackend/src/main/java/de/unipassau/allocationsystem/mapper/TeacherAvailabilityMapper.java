@@ -13,6 +13,7 @@ import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -50,8 +51,11 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
         }
         TeacherAvailability entity = new TeacherAvailability();
         entity.setStatus(createDto.getStatus());
-        entity.setIsAvailable(createDto.getIsAvailable() != null ? createDto.getIsAvailable() : 
-                (createDto.getStatus() != TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE));
+        if (createDto.getIsAvailable() != null) {
+            entity.setIsAvailable(createDto.getIsAvailable());
+        } else {
+            entity.setIsAvailable(createDto.getStatus() != TeacherAvailability.AvailabilityStatus.NOT_AVAILABLE);
+        }
         entity.setPreferenceRank(createDto.getPreferenceRank());
         entity.setNotes(createDto.getNotes());
 
@@ -97,17 +101,20 @@ public class TeacherAvailabilityMapper implements BaseMapper<TeacherAvailability
         if (entity == null) {
             return null;
         }
+        Teacher teacher = entity.getTeacher();
+        AcademicYear year = entity.getAcademicYear();
+        InternshipType type = entity.getInternshipType();
         return TeacherAvailabilityResponseDto.builder()
                 .id(entity.getId())
-                .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
-                .teacherFirstName(entity.getTeacher() != null ? entity.getTeacher().getFirstName() : null)
-                .teacherLastName(entity.getTeacher() != null ? entity.getTeacher().getLastName() : null)
-                .teacherEmail(entity.getTeacher() != null ? entity.getTeacher().getEmail() : null)
-                .academicYearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
-                .academicYearName(entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null)
-                .internshipTypeId(entity.getInternshipType() != null ? entity.getInternshipType().getId() : null)
-                .internshipTypeName(entity.getInternshipType() != null ? entity.getInternshipType().getFullName() : null)
-                .internshipTypeCode(entity.getInternshipType() != null ? entity.getInternshipType().getInternshipCode() : null)
+                .teacherId(Optional.ofNullable(teacher).map(Teacher::getId).orElse(null))
+                .teacherFirstName(Optional.ofNullable(teacher).map(Teacher::getFirstName).orElse(null))
+                .teacherLastName(Optional.ofNullable(teacher).map(Teacher::getLastName).orElse(null))
+                .teacherEmail(Optional.ofNullable(teacher).map(Teacher::getEmail).orElse(null))
+                .academicYearId(Optional.ofNullable(year).map(AcademicYear::getId).orElse(null))
+                .academicYearName(Optional.ofNullable(year).map(AcademicYear::getYearName).orElse(null))
+                .internshipTypeId(Optional.ofNullable(type).map(InternshipType::getId).orElse(null))
+                .internshipTypeName(Optional.ofNullable(type).map(InternshipType::getFullName).orElse(null))
+                .internshipTypeCode(Optional.ofNullable(type).map(InternshipType::getInternshipCode).orElse(null))
                 .status(entity.getStatus())
                 .isAvailable(entity.getIsAvailable())
                 .preferenceRank(entity.getPreferenceRank())

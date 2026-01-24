@@ -14,11 +14,15 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,30 +39,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class SubjectCategoryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/subject-categories";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final SubjectCategoryRepository subjectCategoryRepository;
 
     private SubjectCategory testCategory;
+
+    @Autowired
+    SubjectCategoryControllerTest(
+            @Autowired
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            SubjectCategoryRepository subjectCategoryRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+    }
 
     @BeforeEach
     void setUp() {
         subjectCategoryRepository.deleteAll();
-        testCategory = new SubjectCategory();
-        testCategory.setCategoryTitle("Test Category");
-        testCategory = subjectCategoryRepository.save(testCategory);
+        testCategory = subjectCategoryRepository.save(buildCategory("Test Category"));
     }
 
+    private SubjectCategory buildCategory(String title) {
+        SubjectCategory category = new SubjectCategory();
+        category.setCategoryTitle(title);
+        return category;
+    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAllCategories_Success() throws Exception {
-        mockMvc.perform(get("/api/subject-categories"))
+    void getAllCategoriesSuccess() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data", hasSize(greaterThanOrEqualTo(1))))
@@ -67,8 +83,8 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAllCategories_WithSearchFilter_Success() throws Exception {
-        mockMvc.perform(get("/api/subject-categories")
+    void getAllCategoriesWithSearchFilterSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL)
                         .param("searchValue", "Test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -76,16 +92,16 @@ class SubjectCategoryControllerTest {
     }
 
     @Test
-    void getAllCategories_Unauthorized_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/subject-categories"))
+    void getAllCategoriesUnauthorizedShouldFail() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isUnauthorized());
     }
 
     // Read endpoints are allowed for authenticated USERs
     @Test
     @WithMockUser(roles = "USER")
-    void getAllCategories_WithUserRole_ShouldSucceed() throws Exception {
-        mockMvc.perform(get("/api/subject-categories"))
+    void getAllCategoriesWithUserRoleShouldSucceed() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray());
@@ -93,8 +109,8 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getCategoryById_Success() throws Exception {
-        mockMvc.perform(get("/api/subject-categories/{id}", testCategory.getId()))
+    void getCategoryByIdSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testCategory.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(testCategory.getId()))
@@ -103,16 +119,16 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getCategoryById_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/subject-categories/{id}", 99999L))
+    void getCategoryByIdNotFoundShouldFail() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", 99999L))
                 .andExpect(status().isNotFound());
     }
 
     // Read by id allowed for USER
     @Test
     @WithMockUser(roles = "USER")
-    void getCategoryById_WithUserRole_ShouldSucceed() throws Exception {
-        mockMvc.perform(get("/api/subject-categories/{id}", testCategory.getId()))
+    void getCategoryByIdWithUserRoleShouldSucceed() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testCategory.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(testCategory.getId()));
@@ -120,52 +136,46 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createCategory_Success() throws Exception {
+    void createCategorySuccess() throws Exception {
         SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
         dto.setCategoryTitle("New Category");
 
-        mockMvc.perform(post("/api/subject-categories")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.categoryTitle").value("New Category"));
     }
 
-    // Controller/service changed: duplicate title results in Bad Request (400)
+    // Controller/service changed: duplicate title results in Conflict (409)
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createCategory_DuplicateTitle_ShouldFail() throws Exception {
+    void createCategoryDuplicateTitleShouldFail() throws Exception {
         SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
-        dto.setCategoryTitle("Test Category"); // Duplicate
+        dto.setCategoryTitle("Test Category");
 
-        mockMvc.perform(post("/api/subject-categories")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Subject category with title 'Test Category' already exists"));
+                .andExpect(jsonPath("$.message")
+                        .value("Subject category with title 'Test Category' already exists"));
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void createCategory_WithoutAdminRole_ShouldFail() throws Exception {
+    void createCategoryWithoutAdminRoleShouldSucceed() throws Exception {
         SubjectCategoryCreateDto dto = new SubjectCategoryCreateDto();
         dto.setCategoryTitle("Unauthorized Category");
 
-        mockMvc.perform(post("/api/subject-categories")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().is2xxSuccessful());
     }
 
-
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateCategory_Success() throws Exception {
+    void updateCategorySuccess() throws Exception {
         SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Updated Category");
 
-        mockMvc.perform(put("/api/subject-categories/{id}", testCategory.getId())
+        mockMvc.perform(put(BASE_URL + "/{id}", testCategory.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -175,11 +185,11 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateCategory_NotFound_ShouldFail() throws Exception {
+    void updateCategoryNotFoundShouldFail() throws Exception {
         SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Non Existing");
 
-        mockMvc.perform(put("/api/subject-categories/{id}", 99999L)
+        mockMvc.perform(put(BASE_URL + "/{id}", 99999L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
@@ -187,11 +197,11 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void updateCategory_WithoutAdminRole_ShouldFail() throws Exception {
+    void updateCategoryWithoutAdminRoleShouldSucceed() throws Exception {
         SubjectCategoryUpdateDto dto = new SubjectCategoryUpdateDto();
         dto.setCategoryTitle("Unauthorized Update");
 
-        mockMvc.perform(put("/api/subject-categories/{id}", testCategory.getId())
+        mockMvc.perform(put(BASE_URL + "/{id}", testCategory.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
@@ -201,26 +211,35 @@ class SubjectCategoryControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteCategory_Success() throws Exception {
-        mockMvc.perform(delete("/api/subject-categories/{id}", testCategory.getId()))
+    void deleteCategorySuccess() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/{id}", testCategory.getId()))
                 .andExpect(status().isNoContent());
 
-        // Verify category is deleted
         boolean exists = subjectCategoryRepository.existsById(testCategory.getId());
         assert !exists;
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteCategory_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/subject-categories/{id}", 99999L))
+    void deleteCategoryNotFoundShouldFail() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/{id}", 99999L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void deleteCategory_WithoutAdminRole_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/subject-categories/{id}", testCategory.getId()))
+    void deleteCategoryWithoutAdminRoleShouldSucceed() throws Exception {
+        mockMvc.perform(delete(BASE_URL + "/{id}", testCategory.getId()))
                 .andExpect(status().isNoContent());
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url));
+    }
+
+    private ResultActions performPost(String url, Object body) throws Exception {
+        return mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
     }
 }
