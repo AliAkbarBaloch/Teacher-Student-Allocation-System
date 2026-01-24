@@ -42,13 +42,23 @@ abstract class UserServiceTestBase {
 
     @BeforeEach
     void setUpBase() {
+        stubDefaultRole();
+        initTestUser();
+        initCreateDto();
+        initUpdateDto();
+        initPasswordResetDto();
+    }
+
+    private void stubDefaultRole() {
         Role defaultRole = new Role();
         defaultRole.setId(1L);
         defaultRole.setTitle("ROLE_USER");
-        // mark this stub lenient to avoid UnnecessaryStubbingException in tests that don't use it
-        Mockito.lenient().when(roleRepository.findByTitle(Mockito.anyString()))
+        Mockito.lenient()
+                .when(roleRepository.findByTitle(Mockito.anyString()))
                 .thenReturn(Optional.of(defaultRole));
+    }
 
+    private void initTestUser() {
         testUser = new User();
         testUser.setId(1L);
         testUser.setEmail("test@example.com");
@@ -62,7 +72,9 @@ abstract class UserServiceTestBase {
         testUser.setFailedLoginAttempts(0);
         testUser.setCreatedAt(LocalDateTime.now());
         testUser.setUpdatedAt(LocalDateTime.now());
+    }
 
+    private void initCreateDto() {
         createDto = new UserCreateDto();
         createDto.setEmail("new@example.com");
         createDto.setPassword(secret());
@@ -71,7 +83,9 @@ abstract class UserServiceTestBase {
         createDto.setPhoneNumber("+49841654321");
         createDto.setEnabled(true);
         createDto.setAccountStatus(User.AccountStatus.ACTIVE);
+    }
 
+    private void initUpdateDto() {
         updateDto = new UserUpdateDto();
         updateDto.setEmail("updated@example.com");
         updateDto.setFullName("Updated User");
@@ -79,7 +93,9 @@ abstract class UserServiceTestBase {
         updateDto.setPhoneNumber("+49841999999");
         updateDto.setEnabled(false);
         updateDto.setAccountStatus(User.AccountStatus.INACTIVE);
+    }
 
+    private void initPasswordResetDto() {
         passwordResetDto = new PasswordResetDto();
         passwordResetDto.setNewPassword(secret());
     }
