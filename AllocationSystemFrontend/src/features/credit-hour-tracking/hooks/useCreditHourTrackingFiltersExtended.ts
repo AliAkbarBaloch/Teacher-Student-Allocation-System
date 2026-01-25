@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "@/hooks/useDebounce";
-import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "@/features/academic-years/services/academicYearService";
 import { useCreditHourTrackingFilters } from "./useCreditHourTrackingFilters";
 import type { CreditHourTracking } from "../types/creditHourTracking.types";
 
@@ -25,7 +25,7 @@ export function useCreditHourTrackingFiltersExtended(entries: CreditHourTracking
     let isMounted = true;
     const loadAcademicYears = async () => {
       try {
-        const years = await AcademicYearService.getAll();
+        const years = await ACADEMIC_YEAR_SERVICE.getAll();
         if (!isMounted) return;
         
         // Find current year if not set from route

@@ -14,7 +14,7 @@ import type { AcademicYear } from "@/features/academic-years/types/academicYear.
 // services
 import { TeacherService } from "@/features/teachers/services/teacherService";
 import { SubjectService } from "@/features/subjects/services/subjectService";
-import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "@/features/academic-years/services/academicYearService";
 
 // components
 import { SelectField } from "@/components/form/fields/SelectField";
@@ -80,7 +80,7 @@ export function TeacherSubjectForm({
   useEffect(() => {
     const loadAcademicYears = async () => {
       try {
-        const data = await AcademicYearService.getAll();
+        const data = await ACADEMIC_YEAR_SERVICE.getAll();
         setAcademicYears(data ?? []);
       } catch (err) {
         console.log(err);

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { AcademicYearService } from "../services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "../services/academicYearService";
 import type { AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest } from "../types/academicYear.types";
 
 type AcademicYearUpsert = CreateAcademicYearRequest | UpdateAcademicYearRequest;
@@ -47,7 +47,7 @@ function useLoadAcademicYears(params: {
     setError(null);
 
     try {
-      const data = await AcademicYearService.getAll();
+      const data = await ACADEMIC_YEAR_SERVICE.getAll();
       setAcademicYears(data);
     } catch (err) {
       const message = getErrorMessage(err, t("table.emptyMessage"));
@@ -70,7 +70,7 @@ function useCreateAcademicYear(params: {
     async (data: AcademicYearUpsert) => {
       setIsSubmitting(true);
       try {
-        await AcademicYearService.create(data as CreateAcademicYearRequest);
+        await ACADEMIC_YEAR_SERVICE.create(data as CreateAcademicYearRequest);
         toast.success(t("create.success"));
         await loadAcademicYears();
       } catch (err) {
@@ -96,7 +96,7 @@ function useUpdateAcademicYear(params: {
     async (data: AcademicYearUpsert, id: number) => {
       setIsSubmitting(true);
       try {
-        await AcademicYearService.update(id, data as UpdateAcademicYearRequest);
+        await ACADEMIC_YEAR_SERVICE.update(id, data as UpdateAcademicYearRequest);
         toast.success(t("update.success"));
         await loadAcademicYears();
       } catch (err) {
@@ -121,7 +121,7 @@ function useDeleteAcademicYear(params: {
   return useCallback(
     async (id: number) => {
       try {
-        await AcademicYearService.delete(id);
+        await ACADEMIC_YEAR_SERVICE.delete(id);
         toast.success(t("delete.success"));
         await loadAcademicYears();
       } catch (err) {
