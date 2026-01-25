@@ -63,10 +63,6 @@ function viewStringOrDash(value: unknown): string {
   return (value as string) || EMPTY_VIEW;
 }
 
-function viewValueOrDash(value: unknown): string {
-  return String(value ?? EMPTY_VIEW);
-}
-
 function makeNumberField(
   t: TFunction<"academicYears">,
   name: "totalCreditHours" | "elementarySchoolHours" | "middleSchoolHours"
@@ -125,14 +121,7 @@ function formatLockedStatus(t: TFunction<"academicYears">, data: AcademicYear): 
   return t("table.unlocked");
 }
 
-
-/**
- * Field configuration for AcademicYear form and view.
- * This configuration is used by both GenericForm and ViewDialog.
- */
-export function getAcademicYearFieldConfig(
-  t: TFunction<"academicYears">
-): FieldConfig<AcademicYear>[] {
+function getAcademicYearMainFields(t: TFunction<"academicYears">): FieldConfig<AcademicYear>[] {
   return [
     {
       name: "yearName",
@@ -144,23 +133,27 @@ export function getAcademicYearFieldConfig(
       maxLength: 100,
       viewFormat: viewStringOrDash,
     },
-
     makeNumberField(t, "totalCreditHours"),
     makeNumberField(t, "elementarySchoolHours"),
     makeNumberField(t, "middleSchoolHours"),
-
     makeDateTimeField(t, "budgetAnnouncementDate", true),
     makeDateTimeField(t, "allocationDeadline", false),
-
     {
       name: "isLocked",
       type: "checkbox",
       label: t("form.fields.isLocked"),
       description: t("form.fields.isLockedDescription"),
       required: false,
-      viewFormat: (_value, data) => formatLockedStatus(t, data),
-    },
+      viewFormat: (value, data) => {
+        String(value);
+        return formatLockedStatus(t, data);
+      },
+    }
+  ];
+}
 
+function getAcademicYearAuditFields(t: TFunction<"academicYears">): FieldConfig<AcademicYear>[] {
+  return [
     {
       name: "createdAt",
       type: "text",
@@ -169,7 +162,6 @@ export function getAcademicYearFieldConfig(
       showInForm: false,
       viewFormat: formatDateTimeForView,
     },
-
     {
       name: "updatedAt",
       type: "text",
@@ -179,4 +171,14 @@ export function getAcademicYearFieldConfig(
       viewFormat: formatDateTimeForView,
     },
   ];
+}
+
+/**
+ * Field configuration for AcademicYear form and view.
+ * This configuration is used by both GenericForm and ViewDialog.
+ */
+export function getAcademicYearFieldConfig(
+  t: TFunction<"academicYears">
+): FieldConfig<AcademicYear>[] {
+  return [...getAcademicYearMainFields(t), ...getAcademicYearAuditFields(t)];
 }
