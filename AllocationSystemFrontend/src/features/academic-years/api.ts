@@ -18,6 +18,5 @@ export async function fetchAcademicYears(): Promise<AcademicYear[]> {
 
     const json = await res.json();
     
-
     return Array.isArray(json?.data) ? json.data : [];
 }
