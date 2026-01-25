@@ -29,20 +29,27 @@ public class AuditAspect {
         returning = "result"
     )
     public void auditMethodExecution(JoinPoint joinPoint, Audited audited, Object result) {
+        String entityName;
+        if (audited.entityName().isEmpty()) {
+            entityName = extractEntityNameFromMethod(joinPoint);
+        } else {
+            entityName = audited.entityName();
+        }
+        
+        AuditAction action = audited.action();
+        String description;
+        if (audited.description().isEmpty()) {
+            description = generateDescription(joinPoint, action, entityName);
+        } else {
+            description = audited.description();
+        }
+
+        Object recordId = extractRecordId(joinPoint, result);
+        // Note: Previous value capture not yet implemented - would require database query or ThreadLocal
+        Object previousValue = audited.capturePreviousValue() ? null : null;
+        Object newValue = audited.captureNewValue() ? result : null;
+
         try {
-            String entityName = audited.entityName().isEmpty() 
-                ? extractEntityNameFromMethod(joinPoint) 
-                : audited.entityName();
-            
-            AuditAction action = audited.action();
-            String description = audited.description().isEmpty() 
-                ? generateDescription(joinPoint, action, entityName) 
-                : audited.description();
-
-            Object recordId = extractRecordId(joinPoint, result);
-            Object previousValue = audited.capturePreviousValue() ? extractPreviousValue(joinPoint) : null;
-            Object newValue = audited.captureNewValue() ? result : null;
-
             auditLogService.logWithCurrentUser(
                 action,
                 entityName,
@@ -51,13 +58,12 @@ public class AuditAspect {
                 newValue,
                 description
             );
-        } catch (Exception e) {
-            log.error("Failed to create audit log for method: {}", joinPoint.getSignature().getName(), e);
+        } catch (SecurityException e) {
+            log.error("Security error creating audit log for method: {}", joinPoint.getSignature().getName(), e);
         }
     }
 
     private String extractEntityNameFromMethod(JoinPoint joinPoint) {
-        String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
         
         // Try to extract entity name from service class name
@@ -74,67 +80,73 @@ public class AuditAspect {
     }
 
     private Object extractRecordId(JoinPoint joinPoint, Object result) {
+        Object resultId = extractIdFromResult(result);
+        if (resultId != null) {
+            return resultId;
+        }
+        
+        return extractIdFromArguments(joinPoint.getArgs());
+    }
+    
+    private Object extractIdFromResult(Object result) {
+        if (result == null) {
+            return null;
+        }
+        
         // If result is already a primitive/wrapper type (Long, Integer, String), return it directly
-        if (result != null) {
-            if (result instanceof Long || result instanceof Integer || result instanceof String) {
-                return result;
-            }
-            
-            // Try to extract ID from result if it has an getId() method
-            try {
-                java.lang.reflect.Method getIdMethod = result.getClass().getMethod("getId");
-                Object id = getIdMethod.invoke(result);
-                if (id != null) {
-                    return id;
-                }
-            } catch (Exception e) {
-                log.debug("Could not extract ID from result", e);
-            }
-            
-            // Try alternative ID field names
-            try {
-                java.lang.reflect.Method getIdMethod = result.getClass().getMethod("id");
-                Object id = getIdMethod.invoke(result);
-                if (id != null) {
-                    return id;
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
+        if (result instanceof Long || result instanceof Integer || result instanceof String) {
+            return result;
         }
-
-        // Try to extract ID from method arguments
+        
+        // Try to extract ID from result using getId() method
+        Object id = tryExtractIdByMethod(result, "getId");
+        if (id != null) {
+            return id;
+        }
+        
+        // Try alternative ID field names
+        return tryExtractIdByMethod(result, "id");
+    }
+    
+    private Object tryExtractIdByMethod(Object result, String methodName) {
+        try {
+            java.lang.reflect.Method getIdMethod = result.getClass().getMethod(methodName);
+            return getIdMethod.invoke(result);
+        } catch (NoSuchMethodException | IllegalAccessException | 
+                 java.lang.reflect.InvocationTargetException e) {
+            log.debug("Could not extract ID using method {}: {}", methodName, e.getMessage());
+            return null;
+        }
+    }
+    
+    private Object extractIdFromArguments(Object[] args) {
+        if (args == null || args.length == 0) {
+            return null;
+        }
+        
         // Look for Long/Integer/String arguments that could be IDs
-        Object[] args = joinPoint.getArgs();
-        if (args != null && args.length > 0) {
-            // First, try to find an ID parameter by name or position
-            for (Object arg : args) {
-                if (arg instanceof Long || arg instanceof Integer) {
-                    return arg;
-                }
-                // For String, check if it looks like an ID (numeric)
-                if (arg instanceof String strArg && !strArg.isEmpty()) {
-                    try {
-                        Long.parseLong(strArg);
-                        return strArg; // It's a numeric string, likely an ID
-                    } catch (NumberFormatException e) {
-                        // Not a numeric ID
-                    }
+        for (Object arg : args) {
+            if (arg instanceof Long || arg instanceof Integer) {
+                return arg;
+            }
+            
+            // For String, check if it looks like an ID (numeric)
+            if (arg instanceof String strArg && !strArg.isEmpty()) {
+                if (isNumericId(strArg)) {
+                    return strArg;
                 }
             }
         }
-
+        
         return null;
     }
-
-    private Object extractPreviousValue(JoinPoint joinPoint) {
-        // In a real implementation, you might want to:
-        // 1. Query the database for the current state before the operation
-        // 2. Use a ThreadLocal to store the "before" state
-        // 3. Implement a more sophisticated change tracking mechanism
-        
-        // For now, return null - the previous value should be passed explicitly
-        // or captured via other means (e.g., in the service method itself)
-        return null;
+    
+    private boolean isNumericId(String str) {
+        try {
+            Long.parseLong(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

@@ -13,9 +13,19 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Configuration class for Swagger/OpenAPI documentation.
+ * Provides API documentation interface with JWT authentication support.
+ */
 @Configuration
 public class SwaggerConfig {
 
+    /**
+     * Configures OpenAPI documentation for the Allocation System API.
+     * Includes API metadata, server information, and JWT security scheme.
+     * 
+     * @return Configured OpenAPI instance
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

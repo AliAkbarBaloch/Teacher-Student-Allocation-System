@@ -17,10 +17,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between TeacherAssignment entities and DTOs.
+ * Handles assignment mapping with allocation plan, teacher, internship type, and subject resolution.
+ */
 public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, TeacherAssignmentCreateDto, TeacherAssignmentUpdateDto, TeacherAssignmentResponseDto> {
 
     private final AllocationPlanRepository allocationPlanRepository;
@@ -83,67 +88,16 @@ public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, Te
             return null;
         }
 
-        // Build response using setters to match DTO fields including title details (null-safe)
         TeacherAssignmentResponseDto dto = new TeacherAssignmentResponseDto();
         dto.setId(entity.getId());
 
-        if (entity.getAllocationPlan() != null) {
-            dto.setPlanId(entity.getAllocationPlan().getId());
-            // assume allocation plan exposes a title getter named getPlanTitle or getTitle; try common name
-            String planTitle = null;
-            try {
-                planTitle = entity.getAllocationPlan().getAcademicYear().getYearName() + "(" + entity.getAllocationPlan().getPlanVersion() + ")";
-            } catch (Exception ignored) {
-                try {
-                    planTitle = entity.getAllocationPlan().getAcademicYear().getYearName() + "(" + entity.getAllocationPlan().getPlanVersion() + ")";
-                } catch (Exception ignored2) {
-
-                }
-            }
-            dto.setPlanTitle(planTitle);
-        }
-
-        if (entity.getTeacher() != null) {
-            dto.setTeacherId(entity.getTeacher().getId());
-            String teacherTitle = null;
-            try {
-                teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
-            } catch (Exception ignored) {
-                try {
-                    teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
-                } catch (Exception ignored2) {
-                    try {
-                        teacherTitle = entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName();
-                    } catch (Exception ignored3) {
-
-                    }
-                }
-            }
-            dto.setTeacherTitle(teacherTitle);
-        }
-
-        if (entity.getInternshipType() != null) {
-            dto.setInternshipTypeId(entity.getInternshipType().getId());
-            String internshipTitle = null;
-            try {
-                internshipTitle = entity.getInternshipType().getInternshipCode() + " " + entity.getInternshipType().getPeriodType();
-            } catch (Exception ignored) {
-                try {
-                    internshipTitle = entity.getInternshipType().getInternshipCode() + " " + entity.getInternshipType().getPeriodType();
-                } catch (Exception ignored2) {
-
-                }
-            }
-            dto.setInternshipTypeTitle(internshipTitle);
-        }
-
-        if (entity.getSubject() != null) {
-            dto.setSubjectId(entity.getSubject().getId());
-            dto.setSubjectTitle(entity.getSubject().getSubjectTitle());
-        }
+        mapAllocationPlan(entity, dto);
+        mapTeacher(entity, dto);
+        mapInternshipType(entity, dto);
+        mapSubject(entity, dto);
 
         dto.setStudentGroupSize(entity.getStudentGroupSize());
-        dto.setAssignmentStatus(entity.getAssignmentStatus() != null ? entity.getAssignmentStatus().name() : null);
+        dto.setAssignmentStatus(Optional.ofNullable(entity.getAssignmentStatus()).map(Enum::name).orElse(null));
         dto.setIsManualOverride(entity.getIsManualOverride());
         dto.setNotes(entity.getNotes());
         dto.setAssignedAt(entity.getAssignedAt());
@@ -151,6 +105,45 @@ public class TeacherAssignmentMapper implements BaseMapper<TeacherAssignment, Te
         dto.setUpdatedAt(entity.getUpdatedAt());
 
         return dto;
+    }
+
+    private void mapAllocationPlan(TeacherAssignment entity, TeacherAssignmentResponseDto dto) {
+        AllocationPlan plan = entity.getAllocationPlan();
+        if (plan != null) {
+            dto.setPlanId(plan.getId());
+            String planTitle = buildPlanTitle(plan);
+            dto.setPlanTitle(planTitle);
+        }
+    }
+
+    private String buildPlanTitle(AllocationPlan plan) {
+        return Optional.ofNullable(plan.getAcademicYear())
+                .map(year -> year.getYearName() + " (" + plan.getPlanVersion() + ")")
+                .orElse(null);
+    }
+
+    private void mapTeacher(TeacherAssignment entity, TeacherAssignmentResponseDto dto) {
+        Teacher teacher = entity.getTeacher();
+        if (teacher != null) {
+            dto.setTeacherId(teacher.getId());
+            dto.setTeacherTitle(teacher.getFirstName() + " " + teacher.getLastName());
+        }
+    }
+
+    private void mapInternshipType(TeacherAssignment entity, TeacherAssignmentResponseDto dto) {
+        InternshipType type = entity.getInternshipType();
+        if (type != null) {
+            dto.setInternshipTypeId(type.getId());
+            dto.setInternshipTypeTitle(type.getInternshipCode() + " " + type.getPeriodType());
+        }
+    }
+
+    private void mapSubject(TeacherAssignment entity, TeacherAssignmentResponseDto dto) {
+        Subject subject = entity.getSubject();
+        if (subject != null) {
+            dto.setSubjectId(subject.getId());
+            dto.setSubjectTitle(subject.getSubjectTitle());
+        }
     }
 
     @Override

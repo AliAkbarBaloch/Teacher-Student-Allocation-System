@@ -1,11 +1,14 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.entity.*;
-import de.unipassau.allocationsystem.mapper.CreditHourTrackingMapper;
+import de.unipassau.allocationsystem.entity.AcademicYear;
+import de.unipassau.allocationsystem.entity.CreditHourTracking;
+import de.unipassau.allocationsystem.entity.School;
+import de.unipassau.allocationsystem.entity.Teacher;
+import de.unipassau.allocationsystem.entity.TeacherAssignment;
+import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import de.unipassau.allocationsystem.repository.CreditHourTrackingRepository;
 import de.unipassau.allocationsystem.repository.TeacherAssignmentRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
-import de.unipassau.allocationsystem.repository.AcademicYearRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,21 +21,31 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link CreditHourTrackingService}.
+ * <p>
+ * Validates credit hour tracking recalculation for a teacher and academic year.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreditHourTrackingServiceTest {
 
     @Mock
     private CreditHourTrackingRepository repository;
+
     @Mock
     private TeacherAssignmentRepository teacherAssignmentRepository;
+
     @Mock
     private TeacherRepository teacherRepository;
+
     @Mock
     private AcademicYearRepository academicYearRepository;
-    @Mock
-    private CreditHourTrackingMapper mapper;
 
     @InjectMocks
     private CreditHourTrackingService service;
@@ -54,7 +67,7 @@ class CreditHourTrackingServiceTest {
     }
 
     @Test
-    void recalculateForTeacherAndYear_createsOrUpdatesRecord() {
+    void recalculateForTeacherAndYearCreatesOrUpdatesRecord() {
         Long teacherId = 1L;
         Long yearId = 2L;
 
@@ -68,8 +81,10 @@ class CreditHourTrackingServiceTest {
         TeacherAssignment a3 = new TeacherAssignment();
         a3.setAssignmentStatus(TeacherAssignment.AssignmentStatus.CANCELLED);
 
-        when(teacherAssignmentRepository.findByTeacherIdAndYearId(teacherId, yearId)).thenReturn(List.of(a1, a2, a3));
-        when(repository.findByTeacherIdAndAcademicYearId(teacherId, yearId)).thenReturn(Optional.empty());
+        when(teacherAssignmentRepository.findByTeacherIdAndYearId(teacherId, yearId))
+                .thenReturn(List.of(a1, a2, a3));
+        when(repository.findByTeacherIdAndAcademicYearId(teacherId, yearId))
+                .thenReturn(Optional.empty());
 
         ArgumentCaptor<CreditHourTracking> captor = ArgumentCaptor.forClass(CreditHourTracking.class);
         when(repository.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
@@ -78,8 +93,8 @@ class CreditHourTrackingServiceTest {
 
         verify(repository, times(1)).save(any());
         CreditHourTracking saved = captor.getValue();
+
         assertThat(saved.getAssignmentsCount()).isEqualTo(2);
-        // hoursPerAssignment should be elementarySchoolHours (10.0) for PRIMARY
         assertThat(saved.getCreditHoursAllocated()).isEqualTo(2 * 10.0);
         assertThat(saved.getCreditBalance()).isEqualTo(100.0 - (2 * 10.0));
     }

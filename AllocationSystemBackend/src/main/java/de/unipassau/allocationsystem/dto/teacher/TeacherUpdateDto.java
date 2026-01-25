@@ -1,4 +1,5 @@
 package de.unipassau.allocationsystem.dto.teacher;
+import java.util.List; 
 
 import de.unipassau.allocationsystem.entity.Teacher;
 import jakarta.validation.constraints.Email;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeacherUpdateDto {
+public class TeacherUpdateDto implements TeacherUpsertDto {
 
     @Positive(message = "School ID must be positive")
     private Long schoolId;
@@ -44,4 +45,8 @@ public class TeacherUpdateDto {
     private Teacher.UsageCycle usageCycle;
 
     private Integer creditHourBalance;
+
+    //IDs of subjects taught by the teacher 
+
+    private List<Long> subjectIds;
 }

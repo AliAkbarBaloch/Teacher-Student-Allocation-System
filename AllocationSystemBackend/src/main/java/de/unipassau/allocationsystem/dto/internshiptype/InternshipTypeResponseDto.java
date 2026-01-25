@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * DTO for internship type response data.
+ * Includes all internship type details with timestamps.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for detailed teacher profile information.
+ * Includes personal details, employment status, qualifications, and availability.
+ */
 @Data
 @Builder
 public class TeacherProfileDto {

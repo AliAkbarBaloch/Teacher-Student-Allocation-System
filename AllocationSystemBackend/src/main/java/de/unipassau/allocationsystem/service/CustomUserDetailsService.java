@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Spring Security UserDetailsService implementation.
+ * Loads user details for authentication and authorization.
+ */
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;

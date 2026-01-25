@@ -5,7 +5,7 @@ import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.exception.DuplicateResourceException;
 import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
-import de.unipassau.allocationsystem.utils.PaginationUtils;
+import de.unipassau.allocationsystem.testutil.TestSchoolFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,16 +17,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link SchoolService}.
+ */
 @ExtendWith(MockitoExtension.class)
 class SchoolServiceTest {
 
@@ -42,19 +50,7 @@ class SchoolServiceTest {
 
     @BeforeEach
     void setUp() {
-        testSchool = new School();
-        testSchool.setId(1L);
-        testSchool.setSchoolName("Test Elementary School");
-        testSchool.setSchoolType(SchoolType.PRIMARY);
-        testSchool.setZoneNumber(1);
-        testSchool.setAddress("Test Street 1");
-        testSchool.setLatitude(new BigDecimal("48.5734053"));
-        testSchool.setLongitude(new BigDecimal("13.4579944"));
-        testSchool.setDistanceFromCenter(new BigDecimal("2.5"));
-        testSchool.setTransportAccessibility("Bus Line 1");
-        testSchool.setContactEmail("test@school.de");
-        testSchool.setContactPhone("+49841123456");
-        testSchool.setIsActive(true);
+        testSchool = TestSchoolFactory.buildTestSchool(1L, "Test Elementary School", SchoolType.PRIMARY);
 
         createSchool = new School();
         createSchool.setSchoolName("New Test School");
@@ -69,8 +65,8 @@ class SchoolServiceTest {
     }
 
     @Test
-    void getAll_ReturnsAllSchools() {
-        when(schoolRepository.findAll()).thenReturn(Arrays.asList(testSchool));
+    void getAllReturnsAllSchools() {
+        when(schoolRepository.findAll()).thenReturn(List.of(testSchool));
 
         List<School> result = schoolService.getAll();
 
@@ -81,8 +77,8 @@ class SchoolServiceTest {
     }
 
     @Test
-    void getPaginated_ReturnsFormattedPagination() {
-        Page<School> page = new PageImpl<>(Arrays.asList(testSchool));
+    void getPaginatedReturnsFormattedPagination() {
+        Page<School> page = new PageImpl<>(List.of(testSchool));
         Map<String, String> queryParams = Map.of();
 
         when(schoolRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
@@ -96,7 +92,7 @@ class SchoolServiceTest {
     }
 
     @Test
-    void getById_WhenExists_ReturnsOptional() {
+    void getByIdWhenExistsReturnsOptional() {
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
 
         Optional<School> result = schoolService.getById(1L);
@@ -107,7 +103,7 @@ class SchoolServiceTest {
     }
 
     @Test
-    void create_WhenNameUnique_SavesAndReturns() {
+    void createWhenNameUniqueSavesAndReturns() {
         when(schoolRepository.findBySchoolName(createSchool.getSchoolName())).thenReturn(Optional.empty());
         when(schoolRepository.save(createSchool)).thenAnswer(inv -> {
             School s = inv.getArgument(0);
@@ -124,17 +120,17 @@ class SchoolServiceTest {
     }
 
     @Test
-    void create_WhenDuplicate_ThrowsDuplicateResourceException() {
+    void createWhenDuplicateThrowsDuplicateResourceException() {
         when(schoolRepository.findBySchoolName(createSchool.getSchoolName())).thenReturn(Optional.of(testSchool));
 
         assertThrows(DuplicateResourceException.class, () -> schoolService.create(createSchool));
 
         verify(schoolRepository).findBySchoolName(createSchool.getSchoolName());
-        verify(schoolRepository, never()).save(any());
+        verify(schoolRepository, never()).save(any(School.class));
     }
 
     @Test
-    void update_WhenExists_UpdatesAndSaves() {
+    void updateWhenExistsUpdatesAndSaves() {
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(schoolRepository.findBySchoolName(updatePayload.getSchoolName())).thenReturn(Optional.empty());
         when(schoolRepository.save(any(School.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -150,27 +146,26 @@ class SchoolServiceTest {
     }
 
     @Test
-    void update_WhenNotFound_ThrowsResourceNotFoundException() {
+    void updateWhenNotFoundThrowsResourceNotFoundException() {
         when(schoolRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> schoolService.update(999L, updatePayload));
 
         verify(schoolRepository).findById(999L);
-        verify(schoolRepository, never()).save(any());
+        verify(schoolRepository, never()).save(any(School.class));
     }
 
     @Test
-    void delete_WhenExists_DeletesById() {
+    void deleteWhenExistsDeletesById() {
         when(schoolRepository.existsById(1L)).thenReturn(true);
 
         schoolService.delete(1L);
 
-        verify(schoolRepository).existsById(1L);
-        verify(schoolRepository).deleteById(1L);
+        verifyDeleteCalls(1L);
     }
 
     @Test
-    void delete_WhenNotFound_ThrowsResourceNotFoundException() {
+    void deleteWhenNotFoundThrowsResourceNotFoundException() {
         when(schoolRepository.existsById(999L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> schoolService.delete(999L));
@@ -180,7 +175,7 @@ class SchoolServiceTest {
     }
 
     @Test
-    void helperMethods_existenceChecksAndSortFields() {
+    void helperMethodsExistenceChecksAndSortFields() {
         when(schoolRepository.findBySchoolName("Test Elementary School")).thenReturn(Optional.of(testSchool));
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
 
@@ -192,5 +187,10 @@ class SchoolServiceTest {
 
         assertNotNull(fields);
         assertTrue(keys.containsAll(Arrays.asList("id", "schoolName", "createdAt", "updatedAt")));
+    }
+
+    private void verifyDeleteCalls(Long id) {
+        verify(schoolRepository).existsById(id);
+        verify(schoolRepository).deleteById(id);
     }
 }

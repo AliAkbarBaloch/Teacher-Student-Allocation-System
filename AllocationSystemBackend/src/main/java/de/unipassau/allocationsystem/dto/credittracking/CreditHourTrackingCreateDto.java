@@ -6,10 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for creating a new credit hour tracking record.
+ * Tracks teacher assignments and credit hours allocated per academic year.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreditHourTrackingCreateDto {
+public class CreditHourTrackingCreateDto implements CreditHourTrackingUpsertDto {
     @NotNull(message = "Teacher ID is required")
     private Long teacherId;
 

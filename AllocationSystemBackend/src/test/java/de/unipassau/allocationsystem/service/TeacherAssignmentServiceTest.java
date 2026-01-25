@@ -17,10 +17,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link TeacherAssignmentService}.
+ * <p>
+ * Validates teacher assignment CRUD operations and credit hour recalculation.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class TeacherAssignmentServiceTest {
 
@@ -43,6 +56,7 @@ class TeacherAssignmentServiceTest {
         plan = new AllocationPlan();
         plan.setId(1L);
         plan.setStatus(AllocationPlan.PlanStatus.DRAFT);
+
         AcademicYear year = new AcademicYear();
         year.setId(2L);
         plan.setAcademicYear(year);
@@ -60,7 +74,7 @@ class TeacherAssignmentServiceTest {
     }
 
     @Test
-    void create_Success() {
+    void createSuccess() {
         TeacherAssignment entity = new TeacherAssignment();
         entity.setAllocationPlan(plan);
         entity.setTeacher(teacher);
@@ -87,7 +101,7 @@ class TeacherAssignmentServiceTest {
     }
 
     @Test
-    void create_Duplicate_Throws() {
+    void createDuplicateThrows() {
         TeacherAssignment entity = new TeacherAssignment();
         entity.setAllocationPlan(plan);
         entity.setTeacher(teacher);
@@ -99,12 +113,12 @@ class TeacherAssignmentServiceTest {
                 .thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> teacherAssignmentService.create(entity));
-        verify(teacherAssignmentRepository, never()).save(any());
+        verify(teacherAssignmentRepository, never()).save(any(TeacherAssignment.class));
         verify(creditHourTrackingService, never()).recalculateForTeacherAndYear(anyLong(), anyLong());
     }
 
     @Test
-    void update_Success_RecalcTriggered() {
+    void updateSuccessRecalcTriggered() {
         TeacherAssignment existing = new TeacherAssignment();
         existing.setId(20L);
         existing.setAllocationPlan(plan);
@@ -125,7 +139,7 @@ class TeacherAssignmentServiceTest {
     }
 
     @Test
-    void delete_Success_RecalcTriggered() {
+    void deleteSuccessRecalcTriggered() {
         TeacherAssignment existing = new TeacherAssignment();
         existing.setId(30L);
         existing.setAllocationPlan(plan);

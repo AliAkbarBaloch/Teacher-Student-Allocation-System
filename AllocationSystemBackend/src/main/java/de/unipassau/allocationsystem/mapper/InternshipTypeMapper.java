@@ -3,37 +3,38 @@ package de.unipassau.allocationsystem.mapper;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeCreateDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeResponseDto;
 import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpdateDto;
+import de.unipassau.allocationsystem.dto.internshiptype.InternshipTypeUpsertDto;
 import de.unipassau.allocationsystem.entity.InternshipType;
+import de.unipassau.allocationsystem.mapper.util.MapperUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+/**
+ * Mapper for converting between InternshipType entities and DTOs.
+ * Handles internship type creation, updates, and response transformations.
+ */
 public class InternshipTypeMapper implements BaseMapper<InternshipType, InternshipTypeCreateDto, InternshipTypeUpdateDto, InternshipTypeResponseDto> {
 
     @Override
     public InternshipType toEntityCreate(InternshipTypeCreateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        InternshipType entity = new InternshipType();
-        entity.setInternshipCode(dto.getInternshipCode());
-        entity.setFullName(dto.getFullName());
-        entity.setTiming(dto.getTiming());
-        entity.setPeriodType(dto.getPeriodType());
-        entity.setSemester(dto.getSemester());
-        entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
-        entity.setPriorityOrder(dto.getPriorityOrder());
-        return entity;
+        return toNewEntity(dto, InternshipType::new, this::populateEntity);
     }
 
     @Override
     public InternshipType toEntityUpdate(InternshipTypeUpdateDto dto) {
-        if (dto == null) {
-            return null;
-        }
-        InternshipType entity = new InternshipType();
+        return toNewEntity(dto, InternshipType::new, this::populateEntity);
+    }
+
+    /**
+     * Populates entity from DTO using common interface.
+     * 
+     * @param entity Target entity
+     * @param dto Source DTO (create or update)
+     */
+    private void populateEntity(InternshipType entity, InternshipTypeUpsertDto dto) {
         entity.setInternshipCode(dto.getInternshipCode());
         entity.setFullName(dto.getFullName());
         entity.setTiming(dto.getTiming());
@@ -41,14 +42,20 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         entity.setSemester(dto.getSemester());
         entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
         entity.setPriorityOrder(dto.getPriorityOrder());
-        return entity;
     }
 
     @Override
     public InternshipTypeResponseDto toResponseDto(InternshipType entity) {
-        if (entity == null) {
-            return null;
-        }
+        return entity == null ? null : buildResponseDto(entity);
+    }
+
+    /**
+     * Builds response DTO from entity.
+     * 
+     * @param entity Source entity
+     * @return Response DTO
+     */
+    private InternshipTypeResponseDto buildResponseDto(InternshipType entity) {
         return new InternshipTypeResponseDto(
                 entity.getId(),
                 entity.getInternshipCode(),
@@ -78,26 +85,12 @@ public class InternshipTypeMapper implements BaseMapper<InternshipType, Internsh
         if (dto == null || entity == null) {
             return;
         }
-        if (dto.getInternshipCode() != null) {
-            entity.setInternshipCode(dto.getInternshipCode());
-        }
-        if (dto.getFullName() != null) {
-            entity.setFullName(dto.getFullName());
-        }
-        if (dto.getTiming() != null) {
-            entity.setTiming(dto.getTiming());
-        }
-        if (dto.getPeriodType() != null) {
-            entity.setPeriodType(dto.getPeriodType());
-        }
-        if (dto.getSemester() != null) {
-            entity.setSemester(dto.getSemester());
-        }
-        if (dto.getIsSubjectSpecific() != null) {
-            entity.setIsSubjectSpecific(dto.getIsSubjectSpecific());
-        }
-        if (dto.getPriorityOrder() != null) {
-            entity.setPriorityOrder(dto.getPriorityOrder());
-        }
+        MapperUtil.setIfNotNull(dto.getInternshipCode(), entity::setInternshipCode);
+        MapperUtil.setIfNotNull(dto.getFullName(), entity::setFullName);
+        MapperUtil.setIfNotNull(dto.getTiming(), entity::setTiming);
+        MapperUtil.setIfNotNull(dto.getPeriodType(), entity::setPeriodType);
+        MapperUtil.setIfNotNull(dto.getSemester(), entity::setSemester);
+        MapperUtil.setIfNotNull(dto.getIsSubjectSpecific(), entity::setIsSubjectSpecific);
+        MapperUtil.setIfNotNull(dto.getPriorityOrder(), entity::setPriorityOrder);
     }
 }

@@ -12,55 +12,79 @@ import de.unipassau.allocationsystem.repository.SchoolRepository;
 import de.unipassau.allocationsystem.repository.TeacherFormSubmissionRepository;
 import de.unipassau.allocationsystem.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link TeacherFormSubmissionController}.
+ * <p>
+ * This test class validates form submission CRUD operations, status updates,
+ * and filtering for teacher form submissions.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Transactional
 class TeacherFormSubmissionControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/teacher-form-submissions";
+    private static final String TOKEN_EXISTING = "test-token-123";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private TeacherFormSubmissionRepository teacherFormSubmissionRepository;
-
-    @Autowired
-    private TeacherRepository teacherRepository;
-
-    @Autowired
-    private AcademicYearRepository academicYearRepository;
-
-    @Autowired
-    private SchoolRepository schoolRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final TeacherFormSubmissionRepository submissionRepo;
+    private final TeacherRepository teacherRepo;
+    private final AcademicYearRepository yearRepo;
+    private final SchoolRepository schoolRepo;
 
     private Teacher teacher;
     private AcademicYear academicYear;
     private TeacherFormSubmission testSubmission;
 
+        @Autowired
+        TeacherFormSubmissionControllerTest(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            TeacherFormSubmissionRepository submissionRepo,
+            TeacherRepository teacherRepo,
+            AcademicYearRepository yearRepo,
+            SchoolRepository schoolRepo
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.submissionRepo = submissionRepo;
+        this.teacherRepo = teacherRepo;
+        this.yearRepo = yearRepo;
+        this.schoolRepo = schoolRepo;
+    }
+
     @BeforeEach
     void setUp() {
-        // Clean up
-        teacherFormSubmissionRepository.deleteAll();
+        submissionRepo.deleteAll();
+        School school = schoolRepo.save(buildSchool());
+        teacher = teacherRepo.save(buildTeacher(school));
+        academicYear = yearRepo.save(buildAcademicYear());
+        testSubmission = submissionRepo.save(buildSubmission(teacher, academicYear, TOKEN_EXISTING));
+    }
 
-        // Create test school (required by Teacher)
+    private School buildSchool() {
         School school = new School();
         school.setSchoolName("Test School");
         school.setSchoolType(School.SchoolType.MIDDLE);
@@ -69,335 +93,278 @@ class TeacherFormSubmissionControllerTest {
         school.setContactPhone("+49123456789");
         school.setContactEmail("test@school.com");
         school.setIsActive(true);
-        school = schoolRepository.save(school);
-
-        // Create test teacher
-        teacher = new Teacher();
-        teacher.setSchool(school);
-        teacher.setFirstName("John");
-        teacher.setLastName("Doe");
-        teacher.setEmail("john.doe@test.com");
-        teacher.setIsPartTime(false);
-        teacher.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
-        teacher = teacherRepository.save(teacher);
-
-        // Create test academic year
-        academicYear = new AcademicYear();
-        academicYear.setYearName("2024/2025");
-        academicYear.setTotalCreditHours(100);
-        academicYear.setElementarySchoolHours(20);
-        academicYear.setMiddleSchoolHours(25);
-        academicYear.setBudgetAnnouncementDate(LocalDateTime.of(2024, 1, 1, 0, 0));
-        academicYear.setIsLocked(false);
-        academicYear = academicYearRepository.save(academicYear);
-
-        // Create test submission
-        testSubmission = new TeacherFormSubmission();
-        testSubmission.setTeacher(teacher);
-        testSubmission.setAcademicYear(academicYear);
-        testSubmission.setFormToken("test-token-123");
-        testSubmission.setSubmittedAt(LocalDateTime.now());
-        testSubmission.setIsProcessed(false);
-        testSubmission = teacherFormSubmissionRepository.save(testSubmission);
+        return school;
     }
 
-    // GET ALL Tests
+    private Teacher buildTeacher(School school) {
+        Teacher t = new Teacher();
+        t.setSchool(school);
+        t.setFirstName("John");
+        t.setLastName("Doe");
+        t.setEmail("john.doe+" + System.nanoTime() + "@test.com");
+        t.setIsPartTime(false);
+        t.setEmploymentStatus(Teacher.EmploymentStatus.ACTIVE);
+        return t;
+    }
+
+    private AcademicYear buildAcademicYear() {
+        AcademicYear y = new AcademicYear();
+        y.setYearName("2024/2025-" + System.nanoTime());
+        y.setTotalCreditHours(100);
+        y.setElementarySchoolHours(20);
+        y.setMiddleSchoolHours(25);
+        y.setBudgetAnnouncementDate(LocalDateTime.of(2024, 1, 1, 0, 0));
+        y.setIsLocked(false);
+        return y;
+    }
+
+    private TeacherFormSubmission buildSubmission(Teacher t, AcademicYear y, String token) {
+        TeacherFormSubmission s = new TeacherFormSubmission();
+        s.setTeacher(t);
+        s.setAcademicYear(y);
+        s.setFormToken(token);
+        s.setSubmittedAt(LocalDateTime.now());
+        s.setIsProcessed(false);
+        return s;
+    }
+
+    // ==================== GET ALL ====================
+
     @Test
-    @DisplayName("Should get all form submissions as ADMIN")
     @WithMockUser(roles = "ADMIN")
-    void shouldGetAllFormSubmissionsAsAdmin() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions"))
+    void getAllAsAdmin() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isMap())
                 .andExpect(jsonPath("$.data.items").isArray())
-                .andExpect(jsonPath("$.data.items[0].formToken").value("test-token-123"));
+                .andExpect(jsonPath("$.data.items[0].formToken").value(TOKEN_EXISTING));
     }
 
     @Test
-    @DisplayName("Should get form submissions filtered by teacher ID")
     @WithMockUser(roles = "ADMIN")
-    void shouldGetFormSubmissionsFilteredByTeacherId() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions")
-                        .param("teacherId", teacher.getId().toString()))
+    void getAllFilteredByTeacherId() throws Exception {
+        performGetWithParam("teacherId", teacher.getId().toString())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
                 .andExpect(jsonPath("$.data.items[0].teacherId").value(teacher.getId()));
     }
 
     @Test
-    @DisplayName("Should get form submissions filtered by year ID")
     @WithMockUser(roles = "ADMIN")
-    void shouldGetFormSubmissionsFilteredByYearId() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions")
-                        .param("yearId", academicYear.getId().toString()))
+    void getAllFilteredByYearId() throws Exception {
+        performGetWithParam("yearId", academicYear.getId().toString())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
                 .andExpect(jsonPath("$.data.items[0].yearId").value(academicYear.getId()));
     }
 
     @Test
-    @DisplayName("Should get form submissions filtered by processed status")
     @WithMockUser(roles = "ADMIN")
-    void shouldGetFormSubmissionsFilteredByProcessedStatus() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions")
-                        .param("isProcessed", "false"))
+    void getAllFilteredByProcessedStatus() throws Exception {
+        performGetWithParam("isProcessed", "false")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
                 .andExpect(jsonPath("$.data.items[0].isProcessed").value(false));
     }
 
     @Test
-    @DisplayName("Should fail to get form submissions without authentication")
-    void shouldFailToGetFormSubmissionsWithoutAuth() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions"))
+    void getAllWithoutAuthShouldFail() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("Should fail to get form submissions as USER role")
     @WithMockUser(roles = "USER")
-    void shouldFailToGetFormSubmissionsAsUser() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions"))
+    void getAllAsUserShouldFail() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isForbidden());
     }
 
-    // GET BY ID Tests
+    // ==================== GET BY ID ====================
+
     @Test
-    @DisplayName("Should get form submission by ID as ADMIN")
     @WithMockUser(roles = "ADMIN")
-    void shouldGetFormSubmissionByIdAsAdmin() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions/{id}", testSubmission.getId()))
+    void getByIdAsAdmin() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testSubmission.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(testSubmission.getId()))
-                .andExpect(jsonPath("$.data.formToken").value("test-token-123"))
+                .andExpect(jsonPath("$.data.formToken").value(TOKEN_EXISTING))
                 .andExpect(jsonPath("$.data.teacherFirstName").value("John"))
-                .andExpect(jsonPath("$.data.yearName").value("2024/2025"));
+                .andExpect(jsonPath("$.data.yearName").value(containsString("2024/2025")));
     }
 
     @Test
-    @DisplayName("Should return 404 when form submission not found")
     @WithMockUser(roles = "ADMIN")
-    void shouldReturn404WhenFormSubmissionNotFound() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions/{id}", 99999L))
+    void getByIdNotFoundShouldReturn404() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", 99999L))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Form submission not found with ID: 99999"));
     }
 
     @Test
-    @DisplayName("Should fail to get form submission by ID without authentication")
-    void shouldFailToGetFormSubmissionByIdWithoutAuth() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions/{id}", testSubmission.getId()))
+    void getByIdWithoutAuthShouldFail() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testSubmission.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("Should fail to get form submission by ID as USER role")
     @WithMockUser(roles = "USER")
-    void shouldFailToGetFormSubmissionByIdAsUser() throws Exception {
-        mockMvc.perform(get("/api/teacher-form-submissions/{id}", testSubmission.getId()))
+    void getByIdAsUserShouldFail() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/{id}", testSubmission.getId()))
                 .andExpect(status().isForbidden());
     }
 
-    // CREATE Tests
-    @Test
-    @DisplayName("Should create form submission as ADMIN")
-    @WithMockUser(roles = "ADMIN")
-    void shouldCreateFormSubmissionAsAdmin() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("new-token-456");
-        createDto.setSubmittedAt(LocalDateTime.now());
+    // ==================== CREATE ====================
 
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void createAsAdminShouldSucceed() throws Exception {
+        TeacherFormSubmissionCreateDto dto = createDto("new-token-456");
+        performPost(dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.formToken").value("new-token-456"))
-                .andExpect(jsonPath("$.data.isProcessed").value(false));
+                .andExpect(jsonPath("$.data.isProcessed").value(false))
+                .andExpect(jsonPath("$.data.id").value(notNullValue()));
     }
 
     @Test
-    @DisplayName("Should fail to create form submission with missing fields")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToCreateFormSubmissionWithMissingFields() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        // Missing required fields
-
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+    void createWithMissingFieldsShouldFail() throws Exception {
+        performPost(new TeacherFormSubmissionCreateDto())
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("Should fail to create form submission with non-existent teacher")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToCreateFormSubmissionWithNonExistentTeacher() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(99999L);
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("token-789");
-        createDto.setSubmittedAt(LocalDateTime.now());
+    void createWithNonExistentTeacherShouldFail() throws Exception {
+        TeacherFormSubmissionCreateDto dto = createDto("token-789");
+        dto.setTeacherId(99999L);
 
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+        performPost(dto)
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("Teacher not found")));
     }
 
     @Test
-    @DisplayName("Should fail to create form submission with non-existent academic year")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToCreateFormSubmissionWithNonExistentYear() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(99999L);
-        createDto.setFormToken("token-789");
-        createDto.setSubmittedAt(LocalDateTime.now());
+    void createWithNonExistentYearShouldFail() throws Exception {
+        TeacherFormSubmissionCreateDto dto = createDto("token-789");
+        dto.setYearId(99999L);
 
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+        performPost(dto)
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("Academic year not found")));
     }
 
     @Test
-    @DisplayName("Should fail to create form submission with duplicate token")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToCreateFormSubmissionWithDuplicateToken() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("test-token-123"); // Duplicate token
-        createDto.setSubmittedAt(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+    void createWithDuplicateTokenShouldFail() throws Exception {
+        performPost(createDto(TOKEN_EXISTING))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value(containsString("Form token already exists")));
     }
 
     @Test
-    @DisplayName("Should fail to create form submission for locked year")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToCreateFormSubmissionForLockedYear() throws Exception {
-        // Lock the academic year
+    void createForLockedYearShouldFail() throws Exception {
         academicYear.setIsLocked(true);
-        academicYearRepository.save(academicYear);
+        yearRepo.save(academicYear);
 
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("token-999");
-        createDto.setSubmittedAt(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+        performPost(createDto("token-999"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(containsString("Cannot create submission for locked academic year")));
+                .andExpect(jsonPath("$.message")
+                        .value(containsString("Cannot create submission for locked academic year")));
     }
 
     @Test
-    @DisplayName("Should fail to create form submission without authentication")
-    void shouldFailToCreateFormSubmissionWithoutAuth() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("token-789");
-        createDto.setSubmittedAt(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/teacher-form-submissions")
+    void createWithoutAuthShouldFail() throws Exception {
+        mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+                        .content(objectMapper.writeValueAsString(createDto("token-789"))))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("Should fail to create form submission as USER role")
     @WithMockUser(roles = "USER")
-    void shouldFailToCreateFormSubmissionAsUser() throws Exception {
-        TeacherFormSubmissionCreateDto createDto = new TeacherFormSubmissionCreateDto();
-        createDto.setTeacherId(teacher.getId());
-        createDto.setYearId(academicYear.getId());
-        createDto.setFormToken("token-789");
-        createDto.setSubmittedAt(LocalDateTime.now());
-
-        mockMvc.perform(post("/api/teacher-form-submissions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
+    void createAsUserShouldFail() throws Exception {
+        performPost(createDto("token-789"))
                 .andExpect(status().isForbidden());
     }
 
-    // UPDATE STATUS Tests
-    @Test
-    @DisplayName("Should update form submission status as ADMIN")
-    @WithMockUser(roles = "ADMIN")
-    void shouldUpdateFormSubmissionStatusAsAdmin() throws Exception {
-        TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
-        updateDto.setIsProcessed(true);
+    // ==================== UPDATE STATUS ====================
 
-        mockMvc.perform(patch("/api/teacher-form-submissions/{id}/status", testSubmission.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void updateStatusAsAdminShouldSucceed() throws Exception {
+        performPatchStatus(testSubmission.getId(), true)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(testSubmission.getId()))
                 .andExpect(jsonPath("$.data.isProcessed").value(true));
     }
 
     @Test
-    @DisplayName("Should fail to update status for non-existent submission")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToUpdateStatusForNonExistentSubmission() throws Exception {
-        TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
-        updateDto.setIsProcessed(true);
-
-        mockMvc.perform(patch("/api/teacher-form-submissions/{id}/status", 99999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+    void updateStatusForNonExistentSubmissionShouldFail() throws Exception {
+        performPatchStatus(99999L, true)
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("Form submission not found")));
     }
 
     @Test
-    @DisplayName("Should fail to update status with missing fields")
     @WithMockUser(roles = "ADMIN")
-    void shouldFailToUpdateStatusWithMissingFields() throws Exception {
-        TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
-        // Missing required field
-
-        mockMvc.perform(patch("/api/teacher-form-submissions/{id}/status", testSubmission.getId())
+    void updateStatusWithMissingFieldsShouldFail() throws Exception {
+        mockMvc.perform(patch(BASE_URL + "/{id}/status", testSubmission.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(new TeacherFormSubmissionStatusUpdateDto())))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("Should fail to update status without authentication")
-    void shouldFailToUpdateStatusWithoutAuth() throws Exception {
-        TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
-        updateDto.setIsProcessed(true);
+    void updateStatusWithoutAuthShouldFail() throws Exception {
+        TeacherFormSubmissionStatusUpdateDto dto = new TeacherFormSubmissionStatusUpdateDto();
+        dto.setIsProcessed(true);
 
-        mockMvc.perform(patch("/api/teacher-form-submissions/{id}/status", testSubmission.getId())
+        mockMvc.perform(patch(BASE_URL + "/{id}/status", testSubmission.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("Should fail to update status as USER role")
     @WithMockUser(roles = "USER")
-    void shouldFailToUpdateStatusAsUser() throws Exception {
-        TeacherFormSubmissionStatusUpdateDto updateDto = new TeacherFormSubmissionStatusUpdateDto();
-        updateDto.setIsProcessed(true);
-
-        mockMvc.perform(patch("/api/teacher-form-submissions/{id}/status", testSubmission.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
+    void updateStatusAsUserShouldFail() throws Exception {
+        performPatchStatus(testSubmission.getId(), true)
                 .andExpect(status().isForbidden());
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions performGetWithParam(String key, String value) throws Exception {
+        return mockMvc.perform(get(BASE_URL).param(key, value).accept(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions performPost(Object body) throws Exception {
+        return mockMvc.perform(post(BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performPatchStatus(long id, boolean processed) throws Exception {
+        TeacherFormSubmissionStatusUpdateDto dto = new TeacherFormSubmissionStatusUpdateDto();
+        dto.setIsProcessed(processed);
+        return mockMvc.perform(patch(BASE_URL + "/{id}/status", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)));
+    }
+
+    private TeacherFormSubmissionCreateDto createDto(String token) {
+        TeacherFormSubmissionCreateDto dto = new TeacherFormSubmissionCreateDto();
+        dto.setTeacherId(teacher.getId());
+        dto.setYearId(academicYear.getId());
+        dto.setFormToken(token);
+        dto.setSubmittedAt(LocalDateTime.now());
+        return dto;
     }
 }

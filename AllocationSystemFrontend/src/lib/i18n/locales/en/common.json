@@ -10,7 +10,10 @@
         "de": "German"
     },
     "navigation": {
+        "users" : "Users",
+        "roles" : "Roles",
         "groups": {
+            "admin": "Admin",
             "overview": "Overview",
             "dataManagement": "Data Management",
             "planning": "Planning & Allocation",
@@ -71,7 +74,8 @@
         "save": "Save",
         "saving": "Saving...",
         "close": "Close",
-        "confirm": "Confirm"
+        "confirm": "Confirm",
+        "reset": "Reset"
     },
     "dashboard": {
         "title": "Dashboard",

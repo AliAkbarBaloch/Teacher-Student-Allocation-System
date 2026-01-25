@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import de.unipassau.allocationsystem.testutil.TestUserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,36 +15,39 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class AuditLogServiceTest {
 
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private AuditLogRepository auditLogRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final AuditLogService auditLogService;
+    private final AuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
 
     private User testUser;
+
+    @Autowired
+    AuditLogServiceTest(AuditLogService auditLogService,
+                        AuditLogRepository auditLogRepository,
+                        UserRepository userRepository) {
+        this.auditLogService = auditLogService;
+        this.auditLogRepository = auditLogRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
         auditLogRepository.deleteAll();
+        userRepository.deleteAll();
 
-        testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password123");
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser = userRepository.save(testUser);
+        testUser = userRepository.save(TestUserFactory.newEnabledUser("test@example.com", "Test User"));
     }
 
     @Test
@@ -71,16 +75,12 @@ class AuditLogServiceTest {
     }
 
     @Test
-    void testLogCreateAsync() throws InterruptedException {
+    void testLogCreateAsync() {
         auditLogService.logCreate("User", "456", Map.of("email", "newuser@example.com", "name", "New User"));
-        Thread.sleep(500); // Wait for async processing
 
-        Page<AuditLog> logs = auditLogRepository.findByTargetEntityAndTargetRecordId(
-                "User", "456", PageRequest.of(0, 10)
-        );
+        AuditLog log = awaitFirstAuditLogFor("User", "456", Duration.ofSeconds(5));
 
-        assertTrue(logs.getTotalElements() > 0);
-        AuditLog log = logs.getContent().get(0);
+        assertNotNull(log);
         assertEquals(AuditAction.CREATE, log.getAction());
         assertEquals("User", log.getTargetEntity());
         assertEquals("456", log.getTargetRecordId());
@@ -107,4 +107,20 @@ class AuditLogServiceTest {
         assertEquals(2, userLogs.getTotalElements());
     }
 
+    private AuditLog awaitFirstAuditLogFor(String entityName, String recordId, Duration timeout) {
+        long deadlineNanos = System.nanoTime() + timeout.toNanos();
+
+        while (System.nanoTime() < deadlineNanos) {
+            Page<AuditLog> logs = auditLogRepository.findByTargetEntityAndTargetRecordId(
+                    entityName, recordId, PageRequest.of(0, 1)
+            );
+            if (logs.hasContent()) {
+                return logs.getContent().get(0);
+            }
+            Thread.onSpinWait();
+        }
+
+        fail("Timed out waiting for async audit log entry for " + entityName + "/" + recordId);
+        return null; // unreachable
+    }
 }

@@ -7,6 +7,10 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for internship demand response data.
+ * Includes detailed information about teacher requirements with related codes and metadata.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

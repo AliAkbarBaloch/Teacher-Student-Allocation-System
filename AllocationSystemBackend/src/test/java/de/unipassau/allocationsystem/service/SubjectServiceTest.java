@@ -20,41 +20,52 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Integration tests for {@link SubjectService}.
+ * <p>
+ * Validates subject CRUD operations, sorting, and cascade deletion behavior.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @ActiveProfiles("test")
 @Transactional
 class SubjectServiceTest {
 
-    @Autowired
-    private SubjectService subjectService;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
-
-    @Autowired
-    private InternshipDemandRepository internshipDemandRepository;
-
-    @Autowired
-    private TeacherAssignmentRepository teacherAssignmentRepository;
-
-    // ensure the repository that manages the teacher-subject join is cleared
-    @Autowired
-    private TeacherSubjectRepository teacherSubjectRepository;
-
-    @Autowired
-    private EntityManager entityManager;
+    private final SubjectService subjectService;
+    private final SubjectRepository subjectRepository;
+    private final SubjectCategoryRepository subjectCategoryRepository;
+    private final InternshipDemandRepository internshipDemandRepository;
+    private final TeacherAssignmentRepository teacherAssignmentRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
+    private final EntityManager entityManager;
 
     private SubjectCategory testCategory;
 
+    @Autowired
+    SubjectServiceTest(SubjectService subjectService,
+                       SubjectRepository subjectRepository,
+                       SubjectCategoryRepository subjectCategoryRepository,
+                       InternshipDemandRepository internshipDemandRepository,
+                       TeacherAssignmentRepository teacherAssignmentRepository,
+                       TeacherSubjectRepository teacherSubjectRepository,
+                       EntityManager entityManager) {
+        this.subjectService = subjectService;
+        this.subjectRepository = subjectRepository;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+        this.internshipDemandRepository = internshipDemandRepository;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.teacherSubjectRepository = teacherSubjectRepository;
+        this.entityManager = entityManager;
+    }
+
     @BeforeEach
     void setUp() {
-        // delete child tables that reference subjects first to avoid FK constraint violations
-        // order matters: clear join tables and child entities before parent subjects
         teacherSubjectRepository.deleteAll();
         entityManager.flush();
 
@@ -86,7 +97,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void getSortFields_ShouldReturnConfiguredFields() {
+    void getSortFieldsShouldReturnConfiguredFields() {
         List<Map<String, String>> sortFields = subjectService.getSortFields();
 
         assertTrue(sortFields.size() >= 4);
@@ -95,7 +106,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void isRecordExist_ShouldDetectExistingCode() {
+    void isRecordExistShouldDetectExistingCode() {
         createSubject("MATH101", "Mathematics");
 
         assertTrue(subjectService.isRecordExist("MATH101"));
@@ -103,7 +114,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void create_ShouldPersistNewSubject() {
+    void createShouldPersistNewSubject() {
         Subject subject = new Subject();
         subject.setSubjectCode("MATH101");
         subject.setSubjectTitle("Mathematics");
@@ -120,7 +131,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void create_DuplicateCode_ShouldThrowException() {
+    void createDuplicateCodeShouldThrowException() {
         createSubject("MATH101", "Mathematics");
 
         Subject duplicate = new Subject();
@@ -132,7 +143,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void getAll_ShouldReturnEverySubject() {
+    void getAllShouldReturnEverySubject() {
         createSubject("MATH101", "Mathematics");
         createSubject("PHYS101", "Physics");
 
@@ -142,7 +153,7 @@ class SubjectServiceTest {
     }
 
     @Test
-    void getById_ShouldReturnSubjectWhenPresent() {
+    void getByIdShouldReturnSubjectWhenPresent() {
         Subject saved = createSubject("MATH101", "Mathematics");
 
         Optional<Subject> result = subjectService.getById(saved.getId());

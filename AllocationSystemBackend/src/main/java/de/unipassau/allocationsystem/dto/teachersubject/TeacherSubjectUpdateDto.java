@@ -5,6 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for updating an existing teacher-subject mapping.
+ * All fields are optional for partial updates.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -5,12 +5,18 @@ package de.unipassau.allocationsystem.constant;
  */
 public final class PlanChangeTypes {
 
-    public static final String CREATE = "CREATE";
-    public static final String UPDATE = "UPDATE";
-    public static final String DELETE = "DELETE";
-    public static final String STATUS_CHANGE = "STATUS_CHANGE";
-
     private PlanChangeTypes() {
-
     }
+
+    /** Creates a new plan or plan entity. */
+    public static final String CREATE = "CREATE";
+    
+    /** Updates an existing plan. */
+    public static final String UPDATE = "UPDATE";
+    
+    /** Deletes a plan or plan entity. */
+    public static final String DELETE = "DELETE";
+    
+    /** Changes plan status. */
+    public static final String STATUS_CHANGE = "STATUS_CHANGE";
 }

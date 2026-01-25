@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation to mark methods that should be audited.
  * When applied to a method, the AuditAspect will automatically create an audit log entry.
+ * Can also be used as a meta-annotation to create composite audit annotations.
  * 
  * Usage example:
  * <pre>
@@ -19,7 +20,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  */
-@Target(ElementType.METHOD)
+@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Audited {
     

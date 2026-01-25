@@ -17,6 +17,10 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+/**
+ * Service for querying and analyzing audit log data.
+ * Provides methods for retrieving audit logs with various filters and statistics.
+ */
 public class AuditLogQueryService {
 
     private final AuditLogRepository auditLogRepository;
@@ -104,6 +108,12 @@ public class AuditLogQueryService {
 
     @FunctionalInterface
     private interface KeyExtractor {
+        /**
+         * Extracts a string key from a query result array.
+         * 
+         * @param result the result array from a query
+         * @return the extracted key as a string
+         */
         String extractKey(Object[] result);
     }
 

@@ -5,10 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for updating an existing credit hour tracking record.
+ * All fields are optional for partial updates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreditHourTrackingUpdateDto {
+public class CreditHourTrackingUpdateDto implements CreditHourTrackingUpsertDto {
     private Long teacherId;
     private Long academicYearId;
     @Min(0)

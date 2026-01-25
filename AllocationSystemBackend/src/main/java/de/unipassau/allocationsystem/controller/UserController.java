@@ -1,12 +1,13 @@
 package de.unipassau.allocationsystem.controller;
 
 import de.unipassau.allocationsystem.dto.auth.PasswordResetDto;
+import de.unipassau.allocationsystem.dto.request.UserFilterDto;
 import de.unipassau.allocationsystem.dto.user.UserCreateDto;
 import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.dto.user.UserStatisticsDto;
 import de.unipassau.allocationsystem.dto.user.UserUpdateDto;
-import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.service.UserService;
+import de.unipassau.allocationsystem.service.UserQuery;
 import de.unipassau.allocationsystem.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,10 +19,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
- 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST Controller for comprehensive user management operations.
@@ -138,19 +147,20 @@ public class UserController {
         @GetMapping
         @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<?> getAllUsers(
-            @RequestParam(required = false) User.UserRole role,
-            @RequestParam(required = false) User.AccountStatus status,
-            @RequestParam(required = false) Boolean enabled,
-            @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String sortDirection
+            @ModelAttribute UserFilterDto filterDto
     ) {
         log.info("Getting all users with filters");
-        Page<UserResponseDto> users = userService.getAllUsers(
-            role, status, enabled, search, page, size, sortBy, sortDirection
+        UserQuery query = new UserQuery(
+            filterDto.getRole(),
+            filterDto.getStatus(),
+            filterDto.getEnabled(),
+            filterDto.getSearch(),
+            filterDto.getPage(),
+            filterDto.getSize(),
+            filterDto.getSortBy(),
+            filterDto.getSortDirection()
         );
+        Page<UserResponseDto> users = userService.getAllUsers(query);
         return ResponseHandler.success("Users retrieved successfully", users);
     }
 

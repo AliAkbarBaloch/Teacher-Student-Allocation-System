@@ -4,7 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class for converting field names to sortable field metadata.
+ * Generates sort field options with formatted labels.
+ */
 public class SortFieldUtils {
+    /**
+     * Converts field names to a list of sort field options.
+     * Each option contains a key (field name) and a human-readable label.
+     * 
+     * @param fields the field names to convert
+     * @return list of sort field options as key-label maps
+     */
     public static List<Map<String, String>> getSortFields(String... fields) {
         List<Map<String, String>> result = new ArrayList<>();
         for (String field : fields) {

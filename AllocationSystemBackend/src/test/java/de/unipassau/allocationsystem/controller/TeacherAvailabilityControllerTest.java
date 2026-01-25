@@ -1,22 +1,31 @@
 package de.unipassau.allocationsystem.controller;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.test.context.support.WithMockUser;
 import de.unipassau.allocationsystem.entity.InternshipType;
 import de.unipassau.allocationsystem.repository.InternshipTypeRepository;
 import de.unipassau.allocationsystem.repository.TeacherAvailabilityRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for the {@link TeacherAvailabilityController}.
+ * <p>
+ * This test class validates teacher availability CRUD operations, pagination,
+ * and sorting functionality.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc(addFilters = true)
 @ActiveProfiles("test")
@@ -24,32 +33,39 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser // authenticate all tests in this class
 class TeacherAvailabilityControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private final MockMvc mockMvc;
+    private final InternshipTypeRepository internshipTypeRepository;
+    private final TeacherAvailabilityRepository teacherAvailabilityRepository;
 
-    @Autowired
-    private InternshipTypeRepository internshipTypeRepository;
-
-    @Autowired
-    private TeacherAvailabilityRepository teacherAvailabilityRepository;
+        @Autowired
+        TeacherAvailabilityControllerTest(
+            MockMvc mockMvc,
+            InternshipTypeRepository internshipTypeRepository,
+            TeacherAvailabilityRepository teacherAvailabilityRepository
+        ) {
+        this.mockMvc = mockMvc;
+        this.internshipTypeRepository = internshipTypeRepository;
+        this.teacherAvailabilityRepository = teacherAvailabilityRepository;
+    }
 
     @BeforeEach
     void setUp() {
-        // ensure clean state
         teacherAvailabilityRepository.deleteAll();
         internshipTypeRepository.deleteAll();
+        internshipTypeRepository.save(buildInternshipType());
+    }
 
-        // create a minimal InternshipType with required non-null semester to avoid validation errors
+    private InternshipType buildInternshipType() {
         InternshipType it = new InternshipType();
         it.setInternshipCode("TEST-INT");
         it.setFullName("Test Internship");
         it.setIsSubjectSpecific(false);
-        it.setSemester(1); // required
-        internshipTypeRepository.save(it);
+        it.setSemester(1);
+        return it;
     }
 
     @Test
-    void getSortFields_Success() throws Exception {
+    void getSortFieldsSuccess() throws Exception {
         mockMvc.perform(get("/api/teacher-availability/sort-fields")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -57,7 +73,7 @@ class TeacherAvailabilityControllerTest {
     }
 
     @Test
-    void getPaginate_Success_WithNoData() throws Exception {
+    void getPaginateSuccessWithNoData() throws Exception {
         mockMvc.perform(get("/api/teacher-availability/paginate")
                         .param("page", "0")
                         .param("size", "10")
@@ -67,7 +83,7 @@ class TeacherAvailabilityControllerTest {
     }
 
     @Test
-    void getAll_Success_WithNoData() throws Exception {
+    void getAllSuccessWithNoData() throws Exception {
         mockMvc.perform(get("/api/teacher-availability")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -75,15 +91,14 @@ class TeacherAvailabilityControllerTest {
     }
 
     @Test
-    void getById_NotFound_ShouldReturn404() throws Exception {
-        // choose an id that does not exist
+    void getByIdNotFoundShouldReturn404() throws Exception {
         mockMvc.perform(get("/api/teacher-availability/{id}", 9999L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void deleteAvailability_NotFound_ShouldReturn404() throws Exception {
+    void deleteAvailabilityNotFoundShouldReturn404() throws Exception {
         mockMvc.perform(delete("/api/teacher-availability/{id}", 9999L))
                 .andExpect(status().isNotFound());
     }

@@ -14,6 +14,9 @@ import type {
 } from "../types/teacher.types";
 import { isApiError } from "../types/teacher.types";
 
+import type { Subject } from "@/features/subjects/types/subject.types";
+import { SubjectService } from "@/features/subjects/services/subjectService";
+
 type FormState = {
   schoolId: string;
   firstName: string;
@@ -24,6 +27,7 @@ type FormState = {
   workingHoursPerWeek: string;
   employmentStatus: EmploymentStatus | "";
   usageCycle: UsageCycle | "";
+  subjectIds: number[];
 };
 
 const createDefaultState = (): FormState => ({
@@ -36,8 +40,11 @@ const createDefaultState = (): FormState => ({
   workingHoursPerWeek: "",
   employmentStatus: "",
   usageCycle: "",
+  subjectIds: [],
+
 });
 
+// When editing a teacher 
 const mapTeacherToFormState = (teacher: Teacher): FormState => ({
   schoolId: teacher.schoolId ? String(teacher.schoolId) : "",
   firstName: teacher.firstName ?? "",
@@ -48,6 +55,10 @@ const mapTeacherToFormState = (teacher: Teacher): FormState => ({
   workingHoursPerWeek: teacher.workingHoursPerWeek != null ? String(teacher.workingHoursPerWeek) : "", // <-- Add this line
   employmentStatus: teacher.employmentStatus ?? "",
   usageCycle: teacher.usageCycle ?? "",
+  // .map - go through subjects and extract only ids as an array. 
+  // ? - only do map if teacher.subject exists
+  // ?? - nullish coalesing. if the left side is null, use the right side 
+  subjectIds: teacher.subjects?.map((s) => s.id) ?? [],
 });
 
 type BaseTeacherFormOptions = {
@@ -80,6 +91,10 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     return createDefaultState();
   }, [isEditMode, teacher]);
 
+  //
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+
   const [formState, setFormState] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<TeacherFormErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -105,6 +120,42 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     }
   }, [mode, refreshSchools]);
 
+  //run once 
+  useEffect(() => {
+
+    //assume the component is currently on the screen 
+    let mounted = true; 
+
+    //
+    async function loadSubjects(){
+
+      setSubjectsLoading(true);
+      try{
+        //wait until backend sends me all subjects, store result in res 
+        const res = await SubjectService.getAll();
+        //only update state if this screen is still open 
+        if (mounted) setSubjects(res);
+      } catch (e) {
+        console.error("Failed to load subjects", e);
+        if (mounted) setSubjects([]);
+      } finally {
+        //loading is done 
+        if (mounted) setSubjectsLoading(false);
+      }
+    }
+
+    //start the loading 
+    loadSubjects();
+
+    //called when the component is removed from the screen 
+    return () => {
+
+      mounted = false; 
+      
+    };
+
+  }, []);
+
   const employmentStatusOptions = useMemo(() => {
     return EMPLOYMENT_STATUS_OPTIONS.map((status) => ({
       value: status,
@@ -124,9 +175,9 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   }, [errors]);
-
+  // when a form changes, update the form state 
   const handleInputChange = useCallback(
-    (field: keyof FormState, value: string | boolean | number) => {
+    (field: keyof FormState, value: string | boolean | number | number[]) => {
       let newValue = value;
       if (field === "workingHoursPerWeek" && typeof value === "number") {
         newValue = String(value);
@@ -194,6 +245,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     };
     const employmentStatus = formState.employmentStatus as EmploymentStatus;
 
+    //Payload is sent to backend 
     const payload: CreateTeacherRequest = {
       schoolId: Number(formState.schoolId),
       firstName: formState.firstName.trim(),
@@ -202,6 +254,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
       isPartTime: formState.isPartTime,
       workingHoursPerWeek: formState.isPartTime && String(formState.workingHoursPerWeek).trim() ? Number(formState.workingHoursPerWeek) : null,
       employmentStatus,
+      subjectIds: formState.subjectIds,
     };
 
     // Only include optional fields if they have values
@@ -245,6 +298,7 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
             employmentStatus: basePayload.employmentStatus,
             usageCycle: basePayload.usageCycle,
             workingHoursPerWeek: basePayload.workingHoursPerWeek,
+            subjectIds: basePayload.subjectIds,
           };
           await onSubmit(updatePayload);
         } else {
@@ -293,6 +347,8 @@ export function useTeacherForm(options: UseTeacherFormOptions) {
     handleSubmit,
     internalSubmitting,
     isEditMode,
+    subjects,
+    subjectsLoading,
   };
 }
 

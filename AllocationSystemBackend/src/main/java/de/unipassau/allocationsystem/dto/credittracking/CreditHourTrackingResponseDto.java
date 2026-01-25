@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * DTO for credit hour tracking response data.
+ * Includes teacher and academic year details with assignment and credit information.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

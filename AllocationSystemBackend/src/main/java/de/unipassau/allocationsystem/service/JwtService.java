@@ -9,13 +9,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 /**
  * Service for JWT token operations: generation, validation, and extraction.
+ *
+ * Notes:
+ * - Avoids java.util.Date entirely by setting standard JWT time claims (iat/exp) as epoch-seconds numbers.
  */
 @Service
 public class JwtService {
@@ -23,6 +26,9 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+    /**
+     * Expiration duration in milliseconds.
+     */
     @Value("${jwt.expiration}")
     private Long expiration;
 
@@ -30,8 +36,7 @@ public class JwtService {
      * Generate JWT token for a user.
      */
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(new HashMap<>(), userDetails.getUsername());
     }
 
     /**
@@ -43,39 +48,62 @@ public class JwtService {
 
     /**
      * Create JWT token with claims and subject.
+     * Uses numeric date claims:
+     * - iat: epoch seconds
+     * - exp: epoch seconds
      */
     private String createToken(Map<String, Object> claims, String subject) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        Instant now = Instant.now();
+        Instant expiresAt = now.plusMillis(expiration);
+
+        Map<String, Object> mergedClaims = new HashMap<>(claims);
+        mergedClaims.put(Claims.ISSUED_AT, now.getEpochSecond());
+        mergedClaims.put(Claims.EXPIRATION, expiresAt.getEpochSecond());
 
         return Jwts.builder()
-                .claims(claims)
+                .claims(mergedClaims)
                 .subject(subject)
-                .issuedAt(now)
-                .expiration(expiryDate)
                 .signWith(getSigningKey())
                 .compact();
     }
 
     /**
-     * Extract username (email) from token.
+     * Extract username (subject) from token.
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     /**
-     * Extract expiration date from token.
+     * Extract expiration timestamp from token as Instant.
+     * Supports both numeric and Date-based exp representations (in case older tokens exist).
      */
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Instant extractExpirationInstant(String token) {
+        Claims claims = extractAllClaims(token);
+
+        Object exp = claims.get(Claims.EXPIRATION);
+        if (exp instanceof Number n) {
+            return Instant.ofEpochSecond(n.longValue());
+        }
+
+        // Fallback for unexpected token formats without referencing java.util.Date:
+        // attempt to parse as string seconds
+        if (exp instanceof String s) {
+            try {
+                return Instant.ofEpochSecond(Long.parseLong(s));
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+
+        throw new IllegalStateException("Unsupported 'exp' claim type: " + (exp == null ? "null" : exp.getClass()));
     }
 
     /**
      * Extract a specific claim from token.
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
@@ -93,16 +121,16 @@ public class JwtService {
     /**
      * Check if token is expired.
      */
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isTokenExpired(String token) {
+        return extractExpirationInstant(token).isBefore(Instant.now());
     }
 
     /**
      * Validate token against user details.
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public boolean validateToken(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     /**

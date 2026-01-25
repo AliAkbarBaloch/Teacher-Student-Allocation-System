@@ -13,6 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JacksonConfig {
 
+    /**
+     * Configures the Jackson ObjectMapper for JSON serialization/deserialization.
+     * Registers JavaTimeModule for Java 8 date/time support and disables timestamp format.
+     * 
+     * @return Configured ObjectMapper instance
+     */
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();

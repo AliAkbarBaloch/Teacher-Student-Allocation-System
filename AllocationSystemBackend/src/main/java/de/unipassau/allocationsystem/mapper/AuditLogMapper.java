@@ -9,14 +9,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between AuditLog entities and DTOs.
+ * Handles audit log transformations with user resolution.
+ */
 public class AuditLogMapper {
 
     private final UserRepository userRepository;
 
+    /**
+     * Converts an audit log DTO to an entity.
+     * 
+     * @param dto the audit log DTO
+     * @return audit log entity
+     * @throws ResourceNotFoundException if user not found
+     */
     public AuditLog toEntity(AuditLogDto dto) {
         if (dto == null) {
             return null;
@@ -45,13 +57,19 @@ public class AuditLogMapper {
         return builder.build();
     }
 
+    /**
+     * Converts an audit log entity to a DTO.
+     * 
+     * @param entity the audit log entity
+     * @return audit log DTO
+     */
     public AuditLogDto toDto(AuditLog entity) {
         if (entity == null) {
             return null;
         }
         return AuditLogDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUser() != null ? entity.getUser().getId() : 0L)
+                .userId(Optional.ofNullable(entity.getUser()).map(User::getId).orElse(0L))
                 .userIdentifier(entity.getUserIdentifier())
                 .eventTimestamp(entity.getEventTimestamp())
                 .action(entity.getAction())
@@ -65,6 +83,12 @@ public class AuditLogMapper {
                 .build();
     }
 
+    /**
+     * Converts a list of audit log entities to DTOs.
+     * 
+     * @param entities list of audit log entities
+     * @return list of audit log DTOs
+     */
     public List<AuditLogDto> toDtoList(List<AuditLog> entities) {
         if (entities == null) {
             return null;

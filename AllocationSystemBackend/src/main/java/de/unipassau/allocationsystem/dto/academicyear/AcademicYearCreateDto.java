@@ -8,10 +8,14 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for creating a new academic year.
+ * Contains year information, credit hour allocations, and important dates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademicYearCreateDto {
+public class AcademicYearCreateDto implements AcademicYearUpsertDto {
     @NotBlank(message = "Year is required")
     private String yearName;
 

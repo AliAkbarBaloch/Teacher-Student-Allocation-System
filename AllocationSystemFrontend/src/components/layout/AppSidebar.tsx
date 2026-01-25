@@ -8,6 +8,7 @@ import {
   BarChart3,
   Database,
   LucideLayoutDashboard,
+  Users
 } from "lucide-react"
 // translations
 import { useTranslation } from "react-i18next"
@@ -185,19 +186,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
       ],
     },
+    {
+      label: t("navigation.groups.admin"),
+      items: [
+        {
+          title: t("navigation.users"),
+          url: ROUTES.admin.users,
+          icon: Users,
+          isActive: location.pathname.startsWith("/admin/users"),
+        },
+        {
+          title: t("navigation.roles"),
+          url: ROUTES.admin.roles,
+          icon: UserCog,
+          isActive: location.pathname === ROUTES.admin.roles,
+        },
+      ],
+    },
   ]
 
   const userData = user
     ? {
-        name: user.name || user.email?.split("@")[0] || "User",
-        email: user.email || "",
-        avatar: "",
-      }
+      name: user.name || user.email?.split("@")[0] || "User",
+      email: user.email || "",
+      avatar: "",
+    }
     : {
-        name: "User",
-        email: "",
-        avatar: "",
-      }
+      name: "User",
+      email: "",
+      avatar: "",
+    }
 
   return (
     <Sidebar variant="inset" {...props}>

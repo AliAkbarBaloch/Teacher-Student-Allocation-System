@@ -1,12 +1,18 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.aspect.Audited;
-import de.unipassau.allocationsystem.constant.AuditEntityNames;
+import de.unipassau.allocationsystem.audit.RoleCreateAudit;
+import de.unipassau.allocationsystem.audit.RoleDeleteAudit;
+import de.unipassau.allocationsystem.audit.RoleUpdateAudit;
+import de.unipassau.allocationsystem.audit.RoleViewAllAudit;
+import de.unipassau.allocationsystem.audit.RoleViewAudit;
+import de.unipassau.allocationsystem.audit.RoleViewByIdAudit;
 import de.unipassau.allocationsystem.entity.Role;
+import de.unipassau.allocationsystem.exception.DuplicateResourceException;
+import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
 import de.unipassau.allocationsystem.repository.RoleRepository;
 import de.unipassau.allocationsystem.utils.PaginationUtils;
-import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
+import de.unipassau.allocationsystem.utils.SortFieldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,9 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
-import de.unipassau.allocationsystem.exception.DuplicateResourceException;
-import de.unipassau.allocationsystem.exception.ResourceNotFoundException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,14 +31,28 @@ import java.util.Optional;
 @Service
 @Slf4j
 @Transactional
-public class RoleService  implements CrudService<Role, Long> {
+/**
+ * Service for managing user roles.
+ * Handles CRUD operations for role entities.
+ */
+public class RoleService implements CrudService<Role, Long> {
 
     private final RoleRepository roleRepository;
 
+    /**
+     * Returns the sortable fields metadata.
+     *
+     * @return list of sort field metadata
+     */
     public List<Map<String, String>> getSortFields() {
         return SortFieldUtils.getSortFields("id", "title", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys.
+     *
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
@@ -42,10 +60,16 @@ public class RoleService  implements CrudService<Role, Long> {
     private Specification<Role> buildSearchSpecification(String searchValue) {
         // Search across title and description
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
-            new String[]{"title", "description"}, searchValue
+                new String[]{"title", "description"}, searchValue
         );
     }
 
+    /**
+     * Checks if a role with the given title exists.
+     *
+     * @param title the role title to check
+     * @return true if title exists, false otherwise
+     */
     public boolean titleExists(String title) {
         return roleRepository.findByTitle(title).isPresent();
     }
@@ -55,12 +79,45 @@ public class RoleService  implements CrudService<Role, Long> {
         return roleRepository.existsById(id);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed list of roles",
-            captureNewValue = false
-    )
+    /**
+     * Loads an existing role or throws if not found.
+     */
+    private Role getExistingOrThrow(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
+    }
+
+    /**
+     * Ensures the given title is unique.
+     * If currentId is non-null, the record with that id is allowed to keep the same title.
+     */
+    private void assertTitleUniqueForId(String title, Long currentId) {
+        roleRepository.findByTitle(title).ifPresent(existing -> {
+            Long existingId = existing.getId();
+            boolean isDifferent = (currentId == null) || (existingId != null && !existingId.equals(currentId));
+            if (isDifferent) {
+                throw new DuplicateResourceException("Role with title '" + title + "' already exists");
+            }
+        });
+    }
+
+    /**
+     * Applies field updates from source to target role.
+     * Only updates fields that are non-null in the source.
+     */
+    private void applyFieldUpdates(Role existing, Role data) {
+        String newTitle = data.getTitle();
+        if (newTitle != null && !newTitle.equals(existing.getTitle())) {
+            assertTitleUniqueForId(newTitle, existing.getId());
+            existing.setTitle(newTitle);
+        }
+
+        if (data.getDescription() != null) {
+            existing.setDescription(data.getDescription());
+        }
+    }
+
+    @RoleViewAudit
     @Transactional(readOnly = true)
     @Override
     public Map<String, Object> getPaginated(Map<String, String> queryParams, String searchValue) {
@@ -74,83 +131,42 @@ public class RoleService  implements CrudService<Role, Long> {
         return PaginationUtils.formatPaginationResponse(page);
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed all roles",
-            captureNewValue = false
-    )
+    @RoleViewAllAudit
     @Transactional(readOnly = true)
     @Override
     public List<Role> getAll() {
         return roleRepository.findAll();
     }
 
-    @Audited(
-            action = AuditAction.VIEW,
-            entityName = AuditEntityNames.ROLE,
-            description = "Viewed role by id",
-            captureNewValue = false
-    )
+    @RoleViewByIdAudit
     @Transactional(readOnly = true)
     @Override
     public Optional<Role> getById(Long id) {
         return roleRepository.findById(id);
     }
 
-    @Audited(
-            action = AuditAction.CREATE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Created new role",
-            captureNewValue = true
-    )
+    @RoleCreateAudit
     @Transactional
     @Override
     public Role create(Role role) {
-        if (roleRepository.findByTitle(role.getTitle()).isPresent()) {
-            throw new DuplicateResourceException("Role with title '" + role.getTitle() + "' already exists");
-        }
+        assertTitleUniqueForId(role.getTitle(), null);
         return roleRepository.save(role);
     }
 
-    @Audited(
-            action = AuditAction.UPDATE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Updated role",
-            captureNewValue = true
-    )
+    @RoleUpdateAudit
     @Transactional
     @Override
     public Role update(Long id, Role data) {
-        Role existing = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
-
-        if (data.getTitle() != null && !data.getTitle().equals(existing.getTitle())) {
-            if (roleRepository.findByTitle(data.getTitle()).isPresent()) {
-                throw new DuplicateResourceException("Role with title '" + data.getTitle() + "' already exists");
-            }
-            existing.setTitle(data.getTitle());
-        }
-
-        if (data.getDescription() != null) {
-            existing.setDescription(data.getDescription());
-        }
-
+        Role existing = getExistingOrThrow(id);
+        applyFieldUpdates(existing, data);
         return roleRepository.save(existing);
     }
 
-    @Audited(
-            action = AuditAction.DELETE,
-            entityName = AuditEntityNames.ROLE,
-            description = "Deleted role",
-            captureNewValue = false
-    )
+    @RoleDeleteAudit
     @Transactional
     @Override
     public void delete(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Role not found with id: " + id);
-        }
+        getExistingOrThrow(id);
         roleRepository.deleteById(id);
     }
 }

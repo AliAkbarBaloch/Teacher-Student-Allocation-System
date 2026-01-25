@@ -72,7 +72,8 @@
       "employmentStatus": "Employment Status",
       "usageCycle": "Usage Cycle",
       "isActive": "Active",
-      "workingHoursPerWeek": "Working Hours Per Week"
+      "workingHoursPerWeek": "Working Hours Per Week",
+      "subjects": "Subjects"
     },
     "placeholders": {
       "school": "Select school",
@@ -99,10 +100,10 @@
       "RETIRED": "Retired"
     },
     "usageCycle": {
-      "SEMESTER_1": "Semester 1",
-      "SEMESTER_2": "Semester 2",
-      "FULL_YEAR": "Full Year",
-      "QUARTERLY": "Quarterly"
+      "GRADES_1_2": "Grades 1–2",
+      "GRADES_3_4": "Grades 3–4",
+      "GRADES_5_TO_9": "Grades 5–9",
+      "FLEXIBLE": "Flexible"
     },
     "errors": {
       "schoolIdRequired": "School is required.",

@@ -1,6 +1,10 @@
 package de.unipassau.allocationsystem.service;
 
-import de.unipassau.allocationsystem.dto.auth.*;
+import de.unipassau.allocationsystem.dto.auth.LoginRequestDto;
+import de.unipassau.allocationsystem.dto.auth.LoginResponseDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordChangeRequestDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordForgotRequestDto;
+import de.unipassau.allocationsystem.dto.auth.PasswordResetRequestDto;
 import de.unipassau.allocationsystem.dto.user.UserProfileUpdateRequest;
 import de.unipassau.allocationsystem.dto.user.UserResponseDto;
 import de.unipassau.allocationsystem.entity.AuditLog;
@@ -46,81 +50,28 @@ public class AuthService {
     private final AuditLogService auditLogService;
     private final EmailService emailService;
 
-    /**
-     * Authenticate user and generate JWT token.
-     */
+    /** Authenticates the user and returns a JWT-based {@link LoginResponseDto}. */
     public LoginResponseDto login(LoginRequestDto request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
-
-        // Check if account is locked
-        if (user.isAccountLocked()) {
-            auditLogService.logAction(
-                    AuditLog.AuditAction.LOGIN_FAILED,
-                    "User",
-                    String.format("Login attempt for locked account: %s (ID: %d)", user.getEmail(), user.getId())
-            );
-            throw new LockedException("Account is locked. Please contact administrator or reset your password.");
-        }
+        User user = requireUserByEmail(request.getEmail());
+        assertAccountNotLocked(user);
 
         try {
-            // Authenticate
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
+            Authentication authentication = authenticate(request);
+            setAuthentication(authentication);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Reset failed login attempts on successful login
-            user.setFailedLoginAttempts(0);
-            user.setLastLoginDate(LocalDateTime.now());
-            userRepository.save(user);
-
-            // Generate JWT token
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
 
-            auditLogService.logAction(
-                    AuditLog.AuditAction.LOGIN,
-                    "User",
-                    String.format("User logged in: %s (ID: %d)", user.getEmail(), user.getId())
-            );
+            onSuccessfulLogin(user);
+            logLoginSuccess(user);
 
-            return LoginResponseDto.builder()
-                    .token(token)
-                    .userId(user.getId())
-                    .email(user.getEmail())
-                    .fullName(user.getFullName())
-                    .role(user.getRole().name())
-                    .build();
-
+            return buildLoginResponse(user, token);
         } catch (BadCredentialsException e) {
-            // Increment failed login attempts - this is business logic, not just error handling
-            int attempts = user.getFailedLoginAttempts() + 1;
-            user.setFailedLoginAttempts(attempts);
-
-            if (attempts >= MAX_FAILED_ATTEMPTS) {
-                user.setAccountLocked(true);
-                emailService.sendAccountLockedEmail(user.getEmail(), user.getFullName());
-                auditLogService.logAction(
-                        AuditLog.AuditAction.ACCOUNT_LOCKED,
-                        "User",
-                        String.format("Account locked after %d failed attempts: %s (ID: %d)", attempts, user.getEmail(), user.getId())
-                );
-            }
-
-            userRepository.save(user);
-
-            auditLogService.logAction(
-                    AuditLog.AuditAction.LOGIN_FAILED,
-                    "User",
-                    String.format("Failed login attempt %d/%d for: %s (ID: %d)", attempts, MAX_FAILED_ATTEMPTS, user.getEmail(), user.getId())
-            );
-
-            // Re-throw to let GlobalExceptionHandler handle the response
+            onFailedLoginAttempt(user);
             throw e;
         }
     }
+
 
     /**
      * Logout user (client-side token invalidation).
@@ -144,19 +95,14 @@ public class AuthService {
      * Initiate forgot password flow by generating and sending reset token.
      */
     public void forgotPassword(PasswordForgotRequestDto request) {
-        // Find user by email - don't throw exception if not found (security: don't reveal if email exists)
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
-        
         if (user == null) {
-            // User doesn't exist - just return without sending email (but don't reveal this to the caller)
             log.info("Password reset requested for non-existent email: {}", request.getEmail());
             return;
         }
 
-        // Invalidate any existing tokens for this user
         tokenRepository.deleteByUser(user);
 
-        // Generate new token
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
@@ -164,7 +110,6 @@ public class AuthService {
         resetToken.setExpiryDate(LocalDateTime.now().plusHours(24));
         tokenRepository.save(resetToken);
 
-        // Send password reset email
         emailService.sendPasswordResetEmail(user.getEmail(), token, user.getFullName());
         log.info("Password reset email sent to: {}", user.getEmail());
 
@@ -189,11 +134,10 @@ public class AuthService {
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
-        user.setFailedLoginAttempts(0); // Reset failed attempts
-        user.setAccountLocked(false); // Unlock account if locked
+        user.setFailedLoginAttempts(0);
+        user.setAccountLocked(false);
         userRepository.save(user);
 
-        // Mark token as used
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
 
@@ -208,15 +152,8 @@ public class AuthService {
      * Change password for authenticated user.
      */
     public void changePassword(PasswordChangeRequestDto request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
-            throw new IllegalStateException("User is not authenticated");
-        }
+        User user = requireAuthenticatedUser();
 
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             auditLogService.logAction(
                     AuditLog.AuditAction.PASSWORD_CHANGE_FAILED,
@@ -226,7 +163,6 @@ public class AuthService {
             throw new IllegalArgumentException("Current password is incorrect");
         }
 
-        // Update password
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setLastPasswordResetDate(LocalDateTime.now());
         userRepository.save(user);
@@ -242,15 +178,8 @@ public class AuthService {
      * Update user profile information.
      */
     public UserResponseDto updateProfile(UserProfileUpdateRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
-            throw new IllegalStateException("User is not authenticated");
-        }
+        User user = requireAuthenticatedUser();
 
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Check if email is being changed and if it's already taken
         if (!user.getEmail().equals(request.getEmail())) {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("Email is already in use");
@@ -276,15 +205,108 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public UserResponseDto getCurrentUserProfile() {
+        User user = requireAuthenticatedUser();
+        return mapToResponseDto(user);
+    }
+
+    // =========================
+    // Login helpers
+    // =========================
+
+    private User requireUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid email or password"));
+    }
+
+    private void assertAccountNotLocked(User user) {
+        if (!user.isAccountLocked()) {
+            return;
+        }
+
+        auditLogService.logAction(
+                AuditLog.AuditAction.LOGIN_FAILED,
+                "User",
+                String.format("Login attempt for locked account: %s (ID: %d)", user.getEmail(), user.getId())
+        );
+        throw new LockedException("Account is locked. Please contact administrator or reset your password.");
+    }
+
+    private Authentication authenticate(LoginRequestDto request) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+    }
+
+    private void setAuthentication(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void onSuccessfulLogin(User user) {
+        user.setFailedLoginAttempts(0);
+        user.setLastLoginDate(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    private void logLoginSuccess(User user) {
+        auditLogService.logAction(
+                AuditLog.AuditAction.LOGIN,
+                "User",
+                String.format("User logged in: %s (ID: %d)", user.getEmail(), user.getId())
+        );
+    }
+
+    private void onFailedLoginAttempt(User user) {
+        int attempts = user.getFailedLoginAttempts() + 1;
+        user.setFailedLoginAttempts(attempts);
+
+        if (attempts >= MAX_FAILED_ATTEMPTS) {
+            lockAccount(user, attempts);
+        }
+
+        userRepository.save(user);
+
+        auditLogService.logAction(
+                AuditLog.AuditAction.LOGIN_FAILED,
+                "User",
+                String.format("Failed login attempt %d/%d for: %s (ID: %d)",
+                        attempts, MAX_FAILED_ATTEMPTS, user.getEmail(), user.getId())
+        );
+    }
+
+    private void lockAccount(User user, int attempts) {
+        user.setAccountLocked(true);
+        emailService.sendAccountLockedEmail(user.getEmail(), user.getFullName());
+
+        auditLogService.logAction(
+                AuditLog.AuditAction.ACCOUNT_LOCKED,
+                "User",
+                String.format("Account locked after %d failed attempts: %s (ID: %d)",
+                        attempts, user.getEmail(), user.getId())
+        );
+    }
+
+    private LoginResponseDto buildLoginResponse(User user, String token) {
+        return LoginResponseDto.builder()
+                .token(token)
+                .userId(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole().name())
+                .build();
+    }
+
+    // =========================
+    // Authenticated user helper
+    // =========================
+
+    private User requireAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails userDetails)) {
             throw new IllegalStateException("User is not authenticated");
         }
 
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        return userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        return mapToResponseDto(user);
     }
 
     /**

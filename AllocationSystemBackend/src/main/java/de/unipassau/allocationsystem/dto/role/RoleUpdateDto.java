@@ -5,10 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO for updating an existing role.
+ * All fields are optional for partial updates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleUpdateDto {
+public class RoleUpdateDto implements RoleUpsertDto {
     @Size(max = 255, message = "Title must not exceed 255 characters")
     private String title; // Optional for partial update
 

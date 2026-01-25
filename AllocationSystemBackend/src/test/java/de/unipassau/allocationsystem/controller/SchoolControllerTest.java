@@ -6,6 +6,7 @@ import de.unipassau.allocationsystem.dto.school.SchoolUpdateDto;
 import de.unipassau.allocationsystem.entity.School;
 import de.unipassau.allocationsystem.entity.School.SchoolType;
 import de.unipassau.allocationsystem.repository.SchoolRepository;
+import de.unipassau.allocationsystem.testutil.TestSchoolFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +16,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Integration tests for SchoolController aligned with actual controller endpoints.
@@ -33,43 +40,43 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class SchoolControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String BASE_URL = "/api/schools";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SchoolRepository schoolRepository;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final SchoolRepository schoolRepository;
 
     private School testSchool;
+
+    @Autowired
+    SchoolControllerTest(
+            @Autowired
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            SchoolRepository schoolRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.schoolRepository = schoolRepository;
+    }
 
     @BeforeEach
     void setUp() {
         schoolRepository.deleteAll();
 
-        testSchool = new School();
-        testSchool.setSchoolName("Test Elementary School");
-        testSchool.setSchoolType(SchoolType.PRIMARY);
-        testSchool.setZoneNumber(1);
-        testSchool.setAddress("Test Street 1");
-        testSchool.setLatitude(new BigDecimal("48.5734053"));
-        testSchool.setLongitude(new BigDecimal("13.4579944"));
-        testSchool.setDistanceFromCenter(new BigDecimal("2.5"));
-        testSchool.setTransportAccessibility("Bus Line 1");
-        testSchool.setContactEmail("test@school.de");
-        testSchool.setContactPhone("+49841123456");
-        testSchool.setIsActive(true);
-        testSchool = schoolRepository.save(testSchool);
+        // Centralized test data creation to avoid clone warnings.
+        School school = TestSchoolFactory.buildTestSchool(1L, "Test Elementary School", SchoolType.PRIMARY);
+        school.setZoneNumber(1); // keep explicit to match assertions and avoid DB constraints variability
+
+        testSchool = schoolRepository.save(school);
     }
 
     // ==================== GET /schools ====================
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAllSchools_Success() throws Exception {
-        mockMvc.perform(get("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getAllSchoolsSuccess() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", notNullValue()))
                 .andExpect(jsonPath("$.data[0].schoolName", is("Test Elementary School")));
@@ -77,8 +84,8 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getAllSchools_WithSearchFilter_Success() throws Exception {
-        mockMvc.perform(get("/api/schools")
+    void getAllSchoolsWithSearchFilterSuccess() throws Exception {
+        mockMvc.perform(get(BASE_URL)
                         .param("searchValue", "Elementary")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -87,17 +94,15 @@ class SchoolControllerTest {
     }
 
     @Test
-    void getAllSchools_Unauthorized_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getAllSchoolsUnauthorizedShouldFail() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void getAllSchools_WithUserRole_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getAllSchoolsWithUserRoleShouldSucceed() throws Exception {
+        performGet(BASE_URL)
                 .andExpect(status().isOk());
     }
 
@@ -105,26 +110,23 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getSchoolById_Success() throws Exception {
-        mockMvc.perform(get("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getSchoolByIdSuccess() throws Exception {
+        performGet(BASE_URL + "/{id}", testSchool.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.schoolName", is("Test Elementary School")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getSchoolById_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(get("/api/schools/{id}", 9999L)
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getSchoolByIdNotFoundShouldFail() throws Exception {
+        performGet(BASE_URL + "/{id}", 9999L)
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void getSchoolById_WithUserRole_ShouldSucceed() throws Exception {
-        mockMvc.perform(get("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getSchoolByIdWithUserRoleShouldSucceed() throws Exception {
+        performGet(BASE_URL + "/{id}", testSchool.getId())
                 .andExpect(status().isOk());
     }
 
@@ -132,9 +134,8 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getPaginate_Default_Success() throws Exception {
-        mockMvc.perform(get("/api/schools/paginate")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getPaginateDefaultSuccess() throws Exception {
+        performGet(BASE_URL + "/paginate")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", notNullValue()))
                 .andExpect(jsonPath("$.data.items", notNullValue()))
@@ -145,9 +146,8 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void getSortFields_Success() throws Exception {
-        mockMvc.perform(get("/api/schools/sort-fields")
-                        .contentType(MediaType.APPLICATION_JSON))
+    void getSortFieldsSuccess() throws Exception {
+        performGet(BASE_URL + "/sort-fields")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", notNullValue()))
                 .andExpect(jsonPath("$.data[0].key", is("id")));
@@ -157,7 +157,7 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createSchool_Success() throws Exception {
+    void createSchoolSuccess() throws Exception {
         SchoolCreateDto dto = new SchoolCreateDto();
         dto.setSchoolName("New School");
         dto.setSchoolType(SchoolType.MIDDLE);
@@ -165,9 +165,7 @@ class SchoolControllerTest {
         dto.setAddress("New Street 10");
         dto.setContactEmail("new@school.de");
 
-        mockMvc.perform(post("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.schoolName", is("New School")))
                 .andExpect(jsonPath("$.data.id", notNullValue()));
@@ -175,53 +173,44 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createSchool_DuplicateName_ShouldFail() throws Exception {
+    void createSchoolDuplicateNameShouldFail() throws Exception {
         SchoolCreateDto dto = new SchoolCreateDto();
         dto.setSchoolName("Test Elementary School");
         dto.setSchoolType(SchoolType.PRIMARY);
 
-        mockMvc.perform(post("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createSchool_InvalidData_ShouldFail() throws Exception {
-        // Missing required fields (e.g., schoolName)
+    void createSchoolInvalidDataShouldFail() throws Exception {
         Map<String, Object> invalid = Map.of("zoneNumber", 1);
 
-        mockMvc.perform(post("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalid)))
+        performPost(BASE_URL, invalid)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createSchool_InvalidEmail_ShouldFail() throws Exception {
+    void createSchoolInvalidEmailShouldFail() throws Exception {
         SchoolCreateDto dto = new SchoolCreateDto();
         dto.setSchoolName("Invalid Email School");
         dto.setSchoolType(SchoolType.MIDDLE);
         dto.setContactEmail("not-an-email");
 
-        mockMvc.perform(post("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void createSchool_WithoutAdminRole_ShouldFail() throws Exception {
+    void createSchoolWithoutAdminRoleShouldFail() throws Exception {
         SchoolCreateDto dto = new SchoolCreateDto();
         dto.setSchoolName("Should Not Create");
         dto.setSchoolType(SchoolType.MIDDLE);
 
-        mockMvc.perform(post("/api/schools")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPost(BASE_URL, dto)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.zoneNumber", is("Zone number is required")));
     }
@@ -230,39 +219,33 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateSchool_Success() throws Exception {
+    void updateSchoolSuccess() throws Exception {
         SchoolUpdateDto dto = new SchoolUpdateDto();
         dto.setSchoolName("Updated School Name");
         dto.setZoneNumber(5);
 
-        mockMvc.perform(put("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", testSchool.getId(), dto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.schoolName", is("Updated School Name")));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateSchool_NotFound_ShouldFail() throws Exception {
+    void updateSchoolNotFoundShouldFail() throws Exception {
         SchoolUpdateDto dto = new SchoolUpdateDto();
         dto.setSchoolName("Doesn't Matter");
 
-        mockMvc.perform(put("/api/schools/{id}", 9999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", 9999L, dto)
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void updateSchool_WithoutAdminRole_ShouldFail() throws Exception {
+    void updateSchoolWithoutAdminRoleShouldSucceed() throws Exception {
         SchoolUpdateDto dto = new SchoolUpdateDto();
         dto.setSchoolName("No Permission");
 
-        mockMvc.perform(put("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        performPut(BASE_URL + "/{id}", testSchool.getId(), dto)
                 .andExpect(status().isOk());
     }
 
@@ -270,25 +253,46 @@ class SchoolControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteSchool_Success() throws Exception {
-        mockMvc.perform(delete("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+    void deleteSchoolSuccess() throws Exception {
+        performDelete(BASE_URL + "/{id}", testSchool.getId())
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteSchool_NotFound_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/schools/{id}", 9999L)
-                        .contentType(MediaType.APPLICATION_JSON))
+    void deleteSchoolNotFoundShouldFail() throws Exception {
+        performDelete(BASE_URL + "/{id}", 9999L)
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void deleteSchool_WithoutAdminRole_ShouldFail() throws Exception {
-        mockMvc.perform(delete("/api/schools/{id}", testSchool.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+    void deleteSchoolWithoutAdminRoleShouldSucceed() throws Exception {
+        performDelete(BASE_URL + "/{id}", testSchool.getId())
                 .andExpect(status().isNoContent());
+    }
+
+    private ResultActions performGet(String url) throws Exception {
+        return mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions performGet(String url, Object pathVar) throws Exception {
+        return mockMvc.perform(get(url, pathVar).contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private ResultActions performPost(String url, Object body) throws Exception {
+        return mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performPut(String url, Object pathVar, Object body) throws Exception {
+        return mockMvc.perform(put(url, pathVar)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)));
+    }
+
+    private ResultActions performDelete(String url, Object pathVar) throws Exception {
+        return mockMvc.perform(delete(url, pathVar).contentType(MediaType.APPLICATION_JSON));
     }
 }

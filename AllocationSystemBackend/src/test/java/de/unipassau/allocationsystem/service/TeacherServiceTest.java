@@ -24,18 +24,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for TeacherService aligned with the provided TeacherService implementation.
+ * Unit tests for {@link TeacherService}.
  */
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
@@ -60,56 +66,15 @@ class TeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        testSchool = new School();
-        testSchool.setId(1L);
-        testSchool.setSchoolName("Test School");
-        testSchool.setSchoolType(SchoolType.PRIMARY);
-        testSchool.setZoneNumber(1);
-        testSchool.setIsActive(true);
-
-        testTeacher = new Teacher();
-        testTeacher.setId(1L);
-        testTeacher.setSchool(testSchool);
-        testTeacher.setFirstName("John");
-        testTeacher.setLastName("Doe");
-        testTeacher.setEmail("john.doe@school.de");
-        testTeacher.setPhone("+49841123456");
-        testTeacher.setIsPartTime(false);
-        testTeacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        testTeacher.setUsageCycle(UsageCycle.FLEXIBLE);
-
-        createDto = new TeacherCreateDto();
-        createDto.setSchoolId(1L);
-        createDto.setFirstName("Jane");
-        createDto.setLastName("Smith");
-        createDto.setEmail("jane.smith@school.de");
-        createDto.setPhone("+49841654321");
-        createDto.setIsPartTime(false);
-        createDto.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        createDto.setUsageCycle(UsageCycle.FLEXIBLE);
-
-        updateDto = new TeacherUpdateDto();
-        updateDto.setFirstName("Updated");
-        updateDto.setLastName("Name");
-        updateDto.setEmail("updated@school.de");
-
-        responseDto = TeacherResponseDto.builder()
-                .id(1L)
-                .schoolId(1L)
-                .schoolName("Test School")
-                .firstName("John")
-                .lastName("Doe")
-                .email("john.doe@school.de")
-                .phone("+49841123456")
-                .isPartTime(false)
-                .employmentStatus(EmploymentStatus.ACTIVE)
-                .usageCycle(UsageCycle.FLEXIBLE)
-                .employmentStatus(EmploymentStatus.ACTIVE)
-                .build();
+        testSchool = buildActiveSchool(1L, "Test School", SchoolType.PRIMARY);
+        testTeacher = buildTeacher(1L, testSchool, "John", "Doe", "john.doe@school.de");
+        createDto = buildCreateDto(1L, "Jane", "Smith", "jane.smith@school.de");
+        updateDto = buildUpdateDto("Updated", "Name", "updated@school.de");
+        responseDto = buildResponseDto(1L, testSchool, testTeacher);
     }
 
     @Test
-    void getAll_ReturnsMappedList() {
+    void getAllReturnsMappedList() {
         when(teacherRepository.findAll()).thenReturn(List.of(testTeacher));
         when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
@@ -123,8 +88,8 @@ class TeacherServiceTest {
     }
 
     @Test
-    void getPaginated_Default_Success() {
-        Page<Teacher> page = new PageImpl<>(Collections.singletonList(testTeacher));
+    void getPaginatedDefaultSuccess() {
+        Page<Teacher> page = new PageImpl<>(List.of(testTeacher));
         Map<String, String> queryParams = new HashMap<>();
 
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
@@ -138,9 +103,10 @@ class TeacherServiceTest {
     }
 
     @Test
-    void getPaginated_WithSearch_Success() {
-        Page<Teacher> page = new PageImpl<>(Collections.singletonList(testTeacher));
+    void getPaginatedWithSearchSuccess() {
+        Page<Teacher> page = new PageImpl<>(List.of(testTeacher));
         Map<String, String> queryParams = new HashMap<>();
+
         when(teacherRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
         Map<String, Object> resp = teacherService.getPaginated(queryParams, "John");
@@ -150,7 +116,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void getById_WhenExists_ReturnsOptionalDto() {
+    void getByIdWhenExistsReturnsOptionalDto() {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherMapper.toResponseDto(testTeacher)).thenReturn(responseDto);
 
@@ -163,7 +129,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void getById_WhenNotFound_ReturnsEmptyOptional() {
+    void getByIdWhenNotFoundReturnsEmptyOptional() {
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<TeacherResponseDto> result = teacherService.getById(99L);
@@ -173,8 +139,9 @@ class TeacherServiceTest {
     }
 
     @Test
-    void createTeacher_Success() {
+    void createTeacherSuccess() {
         Teacher toSave = new Teacher();
+
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(testSchool));
         when(teacherMapper.toEntityCreate(createDto)).thenReturn(toSave);
@@ -195,7 +162,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void createTeacher_DuplicateEmail_ThrowsException() {
+    void createTeacherDuplicateEmailThrowsException() {
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> teacherService.createTeacher(createDto));
@@ -204,7 +171,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void createTeacher_SchoolNotFound_ThrowsException() {
+    void createTeacherSchoolNotFoundThrowsException() {
         when(teacherRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(schoolRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -215,7 +182,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void updateTeacher_Success() {
+    void updateTeacherSuccess() {
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.existsByEmailAndIdNot(updateDto.getEmail(), 1L)).thenReturn(false);
         doNothing().when(teacherMapper).updateEntityFromDto(any(TeacherUpdateDto.class), any(Teacher.class));
@@ -231,7 +198,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void updateTeacher_NotFound_ThrowsException() {
+    void updateTeacherNotFoundThrowsException() {
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> teacherService.updateTeacher(99L, updateDto));
@@ -240,7 +207,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void updateTeacher_DuplicateEmail_ThrowsException() {
+    void updateTeacherDuplicateEmailThrowsException() {
         updateDto.setEmail("existing@school.de");
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
         when(teacherRepository.existsByEmailAndIdNot("existing@school.de", 1L)).thenReturn(true);
@@ -252,11 +219,8 @@ class TeacherServiceTest {
     }
 
     @Test
-    void updateTeacher_ChangeSchool_Success() {
-        School newSchool = new School();
-        newSchool.setId(2L);
-        newSchool.setSchoolName("New School");
-        newSchool.setIsActive(true);
+    void updateTeacherChangeSchoolSuccess() {
+        School newSchool = buildActiveSchool(2L, "New School", SchoolType.PRIMARY);
 
         updateDto.setSchoolId(2L);
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(testTeacher));
@@ -273,7 +237,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void deleteTeacher_Success() {
+    void deleteTeacherSuccess() {
         when(teacherRepository.existsById(1L)).thenReturn(true);
 
         teacherService.deleteTeacher(1L);
@@ -283,7 +247,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void deleteTeacher_NotFound_ThrowsException() {
+    void deleteTeacherNotFoundThrowsException() {
         when(teacherRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> teacherService.deleteTeacher(99L));
@@ -292,7 +256,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void helperMethods_existAndSortFields() {
+    void helperMethodsExistAndSortFields() {
         when(teacherRepository.existsById(1L)).thenReturn(true);
 
         assertTrue(teacherService.existsById(1L));
@@ -301,5 +265,65 @@ class TeacherServiceTest {
         assertNotNull(fields);
         assertTrue(fields.stream().anyMatch(m -> "id".equals(m.get("key"))));
         assertTrue(fields.stream().anyMatch(m -> "firstName".equals(m.get("key"))));
+    }
+
+    private static School buildActiveSchool(Long id, String name, SchoolType type) {
+        School school = new School();
+        school.setId(id);
+        school.setSchoolName(name);
+        school.setSchoolType(type);
+        school.setZoneNumber(1);
+        school.setIsActive(true);
+        return school;
+    }
+
+    private static Teacher buildTeacher(Long id, School school, String firstName, String lastName, String email) {
+        Teacher teacher = new Teacher();
+        teacher.setId(id);
+        teacher.setSchool(school);
+        teacher.setFirstName(firstName);
+        teacher.setLastName(lastName);
+        teacher.setEmail(email);
+        teacher.setPhone("+49841123456");
+        teacher.setIsPartTime(false);
+        teacher.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        teacher.setUsageCycle(UsageCycle.FLEXIBLE);
+        return teacher;
+    }
+
+    private static TeacherCreateDto buildCreateDto(Long schoolId, String firstName, String lastName, String email) {
+        TeacherCreateDto dto = new TeacherCreateDto();
+        dto.setSchoolId(schoolId);
+        dto.setFirstName(firstName);
+        dto.setLastName(lastName);
+        dto.setEmail(email);
+        dto.setPhone("+49841654321");
+        dto.setIsPartTime(false);
+        dto.setEmploymentStatus(EmploymentStatus.ACTIVE);
+        dto.setUsageCycle(UsageCycle.FLEXIBLE);
+        return dto;
+    }
+
+    private static TeacherUpdateDto buildUpdateDto(String firstName, String lastName, String email) {
+        TeacherUpdateDto dto = new TeacherUpdateDto();
+        dto.setFirstName(firstName);
+        dto.setLastName(lastName);
+        dto.setEmail(email);
+        return dto;
+    }
+
+    private static TeacherResponseDto buildResponseDto(Long teacherId, School school, Teacher teacher) {
+        return TeacherResponseDto.builder()
+                .id(teacherId)
+                .schoolId(school.getId())
+                .schoolName(school.getSchoolName())
+                .firstName(teacher.getFirstName())
+                .lastName(teacher.getLastName())
+                .email(teacher.getEmail())
+                .phone(teacher.getPhone())
+                .isPartTime(Boolean.FALSE)
+                .employmentStatus(EmploymentStatus.ACTIVE)
+                .usageCycle(UsageCycle.FLEXIBLE)
+                .build();
     }
 }

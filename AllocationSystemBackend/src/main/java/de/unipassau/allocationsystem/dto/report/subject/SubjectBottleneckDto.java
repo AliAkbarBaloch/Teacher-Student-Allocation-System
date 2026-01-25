@@ -3,6 +3,10 @@ package de.unipassau.allocationsystem.dto.report.subject;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO for subject bottleneck analysis.
+ * Identifies teacher shortage or surplus for specific subjects by comparing demand vs availability.
+ */
 @Data
 @Builder
 public class SubjectBottleneckDto {

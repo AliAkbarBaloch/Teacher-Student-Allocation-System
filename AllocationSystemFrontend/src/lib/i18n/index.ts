@@ -3,6 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector"; // adds auto la
 import { initReactI18next } from "react-i18next"; // plugin which bridges i18next and React 
 
 // Load translation files 
+import enUsers from "./locales/en/users.json";
 import enAcademicYears from "./locales/en/academicYears.json";
 import enAllocationPlans from "./locales/en/allocationPlans.json";
 import enAuditLogs from "./locales/en/auditLogs.json";
@@ -28,6 +29,7 @@ import enTeacherSubjects from "./locales/en/teacherSubjects.json";
 import enTeacherSubmissions from "./locales/en/teacherSubmissions.json";
 import enZoneConstraints from "./locales/en/zoneConstraints.json";
 
+import deUsers from "./locales/de/users.json";
 import deAcademicYears from "./locales/de/academicYears.json";
 import deAllocationPlans from "./locales/de/allocationPlans.json";
 import deAuditLogs from "./locales/de/auditLogs.json";
@@ -70,6 +72,7 @@ export const languages = [
 export const resources = {
     en: {
         common: enCommon,
+        users: enUsers,
         auth: enAuth,
         home: enHome,
         settings: enSettings,
@@ -96,6 +99,7 @@ export const resources = {
     },
     de: {
         common: deCommon,
+        users: deUsers,
         auth: deAuth,
         home: deHome,
         settings: deSettings,
@@ -139,7 +143,7 @@ i18n
         supportedLngs: supportedLanguages,
         defaultNS: "common", // default namespace 
         ns: [
-            "common", "auth", "home", "settings", 
+            "common","users", "auth", "home", "settings", 
             "roles", "auditLogs", "schools", "teachers", 
             "internshipTypes", "subjects", "subjectCategories", 
             "teacherSubmissions", "zoneConstraints", "teacherAssignments", 

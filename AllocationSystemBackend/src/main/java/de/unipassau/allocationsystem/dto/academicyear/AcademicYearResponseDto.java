@@ -1,5 +1,6 @@
 package de.unipassau.allocationsystem.dto.academicyear;
 
+import de.unipassau.allocationsystem.entity.AcademicYear;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -22,4 +23,28 @@ public class AcademicYearResponseDto {
     private Boolean isLocked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    /**
+     * Creates response DTO from entity.
+     * 
+     * @param entity Source academic year entity
+     * @return Response DTO or null if entity is null
+     */
+    public static AcademicYearResponseDto fromEntity(AcademicYear entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new AcademicYearResponseDto(
+                entity.getId(),
+                entity.getYearName(),
+                entity.getTotalCreditHours(),
+                entity.getElementarySchoolHours(),
+                entity.getMiddleSchoolHours(),
+                entity.getBudgetAnnouncementDate(),
+                entity.getAllocationDeadline(),
+                entity.getIsLocked(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
 }

@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for analyzing teacher utilization across allocation plans.
+ * Categorizes teachers by their assignment counts: unassigned, under-utilized, over-utilized, and perfectly utilized.
+ */
 @Data
 @Builder
 public class UtilizationAnalysisDto {

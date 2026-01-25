@@ -1,7 +1,27 @@
 package de.unipassau.allocationsystem.entity;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
-import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,13 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,7 +36,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Entity representing a user in the system. Implements UserDetails for Spring
+ * Security integration and tracks authentication, roles, and account status.
+ */
 public class User implements UserDetails {
+
     private static final int PASSWORD_MIN_LENGTH = 6;
 
     @Id
@@ -121,9 +139,13 @@ public class User implements UserDetails {
         return true;
     }
 
+
     @Override
     public boolean isEnabled() {
-        return enabled && !accountLocked && accountStatus == AccountStatus.ACTIVE;
+        return enabled
+                && !accountLocked
+                && accountStatus != null
+                && accountStatus == AccountStatus.ACTIVE;
     }
 
     @Override
@@ -131,10 +153,16 @@ public class User implements UserDetails {
         return email;
     }
 
+    /**
+     * Enumeration of user roles in the system.
+     */
     public enum UserRole {
         USER, ADMIN, MODERATOR
     }
 
+    /**
+     * Enumeration of account statuses for user accounts.
+     */
     public enum AccountStatus {
         ACTIVE, INACTIVE, SUSPENDED, PENDING_VERIFICATION
     }

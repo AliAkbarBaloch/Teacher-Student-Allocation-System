@@ -5,6 +5,7 @@ import de.unipassau.allocationsystem.entity.AuditLog.AuditAction;
 import de.unipassau.allocationsystem.entity.User;
 import de.unipassau.allocationsystem.repository.AuditLogRepository;
 import de.unipassau.allocationsystem.repository.UserRepository;
+import de.unipassau.allocationsystem.testutil.TestUserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,37 +18,38 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class AuditLogQueryServiceTest {
 
-    @Autowired
-    private AuditLogQueryService auditLogQueryService;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private AuditLogRepository auditLogRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final AuditLogQueryService auditLogQueryService;
+    private final AuditLogService auditLogService;
+    private final AuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
 
     private User testUser;
+
+    @Autowired
+    AuditLogQueryServiceTest(AuditLogQueryService auditLogQueryService,
+                            AuditLogService auditLogService,
+                            AuditLogRepository auditLogRepository,
+                            UserRepository userRepository) {
+        this.auditLogQueryService = auditLogQueryService;
+        this.auditLogService = auditLogService;
+        this.auditLogRepository = auditLogRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
         auditLogRepository.deleteAll();
+        userRepository.deleteAll();
 
-        testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setPassword("password123");
-        testUser.setFullName("Test User");
-        testUser.setEnabled(true);
-        testUser = userRepository.save(testUser);
+        testUser = userRepository.save(TestUserFactory.newEnabledUser("test@example.com", "Test User"));
     }
 
     @Test
@@ -91,10 +93,25 @@ class AuditLogQueryServiceTest {
         String entityName = "User";
         String recordId = "123";
 
-        auditLogService.log(testUser, AuditAction.CREATE, entityName, recordId, null,
-                Map.of("name", "Test"), "Created");
-        auditLogService.log(testUser, AuditAction.UPDATE, entityName, recordId,
-                Map.of("name", "Test"), Map.of("name", "Test Updated"), "Updated");
+        auditLogService.log(
+                testUser,
+                AuditAction.CREATE,
+                entityName,
+                recordId,
+                null,
+                Map.of("name", "Test"),
+                "Created"
+        );
+
+        auditLogService.log(
+                testUser,
+                AuditAction.UPDATE,
+                entityName,
+                recordId,
+                Map.of("name", "Test"),
+                Map.of("name", "Test Updated"),
+                "Updated"
+        );
 
         Page<AuditLog> logs = auditLogQueryService.getAuditLogsForEntity(
                 entityName, recordId, PageRequest.of(0, 10)

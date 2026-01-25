@@ -21,54 +21,69 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Integration tests for {@link SubjectCategoryService}.
+ * <p>
+ * Validates subject category CRUD operations, pagination, and cascade deletion behavior.
+ * </p>
+ */
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @ActiveProfiles("test")
 @Transactional
 class SubjectCategoryServiceTest {
 
-    @Autowired
-    private SubjectCategoryService subjectCategoryService;
+    private final SubjectCategoryService subjectCategoryService;
+    private final SubjectCategoryRepository subjectCategoryRepository;
+    private final SubjectRepository subjectRepository;
+    private final TeacherAssignmentRepository teacherAssignmentRepository;
+    private final TeacherSubjectRepository teacherSubjectRepository;
+    private final InternshipDemandRepository internshipDemandRepository;
+    private final EntityManager entityManager;
 
     @Autowired
-    private SubjectCategoryRepository subjectCategoryRepository;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private TeacherAssignmentRepository teacherAssignmentRepository;
-
-    @Autowired
-    private TeacherSubjectRepository teacherSubjectRepository;
-
-    @Autowired
-    private InternshipDemandRepository internshipDemandRepository;
-
-    @Autowired
-    private EntityManager entityManager;
+    SubjectCategoryServiceTest(SubjectCategoryService subjectCategoryService,
+                              SubjectCategoryRepository subjectCategoryRepository,
+                              SubjectRepository subjectRepository,
+                              TeacherAssignmentRepository teacherAssignmentRepository,
+                              TeacherSubjectRepository teacherSubjectRepository,
+                              InternshipDemandRepository internshipDemandRepository,
+                              EntityManager entityManager) {
+        this.subjectCategoryService = subjectCategoryService;
+        this.subjectCategoryRepository = subjectCategoryRepository;
+        this.subjectRepository = subjectRepository;
+        this.teacherAssignmentRepository = teacherAssignmentRepository;
+        this.teacherSubjectRepository = teacherSubjectRepository;
+        this.internshipDemandRepository = internshipDemandRepository;
+        this.entityManager = entityManager;
+    }
 
     @BeforeEach
     void setUp() {
-        // Clear join tables referencing subjects first
-        teacherSubjectRepository.deleteAll();
-        entityManager.flush();
+        clearTestData();
+    }
 
-        // Clear other child tables that reference subjects
-        teacherAssignmentRepository.deleteAll();
-        entityManager.flush();
+    /**
+     * Clears dependent tables in a safe order to avoid FK constraint violations.
+     */
+    private void clearTestData() {
+        List<Runnable> cleanupSteps = List.of(
+                teacherSubjectRepository::deleteAll,
+                teacherAssignmentRepository::deleteAll,
+                internshipDemandRepository::deleteAll,
+                subjectRepository::deleteAll,
+                subjectCategoryRepository::deleteAll
+        );
 
-        internshipDemandRepository.deleteAll();
-        entityManager.flush();
-
-        // Now safe to remove subjects
-        subjectRepository.deleteAll();
-        entityManager.flush();
-
-        // Finally remove categories
-        subjectCategoryRepository.deleteAll();
-        entityManager.flush();
+        for (Runnable step : cleanupSteps) {
+            step.run();
+            entityManager.flush();
+        }
     }
 
     private SubjectCategory createCategory(String title) {
@@ -78,7 +93,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void getSortFields_ShouldReturnConfiguredFields() {
+    void getSortFieldsShouldReturnConfiguredFields() {
         List<Map<String, String>> sortFields = subjectCategoryService.getSortFields();
 
         assertEquals(4, sortFields.size());
@@ -87,7 +102,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void categoryTitleExists_ShouldDetectExistingTitle() {
+    void categoryTitleExistsShouldDetectExistingTitle() {
         createCategory("Mathematics");
 
         assertTrue(subjectCategoryService.categoryTitleExists("Mathematics"));
@@ -95,7 +110,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void create_ShouldPersistNewCategory() {
+    void createShouldPersistNewCategory() {
         SubjectCategory category = new SubjectCategory();
         category.setCategoryTitle("Biology");
 
@@ -107,7 +122,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void create_DuplicateTitle_ShouldThrowException() {
+    void createDuplicateTitleShouldThrowException() {
         createCategory("History");
 
         SubjectCategory duplicate = new SubjectCategory();
@@ -117,7 +132,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void getAll_ShouldReturnEveryCategory() {
+    void getAllShouldReturnEveryCategory() {
         createCategory("Chemistry");
         createCategory("Physics");
 
@@ -127,7 +142,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void getById_ShouldReturnCategoryWhenPresent() {
+    void getByIdShouldReturnCategoryWhenPresent() {
         SubjectCategory saved = createCategory("Geography");
 
         Optional<SubjectCategory> result = subjectCategoryService.getById(saved.getId());
@@ -137,7 +152,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void update_ShouldModifyCategoryTitle() {
+    void updateShouldModifyCategoryTitle() {
         SubjectCategory saved = createCategory("Old Title");
 
         SubjectCategory updates = new SubjectCategory();
@@ -149,7 +164,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void update_DuplicateTitle_ShouldThrowException() {
+    void updateDuplicateTitleShouldThrowException() {
         SubjectCategory first = createCategory("Arts");
         createCategory("Music");
 
@@ -160,7 +175,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void update_NotFound_ShouldThrowException() {
+    void updateNotFoundShouldThrowException() {
         SubjectCategory updates = new SubjectCategory();
         updates.setCategoryTitle("Unknown");
 
@@ -168,7 +183,7 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void delete_ShouldRemoveCategory() {
+    void deleteShouldRemoveCategory() {
         SubjectCategory saved = createCategory("To Delete");
 
         subjectCategoryService.delete(saved.getId());
@@ -177,12 +192,12 @@ class SubjectCategoryServiceTest {
     }
 
     @Test
-    void delete_NotFound_ShouldThrowException() {
+    void deleteNotFoundShouldThrowException() {
         assertThrows(ResourceNotFoundException.class, () -> subjectCategoryService.delete(999L));
     }
 
     @Test
-    void getPaginated_ShouldRespectPagingAndSearch() {
+    void getPaginatedShouldRespectPagingAndSearch() {
         createCategory("Alpha");
         createCategory("Beta");
         createCategory("Alphabet Soup");
@@ -201,6 +216,8 @@ class SubjectCategoryServiceTest {
         @SuppressWarnings("unchecked")
         List<SubjectCategory> items = (List<SubjectCategory>) result.get("items");
         assertEquals(2, items.size());
-        assertTrue(items.stream().allMatch(item -> item.getCategoryTitle().toLowerCase().contains("alpha")));
+        assertTrue(items.stream().allMatch(item ->
+                item.getCategoryTitle().toLowerCase().contains("alpha")
+        ));
     }
 }

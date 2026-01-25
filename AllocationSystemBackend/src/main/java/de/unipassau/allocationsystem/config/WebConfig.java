@@ -9,6 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Web MVC configuration for CORS and resource handling.
+ * Configures cross-origin resource sharing based on application properties.
+ */
 @RequiredArgsConstructor
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -16,6 +20,11 @@ public class WebConfig implements WebMvcConfigurer {
     private final CorsProperties corsProperties;
 
     private static final int MAX_CACHE_AGE = 3600;
+    
+    /**
+     * List of allowed HTTP methods for CORS requests.
+     * Includes standard REST operations: GET, POST, PUT, DELETE, OPTIONS, PATCH.
+     */
     public static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH");
 
     @Override

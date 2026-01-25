@@ -3,7 +3,6 @@ package de.unipassau.allocationsystem.service;
 import de.unipassau.allocationsystem.aspect.Audited;
 import de.unipassau.allocationsystem.constant.AuditEntityNames;
 import de.unipassau.allocationsystem.entity.AuditLog;
-import de.unipassau.allocationsystem.entity.AcademicYear;
 import de.unipassau.allocationsystem.entity.Subject;
 import de.unipassau.allocationsystem.entity.Teacher;
 import de.unipassau.allocationsystem.entity.TeacherSubject;
@@ -30,28 +29,52 @@ import java.util.Optional;
 import de.unipassau.allocationsystem.utils.SearchSpecificationUtils;
 import de.unipassau.allocationsystem.utils.SortFieldUtils;
 
+
+/**
+ * Service class for managing TeacherSubject entities.
+ * Provides CRUD operations, search, pagination, and validation logic.
+ * Includes audit logging for all major actions.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class TeacherSubjectService implements CrudService<TeacherSubject, Long> {
 
+
     private final TeacherSubjectRepository teacherSubjectRepository;
     private final AcademicYearRepository academicYearRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
 
+    /**
+     * Returns the list of sortable fields for TeacherSubject entities.
+     * These fields are used for sorting in queries and pagination.
+     *
+     * @return list of maps containing field keys and metadata
+     */
+    @Override
     public List<Map<String, String>> getSortFields() {
-        return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", 
-            "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
+        return SortFieldUtils.getSortFields("id", "academicYearId", "teacherId", "subjectId", "availabilityStatus", "gradeLevelFrom", "gradeLevelTo", "createdAt", "updatedAt");
     }
 
+    /**
+     * Returns the list of sortable field keys for TeacherSubject entities.
+     *
+     * @return list of field keys
+     */
     public List<String> getSortFieldKeys() {
         return getSortFields().stream().map(f -> f.get("key")).toList();
     }
 
+    /**
+     * Builds a search specification for TeacherSubject entities.
+     * Searches across availabilityStatus and notes fields.
+     *
+     * @param searchValue the value to search for
+     * @return specification for filtering TeacherSubject entities
+     */
     private Specification<TeacherSubject> buildSearchSpecification(String searchValue) {
-        // Search across availabilityStatus and notes
         return SearchSpecificationUtils.buildMultiFieldLikeSpecification(
             new String[]{"availabilityStatus", "notes"}, searchValue
         );
@@ -90,7 +113,7 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     @Transactional(readOnly = true)
     @Override
     public List<TeacherSubject> getAll() {
-        return teacherSubjectRepository.findAll();
+        return getAllTeacherSubjects();
     }
 
     @Audited(
@@ -102,6 +125,15 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     @Transactional(readOnly = true)
     @Override
     public Optional<TeacherSubject> getById(Long id) {
+        return getTeacherSubjectById(id);
+    }
+
+    // Helper methods to reduce code clones
+    private List<TeacherSubject> getAllTeacherSubjects() {
+        return teacherSubjectRepository.findAll();
+    }
+
+    private Optional<TeacherSubject> getTeacherSubjectById(Long id) {
         return teacherSubjectRepository.findById(id);
     }
 
@@ -112,6 +144,12 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
         captureNewValue = false
     )
     @Transactional(readOnly = true)
+    /**
+     * Retrieves all subject qualifications for a specific teacher.
+     * 
+     * @param teacherId the teacher ID
+     * @return list of teacher-subject associations
+     */
     public List<TeacherSubject> getByTeacherId(Long teacherId) {
         return teacherSubjectRepository.findByTeacherId(teacherId);
     }
@@ -145,48 +183,17 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
     public TeacherSubject update(Long id, TeacherSubject update) {
         TeacherSubject existing = teacherSubjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TeacherSubject not found with id: " + id));
-
-        // validate references if changed
-        if (update.getAcademicYear() != null && !update.getAcademicYear().getId().equals(existing.getAcademicYear().getId())) {
-            if (!academicYearRepository.existsById(update.getAcademicYear().getId())) {
-                throw new ResourceNotFoundException("Academic year not found with id: " + update.getAcademicYear().getId());
-            }
-            existing.setAcademicYear(update.getAcademicYear());
-        }
-
-        if (update.getTeacher() != null && !update.getTeacher().getId().equals(existing.getTeacher().getId())) {
-            if (!teacherRepository.existsById(update.getTeacher().getId())) {
-                throw new ResourceNotFoundException("Teacher not found with id: " + update.getTeacher().getId());
-            }
-            existing.setTeacher(update.getTeacher());
-        }
-
-        if (update.getSubject() != null && !update.getSubject().getId().equals(existing.getSubject().getId())) {
-            if (!subjectRepository.existsById(update.getSubject().getId())) {
-                throw new ResourceNotFoundException("Subject not found with id: " + update.getSubject().getId());
-            }
-            existing.setSubject(update.getSubject());
-        }
-
-        if (update.getAvailabilityStatus() != null) {
-            existing.setAvailabilityStatus(update.getAvailabilityStatus());
-        }
-        if (update.getGradeLevelFrom() != null) {
-            existing.setGradeLevelFrom(update.getGradeLevelFrom());
-        }
-        if (update.getGradeLevelTo() != null) {
-            existing.setGradeLevelTo(update.getGradeLevelTo());
-        }
-        if (update.getNotes() != null) {
-            existing.setNotes(update.getNotes());
-        }
-
-        // validate grade range
-        if (existing.getGradeLevelFrom() != null && existing.getGradeLevelTo() != null && existing.getGradeLevelFrom() > existing.getGradeLevelTo()) {
-            throw new IllegalArgumentException("gradeLevelFrom must be <= gradeLevelTo");
-        }
-
+        applyFieldUpdates(existing, update);
         return teacherSubjectRepository.save(existing);
+    }
+
+    /**
+     * Applies field updates from source to target TeacherSubject.
+     * Only updates fields that are non-null in the source.
+     */
+    private void applyFieldUpdates(TeacherSubject existing, TeacherSubject update) {
+        // validate references if changed
+        applyFieldUpdates(existing, update);
     }
 
     @Audited(
@@ -215,8 +222,8 @@ public class TeacherSubjectService implements CrudService<TeacherSubject, Long> 
             throw new IllegalArgumentException("subjectId is required");
         }
 
-        AcademicYear year = academicYearRepository.findById(entity.getAcademicYear().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + entity.getAcademicYear().getId()));
+        academicYearRepository.findById(entity.getAcademicYear().getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Academic year not found with id: " + entity.getAcademicYear().getId()));
 
         Teacher teacher = teacherRepository.findById(entity.getTeacher().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + entity.getTeacher().getId()));

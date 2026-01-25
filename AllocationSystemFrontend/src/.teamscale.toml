@@ -1,0 +1,5 @@
+[server]
+url = "https://aspd.teamscale.io"
+
+[project]
+id = "team-4"

@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for detailed school profile information.
+ * Includes school identification, location, accessibility, and associated teacher statistics.
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,35 +26,104 @@ public class SchoolProfileDto {
     private Long totalTeachers;
     private Long activeTeachers;
 
+        // Constructor matching JPQL projection that uses a SchoolTeacherStats wrapper
+        public SchoolProfileDto(Long schoolId,
+                                String schoolName,
+                                School.SchoolType schoolType,
+                                Integer zoneNumber,
+                                String transportAccessibility,
+                                Boolean isActive,
+                                SchoolTeacherStats teacherStats) {
+            this.schoolId = schoolId;
+            this.schoolName = schoolName;
+            this.schoolType = convertSchoolType(schoolType);
+            this.zoneNumber = zoneNumber;
+            this.transportAccessibility = transportAccessibility;
+            this.isActive = convertActiveStatus(isActive);
+            this.totalTeachers = extractTotalTeachers(teacherStats);
+            this.activeTeachers = extractActiveTeachers(teacherStats);
+        }
     /**
-     * Specific Constructor for JPQL Queries.
-     * The argument types must MATCH the query output exactly.
-     * * @param schoolId - s.id (Long)
-     * @param schoolName - s.schoolName (String)
-     * @param schoolType - s.schoolType (Enum: School.SchoolType)
-     * @param zoneNumber - s.zoneNumber (Integer)
-     * @param transportAccessibility - s.transportAccessibility (String)
-     * @param isActive - s.isActive (Boolean)
-     * @param totalTeachers - COUNT(t) (Long)
-     * @param activeTeachers - COUNT(t) (Long)
+     * Factory method for creating SchoolProfileDto from JPQL query results.
+     * Groups school information and teacher statistics separately to reduce parameter count.
+     * 
+     * @param schoolId School identifier
+     * @param schoolName Name of the school
+     * @param schoolType School type enumeration
+     * @param zoneNumber Zone number
+     * @param transportAccessibility Transport accessibility description
+     * @param isActive Active status flag
+     * @param teacherStats Teacher statistics wrapper containing total and active counts
+     * @return Constructed SchoolProfileDto instance
      */
-    public SchoolProfileDto(Long schoolId,
-                            String schoolName,
-                            School.SchoolType schoolType,
-                            Integer zoneNumber,
-                            String transportAccessibility,
-                            Boolean isActive,
-                            Long totalTeachers,
-                            Long activeTeachers) {
-        this.schoolId = schoolId;
-        this.schoolName = schoolName;
-        // Convert Enum to String for the frontend
-        this.schoolType = schoolType != null ? schoolType.name() : null;
-        this.zoneNumber = zoneNumber;
-        this.transportAccessibility = transportAccessibility;
-        // Handle potential nulls from DB
-        this.isActive = isActive != null && isActive;
-        this.totalTeachers = totalTeachers != null ? totalTeachers : 0L;
-        this.activeTeachers = activeTeachers != null ? activeTeachers : 0L;
+    public static SchoolProfileDto fromQuery(Long schoolId,
+                                             String schoolName,
+                                             School.SchoolType schoolType,
+                                             Integer zoneNumber,
+                                             String transportAccessibility,
+                                             Boolean isActive,
+                                             SchoolTeacherStats teacherStats) {
+        return SchoolProfileDto.builder()
+                .schoolId(schoolId)
+                .schoolName(schoolName)
+                .schoolType(convertSchoolType(schoolType))
+                .zoneNumber(zoneNumber)
+                .transportAccessibility(transportAccessibility)
+                .isActive(convertActiveStatus(isActive))
+                .totalTeachers(extractTotalTeachers(teacherStats))
+                .activeTeachers(extractActiveTeachers(teacherStats))
+                .build();
+    }
+
+    /**
+     * Converts school type enum to string representation.
+     * 
+     * @param schoolType School type enumeration
+     * @return String representation or null
+     */
+    private static String convertSchoolType(School.SchoolType schoolType) {
+        if (schoolType != null) {
+            return schoolType.name();
+        }
+        return null;
+    }
+
+    /**
+     * Converts Boolean active status to primitive boolean.
+     * 
+     * @param isActive Active status flag
+     * @return Active status or false if null
+     */
+    private static boolean convertActiveStatus(Boolean isActive) {
+        if (isActive != null) {
+            return isActive;
+        }
+        return false;
+    }
+
+    /**
+     * Extracts total teacher count from statistics.
+     * 
+     * @param teacherStats Teacher statistics
+     * @return Total teacher count or 0 if null
+     */
+    private static Long extractTotalTeachers(SchoolTeacherStats teacherStats) {
+        if (teacherStats != null) {
+            return teacherStats.getTotalTeachers();
+        }
+        return 0L;
+    }
+
+    /**
+     * Extracts active teacher count from statistics.
+     * 
+     * @param teacherStats Teacher statistics
+     * @return Active teacher count or 0 if null
+     */
+    private static Long extractActiveTeachers(SchoolTeacherStats teacherStats) {
+        if (teacherStats != null) {
+            return teacherStats.getActiveTeachers();
+        }
+        return 0L;
     }
 }

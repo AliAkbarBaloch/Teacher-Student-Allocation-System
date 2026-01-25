@@ -5,10 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for updating an existing permission.
+ * All fields are optional for partial updates.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionUpdateDto {
+public class PermissionUpdateDto implements PermissionUpsertDto {
     @Size(max = 255)
     private String title;  // Optional
 

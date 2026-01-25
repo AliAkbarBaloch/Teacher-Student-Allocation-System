@@ -15,10 +15,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Mapper for converting between TeacherSubject entities and DTOs.
+ * Handles teacher-subject association mapping with academic year, teacher, and subject resolution.
+ */
 public class TeacherSubjectMapper implements BaseMapper<TeacherSubject, TeacherSubjectCreateDto, TeacherSubjectUpdateDto, TeacherSubjectResponseDto> {
 
     private final AcademicYearRepository academicYearRepository;
@@ -73,14 +78,17 @@ public class TeacherSubjectMapper implements BaseMapper<TeacherSubject, TeacherS
         if (entity == null) {
             return null;
         }
+        AcademicYear year = entity.getAcademicYear();
+        Teacher teacher = entity.getTeacher();
+        Subject subject = entity.getSubject();
         return TeacherSubjectResponseDto.builder()
                 .id(entity.getId())
-                .academicYearId(entity.getAcademicYear() != null ? entity.getAcademicYear().getId() : null)
-                .academicYearTitle(entity.getAcademicYear() != null ? entity.getAcademicYear().getYearName() : null)
-                .teacherId(entity.getTeacher() != null ? entity.getTeacher().getId() : null)
-                .teacherTitle(entity.getTeacher() != null ? (entity.getTeacher().getFirstName() + " " + entity.getTeacher().getLastName()) : null)
-                .subjectId(entity.getSubject() != null ? entity.getSubject().getId() : null)
-                .subjectTitle(entity.getSubject() != null ? entity.getSubject().getSubjectTitle() : null)
+                .academicYearId(Optional.ofNullable(year).map(AcademicYear::getId).orElse(null))
+                .academicYearTitle(Optional.ofNullable(year).map(AcademicYear::getYearName).orElse(null))
+                .teacherId(Optional.ofNullable(teacher).map(Teacher::getId).orElse(null))
+                .teacherTitle(Optional.ofNullable(teacher).map(t -> t.getFirstName() + " " + t.getLastName()).orElse(null))
+                .subjectId(Optional.ofNullable(subject).map(Subject::getId).orElse(null))
+                .subjectTitle(Optional.ofNullable(subject).map(Subject::getSubjectTitle).orElse(null))
                 .availabilityStatus(entity.getAvailabilityStatus())
                 .gradeLevelFrom(entity.getGradeLevelFrom())
                 .gradeLevelTo(entity.getGradeLevelTo())
