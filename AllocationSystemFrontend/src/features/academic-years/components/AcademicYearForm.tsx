@@ -7,13 +7,14 @@ import { useTranslation } from "react-i18next";
 import type { AcademicYear, CreateAcademicYearRequest, UpdateAcademicYearRequest } from "../types/academicYear.types";
 import { AcademicYearFormFields } from "@/features/academic-years/components/AcademicYearFormFields";
 import {
-  type FormErrors,
   buildSubmitPayload,
   clearFieldError,
   getInitialFormData,
   updateFormDataField,
   validateAcademicYearForm,
 } from "./AcademicYearForm.helpers";
+
+type FormErrors = ReturnType<typeof validateAcademicYearForm>;
 
 /**
  * Props for the AcademicYearForm component.
@@ -44,7 +45,57 @@ function AcademicYearFormErrorBanner(props: { errorText?: string | null }) {
   );
 }
 
-function AcademicYearFormContent(props: {
+function AcademicYearLockCheckbox(props: {
+  isLocked: boolean;
+  disabled: boolean;
+  onChange: (value: boolean | null) => void;
+  tAcademicYears: (key: string) => string;
+}) {
+  return (
+    <CheckboxField
+      id="isLocked"
+      checked={props.isLocked}
+      onCheckedChange={props.onChange}
+      label={props.tAcademicYears("form.fields.isLocked")}
+      description={props.tAcademicYears("form.fields.isLockedDescription")}
+      statusText={
+        props.isLocked
+          ? props.tAcademicYears("table.locked")
+          : props.tAcademicYears("table.unlocked")
+      }
+      disabled={props.disabled}
+    />
+  );
+}
+
+function AcademicYearFormButtons(props: {
+  disabled: boolean;
+  isEdit: boolean;
+  onCancel: () => void;
+  tCommon: (key: string) => string;
+}) {
+  return (
+    <div className="flex justify-end gap-2 pt-2">
+      <CancelButton onClick={props.onCancel} disabled={props.disabled}>
+        {props.tCommon("actions.cancel")}
+      </CancelButton>
+
+      <SubmitButton
+        isLoading={props.disabled}
+        isEdit={props.isEdit}
+        createText={props.tCommon("actions.create")}
+        updateText={props.tCommon("actions.update")}
+        savingText={props.tCommon("actions.saving")}
+        disabled={props.disabled}
+      />
+    </div>
+  );
+}
+
+/**
+ * Props for the AcademicYearFormContent component.
+ */
+interface AcademicYearFormContentProps {
   bannerText: string | null;
   formData: CreateAcademicYearRequest;
   errors: FormErrors;
@@ -55,20 +106,22 @@ function AcademicYearFormContent(props: {
   onSubmit: (e: React.FormEvent) => void;
   tAcademicYears: (key: string) => string;
   tCommon: (key: string) => string;
-}) {
-  const {
-    bannerText,
-    formData,
-    errors,
-    disabled,
-    academicYear,
-    onCancel,
-    onChange,
-    onSubmit,
-    tAcademicYears,
-    tCommon,
-  } = props;
+}
 
+
+
+function AcademicYearFormContent({
+  bannerText,
+  formData,
+  errors,
+  disabled,
+  academicYear,
+  onCancel,
+  onChange,
+  onSubmit,
+  tAcademicYears,
+  tCommon,
+}: AcademicYearFormContentProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4 py-4">
       <AcademicYearFormErrorBanner errorText={bannerText} />
@@ -81,43 +134,33 @@ function AcademicYearFormContent(props: {
         tAcademicYears={tAcademicYears}
       />
 
-      <CheckboxField
-        id="isLocked"
-        checked={!!formData.isLocked}
-        onCheckedChange={(val) => onChange("isLocked", val)}
-        label={tAcademicYears("form.fields.isLocked")}
-        description={tAcademicYears("form.fields.isLockedDescription")}
-        statusText={formData.isLocked ? tAcademicYears("table.locked") : tAcademicYears("table.unlocked")}
+      <AcademicYearLockCheckbox
+        isLocked={!!formData.isLocked}
         disabled={disabled}
+        onChange={(val) => onChange("isLocked", val)}
+        tAcademicYears={tAcademicYears}
       />
 
-      <div className="flex justify-end gap-2 pt-2">
-        <CancelButton onClick={onCancel} disabled={disabled}>
-          {tCommon("actions.cancel")}
-        </CancelButton>
-
-        <SubmitButton
-          isLoading={disabled}
-          isEdit={!!academicYear}
-          createText={tCommon("actions.create")}
-          updateText={tCommon("actions.update")}
-          savingText={tCommon("actions.saving")}
-          disabled={disabled}
-        />
-      </div>
+      <AcademicYearFormButtons
+        disabled={disabled}
+        isEdit={!!academicYear}
+        onCancel={onCancel}
+        tCommon={tCommon}
+      />
     </form>
   );
 }
 
-export function AcademicYearForm({
-  academicYear,
-  onSubmit,
-  onCancel,
-  isLoading = false,
-  error: externalError = null,
-}: AcademicYearFormProps) {
-  const { t: tAcademicYears } = useTranslation("academicYears");
-  const { t: tCommon } = useTranslation("common");
+/**
+ * Handles form state, validation, and submit logic for AcademicYearForm.
+ */
+function useAcademicYearFormLogic(params: {
+  academicYear?: AcademicYear | null;
+  isLoading: boolean;
+  onSubmit: (data: CreateAcademicYearRequest | UpdateAcademicYearRequest) => Promise<void>;
+  tAcademicYears: (key: string) => string;
+}) {
+  const { academicYear, isLoading, onSubmit, tAcademicYears } = params;
 
   const [formData, setFormData] = useState<CreateAcademicYearRequest>(() => getInitialFormData(academicYear));
   const [errors, setErrors] = useState<FormErrors>({});
@@ -142,7 +185,6 @@ export function AcademicYearForm({
 
     const newErrors = validateAcademicYearForm(formData, tAcademicYears);
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length > 0) {
       return;
     }
@@ -154,6 +196,26 @@ export function AcademicYearForm({
       setIsSubmitting(false);
     }
   }
+
+  return { formData, errors, disabled, handleChange, handleSubmit };
+}
+
+export function AcademicYearForm({
+  academicYear,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+  error: externalError = null,
+}: AcademicYearFormProps) {
+  const { t: tAcademicYears } = useTranslation("academicYears");
+  const { t: tCommon } = useTranslation("common");
+
+  const { formData, errors, disabled, handleChange, handleSubmit } = useAcademicYearFormLogic({
+    academicYear,
+    isLoading,
+    onSubmit,
+    tAcademicYears,
+  });
 
   const bannerText = externalError || Object.values(errors)[0] || null;
 

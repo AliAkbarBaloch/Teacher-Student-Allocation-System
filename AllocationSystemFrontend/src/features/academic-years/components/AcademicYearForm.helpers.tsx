@@ -8,7 +8,12 @@ import type {
  * Validation errors for the academic year form fields.
  * Keys match CreateAcademicYearRequest fields.
  */
-export type FormErrors = Partial<Record<keyof CreateAcademicYearRequest, string>>;
+export interface FormErrors extends Partial<Record<keyof CreateAcademicYearRequest, string>> {
+    /** Brand to avoid empty-interface warnings; not used at runtime. */
+    readonly __brand?: "FormErrors";
+}
+
+
 
 export function getEmptyFormData(): CreateAcademicYearRequest {
     return {
@@ -53,10 +58,10 @@ export function validateAcademicYearForm(
     if (formData.elementarySchoolHours < 0) {
         newErrors.elementarySchoolHours = t("form.errors.elementarySchoolHoursRequired");
     }
-    if (formData.middleSchoolHours < 0) { 
+    if (formData.middleSchoolHours < 0) {
         newErrors.middleSchoolHours = t("form.errors.middleSchoolHoursRequired");
     }
-    if (!formData.budgetAnnouncementDate.trim()) { 
+    if (!formData.budgetAnnouncementDate.trim()) {
         newErrors.budgetAnnouncementDate = t("form.errors.budgetAnnouncementDateRequired");
     }
 
