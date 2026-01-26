@@ -1,4 +1,3 @@
-import { useState, useEffect, useMemo } from "react";
 // translations
 import { useTranslation } from "react-i18next";
 // icons
@@ -8,36 +7,214 @@ import { AlertCircle } from "lucide-react";
 import type {
   AllocationPlan,
   CreateAllocationPlanRequest,
-  PlanStatus,
   UpdateAllocationPlanRequest,
+  PlanStatus,
 } from "../types/allocationPlan.types";
 
-// components
-import { AcademicYearService, type AcademicYear } from "@/features/academic-years";
-import { SelectField } from "@/components/form/fields/SelectField";
-import { TextField } from "@/components/form/fields/TextField";
+import { useAllocationPlanFormLogic } from "./AllocationPlanForm.logic";
+import { PLAN_STATUS_OPTIONS } from "./AllocationPlanForm.helper";
 import { CancelButton } from "@/components/form/button/CancelButton";
 import { SubmitButton } from "@/components/form/button/SubmitButton";
-import { TextAreaField } from "@/components/form/fields/TextAreaField";
+import { SelectField } from "@/components/form/fields/SelectField";
+import { TextField } from "@/components/form/fields/TextField";
 import { CheckboxField } from "@/components/form/fields/CheckboxField";
+import { TextAreaField } from "@/components/form/fields/TextAreaField";
 
-// constants
-const PLAN_STATUS_OPTIONS: { value: PlanStatus; label: string }[] = [
-  { value: "DRAFT", label: "Draft" },
-  { value: "IN_REVIEW", label: "In Review" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "ARCHIVED", label: "Archived" },
-];
 
+function AllocationPlanFormErrorBanner(props: { text?: string | null }) {
+  if (!props.text) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+      <AlertCircle className="h-4 w-4" />
+      <span>{props.text}</span>
+    </div>
+  );
+}
+function AllocationPlanFormActions(props: { disabled: boolean; isEdit: boolean; onCancel: () => void; tCommon: (k: string) => string }) {
+  return (
+    <div className="flex justify-end gap-2 pt-2">
+      <CancelButton onClick={props.onCancel} disabled={props.disabled}>
+        {props.tCommon("actions.cancel")}
+      </CancelButton>
+      <SubmitButton
+        isLoading={props.disabled}
+        isEdit={props.isEdit}
+        createText={props.tCommon("actions.create")}
+        updateText={props.tCommon("actions.update")}
+        savingText={props.tCommon("actions.saving")}
+        disabled={props.disabled}
+      />
+    </div>
+  );
+}
+
+/**
+ * Props for allocation plan form field sections.
+ */
+interface AllocationPlanFormFieldsProps {
+  formData: CreateAllocationPlanRequest;
+  errors: Partial<Record<keyof CreateAllocationPlanRequest, string>>;
+  disabled: boolean;
+  loadingYears: boolean;
+  yearValue: string;
+  yearOptions: { value: string; label: string }[];
+  onChange: (field: keyof CreateAllocationPlanRequest, value: string | number | boolean | null) => void;
+  t: (key: string) => string;
+}
+
+function AllocationPlanYearField({ disabled, loadingYears, yearValue, yearOptions, errors, onChange, t }: AllocationPlanFormFieldsProps) {
+  return (
+    <SelectField
+      id="yearId"
+      label={t("form.fields.yearId")}
+      value={yearValue}
+      onChange={(val: string) => onChange("yearId", val === "__none__" ? 0 : Number(val))}
+      options={yearOptions}
+      placeholder={t("form.placeholders.yearId")}
+      disabled={disabled || loadingYears}
+      error={errors.yearId}
+    />
+  );
+}
+
+function AllocationPlanNameVersionFields({ formData, errors, disabled, onChange, t }: AllocationPlanFormFieldsProps) {
+  return (
+    <>
+      <TextField
+        id="planName"
+        label={t("form.fields.planName")}
+        value={formData.planName}
+        onChange={(val: string) => onChange("planName", val)}
+        placeholder={t("form.placeholders.planName")}
+        disabled={disabled}
+        error={errors.planName}
+        maxLength={255}
+      />
+
+      <TextField
+        id="planVersion"
+        label={t("form.fields.planVersion")}
+        value={formData.planVersion}
+        onChange={(val: string) => onChange("planVersion", val)}
+        placeholder={t("form.placeholders.planVersion")}
+        disabled={disabled}
+        error={errors.planVersion}
+        maxLength={100}
+      />
+    </>
+  );
+}
+
+function AllocationPlanStatusField({ formData, errors, disabled, onChange, t }: AllocationPlanFormFieldsProps) {
+  return (
+    <SelectField
+      id="status"
+      label={t("form.fields.status")}
+      value={formData.status ?? "DRAFT"}
+      onChange={(val: string) => onChange("status", val as PlanStatus)}
+      options={PLAN_STATUS_OPTIONS}
+      placeholder={t("form.placeholders.status")}
+      disabled={disabled}
+      error={errors.status}
+    />
+  );
+}
+
+function AllocationPlanMainFields(props: AllocationPlanFormFieldsProps) {
+  return (
+    <>
+      <AllocationPlanNameVersionFields {...props} />
+      <AllocationPlanStatusField {...props} />
+    </>
+  );
+}
+
+function AllocationPlanFlagsAndNotes({ formData, errors, disabled, onChange, t }: AllocationPlanFormFieldsProps) {
+  return (
+    <>
+      <CheckboxField
+        id="isCurrent"
+        label={t("form.fields.isCurrent")}
+        checked={!!formData.isCurrent}
+        onCheckedChange={(checked) => onChange("isCurrent", checked === true)}
+        disabled={disabled}
+        labelClassName="mt-1.5"
+        className="lg:mt-7"
+      />
+
+      <TextAreaField
+        id="notes"
+        label={t("form.fields.notes")}
+        value={formData.notes ?? ""}
+        onChange={(val: string) => onChange("notes", val)}
+        placeholder={t("form.placeholders.notes")}
+        disabled={disabled}
+        error={errors.notes}
+        maxLength={500}
+      />
+    </>
+  );
+}
+
+/**
+ * Renders the input fields for the allocation plan form.
+ */
+function AllocationPlanFormFields(props: AllocationPlanFormFieldsProps) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <AllocationPlanYearField {...props} />
+      <AllocationPlanMainFields {...props} />
+      <AllocationPlanFlagsAndNotes {...props} />
+    </div>
+  );
+}
+
+/**
+ * Props for the AllocationPlanForm component.
+ */
 interface AllocationPlanFormProps {
   allocationPlan?: AllocationPlan | null;
-  onSubmit: (
-    data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest
-  ) => Promise<void>;
+  onSubmit: (data: CreateAllocationPlanRequest | UpdateAllocationPlanRequest) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   error?: string | null;
 }
+
+/**
+ * Renders the main body of the allocation plan form.
+ */
+function AllocationPlanFormContent(props: {
+  formData: CreateAllocationPlanRequest;
+  errors: Partial<Record<keyof CreateAllocationPlanRequest, string>>;
+  disabled: boolean;
+  loadingYears: boolean;
+  yearValue: string;
+  yearOptions: { value: string; label: string }[];
+  onChange: (field: keyof CreateAllocationPlanRequest, value: string | number | boolean | null) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <AllocationPlanFormFields
+      formData={props.formData}
+      errors={props.errors}
+      disabled={props.disabled}
+      loadingYears={props.loadingYears}
+      yearValue={props.yearValue}
+      yearOptions={props.yearOptions}
+      onChange={props.onChange}
+      t={props.t}
+    />
+  );
+}
+
+const getBannerText = (
+  externalError: string | null,
+  errors: Partial<Record<string, unknown>>
+): string | null =>
+  externalError ?? Object.values(errors).find((v) => typeof v === "string") ?? null;
 
 export function AllocationPlanForm({
   allocationPlan,
@@ -49,254 +226,32 @@ export function AllocationPlanForm({
   const { t } = useTranslation("allocationPlans");
   const { t: tCommon } = useTranslation("common");
 
-  // Academic years for dropdown
-  const [years, setYears] = useState<AcademicYear[]>([]);
-  const [loadingYears, setLoadingYears] = useState(true);
+  const logic = useAllocationPlanFormLogic({ allocationPlan, isLoading, onSubmit, t });
 
-  // Form state
-  const [formData, setFormData] = useState<CreateAllocationPlanRequest>(() => {
-    if (allocationPlan) {
-      return {
-        yearId: allocationPlan.yearId,
-        planName: allocationPlan.planName || "",
-        planVersion: allocationPlan.planVersion || "",
-        status: allocationPlan.status,
-        isCurrent: allocationPlan.isCurrent ?? false,
-        notes: allocationPlan.notes ?? "",
-      };
-    }
-    return {
-      yearId: 0,
-      planName: "",
-      planVersion: "",
-      status: "DRAFT",
-      isCurrent: false,
-      notes: "",
-    };
-  });
-
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof CreateAllocationPlanRequest, string>>
-  >({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Load academic years for dropdown
-  useEffect(() => {
-    const loadYears = async () => {
-      setLoadingYears(true);
-      try {
-        const data = await AcademicYearService.getAll();
-        setYears(data);
-      } catch {
-        setYears([]);
-      } finally {
-        setLoadingYears(false);
-      }
-    };
-    loadYears();
-  }, []);
-
-  useEffect(() => {
-    if (allocationPlan) {
-      setFormData({
-        yearId: allocationPlan.yearId,
-        planName: allocationPlan.planName || "",
-        planVersion: allocationPlan.planVersion || "",
-        status: allocationPlan.status,
-        isCurrent: allocationPlan.isCurrent ?? false,
-        notes: allocationPlan.notes ?? "",
-      });
-    } else {
-      setFormData({
-        yearId: 0,
-        planName: "",
-        planVersion: "",
-        status: "DRAFT",
-        isCurrent: false,
-        notes: "",
-      });
-    }
-    setErrors({});
-  }, [allocationPlan]);
-
-  // Normalize select values
-  const yearValue = useMemo(
-    () => (formData.yearId > 0 ? String(formData.yearId) : "__none__"),
-    [formData.yearId]
-  );
-  const statusValue = useMemo(
-    () => formData.status ?? "DRAFT",
-    [formData.status]
-  );
-
-  // Year options with placeholder
-  const yearOptions = useMemo(() => [
-    { value: "__none__", label: t("form.placeholders.yearId") },
-    ...years.map((year) => ({ value: String(year.id), label: year.yearName })),
-  ], [years, t]);
-
-  const validate = (): boolean => {
-    const newErrors: Partial<
-      Record<keyof CreateAllocationPlanRequest, string>
-    > = {};
-    if (!formData.yearId || formData.yearId < 1) {
-      newErrors.yearId = t("form.errors.yearIdRequired");
-    }
-    if (!formData.planName.trim()) {
-      newErrors.planName = t("form.errors.planNameRequired");
-    }
-    if (!formData.planVersion.trim()) {
-      newErrors.planVersion = t("form.errors.planVersionRequired");
-    }
-    if (!formData.status) {
-      newErrors.status = t("form.errors.statusRequired");
-    }
-    if (formData.notes && formData.notes.length > 5000) {
-      newErrors.notes = t("form.errors.notesMaxLength");
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loadingYears) return;
-    if (!validate()) return;
-    setIsSubmitting(true);
-    // Debug log: print formData and isCurrent value
-    console.log("[DEBUG] Submitting Allocation Plan formData:", formData);
-    console.log("[DEBUG] isCurrent value:", formData.isCurrent);
-    try {
-      if (allocationPlan) {
-        const updateData: UpdateAllocationPlanRequest = {
-          planName: formData.planName.trim(),
-          status: formData.status,
-          isCurrent: formData.isCurrent,
-          notes: formData.notes,
-        };
-        console.log("[DEBUG] updateData payload:", updateData);
-        await onSubmit(updateData);
-      } else {
-        const createData: CreateAllocationPlanRequest = {
-          yearId: formData.yearId,
-          planName: formData.planName.trim(),
-          planVersion: formData.planVersion.trim(),
-          status: formData.status,
-          isCurrent: formData.isCurrent,
-          notes: formData.notes,
-        };
-        console.log("[DEBUG] createData payload:", createData);
-        await onSubmit(createData);
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (
-    field: keyof CreateAllocationPlanRequest,
-    value: string | number | boolean | null
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const bannerText = getBannerText(externalError, logic.errors);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 py-4">
-      {(externalError || Object.keys(errors).length > 0) && (
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
-          <AlertCircle className="h-4 w-4" />
-          <span>{externalError || Object.values(errors)[0]}</span>
-        </div>
-      )}
+    <form onSubmit={logic.handleSubmit} className="space-y-4 py-4">
+      <AllocationPlanFormErrorBanner text={bannerText} />
 
-      <div className="grid gap-4 md:grid-cols-2">
-          <SelectField
-            id="yearId"
-            label={t("form.fields.yearId")}
-            value={yearValue}
-            onChange={(val: string) => handleChange("yearId", val === "__none__" ? 0 : Number(val))}
-            options={yearOptions}
-            placeholder={t("form.placeholders.yearId")}
-            disabled={isLoading || isSubmitting || loadingYears}
-            error={errors.yearId}
-          />
+      <AllocationPlanFormContent
+        formData={logic.formData}
+        errors={logic.errors}
+        disabled={logic.disabled}
+        loadingYears={logic.loadingYears}
+        yearValue={logic.yearValue}
+        yearOptions={logic.yearOptions}
+        onChange={logic.handleChange}
+        t={t}
+      />
 
-          <TextField
-            id="planName"
-            label={t("form.fields.planName")}
-            value={formData.planName}
-            onChange={(val: string) => handleChange("planName", val)}
-            placeholder={t("form.placeholders.planName")}
-            disabled={isLoading || isSubmitting}
-            error={errors.planName}
-            maxLength={255}
-          />
-
-          <TextField
-            id="planVersion"
-            label={t("form.fields.planVersion")}
-            value={formData.planVersion}
-            onChange={(val: string) => handleChange("planVersion", val)}
-            placeholder={t("form.placeholders.planVersion")}
-            disabled={isLoading || isSubmitting}
-            error={errors.planVersion}
-            maxLength={100}
-          />
-
-          <SelectField
-            id="status"
-            label={t("form.fields.status")}
-            value={statusValue}
-            onChange={(val: string) => handleChange("status", val as PlanStatus)}
-            options={PLAN_STATUS_OPTIONS}
-            placeholder={t("form.placeholders.status")}
-            disabled={isLoading || isSubmitting}
-            error={errors.status}
-          />
-
-            <CheckboxField
-              id="isCurrent"
-              label={t("form.fields.isCurrent")}
-              checked={!!formData.isCurrent}
-              onCheckedChange={(checked: boolean) =>
-                handleChange("isCurrent", checked)
-              }
-              disabled={isLoading || isSubmitting}
-              labelClassName="mt-1.5"
-              className="lg:mt-7"
-            />
-              
-          <TextAreaField
-            id="notes"
-            label={t("form.fields.notes")}
-            value={formData.notes ?? ""}
-            onChange={(val: string) => handleChange("notes", val)}
-            placeholder={t("form.placeholders.notes")}
-            disabled={isLoading || isSubmitting}
-            error={errors.notes}
-            maxLength={500}
-          />
-      </div>
-
-      <div className="flex justify-end gap-2 pt-2">
-        <CancelButton
-          onClick={onCancel}
-          disabled={isLoading || isSubmitting}
-        >
-          {tCommon("actions.cancel")}
-        </CancelButton>
-        <SubmitButton
-          isLoading={isSubmitting || isLoading}
-          isEdit={!!allocationPlan}
-          createText={tCommon("actions.create")}
-          updateText={tCommon("actions.update")}
-          savingText={tCommon("actions.saving")}
-          disabled={isLoading || isSubmitting}
-        />
-      </div>
+      <AllocationPlanFormActions
+        disabled={logic.disabled}
+        isEdit={!!allocationPlan}
+        onCancel={onCancel}
+        tCommon={tCommon}
+      />
     </form>
   );
 }
+
