@@ -1,6 +1,9 @@
 import { Input } from "@/components/ui/input";
 import React from "react";
 
+/**
+ * Text field component Props
+ */
 interface TextFieldProps {
   id: string;
   label: string;
