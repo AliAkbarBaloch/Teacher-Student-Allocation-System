@@ -18,6 +18,9 @@ import {
 import type { Table } from "@tanstack/react-table";
 import { getVisiblePages } from "@/lib/utils/pagination";
 
+/**
+ * Props for server-side pagination configuration.
+ */
 interface ServerSidePaginationProps {
   page: number;
   pageSize: number;
@@ -27,6 +30,9 @@ interface ServerSidePaginationProps {
   onPageSizeChange: (size: number) => void;
 }
 
+/**
+ * Props for the DataTablePagination component.
+ */
 interface DataTablePaginationProps<TData> {
   table?: Table<TData>;
   enableRowSelection?: boolean;
@@ -35,22 +41,123 @@ interface DataTablePaginationProps<TData> {
   serverSidePagination?: ServerSidePaginationProps;
 }
 
+/**
+ * Sub-component for selecting the number of rows per page.
+ */
+function RowsPerPageSelector({
+  pageSize,
+  onPageSizeChange,
+  pageSizeOptions,
+}: {
+  pageSize: number;
+  onPageSizeChange: (size: number) => void;
+  pageSizeOptions: readonly number[] | number[];
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <p className="text-xs text-muted-foreground sm:text-sm">Rows per page</p>
+      <Select
+        value={`${pageSize}`}
+        onValueChange={(value) => onPageSizeChange(Number(value))}
+      >
+        <SelectTrigger className="h-8 w-[70px]">
+          <SelectValue placeholder={String(pageSize)} />
+        </SelectTrigger>
+        <SelectContent side="top">
+          {pageSizeOptions.map((size) => (
+            <SelectItem key={size} value={`${size}`}>
+              {size}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+/**
+ * Sub-component for rendering the pagination links and navigation arrows.
+ */
+function PageNavControls({
+  currentPage,
+  pageCount,
+  visiblePages,
+  onPageChange,
+  onPreviousPage,
+  onNextPage,
+  canPreviousPage,
+  canNextPage,
+}: {
+  currentPage: number;
+  pageCount: number;
+  visiblePages: number[];
+  onPageChange: (page: number) => void;
+  onPreviousPage: () => void;
+  onNextPage: () => void;
+  canPreviousPage: boolean;
+  canNextPage: boolean;
+}) {
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            onClick={onPreviousPage}
+            className={!canPreviousPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+          />
+        </PaginationItem>
+        {visiblePages.map((pageNumber, index, array) => {
+          const showEllipsisBefore = index > 0 && pageNumber - array[index - 1] > 1;
+
+          return (
+            <React.Fragment key={pageNumber}>
+              {showEllipsisBefore && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              <PaginationItem>
+                <PaginationLink
+                  onClick={() => onPageChange(pageNumber)}
+                  isActive={currentPage === pageNumber}
+                  className="cursor-pointer"
+                >
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            </React.Fragment>
+          );
+        })}
+        <PaginationItem>
+          <PaginationNext
+            onClick={onNextPage}
+            className={!canNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
+}
+
+/**
+ * Handles pagination for the DataTable, supporting both client-side (via TanStack Table)
+ * and server-side pagination modes.
+ */
 export function DataTablePagination<TData>({
   table,
   enableRowSelection = false,
   pageSizeOptions = [10, 25, 50, 100],
   serverSidePagination,
 }: DataTablePaginationProps<TData>) {
-  // Determine if we're using server-side or client-side pagination
   const isServerSide = !!serverSidePagination && !table;
 
-  // Server-side pagination values
+  // Server-side values
   const serverPage = serverSidePagination?.page ?? 1;
   const serverPageSize = serverSidePagination?.pageSize ?? 10;
   const serverTotalItems = serverSidePagination?.totalItems ?? 0;
   const serverTotalPages = serverSidePagination?.totalPages ?? 0;
 
-  // Client-side pagination values (from TanStack Table)
+  // Client-side values
   const paginationState = table?.getState().pagination;
   const clientPageSize = paginationState?.pageSize ?? 10;
   const clientPageIndex = paginationState?.pageIndex ?? 0;
@@ -58,41 +165,39 @@ export function DataTablePagination<TData>({
   const clientTotalRows = filteredRowModel?.rows.length ?? 0;
   const clientPageCount = table?.getPageCount() ?? 0;
 
-  // Use server-side or client-side values
+  // Current values
   const pageSize = isServerSide ? serverPageSize : clientPageSize;
-  const pageIndex = isServerSide ? serverPage - 1 : clientPageIndex; // Convert 1-based to 0-based for calculations
+  const pageIndex = isServerSide ? serverPage - 1 : clientPageIndex;
   const totalRows = isServerSide ? serverTotalItems : clientTotalRows;
   const pageCount = isServerSide ? serverTotalPages : clientPageCount;
-  const currentPage = isServerSide ? serverPage : pageIndex + 1; // For display (1-based)
-  
+  const currentPage = isServerSide ? serverPage : pageIndex + 1;
+
   const { from, to } = useMemo(() => {
-    if (totalRows === 0) return { from: 0, to: 0 };
-    if (isServerSide) {
-      const from = (serverPage - 1) * serverPageSize + 1;
-      const to = Math.min(serverPage * serverPageSize, serverTotalItems);
-      return { from, to };
+    if (totalRows === 0) {
+      return { from: 0, to: 0 };
     }
-    const from = pageIndex * pageSize + 1;
-    const to = Math.min((pageIndex + 1) * pageSize, totalRows);
-    return { from, to };
+    if (isServerSide) {
+      const fromVal = (serverPage - 1) * serverPageSize + 1;
+      const toVal = Math.min(serverPage * serverPageSize, serverTotalItems);
+      return { from: fromVal, to: toVal };
+    }
+    const fromVal = pageIndex * pageSize + 1;
+    const toVal = Math.min((pageIndex + 1) * pageSize, totalRows);
+    return { from: fromVal, to: toVal };
   }, [isServerSide, pageIndex, pageSize, totalRows, serverPage, serverPageSize, serverTotalItems]);
 
-  // Get visible pages for pagination controls
   const visiblePages = useMemo(() => {
     if (isServerSide) {
       return getVisiblePages(serverPage, serverTotalPages);
     }
-    // For client-side, use the same logic as server-side but with 0-based index
-    const currentPage = pageIndex + 1; // Convert to 1-based for getVisiblePages
-    return getVisiblePages(currentPage, pageCount);
+    return getVisiblePages(pageIndex + 1, pageCount);
   }, [isServerSide, serverPage, serverTotalPages, pageIndex, pageCount]);
 
-  // Handlers for page changes
   const handlePageChange = (newPage: number) => {
     if (isServerSide && serverSidePagination) {
       serverSidePagination.onPageChange(newPage);
     } else if (table) {
-      table.setPageIndex(newPage - 1); // Convert 1-based to 0-based
+      table.setPageIndex(newPage - 1);
     }
   };
 
@@ -125,7 +230,6 @@ export function DataTablePagination<TData>({
   const canNextPage = isServerSide ? serverPage < serverTotalPages : table?.getCanNextPage() ?? false;
   const selectedRowCount = table?.getFilteredSelectedRowModel().rows.length ?? 0;
 
-  // Don't show pagination if there are no results (for both server-side and client-side)
   if (totalRows === 0) {
     return null;
   }
@@ -138,85 +242,27 @@ export function DataTablePagination<TData>({
             {selectedRowCount} of {totalRows} row(s) selected.
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <p className="text-xs text-muted-foreground sm:text-sm">Rows per page</p>
-          <Select
-            value={`${pageSize}`}
-            onValueChange={(value) => {
-              handlePageSizeChange(Number(value));
-            }}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={String(pageSize)} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {pageSizeOptions.map((size) => (
-                <SelectItem key={size} value={`${size}`}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <RowsPerPageSelector
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={pageSizeOptions}
+        />
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="text-xs text-muted-foreground sm:text-sm whitespace-nowrap">
-          {totalRows === 0 ? (
-            "No results"
-          ) : (
-            <>
-              Showing {from} to {to} of {totalRows} result{totalRows !== 1 ? "s" : ""}
-            </>
-          )}
+          {totalRows === 0 ? "No results" : `Showing ${from} to ${to} of ${totalRows} results`}
         </div>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={handlePreviousPage}
-                className={
-                  !canPreviousPage
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-            {visiblePages.map((pageNumber, index, array) => {
-              const showEllipsisBefore = index > 0 && pageNumber - array[index - 1] > 1;
-
-              return (
-                <React.Fragment key={pageNumber}>
-                  {showEllipsisBefore && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-                  <PaginationItem>
-                    <PaginationLink
-                      onClick={() => handlePageChange(pageNumber)}
-                      isActive={currentPage === pageNumber}
-                      className="cursor-pointer"
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                </React.Fragment>
-              );
-            })}
-            <PaginationItem>
-              <PaginationNext
-                onClick={handleNextPage}
-                className={
-                  !canNextPage
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <PageNavControls
+          currentPage={currentPage}
+          pageCount={pageCount}
+          visiblePages={visiblePages}
+          onPageChange={handlePageChange}
+          onPreviousPage={handlePreviousPage}
+          onNextPage={handleNextPage}
+          canPreviousPage={canPreviousPage}
+          canNextPage={canNextPage}
+        />
       </div>
     </div>
   );
 }
-
