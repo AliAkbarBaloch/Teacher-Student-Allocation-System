@@ -80,7 +80,6 @@ function RowsPerPageSelector({
  */
 function PageNavControls({
   currentPage,
-  pageCount,
   visiblePages,
   onPageChange,
   onPreviousPage,
@@ -89,7 +88,6 @@ function PageNavControls({
   canNextPage,
 }: {
   currentPage: number;
-  pageCount: number;
   visiblePages: number[];
   onPageChange: (page: number) => void;
   onPreviousPage: () => void;
@@ -254,7 +252,6 @@ export function DataTablePagination<TData>({
         </div>
         <PageNavControls
           currentPage={currentPage}
-          pageCount={pageCount}
           visiblePages={visiblePages}
           onPageChange={handlePageChange}
           onPreviousPage={handlePreviousPage}

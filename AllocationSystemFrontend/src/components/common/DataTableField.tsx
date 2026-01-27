@@ -41,9 +41,12 @@ export function DataTableField<TData>({
     useEffect(() => {
         const stringValue = value !== null && value !== undefined ? String(value) : "";
         // Only update if the numeric value actually changed (to avoid jitter while typing 10.0)
-        if (Number(localValue) !== Number(stringValue) || (localValue === "" && stringValue !== "")) {
-            setLocalValue(stringValue);
-        }
+        setLocalValue((prev) => {
+            if (Number(prev) !== Number(stringValue) || (prev === "" && stringValue !== "")) {
+                return stringValue;
+            }
+            return prev;
+        });
     }, [value]);
 
     if (!isEditing) {

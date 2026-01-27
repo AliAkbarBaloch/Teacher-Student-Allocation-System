@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import type { Table } from "@tanstack/react-table";
+import type { Table, Column } from "@tanstack/react-table";
 
 /**
  * Props for the DataTableToolbar component.
@@ -46,7 +46,7 @@ function SearchInput<TData>({
  * Sub-component for rendering the column visibility toggle dropdown.
  */
 function ColumnVisibilityToggle<TData>({ table }: { table: Table<TData> }) {
-  const getColumnTitle = (column: any) => {
+  const getColumnTitle = (column: Column<TData, unknown>) => {
     const header = column.columnDef.header;
     let title: string = column.id;
 
