@@ -23,7 +23,7 @@ const createFetchSchoolsParams = () => ({
   page: 1,
   pageSize: SCHOOLS_DROPDOWN_PAGE_SIZE,
   sortBy: 'schoolName',
-  sortOrder: 'asc',
+  sortOrder: 'asc' as const,
 });
 
 /**
