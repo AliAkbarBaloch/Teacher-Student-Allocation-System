@@ -3,6 +3,11 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import React from "react";
 
+
+/**
+ * Checkbox field component Props
+ */
+
 interface CheckboxFieldProps {
   id: string;
   checked: boolean;
