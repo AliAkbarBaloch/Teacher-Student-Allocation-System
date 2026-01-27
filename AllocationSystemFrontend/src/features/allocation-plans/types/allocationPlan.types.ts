@@ -1,12 +1,9 @@
 /**
  * AllocationPlan management types
- */
+*/
 
 export type PlanStatus = "DRAFT" | "IN_REVIEW" | "APPROVED" | "ARCHIVED";
 
-/**
- * Represents an allocation plan.
- */
 export interface AllocationPlan {
   id: number;
   yearId: number;
@@ -21,9 +18,6 @@ export interface AllocationPlan {
   notes?: string | null;
 }
 
-/**
- * Request payload for creating a new allocation plan.
- */
 export interface CreateAllocationPlanRequest {
   yearId: number;
   planName: string;
@@ -33,9 +27,6 @@ export interface CreateAllocationPlanRequest {
   notes?: string | null;
 }
 
-/**
- * Request payload for updating an existing allocation plan.
- */
 export interface UpdateAllocationPlanRequest {
   planName?: string;
   status?: PlanStatus;
@@ -43,27 +34,18 @@ export interface UpdateAllocationPlanRequest {
   notes?: string | null;
 }
 
-/**
- * API response containing a single allocation plan.
- */
 export interface AllocationPlanResponse {
   success: boolean;
   message: string;
   data: AllocationPlan;
 }
 
-/**
- * API response containing a list of allocation plans.
- */
 export interface AllocationPlansListResponse {
   success: boolean;
   message: string;
   data: AllocationPlan[];
 }
 
-/**
- * API response containing paginated allocation plans.
- */
 export interface PaginatedAllocationPlansResponse {
   success: boolean;
   message: string;
@@ -76,9 +58,6 @@ export interface PaginatedAllocationPlansResponse {
   };
 }
 
-/**
- * Query parameters for retrieving allocation plans.
- */
 export interface AllocationPlansListParams {
   page?: number;
   pageSize?: number;
