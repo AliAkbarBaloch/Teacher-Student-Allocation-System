@@ -7,6 +7,8 @@ import type {
   PlanChangeLogsListParams,
 } from "../types/planChangeLog.types";
 
+import { buildQueryParams } from "@/lib/utils/query-params";
+
 type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -29,35 +31,7 @@ export class PlanChangeLogService {
    * Get paginated plan change logs
    */
   static async getPaginated(params: PlanChangeLogsListParams = {}): Promise<PaginatedPlanChangeLogsResponse["data"]> {
-    const queryParams = new URLSearchParams();
-
-    if (params.page !== undefined) {
-      queryParams.append("page", String(params.page));
-    }
-    if (params.pageSize !== undefined) {
-      queryParams.append("pageSize", String(params.pageSize));
-    }
-    if (params.sortBy) {
-      queryParams.append("sortBy", params.sortBy);
-    }
-    if (params.sortOrder) {
-      queryParams.append("sortOrder", params.sortOrder);
-    }
-    if (params.changeType) {
-      queryParams.append("changeType", params.changeType);
-    }
-    if (params.entityType) {
-      queryParams.append("entityType", params.entityType);
-    }
-    if (params.startDate) {
-      queryParams.append("startDate", params.startDate);
-    }
-    if (params.endDate) {
-      queryParams.append("endDate", params.endDate);
-    }
-    if (params.planId !== undefined) {
-      queryParams.append("planId", String(params.planId));
-    }
+    const queryParams = buildQueryParams(params);
 
     const response = await apiClient.get<ApiResponse<PaginatedPlanChangeLogsResponse["data"]>>(
       `/plan-change-logs/paginate?${queryParams.toString()}`
