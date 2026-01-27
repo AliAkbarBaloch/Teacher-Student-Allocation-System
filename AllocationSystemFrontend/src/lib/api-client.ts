@@ -184,25 +184,21 @@ class ApiClient {
   /**
    * Extract error message from error response data
    */
-  private extractErrorMessage(errorData: unknown): string | null {
-    if (!errorData || typeof errorData !== "object") {
-      return null;
-    }
-
-        const errorObject = errorData as Record<string, unknown>;
-
-        // Backend sends { success: false, message: "..." } format - prioritize message field
+    private extractMessageField(errorObject: Record<string, unknown>): string | null {
     if (
       typeof errorObject.message === "string" &&
       errorObject.message.trim() !== ""
     ) {
       return errorObject.message;
     }
+    return null;
+  }
 
-    // Check nested error object
+  // Helper: Extract message from nested error object
+  private extractNestedErrorMessage(errorObject: Record<string, unknown>): string | null {
     if ("error" in errorObject) {
-          const nestedError = errorObject.error;
-          if (typeof nestedError === "string" && nestedError.trim() !== "") {
+      const nestedError = errorObject.error;
+      if (typeof nestedError === "string" && nestedError.trim() !== "") {
         return nestedError;
       }
       if (
@@ -211,14 +207,17 @@ class ApiClient {
         "message" in nestedError &&
         typeof (nestedError as { message?: string }).message === "string"
       ) {
-            const nestedMessage = (nestedError as { message?: string }).message;
-            if (nestedMessage && nestedMessage.trim() !== "") {
+        const nestedMessage = (nestedError as { message?: string }).message;
+        if (nestedMessage && nestedMessage.trim() !== "") {
           return nestedMessage;
         }
-            }
-          }
+      }
+    }
+    return null;
+  }
 
-    // Check errors array or object
+  // Helper: Extract messages from errors array or object
+  private extractErrorsArrayOrObject(errorObject: Record<string, unknown>): string | null {
     if ("errors" in errorObject) {
       const errors = errorObject.errors;
       if (Array.isArray(errors)) {
@@ -247,6 +246,33 @@ class ApiClient {
           return fieldErrors.join(", ");
         }
       }
+    }
+    return null;
+  }
+
+  private extractErrorMessage(errorData: unknown): string | null {
+    if (!errorData || typeof errorData !== "object") {
+      return null;
+    }
+
+    const errorObject = errorData as Record<string, unknown>;
+
+    // Try extracting from message field
+    const messageField = this.extractMessageField(errorObject);
+    if (messageField) {
+      return messageField;
+    }
+
+    // Try extracting from nested error object
+    const nestedErrorMessage = this.extractNestedErrorMessage(errorObject);
+    if (nestedErrorMessage) {
+      return nestedErrorMessage;
+    }
+
+    // Try extracting from errors array or object
+    const errorsArrayOrObject = this.extractErrorsArrayOrObject(errorObject);
+    if (errorsArrayOrObject) {
+      return errorsArrayOrObject;
     }
 
     return null;
@@ -404,14 +430,19 @@ class ApiClient {
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
+      let requestBody: BodyInit | undefined;
+      if (isFormData) {
+        requestBody = data as FormData;
+      } else if (data) {
+        requestBody = JSON.stringify(data);
+      } else {
+        requestBody = undefined;
+      }
+
       const response = await fetch(this.buildUrl(endpoint), {
         method: "POST",
         headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
+        body: requestBody,
         ...options,
         signal: options?.signal || signal,
       });
