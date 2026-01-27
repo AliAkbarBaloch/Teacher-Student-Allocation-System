@@ -12,10 +12,11 @@ export async function fetchAcademicYears(): Promise<AcademicYear[]> {
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
     });
 
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+        throw new Error(await res.text());
+    }
 
     const json = await res.json();
-    console.log("fetchAcademicYears raw json:", json);
-
+    
     return Array.isArray(json?.data) ? json.data : [];
 }

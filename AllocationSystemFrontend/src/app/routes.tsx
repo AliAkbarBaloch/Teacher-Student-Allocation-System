@@ -9,7 +9,7 @@ import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTracki
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
+import AcademicYearPage from "@/pages/base-data/academic-years/AcademicYearPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";

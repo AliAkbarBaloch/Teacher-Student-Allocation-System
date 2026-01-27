@@ -17,11 +17,21 @@ export class AcademicYearServiceClass extends BaseApiService<AcademicYear,Create
   async getPaginated(params: AcademicYearsListParams = {}): Promise<PaginatedAcademicYearsResponse["data"]> {
     const queryParams = new URLSearchParams();
 
-    if (params.page !== undefined) queryParams.append("page", String(params.page));
-    if (params.pageSize !== undefined) queryParams.append("pageSize", String(params.pageSize));
-    if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-    if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-    if (params.searchValue) queryParams.append("searchValue", params.searchValue);
+    if (params.page !== undefined) {
+      queryParams.append("page", String(params.page));
+    }
+    if (params.pageSize !== undefined) {
+      queryParams.append("pageSize", String(params.pageSize));
+    }
+    if (params.sortBy) {
+      queryParams.append("sortBy", params.sortBy);
+    }
+    if (params.sortOrder) {
+      queryParams.append("sortOrder", params.sortOrder);
+    }
+    if (params.searchValue) {
+      queryParams.append("searchValue", params.searchValue);
+    }
 
     const response = await apiClient.get<ApiResponse<PaginatedAcademicYearsResponse["data"]>>(
       `/academic-years/paginate?${queryParams.toString()}`
@@ -30,4 +40,4 @@ export class AcademicYearServiceClass extends BaseApiService<AcademicYear,Create
   }
 }
 
-export const AcademicYearService = new AcademicYearServiceClass();
+export const ACADEMIC_YEAR_SERVICE = new AcademicYearServiceClass();

@@ -14,7 +14,7 @@ import type { InternshipType } from "@/features/internship-types/types/internshi
 import { TeacherService } from "@/features/teachers/services/teacherService";
 
 // services
-import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "@/features/academic-years/services/academicYearService";
 import { InternshipTypeService } from "@/features/internship-types/services/internshipTypeService";
 
 // components
@@ -94,7 +94,7 @@ export function TeacherAvailabilityForm({
   useEffect(() => {
     const loadAcademicYears = async () => {
       try {
-        const data = await AcademicYearService.getAll();
+        const data = await ACADEMIC_YEAR_SERVICE.getAll();
         setAcademicYears(data ?? []);
       } catch {
         setAcademicYears([]);
