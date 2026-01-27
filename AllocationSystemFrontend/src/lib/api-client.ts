@@ -350,6 +350,8 @@ class ApiClient {
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      // Add a return statement to satisfy all code paths
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
@@ -381,6 +383,8 @@ class ApiClient {
       return response.blob();
     } catch (error) {
       this.handleNetworkError(error);
+      // Add a return statement to satisfy all code paths
+      return Promise.reject(error) as unknown as Blob;
     } finally {
       clearTimeout(timeoutId);
     }
@@ -389,11 +393,7 @@ class ApiClient {
   /**
    * Make a POST request
    */
-  async post<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestInit
-  ): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
     this.validateTokenForRequest(endpoint);
     const isFormData =
       typeof FormData !== "undefined" && data instanceof FormData;
@@ -423,6 +423,8 @@ class ApiClient {
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      // Add a return statement to satisfy all code paths
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
