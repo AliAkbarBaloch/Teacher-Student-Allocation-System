@@ -1,24 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 
-interface SelectFieldOption {
-  value: string;
-  label: React.ReactNode;
-  disabled?: boolean;
-}
+import type { SelectFieldProps } from "./SelectField";
 
-interface SelectSearchFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectFieldOption[];
-  placeholder?: string;
-  required?: boolean;
-  error?: string;
-  disabled?: boolean;
-  className?: string;
-  labelClassName?: string;
-}
+/**
+ * Props for the SelectSearchField component.
+ * It reuses SelectFieldProps as they share the same structure.
+ */
+export type SelectSearchFieldProps = Omit<SelectFieldProps, "searchable">;
 
 export const SelectSearchField: React.FC<SelectSearchFieldProps> = ({
   id,
