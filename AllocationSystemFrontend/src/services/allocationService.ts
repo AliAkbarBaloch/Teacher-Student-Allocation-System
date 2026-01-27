@@ -29,7 +29,7 @@ export class AllocationService {
     planVersion?: string
   ): Promise<RunAllocationResponse> {
     const response = await apiClient.post<ApiResponse<RunAllocationResponse>>(
-      `/api/allocation/run/${academicYearId}`,
+      `/allocation/run/${academicYearId}`,
       {
         isCurrent: isCurrent ?? false,
         ...(planVersion && { planVersion }),
