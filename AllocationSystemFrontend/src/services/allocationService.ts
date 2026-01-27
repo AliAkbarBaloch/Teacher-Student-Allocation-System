@@ -6,6 +6,10 @@ type ApiResponse<T> = {
   data: T;
 };
 
+/**
+ * Response interface for allocation process execution
+ * @interface RunAllocationResponse
+ */
 export interface RunAllocationResponse {
   planId: number;
   planName: string;
