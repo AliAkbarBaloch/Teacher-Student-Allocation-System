@@ -20,10 +20,18 @@ import type { AllocationPlan } from "@/features/allocation-plans/types/allocatio
 // utils
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
+/**
+ * State interface for the AllocationPlanPage component
+ * @interface AllocationPlanPageState
+ */
 interface AllocationPlanPageState {
   allocationPlanToDelete: AllocationPlan | null;
 }
 
+/**
+ * Actions interface defining callback functions for allocation plan operations
+ * @interface AllocationPlanActions
+ */
 interface AllocationPlanActions {
   onView: (plan: AllocationPlan) => void;
   onEdit: (plan: AllocationPlan) => void;
