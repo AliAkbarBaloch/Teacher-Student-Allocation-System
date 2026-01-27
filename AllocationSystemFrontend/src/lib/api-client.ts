@@ -281,6 +281,27 @@ class ApiClient {
   /**
    * Handle API errors and extract error messages
    */
+  private extractErrorDetails(errorData: unknown): unknown {
+    if (
+      errorData &&
+      typeof errorData === "object" &&
+      "details" in errorData
+    ) {
+      return (errorData as { details?: unknown }).details;
+    }
+    return undefined;
+  }
+
+  // Helper: Handle session expiration for 401 errors
+  private handleSessionExpiration(): void {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    localStorage.removeItem("remember_me");
+    if (this.onUnauthorized) {
+      this.onUnauthorized();
+    }
+  }
+
   private async handleError(response: Response, endpoint?: string): Promise<never> {
     let errorMessage = "An error occurred";
     let errorDetails: unknown = undefined;
@@ -292,15 +313,7 @@ class ApiClient {
       if (extractedMessage) {
         errorMessage = extractedMessage;
       }
-
-      // Extract details if present
-      if (
-        errorData &&
-        typeof errorData === "object" &&
-        "details" in errorData
-      ) {
-        errorDetails = (errorData as { details?: unknown }).details;
-      }
+      errorDetails = this.extractErrorDetails(errorData);
     } catch {
       // If response is not JSON, use status text
       errorMessage = response.statusText || `HTTP ${response.status}`;
@@ -311,12 +324,12 @@ class ApiClient {
       const isAuthEndpoint =
         endpoint &&
         (endpoint.includes("/auth/login") ||
-        endpoint.includes("/auth/forgot-password") || 
-        endpoint.includes("/auth/reset-password") ||
+          endpoint.includes("/auth/forgot-password") ||
+          endpoint.includes("/auth/reset-password") ||
           endpoint.includes("/auth/change-password"));
-      
+
       const isPublicEndpoint = endpoint && this.isPublicEndpoint(endpoint);
-      
+
       // Only treat as session expiration if:
       // 1. It's NOT an auth endpoint (login failures should show the actual error)
       // 2. It's NOT a public endpoint (public endpoints should show the actual error)
@@ -326,16 +339,7 @@ class ApiClient {
         !isPublicEndpoint &&
         errorMessage === "An error occurred"
       ) {
-        // Clear auth data for session expiration
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("auth_user");
-        localStorage.removeItem("remember_me");
-        
-        // Call unauthorized handler if set
-        if (this.onUnauthorized) {
-          this.onUnauthorized();
-        }
-        
+        this.handleSessionExpiration();
         errorMessage = i18n.t("common:errors.sessionExpired");
       }
     }
