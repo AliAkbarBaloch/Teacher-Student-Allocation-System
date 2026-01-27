@@ -20,11 +20,22 @@ import type { AllocationPlan } from "@/features/allocation-plans/types/allocatio
 // utils
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
+interface AllocationPlanPageState {
+  allocationPlanToDelete: AllocationPlan | null;
+}
+
+interface AllocationPlanActions {
+  onView: (plan: AllocationPlan) => void;
+  onEdit: (plan: AllocationPlan) => void;
+  onDelete: (plan: AllocationPlan) => void;
+}
+
 export default function AllocationPlanPage() {
   const { t } = useTranslation("allocationPlans");
   const dialogs = useDialogState();
-  const [allocationPlanToDelete, setAllocationPlanToDelete] =
-    useState<AllocationPlan | null>(null);
+  const [state, setState] = useState<AllocationPlanPageState>({
+    allocationPlanToDelete: null,
+  });
 
   const {
     allocationPlans,
@@ -43,6 +54,11 @@ export default function AllocationPlanPage() {
 
   const columnConfig = useAllocationPlansColumnConfig();
 
+  const resetDialogState = useCallback(() => {
+    setSelectedAllocationPlan(null);
+    setState(prev => ({ ...prev, allocationPlanToDelete: null }));
+  }, [setSelectedAllocationPlan]);
+
   const handleCreate = useCallback(
     async (data: Parameters<typeof handleCreateInternal>[0]) => {
       try {
@@ -57,33 +73,34 @@ export default function AllocationPlanPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedAllocationPlan) return;
+      if (!selectedAllocationPlan) {
+        return;
+      }
+      
       try {
         await handleUpdateInternal(data, selectedAllocationPlan.id);
         dialogs.edit.setIsOpen(false);
-        setSelectedAllocationPlan(null);
+        resetDialogState();
       } catch {
         // Error already handled in hook
       }
     },
-    [
-      handleUpdateInternal,
-      selectedAllocationPlan,
-      setSelectedAllocationPlan,
-      dialogs.edit,
-    ]
+    [handleUpdateInternal, selectedAllocationPlan, dialogs.edit, resetDialogState]
   );
 
   const handleDelete = useCallback(async () => {
-    if (!allocationPlanToDelete) return;
+    if (!state.allocationPlanToDelete) {
+      return;
+    }
+    
     try {
-      await handleDeleteInternal(allocationPlanToDelete.id);
+      await handleDeleteInternal(state.allocationPlanToDelete.id);
       dialogs.delete.setIsOpen(false);
-      setAllocationPlanToDelete(null);
+      resetDialogState();
     } catch {
       // Error already handled in hook
     }
-  }, [handleDeleteInternal, allocationPlanToDelete, dialogs.delete]);
+  }, [handleDeleteInternal, state.allocationPlanToDelete, dialogs.delete, resetDialogState]);
 
   const handleEditClick = useCallback(
     (allocationPlan: AllocationPlan) => {
@@ -95,7 +112,7 @@ export default function AllocationPlanPage() {
 
   const handleDeleteClick = useCallback(
     (allocationPlan: AllocationPlan) => {
-      setAllocationPlanToDelete(allocationPlan);
+      setState(prev => ({ ...prev, allocationPlanToDelete: allocationPlan }));
       dialogs.delete.setIsOpen(true);
     },
     [dialogs.delete]
@@ -108,6 +125,27 @@ export default function AllocationPlanPage() {
     },
     [setSelectedAllocationPlan, dialogs.view]
   );
+
+  const actions: AllocationPlanActions = {
+    onView: handleViewClick,
+    onEdit: handleEditClick,
+    onDelete: handleDeleteClick,
+  };
+
+  const actionLabels = {
+    view: t("actions.view"),
+    edit: t("actions.edit"),
+    delete: t("actions.delete"),
+  };
+
+  const serverPagination = {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    totalItems: pagination.totalItems,
+    totalPages: pagination.totalPages,
+    onPageChange: handlePageChange,
+    onPageSizeChange: handlePageSizeChange,
+  };
 
   return (
     <div className="space-y-6">
@@ -137,23 +175,10 @@ export default function AllocationPlanPage() {
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
         pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
-        serverSidePagination={{
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          totalItems: pagination.totalItems,
-          totalPages: pagination.totalPages,
-          onPageChange: handlePageChange,
-          onPageSizeChange: handlePageSizeChange,
-        }}
+        serverSidePagination={serverPagination}
         actions={{
-          onView: handleViewClick,
-          onEdit: handleEditClick,
-          onDelete: handleDeleteClick,
-          labels: {
-            view: t("actions.view"),
-            edit: t("actions.edit"),
-            delete: t("actions.delete"),
-          },
+          ...actions,
+          labels: actionLabels,
         }}
       />
 

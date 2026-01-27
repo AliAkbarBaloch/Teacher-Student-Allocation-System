@@ -1,16 +1,12 @@
-import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useCallback, useState } from "react";
 
-import { useUsersPage } from "@/features/users/hooks/useUsersPage";
-import { UsersFilters } from "@/features/users/components/UsersFilters";
 import { DataTable } from "@/components/common/DataTable";
-import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
 import { UserDialogs } from "@/features/users/components/UserDialogs/UserDialogs";
+import { UsersFilters } from "@/features/users/components/UsersFilters";
+import { useUsersPage } from "@/features/users/hooks/useUsersPage";
 import type { User } from "@/features/users/types/user.types";
-
-import i18n from "@/lib/i18n";
-
-
+import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
 
 export default function UsersPage() {
     const {
