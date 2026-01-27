@@ -308,7 +308,7 @@ export function TeacherAvailabilityForm({
           id="preferenceRank"
           label={t("form.fields.preferenceRank")}
           value={formData.preferenceRank ?? ""}
-          onChange={(value: number) => handleChange("preferenceRank", value)}
+          onChange={(value: number | string) => handleChange("preferenceRank", typeof value === "string" ? (value === "" ? null : Number(value)) : value)}
           placeholder={t("form.placeholders.preferenceRank")}
           disabled={isLoading || isSubmitting}
           error={errors.preferenceRank}

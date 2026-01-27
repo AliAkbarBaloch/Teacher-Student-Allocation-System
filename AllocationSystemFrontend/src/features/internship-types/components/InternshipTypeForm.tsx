@@ -269,7 +269,7 @@ export function InternshipTypeForm({
           id="priorityOrder"
           label={t("form.fields.priorityOrder")}
           value={formData.priorityOrder ?? 1}
-          onChange={(val: number) => handleChange("priorityOrder", val)}
+          onChange={(val: number | string) => handleChange("priorityOrder", typeof val === "string" ? (val === "" ? null : Number(val)) : val)}
           placeholder={t("form.placeholders.priorityOrder")}
           disabled={isLoading || isSubmitting}
           error={errors.priorityOrder}
