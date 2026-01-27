@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
+/**
+ * Submit button component Props
+ */
 interface SubmitButtonProps {
   isLoading?: boolean;
   isEdit?: boolean;
