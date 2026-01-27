@@ -17,7 +17,7 @@ export interface PaginationParams {
  * @param params - The object containing query parameters
  * @returns A URLSearchParams object
  */
-export function buildQueryParams(params: Record<string, string | number | boolean | undefined | null> = {}): URLSearchParams {
+export function buildQueryParams<T extends object>(params: T = {} as T): URLSearchParams {
     const queryParams = new URLSearchParams();
 
     if (!params) return queryParams;
