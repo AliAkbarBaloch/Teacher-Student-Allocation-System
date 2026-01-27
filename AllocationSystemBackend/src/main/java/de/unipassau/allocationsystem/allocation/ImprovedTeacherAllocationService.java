@@ -189,27 +189,75 @@ public class ImprovedTeacherAllocationService {
      * Budget tracking class
      */
     private static class BudgetStatus {
-        int elementaryUsed;      // Credit hours used (teachers with 2+ assignments)
-        int elementaryLimit;     // Credit hour budget
-        int middleUsed;
-        int middleLimit;
-        int elementaryRemaining; // How many more teachers can be assigned
-        int middleRemaining;
+        private int elementaryUsed;
+        private int elementaryLimit;
+        private int middleUsed;
+        private int middleLimit;
+        private int elementaryRemaining;
+        private int middleRemaining;
 
-        boolean canAllocateElementary() {
-            return elementaryUsed < elementaryLimit;
+        public int getElementaryUsed() {
+            return elementaryUsed;
         }
 
-        boolean canAllocateMiddle() {
-            return middleUsed < middleLimit;
+        public void setElementaryUsed(int elementaryUsed) {
+            this.elementaryUsed = elementaryUsed;
         }
 
-        boolean isElementaryOverBudget() {
-            return elementaryUsed > elementaryLimit;
+        public int getElementaryLimit() {
+            return elementaryLimit;
         }
 
-        boolean isMiddleOverBudget() {
-            return middleUsed > middleLimit;
+        public void setElementaryLimit(int elementaryLimit) {
+            this.elementaryLimit = elementaryLimit;
+        }
+
+        public int getMiddleUsed() {
+            return middleUsed;
+        }
+
+        public void setMiddleUsed(int middleUsed) {
+            this.middleUsed = middleUsed;
+        }
+
+        public int getMiddleLimit() {
+            return middleLimit;
+        }
+
+        public void setMiddleLimit(int middleLimit) {
+            this.middleLimit = middleLimit;
+        }
+
+        public int getElementaryRemaining() {
+            return elementaryRemaining;
+        }
+
+        public void setElementaryRemaining(int elementaryRemaining) {
+            this.elementaryRemaining = elementaryRemaining;
+        }
+
+        public int getMiddleRemaining() {
+            return middleRemaining;
+        }
+
+        public void setMiddleRemaining(int middleRemaining) {
+            this.middleRemaining = middleRemaining;
+        }
+
+        public boolean canAllocateElementary() {
+            return getElementaryUsed() < getElementaryLimit();
+        }
+
+        public boolean canAllocateMiddle() {
+            return getMiddleUsed() < getMiddleLimit();
+        }
+
+        public boolean isElementaryOverBudget() {
+            return getElementaryUsed() > getElementaryLimit();
+        }
+
+        public boolean isMiddleOverBudget() {
+            return getMiddleUsed() > getMiddleLimit();
         }
     }
 
@@ -626,7 +674,9 @@ public class ImprovedTeacherAllocationService {
         InternshipType[] allTypes = {types.pdp1, types.pdp2, types.zsp, types.sfp};
 
         for (InternshipType type : allTypes) {
-            if (type == null) continue;
+            if (type == null) {
+                continue;
+            }
 
             // Only check combination rules (most critical)
             if (!AllocationHelper.canTeacherBeAssignedToInternship(teacher, type,
@@ -975,11 +1025,59 @@ public class ImprovedTeacherAllocationService {
     /**
      * Helper class to hold internship types for surplus allocation
      */
-    private static class SurplusAllocationTypes {
-        InternshipType pdp1;
-        InternshipType pdp2;
-        InternshipType zsp;
-        InternshipType sfp;
+    public static class SurplusAllocationTypes {
+        private InternshipType pdp1;
+        private InternshipType pdp2;
+        private InternshipType zsp;
+        private InternshipType sfp;
+
+        public InternshipType getPdp1() {
+            return pdp1;
+        }
+
+        public void setPdp1(InternshipType pdp1) {
+            this.pdp1 = pdp1;
+        }
+
+        public InternshipType getPdp2() {
+            return pdp2;
+        }
+
+        public void setPdp2(InternshipType pdp2) {
+            this.pdp2 = pdp2;
+        }
+
+        public InternshipType getZsp() {
+            return zsp;
+        }
+
+        public void setZsp(InternshipType zsp) {
+            this.zsp = zsp;
+        }
+
+        public InternshipType getSfp() {
+            return sfp;
+        }
+
+        public void setSfp(InternshipType sfp) {
+            this.sfp = sfp;
+        }
+
+        public boolean hasPdp1() {
+            return pdp1 != null;
+        }
+
+        public boolean hasPdp2() {
+            return pdp2 != null;
+        }
+
+        public boolean hasZsp() {
+            return zsp != null;
+        }
+
+        public boolean hasSfp() {
+            return sfp != null;
+        }
     }
 
     /**
