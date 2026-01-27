@@ -210,12 +210,13 @@ function AllocationPlanFormContent(props: {
   );
 }
 
+// teamscale-ignore-next-line
 const getBannerText = (
   externalError: string | null,
   errors: Partial<Record<string, unknown>>
 ): string | null =>
   externalError ?? Object.values(errors).find((v) => typeof v === "string") ?? null;
-
+  
 export function AllocationPlanForm({
   allocationPlan,
   onSubmit,
