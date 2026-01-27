@@ -9,8 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxField } from "@/components/form/fields/CheckboxField";
 
 //icons 
 import { Filter, X } from "lucide-react";
@@ -219,19 +218,17 @@ export function InternshipDemandFilters({
                 </div>
 
                 {/* Only forecasted */}
-                <div className="flex items-end gap-2">
-                    <Checkbox
-                        id="demand-only-forecasted"
-                        checked={Boolean(filters.onlyForecasted)}
-                        onCheckedChange={(checked) =>
-                            onChange({ ...filters, onlyForecasted: Boolean(checked) })
-                        }
-                        disabled={disabled}
-                    />
-                    <Label htmlFor="demand-only-forecasted" className="text-xs">
-                        Show only forecasted
-                    </Label>
-                </div>
+                <CheckboxField
+                    className="flex items-center justify-center !p-2"
+                    id="demand-only-forecasted"
+                    checked={Boolean(filters.onlyForecasted)}
+                    onCheckedChange={(checked) =>
+                        onChange({ ...filters, onlyForecasted: Boolean(checked) })
+                    }
+                    label="Show only forecasted"
+                    disabled={disabled}
+                />
+
             </div>
         </div>
     );
