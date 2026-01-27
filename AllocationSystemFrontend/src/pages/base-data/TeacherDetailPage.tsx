@@ -46,7 +46,9 @@ export default function TeacherDetailPage() {
         setLoading(false);
       }
     }
-    if (id) fetchTeacher();
+    if (id) {
+      fetchTeacher();
+    }
   }, [id, t]);
 
   // Fetch teacher subjects
@@ -113,7 +115,9 @@ export default function TeacherDetailPage() {
 
   const handleUpdate = useCallback(
     async (data: Partial<TeacherSubject>) => {
-      if (!selectedTeacherSubject) return;
+      if (!selectedTeacherSubject) {
+        return;
+      }
       setIsSubmitting(true);
       try {
         await TeacherSubjectService.update(selectedTeacherSubject.id, data);
@@ -128,7 +132,9 @@ export default function TeacherDetailPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!teacherSubjectToDelete) return;
+    if (!teacherSubjectToDelete) {
+      return;
+    }
     setIsSubmitting(true);
     try {
       await TeacherSubjectService.delete(teacherSubjectToDelete.id);

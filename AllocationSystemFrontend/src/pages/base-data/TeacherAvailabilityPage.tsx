@@ -56,7 +56,9 @@ export default function TeacherAvailabilityPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedTeacherAvailability) return;
+      if (!selectedTeacherAvailability) {
+        return;
+      }
       try {
         await handleUpdateInternal(data, selectedTeacherAvailability.id);
         dialogs.edit.setIsOpen(false);
@@ -69,7 +71,9 @@ export default function TeacherAvailabilityPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!availabilityToDelete) return;
+    if (!availabilityToDelete) {
+      return;
+    }
     try {
       await handleDeleteInternal(availabilityToDelete.id);
       dialogs.delete.setIsOpen(false);

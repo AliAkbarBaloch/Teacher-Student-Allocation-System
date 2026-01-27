@@ -2,6 +2,34 @@ import { API_BASE_URL } from "@/config";
 import i18n from "@/lib/i18n";
 
 /**
+ * Configuration object for HTTP requests
+ */
+interface RequestConfig {
+  /** The API endpoint to make the request to */
+  endpoint: string;
+  /** HTTP method (GET, POST, PUT, PATCH, DELETE) */
+  method: string;
+  /** Optional data to send in the request body */
+  data?: unknown;
+  /** Additional fetch options */
+  options?: RequestInit;
+  /** Whether to omit the JSON Content-Type header (e.g., for FormData) */
+  omitJsonContentType?: boolean;
+}
+
+/**
+ * Extended Error object with additional HTTP response information
+ */
+interface ErrorResponse extends Error {
+  /** HTTP status code from the response */
+  status: number;
+  /** The original Response object */
+  response: Response;
+  /** Additional error details from the response body */
+  details?: unknown;
+}
+
+/**
  * API Client for making HTTP requests to the backend
  */
 class ApiClient {
@@ -12,23 +40,14 @@ class ApiClient {
     this.baseUrl = API_BASE_URL || "http://localhost:8080/api";
   }
 
-  /**
-   * Set callback for unauthorized (401) responses
-   */
   setUnauthorizedHandler(handler: () => void) {
     this.onUnauthorized = handler;
   }
 
-  /**
-   * Get the authorization token from localStorage
-   */
   private getAuthToken(): string | null {
     return localStorage.getItem("auth_token");
   }
 
-  /**
-   * Check if token is expired (basic check - backend is source of truth)
-   */
   private isTokenExpired(token: string): boolean {
     try {
       const [, payloadSegment] = token.split(".");
@@ -37,40 +56,27 @@ class ApiClient {
       }
 
       const payload = JSON.parse(atob(payloadSegment)) as { exp?: number };
-
       if (typeof payload.exp !== "number") {
         return true;
       }
 
-      const exp = payload.exp * 1000; // Convert to milliseconds
+      const exp = payload.exp * 1000;
       return Date.now() >= exp;
     } catch {
-      // Treat any malformed token as expired to force a refresh
       return true;
     }
   }
 
-  /**
-   * Check if endpoint is an auth endpoint that doesn't require token validation
-   */
   private isAuthEndpoint(endpoint: string): boolean {
-    return (
-      endpoint.includes("/auth/login") ||
-          endpoint.includes("/auth/forgot-password") || 
-      endpoint.includes("/auth/reset-password")
-    );
+    return endpoint.includes("/auth/login") ||
+           endpoint.includes("/auth/forgot-password") || 
+           endpoint.includes("/auth/reset-password");
   }
 
-  /**
-   * Check if endpoint is a public endpoint that doesn't require authentication
-   */
   private isPublicEndpoint(endpoint: string): boolean {
     return endpoint.includes("/public/teacher-form-submission/");
   }
 
-  /**
-   * Handle expired token by clearing auth data and calling unauthorized handler
-   */
   private handleExpiredToken(): void {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
@@ -79,11 +85,7 @@ class ApiClient {
     }
   }
 
-  /**
-   * Validate token expiration before making request
-   */
   private validateTokenForRequest(endpoint: string): void {
-    // Skip validation for auth endpoints and public endpoints
     if (this.isAuthEndpoint(endpoint) || this.isPublicEndpoint(endpoint)) {
       return;
     }
@@ -95,70 +97,41 @@ class ApiClient {
     }
   }
 
-  /**
-   * Build request headers with authentication token
-   */
-  private buildHeaders(
-    options?: RequestInit,
-    extraOptions?: { omitJsonContentType?: boolean; endpoint?: string }
-  ): Record<string, string> {
+  private buildHeaders(config: RequestConfig): Record<string, string> {
     const token = this.getAuthToken();
-    const headers: Record<string, string> =
-      options?.headers &&
-      typeof options.headers === "object" &&
-      !(options.headers instanceof Headers)
-        ? { ...(options.headers as Record<string, string>) }
-        : {};
+    let headers: Record<string, string> = {};
+    
+    if (config.options?.headers && typeof config.options.headers === "object" && !(config.options.headers instanceof Headers)) {
+      headers = { ...(config.options.headers as Record<string, string>) };
+    }
 
-    if (!extraOptions?.omitJsonContentType && !headers["Content-Type"]) {
+    if (!config.omitJsonContentType && !headers["Content-Type"]) {
       headers["Content-Type"] = "application/json";
     }
 
-    // Only add auth token if endpoint is not public
-    if (
-      token &&
-      (!extraOptions?.endpoint ||
-        !this.isPublicEndpoint(extraOptions.endpoint))
-    ) {
+    if (token && !this.isPublicEndpoint(config.endpoint)) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;
   }
 
-  /**
-   * Handle network errors and transform them to user-friendly messages
-   */
   private handleNetworkError(error: unknown): never {
     if (error instanceof TypeError && error.message === "Failed to fetch") {
       throw new Error(i18n.t("common:errors.networkError"));
     }
-    if (
-      error instanceof Error &&
-      (error.name === "AbortError" || error.name === "TimeoutError")
-    ) {
+    if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) {
       throw new Error(i18n.t("common:errors.requestTimeout"));
     }
-    // Re-throw the error if it's not a network error
     throw error;
   }
 
-  /**
-   * Create timeout controller for request
-   */
-  private createTimeoutController(timeoutMs: number = 30000): {
-    controller: AbortController;
-    timeoutId: ReturnType<typeof setTimeout>;
-    signal: AbortSignal;
-  } {
+  private createTimeoutController(timeoutMs: number = 30000) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     return { controller, timeoutId, signal: controller.signal };
   }
 
-  /**
-   * Parse response body based on content type
-   */
   private async parseResponse<T>(response: Response): Promise<T> {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
@@ -167,80 +140,58 @@ class ApiClient {
     return {} as T;
   }
 
-  /**
-   * Build full URL from endpoint
-   */
   private buildUrl(endpoint: string): string {
-    // Remove leading slash if present to avoid double slashes
-    const cleanEndpoint = endpoint.startsWith("/")
-      ? endpoint.slice(1)
-      : endpoint;
+    let cleanEndpoint = endpoint;
+    if (endpoint.startsWith("/")) {
+      cleanEndpoint = endpoint.slice(1);
+    }
     return `${this.baseUrl}/${cleanEndpoint}`;
   }
 
-  /**
-   * Extract error message from error response data
-   */
   private extractErrorMessage(errorData: unknown): string | null {
     if (!errorData || typeof errorData !== "object") {
       return null;
     }
 
-        const errorObject = errorData as Record<string, unknown>;
+    const errorObject = errorData as Record<string, unknown>;
 
-        // Backend sends { success: false, message: "..." } format - prioritize message field
-    if (
-      typeof errorObject.message === "string" &&
-      errorObject.message.trim() !== ""
-    ) {
+    if (typeof errorObject.message === "string" && errorObject.message.trim() !== "") {
       return errorObject.message;
     }
 
-    // Check nested error object
     if ("error" in errorObject) {
-          const nestedError = errorObject.error;
-          if (typeof nestedError === "string" && nestedError.trim() !== "") {
+      const nestedError = errorObject.error;
+      if (typeof nestedError === "string" && nestedError.trim() !== "") {
         return nestedError;
       }
-      if (
-        nestedError &&
-        typeof nestedError === "object" &&
-        "message" in nestedError &&
-        typeof (nestedError as { message?: string }).message === "string"
-      ) {
-            const nestedMessage = (nestedError as { message?: string }).message;
-            if (nestedMessage && nestedMessage.trim() !== "") {
+      if (nestedError && typeof nestedError === "object" && "message" in nestedError) {
+        const nestedMessage = (nestedError as { message?: string }).message;
+        if (nestedMessage && nestedMessage.trim() !== "") {
           return nestedMessage;
         }
-            }
-          }
+      }
+    }
 
-    // Check errors array or object
     if ("errors" in errorObject) {
-          const errors = errorObject.errors;
-          if (Array.isArray(errors)) {
-            const messages = errors
-              .map((e) => {
-            if (
-              typeof e === "object" &&
-              e !== null &&
-              "message" in e &&
-              typeof (e as { message?: string }).message === "string"
-            ) {
-                  return (e as { message?: string }).message;
-                }
-                return String(e);
-              })
-              .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
-            if (messages.length > 0) {
-          return messages.join(", ");
+      const errors = errorObject.errors;
+      if (Array.isArray(errors)) {
+        const messages = errors
+          .map(e => {
+            if (typeof e === "object" && e !== null && "message" in e) {
+              return (e as { message?: string }).message;
+            } else {
+              return String(e);
             }
-          } else if (typeof errors === "object" && errors !== null) {
-            // Handle object with field errors like { field1: "error1", field2: "error2" }
+          })
+          .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
+        if (messages.length > 0) {
+          return messages.join(", ");
+        }
+      } else if (typeof errors === "object" && errors !== null) {
         const fieldErrors = Object.values(errors).filter(
-          (msg): msg is string => typeof msg === "string" && msg.trim() !== ""
+          msg => typeof msg === "string" && msg.trim() !== ""
         );
-            if (fieldErrors.length > 0) {
+        if (fieldErrors.length > 0) {
           return fieldErrors.join(", ");
         }
       }
@@ -249,73 +200,49 @@ class ApiClient {
     return null;
   }
 
-  /**
-   * Handle API errors and extract error messages
-   */
+  private handleSessionExpiration(): void {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    localStorage.removeItem("remember_me");
+    if (this.onUnauthorized) {
+      this.onUnauthorized();
+    }
+  }
+
   private async handleError(response: Response, endpoint?: string): Promise<never> {
     let errorMessage = "An error occurred";
     let errorDetails: unknown = undefined;
 
-    // Try to extract error message from response body
     try {
       const errorData = await response.json();
       const extractedMessage = this.extractErrorMessage(errorData);
       if (extractedMessage) {
         errorMessage = extractedMessage;
       }
-
-      // Extract details if present
-      if (
-        errorData &&
-        typeof errorData === "object" &&
-        "details" in errorData
-      ) {
+      if (errorData && typeof errorData === "object" && "details" in errorData) {
         errorDetails = (errorData as { details?: unknown }).details;
       }
     } catch {
-      // If response is not JSON, use status text
       errorMessage = response.statusText || `HTTP ${response.status}`;
     }
 
-    // Handle 401 Unauthorized - differentiate between login failures and session expiration
     if (response.status === 401) {
-      const isAuthEndpoint =
-        endpoint &&
-        (endpoint.includes("/auth/login") ||
-        endpoint.includes("/auth/forgot-password") || 
+      const isAuthEndpoint = endpoint && (
+        endpoint.includes("/auth/login") ||
+        endpoint.includes("/auth/forgot-password") ||
         endpoint.includes("/auth/reset-password") ||
-          endpoint.includes("/auth/change-password"));
+        endpoint.includes("/auth/change-password")
+      );
       
       const isPublicEndpoint = endpoint && this.isPublicEndpoint(endpoint);
       
-      // Only treat as session expiration if:
-      // 1. It's NOT an auth endpoint (login failures should show the actual error)
-      // 2. It's NOT a public endpoint (public endpoints should show the actual error)
-      // 3. AND we couldn't extract a meaningful error message
-      if (
-        !isAuthEndpoint &&
-        !isPublicEndpoint &&
-        errorMessage === "An error occurred"
-      ) {
-        // Clear auth data for session expiration
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("auth_user");
-        localStorage.removeItem("remember_me");
-        
-        // Call unauthorized handler if set
-        if (this.onUnauthorized) {
-          this.onUnauthorized();
-        }
-        
+      if (!isAuthEndpoint && !isPublicEndpoint && errorMessage === "An error occurred") {
+        this.handleSessionExpiration();
         errorMessage = i18n.t("common:errors.sessionExpired");
       }
     }
 
-    const error = new Error(errorMessage) as Error & {
-      status: number;
-      response: Response;
-      details?: unknown;
-    };
+    const error = new Error(errorMessage) as ErrorResponse;
     error.status = response.status;
     error.response = response;
     if (typeof errorDetails !== "undefined") {
@@ -324,43 +251,58 @@ class ApiClient {
     throw error;
   }
 
-  /**
-   * Make a GET request
-   */
-  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options, { endpoint });
+  private prepareRequestBody(data: unknown, isFormData: boolean): BodyInit | undefined {
+    if (isFormData) {
+      return data as FormData;
+    } else if (data) {
+      return JSON.stringify(data);
+    } else {
+      return undefined;
+    }
+  }
+
+  private async executeRequest<T>(config: RequestConfig): Promise<T> {
+    this.validateTokenForRequest(config.endpoint);
+    const isFormData = typeof FormData !== "undefined" && config.data instanceof FormData;
+    const headers = this.buildHeaders({ ...config, omitJsonContentType: isFormData });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
-      const response = await fetch(this.buildUrl(endpoint), {
-        method: "GET",
+      let body: BodyInit | undefined;
+      if (config.method === "GET" || config.method === "DELETE") {
+        body = undefined;
+      } else {
+        body = this.prepareRequestBody(config.data, isFormData);
+      }
+
+      const response = await fetch(this.buildUrl(config.endpoint), {
+        method: config.method,
         headers,
-        ...options,
-        signal: options?.signal || signal,
+        body,
+        ...config.options,
+        signal: config.options?.signal || signal,
       });
 
       if (!response.ok) {
-        await this.handleError(response, endpoint);
+        await this.handleError(response, config.endpoint);
       }
 
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
   }
 
-  /**
-   * Make a GET request that returns a Blob (for file downloads)
-   */
+  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    return this.executeRequest<T>({ endpoint, method: "GET", options });
+  }
+
   async getBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
     this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options, {
-      omitJsonContentType: true,
-      endpoint,
-    });
+    const headers = this.buildHeaders({ endpoint, method: "GET", omitJsonContentType: true });
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
@@ -378,165 +320,27 @@ class ApiClient {
       return response.blob();
     } catch (error) {
       this.handleNetworkError(error);
+      return Promise.reject(error) as unknown as Blob;
     } finally {
       clearTimeout(timeoutId);
     }
   }
 
-  /**
-   * Make a POST request
-   */
-  async post<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestInit
-  ): Promise<T> {
-    this.validateTokenForRequest(endpoint);
-    const isFormData =
-      typeof FormData !== "undefined" && data instanceof FormData;
-    const headers = this.buildHeaders(options, {
-      omitJsonContentType: isFormData,
-      endpoint,
-    });
-    const { timeoutId, signal } = this.createTimeoutController();
-
-    try {
-      const response = await fetch(this.buildUrl(endpoint), {
-        method: "POST",
-        headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
-        ...options,
-        signal: options?.signal || signal,
-      });
-
-      if (!response.ok) {
-        await this.handleError(response, endpoint);
-      }
-
-      return this.parseResponse<T>(response);
-    } catch (error) {
-      this.handleNetworkError(error);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+  async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+    return this.executeRequest<T>({ endpoint, method: "POST", data, options });
   }
 
-  /**
-   * Make a PUT request
-   */
-  async put<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestInit
-  ): Promise<T> {
-    this.validateTokenForRequest(endpoint);
-    const isFormData =
-      typeof FormData !== "undefined" && data instanceof FormData;
-    const headers = this.buildHeaders(options, {
-      omitJsonContentType: isFormData,
-      endpoint,
-    });
-    const { timeoutId, signal } = this.createTimeoutController();
-
-    try {
-      const response = await fetch(this.buildUrl(endpoint), {
-        method: "PUT",
-        headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
-        ...options,
-        signal: options?.signal || signal,
-      });
-
-      if (!response.ok) {
-        await this.handleError(response, endpoint);
-      }
-
-      return this.parseResponse<T>(response);
-    } catch (error) {
-      this.handleNetworkError(error);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+  async put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+    return this.executeRequest<T>({ endpoint, method: "PUT", data, options });
   }
 
-  /**
-   * Make a PATCH request
-   */
-  async patch<T>(
-    endpoint: string,
-    data?: unknown,
-    options?: RequestInit
-  ): Promise<T> {
-    this.validateTokenForRequest(endpoint);
-    const isFormData =
-      typeof FormData !== "undefined" && data instanceof FormData;
-    const headers = this.buildHeaders(options, {
-      omitJsonContentType: isFormData,
-      endpoint,
-    });
-    const { timeoutId, signal } = this.createTimeoutController();
-
-    try {
-      const response = await fetch(this.buildUrl(endpoint), {
-        method: "PATCH",
-        headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
-        ...options,
-        signal: options?.signal || signal,
-      });
-
-      if (!response.ok) {
-        await this.handleError(response, endpoint);
-      }
-
-      return this.parseResponse<T>(response);
-    } catch (error) {
-      this.handleNetworkError(error);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+    return this.executeRequest<T>({ endpoint, method: "PATCH", data, options });
   }
 
-  /**
-   * Make a DELETE request
-   */
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    this.validateTokenForRequest(endpoint);
-    const headers = this.buildHeaders(options, { endpoint });
-    const { timeoutId, signal } = this.createTimeoutController();
-
-    try {
-      const response = await fetch(this.buildUrl(endpoint), {
-        method: "DELETE",
-        headers,
-        ...options,
-        signal: options?.signal || signal,
-      });
-
-      if (!response.ok) {
-        await this.handleError(response, endpoint);
-      }
-
-      return this.parseResponse<T>(response);
-    } catch (error) {
-      this.handleNetworkError(error);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return this.executeRequest<T>({ endpoint, method: "DELETE", options });
   }
 }
 
-// Export singleton instance
 export const apiClient = new ApiClient();

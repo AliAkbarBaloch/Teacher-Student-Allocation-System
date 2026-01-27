@@ -54,7 +54,9 @@ export default function SubjectsPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedSubject) return;
+      if (!selectedSubject) {
+        return;
+      }
       try {
         await handleUpdateInternal(data, selectedSubject.id);
         dialogs.edit.setIsOpen(false);
@@ -67,7 +69,9 @@ export default function SubjectsPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!subjectToDelete) return;
+    if (!subjectToDelete) {
+      return;
+    }
     try {
       await handleDeleteInternal(subjectToDelete.id);
       dialogs.delete.setIsOpen(false);

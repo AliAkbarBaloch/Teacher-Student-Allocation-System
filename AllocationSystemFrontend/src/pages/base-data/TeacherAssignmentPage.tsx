@@ -51,7 +51,9 @@ export default function TeacherAssignmentPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedAssignment) return;
+      if (!selectedAssignment) {
+        return;
+      }
       try {
         await handleUpdateInternal(data, selectedAssignment.id);
         dialogs.edit.setIsOpen(false);
@@ -64,7 +66,9 @@ export default function TeacherAssignmentPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!assignmentToDelete) return;
+    if (!assignmentToDelete) {
+      return;
+    }
     try {
       await handleDeleteInternal(assignmentToDelete.id);
       dialogs.delete.setIsOpen(false);

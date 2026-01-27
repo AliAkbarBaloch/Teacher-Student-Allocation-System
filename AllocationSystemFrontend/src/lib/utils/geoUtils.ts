@@ -30,7 +30,7 @@ export function calculateDistance(
   lat2: number,
   lon2: number
 ): number {
-  const R = 6371; // Earth's radius in kilometers
+  const earthRadiusKm = 6371; // Earth's radius in kilometers
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
 
@@ -42,7 +42,7 @@ export function calculateDistance(
       Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c;
+  const distance = earthRadiusKm * c;
 
   return Math.round(distance * 100) / 100; // Round to 2 decimal places
 }
@@ -57,14 +57,22 @@ export function calculateDistanceFromUniversity(
   latitude: number | string | null | undefined,
   longitude: number | string | null | undefined
 ): number | null {
-  if (latitude === null || latitude === undefined || latitude === "") return null;
-  if (longitude === null || longitude === undefined || longitude === "") return null;
+  if (latitude === null || latitude === undefined || latitude === "") {
+    return null;
+  }
+  if (longitude === null || longitude === undefined || longitude === "") {
+    return null;
+  }
 
   const lat = typeof latitude === "string" ? parseFloat(latitude) : latitude;
   const lon = typeof longitude === "string" ? parseFloat(longitude) : longitude;
 
-  if (isNaN(lat) || isNaN(lon)) return null;
-  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+  if (isNaN(lat) || isNaN(lon)) {
+    return null;
+  }
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    return null;
+  }
 
   return calculateDistance(
     lat,
@@ -88,14 +96,22 @@ export function isValidCoordinates(
   latitude: number | string | null | undefined,
   longitude: number | string | null | undefined
 ): boolean {
-  if (latitude === null || latitude === undefined || latitude === "") return false;
-  if (longitude === null || longitude === undefined || longitude === "") return false;
+  if (latitude === null || latitude === undefined || latitude === "") {
+    return false;
+  }
+  if (longitude === null || longitude === undefined || longitude === "") {
+    return false;
+  }
 
   const lat = typeof latitude === "string" ? parseFloat(latitude) : latitude;
   const lon = typeof longitude === "string" ? parseFloat(longitude) : longitude;
 
-  if (isNaN(lat) || isNaN(lon)) return false;
-  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return false;
+  if (isNaN(lat) || isNaN(lon)) {
+    return false;
+  }
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    return false;
+  }
 
   return true;
 }

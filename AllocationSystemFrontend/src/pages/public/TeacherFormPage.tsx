@@ -34,11 +34,19 @@ import type { InternshipType } from "@/features/internship-types/types/internshi
 
 const SCHOOL_TYPE_OPTIONS: SchoolType[] = ["PRIMARY", "MIDDLE"];
 
+/**
+ * Form data structure for teacher form submission
+ */
 interface FormData {
+  /** Selected school type (PRIMARY or MIDDLE) */
   schoolType: SchoolType | "";
+  /** Selected school ID */
   schoolId: number | null;
+  /** Additional notes from the teacher */
   notes: string;
+  /** Array of selected subject IDs */
   subjectIds: number[];
+  /** Array of selected internship type IDs */
   internshipTypeIds: number[];
 }
 
@@ -100,7 +108,12 @@ export default function TeacherFormPage() {
         setSubjects(subjectsRes || []);
         setInternshipTypes(internshipTypesRes || []);
       } catch (err) {
-        const message = err instanceof Error ? err.message : t("publicForm.errors.loadFailed");
+        let message;
+        if (err instanceof Error) {
+          message = err.message;
+        } else {
+          message = t("publicForm.errors.loadFailed");
+        }
         setError(message);
         toast.error(message);
       } finally {
@@ -117,20 +130,22 @@ export default function TeacherFormPage() {
   // Reset school selection when school type changes
   useEffect(() => {
     if (formData.schoolType) {
-      setFormData((prev) => ({ ...prev, schoolId: null }));
+      setFormData(prev => ({ ...prev, schoolId: null }));
     }
   }, [formData.schoolType]);
 
   // Memoize filtered schools to avoid recalculating on every render
   const filteredSchools = useMemo(() => {
-    if (!formData.schoolType) return [];
-    return schools.filter((school) => school.schoolType === formData.schoolType);
+    if (!formData.schoolType) {
+      return [];
+    }
+    return schools.filter(school => school.schoolType === formData.schoolType);
   }, [schools, formData.schoolType]);
 
   // Memoize options arrays for MultiSelect components
   const subjectOptions = useMemo(
     () =>
-      subjects.map((s) => ({
+      subjects.map(s => ({
         label: `${s.subjectCode} - ${s.subjectTitle}`,
         value: s.id,
       })),
@@ -139,7 +154,7 @@ export default function TeacherFormPage() {
 
   const internshipTypeOptions = useMemo(
     () =>
-      internshipTypes.map((type) => ({
+      internshipTypes.map(type => ({
         label: `${type.internshipCode} - ${type.fullName}`,
         value: type.id,
       })),
@@ -147,9 +162,8 @@ export default function TeacherFormPage() {
   );
 
   // Form field handlers with useCallback for performance
-  // Using functional updates to avoid dependency on formData
   const handleSchoolTypeChange = useCallback((value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       schoolType: value as SchoolType | "",
       schoolId: null,
@@ -157,25 +171,25 @@ export default function TeacherFormPage() {
   }, []);
 
   const handleSchoolChange = useCallback((value: string) => {
-    setFormData((prev) => ({ ...prev, schoolId: Number(value) }));
+    setFormData(prev => ({ ...prev, schoolId: Number(value) }));
   }, []);
 
   const handleSubjectsChange = useCallback((selected: (string | number)[]) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       subjectIds: selected as number[],
     }));
   }, []);
 
   const handleInternshipTypesChange = useCallback((selected: (string | number)[]) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       internshipTypeIds: selected as number[],
     }));
   }, []);
 
   const handleNotesChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, notes: e.target.value }));
+    setFormData(prev => ({ ...prev, notes: e.target.value }));
   }, []);
 
   // Validation helper
@@ -221,10 +235,12 @@ export default function TeacherFormPage() {
         setSubmitted(true);
         toast.success(t("publicForm.success.submitted"));
       } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : t("publicForm.errors.submitFailed");
+        let message;
+        if (err instanceof Error) {
+          message = err.message;
+        } else {
+          message = t("publicForm.errors.submitFailed");
+        }
         toast.error(message);
       } finally {
         setSubmitting(false);
@@ -234,7 +250,6 @@ export default function TeacherFormPage() {
   );
 
   // Memoize form validation to avoid recalculating on every render
-  // Must be before any early returns to follow Rules of Hooks
   const isFormValid = useMemo(
     () =>
       formData.schoolType !== "" &&
@@ -261,6 +276,13 @@ export default function TeacherFormPage() {
   }
 
   if (error || !formDetails) {
+    let errorMessage;
+    if (error) {
+      errorMessage = error;
+    } else {
+      errorMessage = t("publicForm.errors.notFound");
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
         <Card className="w-full max-w-md">
@@ -272,7 +294,7 @@ export default function TeacherFormPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              {error || t("publicForm.errors.notFound")}
+              {errorMessage}
             </p>
             <Button onClick={() => navigate("/")} variant="outline" className="w-full">
               {t("publicForm.backToHome")}
@@ -324,7 +346,6 @@ export default function TeacherFormPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{t("publicForm.teacher")}</Label>
@@ -342,9 +363,8 @@ export default function TeacherFormPage() {
                   </div>
                 </div>
               </div>
-              {/* Two-column layout for dropdowns */}
+
               <div className="grid gap-4 md:grid-cols-2">
-                {/* School Type */}
                 <div className="space-y-2">
                   <Label htmlFor="schoolType">
                     {t("publicForm.schoolType")} *
@@ -368,7 +388,6 @@ export default function TeacherFormPage() {
                   </Select>
                 </div>
 
-                {/* School Name */}
                 <div className="space-y-2">
                   <Label htmlFor="school">{t("publicForm.school")} *</Label>
                   <Select
@@ -397,9 +416,8 @@ export default function TeacherFormPage() {
                   )}
                 </div>
               </div>
-              {/* Two-column layout for multi-selects */}
+
               <div className="grid gap-4 md:grid-cols-2">
-                {/* Subjects */}
                 <div className="space-y-2">
                   <Label className="mb-2">{t("publicForm.subjects")} *</Label>
                   <MultiSelect
@@ -408,16 +426,13 @@ export default function TeacherFormPage() {
                     onChange={handleSubjectsChange}
                     placeholder={t("publicForm.selectSubjects")}
                     disabled={loadingSubjects}
-                    className={`mt-2 ${
-                      formData.subjectIds.length === 0 ? "h-9" : ""
-                    }`}
+                    className={`mt-2 ${formData.subjectIds.length === 0 ? "h-9" : ""}`}
                   />
                   <p className="text-sm text-muted-foreground">
                     {t("publicForm.subjectsHint")}
                   </p>
                 </div>
 
-                {/* Internship Types */}
                 <div className="space-y-2">
                   <Label>{t("publicForm.internshipTypes")} *</Label>
                   <MultiSelect
@@ -426,16 +441,14 @@ export default function TeacherFormPage() {
                     onChange={handleInternshipTypesChange}
                     placeholder={t("publicForm.selectInternshipTypes")}
                     disabled={loadingInternshipTypes}
-                    className={`mt-2 ${
-                      formData.internshipTypeIds.length === 0 ? "h-9" : ""
-                    }`}
+                    className={`mt-2 ${formData.internshipTypeIds.length === 0 ? "h-9" : ""}`}
                   />
                   <p className="text-sm text-muted-foreground">
                     {t("publicForm.internshipTypesHint")}
                   </p>
                 </div>
               </div>
-              {/* Notes */}
+
               <div className="space-y-2">
                 <Label htmlFor="notes">{t("publicForm.notes")}</Label>
                 <Textarea
@@ -451,6 +464,7 @@ export default function TeacherFormPage() {
                   {t("publicForm.notesHint")}
                 </p>
               </div>
+
               <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"

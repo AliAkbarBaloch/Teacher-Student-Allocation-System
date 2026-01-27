@@ -1,12 +1,24 @@
+/**
+ * Represents the strength assessment of a password
+ */
 export interface PasswordStrength {
+  /** Password strength score from 0-5 based on criteria met */
   score: number; // 0-5
+  /** Human-readable strength label (weak, fair, good, strong) */
   label: string;
+  /** CSS color class for displaying the strength */
   color: string;
+  /** Individual checks that determine password strength */
   checks: {
+    /** Whether password meets minimum length requirement (8+ characters) */
     minLength: boolean;
+    /** Whether password contains uppercase letters */
     hasUppercase: boolean;
+    /** Whether password contains lowercase letters */
     hasLowercase: boolean;
+    /** Whether password contains numbers */
     hasNumber: boolean;
+    /** Whether password contains special characters */
     hasSpecial: boolean;
   };
 }

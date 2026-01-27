@@ -57,7 +57,9 @@ export default function SubjectCategoriesPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedSubjectCategory) return;
+      if (!selectedSubjectCategory) {
+        return;
+      }
       try {
         await handleUpdateInternal(data, selectedSubjectCategory.id);
         dialogs.edit.setIsOpen(false);
@@ -71,7 +73,9 @@ export default function SubjectCategoriesPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!subjectCategoryToDelete) return;
+    if (!subjectCategoryToDelete) {
+      return;
+    }
     try {
       await handleDeleteInternal(subjectCategoryToDelete.id);
       dialogs.delete.setIsOpen(false);
