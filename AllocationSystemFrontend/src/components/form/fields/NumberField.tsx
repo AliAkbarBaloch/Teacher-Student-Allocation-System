@@ -5,7 +5,7 @@ interface NumberFieldProps {
   id: string;
   label: string;
   value: number | string;
-  onChange: (value: number) => void;
+  onChange: (value: string | number) => void;
   placeholder?: string;
   required?: boolean;
   error?: string;
@@ -43,13 +43,13 @@ export const NumberField: React.FC<NumberFieldProps> = ({
       id={id}
       type={type}
       value={value}
-      onChange={e => onChange(Number(e.target.value))}
+      onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
       className={error ? `border-destructive ${className}` : className}
       min={min}
       max={max}
-      step={step}
+      step={step || "any"}
     />
     {error && <p className="text-sm text-destructive">{error}</p>}
   </div>
