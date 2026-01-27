@@ -18,10 +18,18 @@ import type { InternshipType } from "@/features/internship-types/types/internshi
 // utils
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
+/**
+ * State interface for the InternshipTypesPage component
+ * @interface InternshipTypesPageState
+ */
 interface InternshipTypesPageState {
   internshipTypeToDelete: InternshipType | null;
 }
 
+/**
+ * Actions interface defining callback functions for internship type operations
+ * @interface InternshipTypeActions
+ */
 interface InternshipTypeActions {
   onView: (type: InternshipType) => void;
   onEdit: (type: InternshipType) => void;
