@@ -115,11 +115,7 @@ export const NAV_ITEMS: NavItem[] = [
             {
                 path: ROUTES.reports.schoolReports,
                 translationKey: "navigation.reportsSchoolReports",
-            },
-            {
-                path: ROUTES.reports.auditReports,
-                translationKey: "navigation.reportsAuditReports",
-            },
+            }
         ],
     },
 ];

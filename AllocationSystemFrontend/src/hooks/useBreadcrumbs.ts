@@ -143,8 +143,6 @@ const handleReportsRoutes = (path: string, t: TranslationFunction): BreadcrumbIt
         crumbs.push({ label: t("navigation.reportsTeacherReports") });
     } else if (path === ROUTES.reports.schoolReports) {
         crumbs.push({ label: t("navigation.reportsSchoolReports") });
-    } else if (path === ROUTES.reports.auditReports) {
-        crumbs.push({ label: t("navigation.reportsAuditReports") });
     }
 
     return crumbs;

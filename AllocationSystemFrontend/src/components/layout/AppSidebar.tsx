@@ -199,11 +199,7 @@ function useSidebarNav() {
             {
               title: t("navigation.reportsSchoolReports"),
               url: ROUTES.reports.schoolReports,
-            },
-            {
-              title: t("navigation.reportsAuditReports"),
-              url: ROUTES.reports.auditReports,
-            },
+            }
           ],
         },
       ],
