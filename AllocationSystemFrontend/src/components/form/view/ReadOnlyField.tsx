@@ -1,5 +1,8 @@
 import React from "react";
 
+/**
+ * Read only field component Props
+ */
 interface ReadOnlyFieldProps {
   label: React.ReactNode;
   value: React.ReactNode;

@@ -179,7 +179,7 @@ export function TeacherAssignmentForm({
           id="planId"
           label={t("form.fields.planId")}
           value={formData.planId}
-          onChange={(val: number) => handleChange("planId", val)}
+          onChange={(val: number | string) => handleChange("planId", typeof val === "string" ? Number(val) : val)}
           placeholder={t("form.placeholders.planId")}
           disabled={isLoading || isSubmitting || !!assignment}
           error={errors.planId}
@@ -190,7 +190,7 @@ export function TeacherAssignmentForm({
           id="teacherId"
           label={t("form.fields.teacherId")}
           value={formData.teacherId}
-          onChange={(val: number) => handleChange("teacherId", val)}
+          onChange={(val: number | string) => handleChange("teacherId", typeof val === "string" ? Number(val) : val)}
           placeholder={t("form.placeholders.teacherId")}
           disabled={isLoading || isSubmitting || !!assignment}
           error={errors.teacherId}
@@ -200,7 +200,7 @@ export function TeacherAssignmentForm({
           id="internshipTypeId"
           label={t("form.fields.internshipTypeId")}
           value={formData.internshipTypeId}
-          onChange={(val: number) => handleChange("internshipTypeId", val)}
+          onChange={(val: number | string) => handleChange("internshipTypeId", typeof val === "string" ? Number(val) : val)}
           placeholder={t("form.placeholders.internshipTypeId")}
           disabled={isLoading || isSubmitting || !!assignment}
           error={errors.internshipTypeId}
@@ -211,7 +211,7 @@ export function TeacherAssignmentForm({
           id="subjectId"
           label={t("form.fields.subjectId")}
           value={formData.subjectId}
-          onChange={(val: number) => handleChange("subjectId", val)}
+          onChange={(val: number | string) => handleChange("subjectId", typeof val === "string" ? Number(val) : val)}
           placeholder={t("form.placeholders.subjectId")}
           disabled={isLoading || isSubmitting || !!assignment}
           error={errors.subjectId}
@@ -222,7 +222,7 @@ export function TeacherAssignmentForm({
           id="studentGroupSize"
           label={t("form.fields.studentGroupSize")}
           value={formData.studentGroupSize}
-          onChange={(val: number) => handleChange("studentGroupSize", val)}
+          onChange={(val: number | string) => handleChange("studentGroupSize", typeof val === "string" ? Number(val) : val)}
           placeholder={t("form.placeholders.studentGroupSize")}
           disabled={isLoading || isSubmitting}
           error={errors.studentGroupSize}

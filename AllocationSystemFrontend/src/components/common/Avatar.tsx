@@ -14,6 +14,60 @@ interface AvatarProps {
   onError?: (error: string) => void;
 }
 
+const getUserInitials = (name: string | undefined, email: string | undefined) => {
+  if (name) {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }
+  if (email) {
+    return email[0].toUpperCase();
+  }
+  return "U";
+};
+
+const sizeClasses = {
+  sm: "h-16 w-16 text-lg",
+  md: "h-24 w-24 text-2xl",
+  lg: "h-32 w-32 text-3xl",
+  xl: "h-40 w-40 text-4xl",
+};
+
+const buttonSizeClasses = {
+  sm: "h-6 w-6",
+  md: "h-8 w-8",
+  lg: "h-10 w-10",
+  xl: "h-12 w-12",
+};
+
+interface EditButtonProps {
+  size: keyof typeof buttonSizeClasses;
+  onClick: () => void;
+}
+
+function EditButton({ size, onClick }: EditButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "absolute bottom-0 right-0 rounded-full bg-primary text-primary-foreground",
+        "flex items-center justify-center shadow-lg",
+        "hover:bg-primary/90 transition-colors duration-200",
+        "border-2 border-background cursor-pointer",
+        "active:scale-95",
+        buttonSizeClasses[size]
+      )}
+      aria-label="Change avatar"
+    >
+      <Camera className="h-3 w-3" />
+    </button>
+  );
+}
+
 export function Avatar({
   name,
   email,
@@ -26,35 +80,6 @@ export function Avatar({
 }: AvatarProps) {
   const { t } = useTranslation("settings");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const getUserInitials = (name: string | undefined, email: string | undefined) => {
-    if (name) {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    if (email) {
-      return email[0].toUpperCase();
-    }
-    return "U";
-  };
-
-  const sizeClasses = {
-    sm: "h-16 w-16 text-lg",
-    md: "h-24 w-24 text-2xl",
-    lg: "h-32 w-32 text-3xl",
-    xl: "h-40 w-40 text-4xl",
-  };
-
-  const buttonSizeClasses = {
-    sm: "h-6 w-6",
-    md: "h-8 w-8",
-    lg: "h-10 w-10",
-    xl: "h-12 w-12",
-  };
 
   const initials = getUserInitials(name, email);
 
@@ -123,24 +148,7 @@ export function Avatar({
       >
         {initials}
       </div>
-      {showEditButton && (
-        <button
-          type="button"
-          onClick={handleAvatarClick}
-          className={cn(
-            "absolute bottom-0 right-0 rounded-full bg-primary text-primary-foreground",
-            "flex items-center justify-center shadow-lg",
-            "hover:bg-primary/90 transition-colors duration-200",
-            "border-2 border-background cursor-pointer",
-            "active:scale-95",
-            buttonSizeClasses[size]
-          )}
-          aria-label="Change avatar"
-        >
-          <Camera className="h-3 w-3" />
-        </button>
-      )}
+      {showEditButton && <EditButton size={size} onClick={handleAvatarClick} />}
     </div>
   );
 }
-

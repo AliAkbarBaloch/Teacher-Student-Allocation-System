@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { buildQueryParams } from "@/lib/utils/query-params";
 
 export type ApiResponse<T> = {
   success: boolean;
@@ -11,6 +12,10 @@ export class BaseApiService<T, CreateDto, UpdateDto> {
 
   constructor(resourceUrl: string) {
     this.resourceUrl = resourceUrl;
+  }
+
+  protected buildQueryParams<T extends object>(params: T): URLSearchParams {
+    return buildQueryParams(params);
   }
 
   async getAll(): Promise<T[]> {

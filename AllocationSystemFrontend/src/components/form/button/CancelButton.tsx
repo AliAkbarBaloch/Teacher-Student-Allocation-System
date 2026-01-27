@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 
+/**
+ * Cancel button component Props
+ */
 interface CancelButtonProps {
   onClick: () => void;
   disabled?: boolean;

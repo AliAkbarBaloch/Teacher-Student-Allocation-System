@@ -31,7 +31,7 @@ function NumberInputField(props: {
                 id={id}
                 label={label}
                 value={value}
-                onChange={onChange}
+                onChange={(val) => onChange(typeof val === "string" ? (val === "" ? 0 : Number(val)) : val)}
                 placeholder={placeholder}
                 required
                 error={error}

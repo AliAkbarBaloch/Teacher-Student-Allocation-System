@@ -7,6 +7,8 @@ import type {
   TeacherAvailabilityListParams,
 } from "../types/teacherAvailability.types";
 
+import { buildQueryParams } from "@/lib/utils/query-params";
+
 type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -29,35 +31,7 @@ export class TeacherAvailabilityService {
    * Get paginated teacher availabilities
    */
   static async getPaginated(params: TeacherAvailabilityListParams = {}): Promise<PaginatedTeacherAvailabilityResponse["data"]> {
-    const queryParams = new URLSearchParams();
-
-    if (params.page !== undefined) {
-      queryParams.append("page", String(params.page));
-    }
-    if (params.pageSize !== undefined) {
-      queryParams.append("pageSize", String(params.pageSize));
-    }
-    if (params.sortBy) {
-      queryParams.append("sortBy", params.sortBy);
-    }
-    if (params.sortOrder) {
-      queryParams.append("sortOrder", params.sortOrder);
-    }
-    if (params.searchValue) {
-      queryParams.append("searchValue", params.searchValue);
-    }
-    if (params.teacherId !== undefined) {
-      queryParams.append("teacherId", String(params.teacherId));
-    }
-    if (params.academicYearId !== undefined) {
-      queryParams.append("academicYearId", String(params.academicYearId));
-    }
-    if (params.internshipTypeId !== undefined) {
-      queryParams.append("internshipTypeId", String(params.internshipTypeId));
-    }
-    if (params.isAvailable !== undefined) {
-      queryParams.append("isAvailable", String(params.isAvailable));
-    }
+    const queryParams = buildQueryParams(params);
 
     const response = await apiClient.get<ApiResponse<PaginatedTeacherAvailabilityResponse["data"]>>(
       `/teacher-availability/paginate?${queryParams.toString()}`

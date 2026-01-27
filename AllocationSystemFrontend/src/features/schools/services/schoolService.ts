@@ -25,20 +25,10 @@ export class SchoolServiceClass extends BaseApiService<
   async getPaginated(
     params: SchoolsListParams = {}
   ): Promise<PaginatedSchoolsResponse["data"]> {
-    const queryParams = new URLSearchParams();
-
-    if (params.page !== undefined)
-      queryParams.append("page", String(params.page));
-    if (params.pageSize !== undefined)
-      queryParams.append("pageSize", String(params.pageSize));
-    if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-    if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
-    if (params.search) queryParams.append("searchValue", params.search);
-    if (params.isActive !== undefined)
-      queryParams.append("isActive", String(params.isActive));
-    if (params.schoolType) queryParams.append("schoolType", params.schoolType);
-    if (params.zoneNumber !== undefined)
-      queryParams.append("zoneNumber", String(params.zoneNumber));
+    const queryParams = this.buildQueryParams({
+      ...params,
+      searchValue: params.search,
+    });
 
     const response = await apiClient.get<
       ApiResponse<PaginatedSchoolsResponse["data"]>

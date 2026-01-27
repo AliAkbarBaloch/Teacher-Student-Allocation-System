@@ -168,7 +168,7 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
   const validate = useCallback((): boolean => {
     const validationErrors: SchoolFormErrors = {};
 
-    if (!formState.schoolName.trim()) {
+    if (!String(formState.schoolName).trim()) {
       validationErrors.schoolName = t("form.errors.schoolNameRequired");
     }
 
@@ -176,27 +176,27 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
       validationErrors.schoolType = t("form.errors.schoolTypeRequired");
     }
 
-    if (!formState.zoneNumber.trim()) {
+    if (!String(formState.zoneNumber).trim()) {
       validationErrors.zoneNumber = t("form.errors.zoneNumberRequired");
     } else if (Number.isNaN(Number(formState.zoneNumber)) || Number(formState.zoneNumber) <= 0) {
       validationErrors.zoneNumber = t("form.errors.zoneMustBePositive");
     }
 
-    if (formState.latitude.trim() && Number.isNaN(Number(formState.latitude))) {
+    if (String(formState.latitude).trim() && Number.isNaN(Number(formState.latitude))) {
       validationErrors.latitude = t("form.errors.latitudeNumeric");
     }
 
-    if (formState.longitude.trim() && Number.isNaN(Number(formState.longitude))) {
+    if (String(formState.longitude).trim() && Number.isNaN(Number(formState.longitude))) {
       validationErrors.longitude = t("form.errors.longitudeNumeric");
     }
 
-    if (formState.distanceFromCenter.trim() && Number.isNaN(Number(formState.distanceFromCenter))) {
+    if (String(formState.distanceFromCenter).trim() && Number.isNaN(Number(formState.distanceFromCenter))) {
       validationErrors.distanceFromCenter = t("form.errors.distanceNumeric");
     }
 
-    if (formState.contactEmail.trim()) {
+    if (String(formState.contactEmail).trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formState.contactEmail.trim())) {
+      if (!emailRegex.test(String(formState.contactEmail).trim())) {
         validationErrors.contactEmail = t("form.errors.emailInvalid");
       }
     }
@@ -206,11 +206,11 @@ export function useSchoolForm(options: UseSchoolFormOptions) {
   }, [formState, t]);
 
   const buildBasePayload = useCallback((): CreateSchoolRequest => {
-    const toNullableNumber = (value: string) => (value.trim() ? Number(value) : null);
-    const toOptionalString = (value: string) => value.trim() || undefined;
+    const toNullableNumber = (value: unknown) => (String(value).trim() ? Number(value) : null);
+    const toOptionalString = (value: unknown) => String(value).trim() || undefined;
 
     return {
-      schoolName: formState.schoolName.trim(),
+      schoolName: String(formState.schoolName).trim(),
       schoolType: formState.schoolType as SchoolType,
       zoneNumber: Number(formState.zoneNumber),
       address: toOptionalString(formState.address),
