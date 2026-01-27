@@ -81,7 +81,6 @@ import type { SchoolType } from "@/features/schools/types/school.types";
 
 import { SCHOOL_TYPE_VALUES } from "@/features/schools/types/school.types";
 
-// TODO, wire with real auth system. now it is like evryone is admin
 const useIsAdmin = () => true;
 
 // main component definition
@@ -134,18 +133,18 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
   const academicYearById = useMemo(() => {
     const map = new Map<number, string>();
-    academicYears.forEach((y) => map.set(y.id, y.yearName));
+    academicYears.forEach(y => map.set(y.id, y.yearName));
     return map;
   }, [academicYears]);
 
   const subjectById = useMemo(() => {
     const map = new Map<number, string>();
-    subjects.forEach((s) => map.set(s.id, s.subjectTitle));
+    subjects.forEach(s => map.set(s.id, s.subjectTitle));
     return map;
   }, [subjects]);
 
   const tableData = useMemo(() => {
-    return data.map((row) => ({
+    return data.map(row => ({
       ...row,
       subject: subjectById.get(row.subjectId) ?? "",
     }));
@@ -153,7 +152,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
   const internshipTypeById = useMemo(() => {
     const map = new Map<number, string>();
-    internshipTypes.forEach((t) =>
+    internshipTypes.forEach(t =>
       map.set(t.id, t.fullName || t.internshipCode)
     );
     return map;
@@ -164,12 +163,12 @@ const InternshipDemandPerYearPage: React.FC = () => {
     {
       field: "academicYearId",
       title: "Academic Year",
-      format: (value) => academicYearById.get(Number(value)) ?? String(value),
+      format: value => academicYearById.get(Number(value)) ?? String(value),
     },
     {
       field: "internshipTypeId",
       title: "Internship Type",
-      format: (value) => internshipTypeById.get(Number(value)) ?? String(value),
+      format: value => internshipTypeById.get(Number(value)) ?? String(value),
     },
     {
       field: "schoolType",
@@ -178,7 +177,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
     {
       field: "subjectId",
       title: "Subject",
-      format: (value) => subjectById.get(Number(value)) ?? String(value),
+      format: value => subjectById.get(Number(value)) ?? String(value),
     },
     {
       field: "requiredTeachers",
@@ -195,7 +194,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
     {
       field: "isForecasted",
       title: "Forecasted",
-      format: (value) =>
+      format: value =>
         value ? (
           <Badge variant="success">Forecast</Badge>
         ) : (
@@ -212,7 +211,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
   //function to load data from backend
   const loadData = useCallback(async () => {
     //if year is empty - do nothing
-    if (!filters.academicYearId) return;
+    if (!filters.academicYearId) {
+      return;
+    }
 
     try {
       //show loading spinner
@@ -224,7 +225,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
       //await - wait for response, list - array returned from backend, setDate(list) - update data with new list
       const list = await fetchInternshipDemand(filters);
 
-      console.log("internship demands response", list);
+      // console.log("internship demands response", list);
 
       //update data with new list
       setData(Array.isArray(list) ? list : []);
@@ -439,19 +440,23 @@ const InternshipDemandPerYearPage: React.FC = () => {
   const validateForm = () => {
     const errs: Record<string, string> = {};
 
-    if (!form.academicYearId)
+    if (!form.academicYearId) {
       errs.academicYearId = "Academic year is required";
-    if (!form.internshipTypeId)
+    }
+    if (!form.internshipTypeId) {
       errs.internshipTypeId = "Internship type is required";
-    if (!form.schoolType) errs.schoolType = "School type is required";
-    if (!form.subjectId) errs.subjectId = "Subject is required";
-
+    }
+    if (!form.schoolType) {
+      errs.schoolType = "School type is required";
+    }
+    if (!form.subjectId) {
+      errs.subjectId = "Subject is required";
+    }
     if (form.requiredTeachers === "" || form.requiredTeachers === null) {
       errs.requiredTeachers = "Required teachers is required";
     } else if (Number(form.requiredTeachers) < 0) {
       errs.requiredTeachers = "Required teachers must be ≥ 0";
     }
-
     if (form.studentCount === "" || form.studentCount === null) {
       errs.studentCount = "Student count is required";
     } else if (Number(form.studentCount) < 0) {
@@ -465,7 +470,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
   // -------- Save (create or update) --------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     const payload: CreateInternshipDemandRequest = {
       academicYearId: Number(form.academicYearId),
@@ -500,7 +507,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
   // -------- Delete --------
   const handleConfirmDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) {
+      return;
+    }
     try {
       setDeleting(true);
       await deleteInternshipDemand(String(deleteTarget.id));
