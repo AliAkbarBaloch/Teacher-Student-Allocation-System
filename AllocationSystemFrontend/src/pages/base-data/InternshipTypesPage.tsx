@@ -18,10 +18,22 @@ import type { InternshipType } from "@/features/internship-types/types/internshi
 // utils
 import { TABLE_PAGE_SIZE_OPTIONS } from "@/lib/constants/pagination";
 
+interface InternshipTypesPageState {
+  internshipTypeToDelete: InternshipType | null;
+}
+
+interface InternshipTypeActions {
+  onView: (type: InternshipType) => void;
+  onEdit: (type: InternshipType) => void;
+  onDelete: (type: InternshipType) => void;
+}
+
 export default function InternshipTypesPage() {
   const { t } = useTranslation("internshipTypes");
   const dialogs = useDialogState();
-  const [internshipTypeToDelete, setInternshipTypeToDelete] = useState<InternshipType | null>(null);
+  const [state, setState] = useState<InternshipTypesPageState>({
+    internshipTypeToDelete: null,
+  });
 
   const {
     internshipTypes,
@@ -40,6 +52,11 @@ export default function InternshipTypesPage() {
 
   const columnConfig = useInternshipTypesColumnConfig();
 
+  const resetDialogState = useCallback(() => {
+    setSelectedInternshipType(null);
+    setState(prev => ({ ...prev, internshipTypeToDelete: null }));
+  }, [setSelectedInternshipType]);
+
   const handleCreate = useCallback(
     async (data: Parameters<typeof handleCreateInternal>[0]) => {
       try {
@@ -54,28 +71,34 @@ export default function InternshipTypesPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedInternshipType) return;
+      if (!selectedInternshipType) {
+        return;
+      }
+      
       try {
         await handleUpdateInternal(data, selectedInternshipType.id);
         dialogs.edit.setIsOpen(false);
-        setSelectedInternshipType(null);
+        resetDialogState();
       } catch {
         // Error already handled in hook
       }
     },
-    [handleUpdateInternal, selectedInternshipType, setSelectedInternshipType, dialogs.edit]
+    [handleUpdateInternal, selectedInternshipType, dialogs.edit, resetDialogState]
   );
 
   const handleDelete = useCallback(async () => {
-    if (!internshipTypeToDelete) return;
+    if (!state.internshipTypeToDelete) {
+      return;
+    }
+    
     try {
-      await handleDeleteInternal(internshipTypeToDelete.id);
+      await handleDeleteInternal(state.internshipTypeToDelete.id);
       dialogs.delete.setIsOpen(false);
-      setInternshipTypeToDelete(null);
+      resetDialogState();
     } catch {
       // Error already handled in hook
     }
-  }, [handleDeleteInternal, internshipTypeToDelete, dialogs.delete]);
+  }, [handleDeleteInternal, state.internshipTypeToDelete, dialogs.delete, resetDialogState]);
 
   const handleEditClick = useCallback((internshipType: InternshipType) => {
     setSelectedInternshipType(internshipType);
@@ -83,7 +106,7 @@ export default function InternshipTypesPage() {
   }, [setSelectedInternshipType, dialogs.edit]);
 
   const handleDeleteClick = useCallback((internshipType: InternshipType) => {
-    setInternshipTypeToDelete(internshipType);
+    setState(prev => ({ ...prev, internshipTypeToDelete: internshipType }));
     dialogs.delete.setIsOpen(true);
   }, [dialogs.delete]);
 
@@ -91,6 +114,27 @@ export default function InternshipTypesPage() {
     setSelectedInternshipType(internshipType);
     dialogs.view.setIsOpen(true);
   }, [setSelectedInternshipType, dialogs.view]);
+
+  const actions: InternshipTypeActions = {
+    onView: handleViewClick,
+    onEdit: handleEditClick,
+    onDelete: handleDeleteClick,
+  };
+
+  const actionLabels = {
+    view: t("actions.view"),
+    edit: t("actions.edit"),
+    delete: t("actions.delete"),
+  };
+
+  const serverPagination = {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    totalItems: pagination.totalItems,
+    totalPages: pagination.totalPages,
+    onPageChange: handlePageChange,
+    onPageSizeChange: handlePageSizeChange,
+  };
 
   return (
     <div className="space-y-6">
@@ -118,23 +162,10 @@ export default function InternshipTypesPage() {
         emptyMessage={t("table.emptyMessage")}
         disableInternalDialog={true}
         pageSizeOptions={[...TABLE_PAGE_SIZE_OPTIONS]}
-        serverSidePagination={{
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          totalItems: pagination.totalItems,
-          totalPages: pagination.totalPages,
-          onPageChange: handlePageChange,
-          onPageSizeChange: handlePageSizeChange,
-        }}
+        serverSidePagination={serverPagination}
         actions={{
-          onView: handleViewClick,
-          onEdit: handleEditClick,
-          onDelete: handleDeleteClick,
-          labels: {
-            view: t("actions.view"),
-            edit: t("actions.edit"),
-            delete: t("actions.delete"),
-          },
+          ...actions,
+          labels: actionLabels,
         }}
       />
 
@@ -159,4 +190,3 @@ export default function InternshipTypesPage() {
     </div>
   );
 }
-
