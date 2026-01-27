@@ -1,17 +1,31 @@
 import { API_BASE_URL } from "@/config";
 import i18n from "@/lib/i18n";
 
+/**
+ * Configuration object for HTTP requests
+ */
 interface RequestConfig {
+  /** The API endpoint to make the request to */
   endpoint: string;
+  /** HTTP method (GET, POST, PUT, PATCH, DELETE) */
   method: string;
+  /** Optional data to send in the request body */
   data?: unknown;
+  /** Additional fetch options */
   options?: RequestInit;
+  /** Whether to omit the JSON Content-Type header (e.g., for FormData) */
   omitJsonContentType?: boolean;
 }
 
+/**
+ * Extended Error object with additional HTTP response information
+ */
 interface ErrorResponse extends Error {
+  /** HTTP status code from the response */
   status: number;
+  /** The original Response object */
   response: Response;
+  /** Additional error details from the response body */
   details?: unknown;
 }
 
@@ -37,10 +51,14 @@ class ApiClient {
   private isTokenExpired(token: string): boolean {
     try {
       const [, payloadSegment] = token.split(".");
-      if (!payloadSegment) return true;
+      if (!payloadSegment) {
+        return true;
+      }
 
       const payload = JSON.parse(atob(payloadSegment)) as { exp?: number };
-      if (typeof payload.exp !== "number") return true;
+      if (typeof payload.exp !== "number") {
+        return true;
+      }
 
       const exp = payload.exp * 1000;
       return Date.now() >= exp;
@@ -131,7 +149,9 @@ class ApiClient {
   }
 
   private extractErrorMessage(errorData: unknown): string | null {
-    if (!errorData || typeof errorData !== "object") return null;
+    if (!errorData || typeof errorData !== "object") {
+      return null;
+    }
 
     const errorObject = errorData as Record<string, unknown>;
 
@@ -156,16 +176,24 @@ class ApiClient {
       const errors = errorObject.errors;
       if (Array.isArray(errors)) {
         const messages = errors
-          .map(e => typeof e === "object" && e !== null && "message" in e 
-            ? (e as { message?: string }).message 
-            : String(e))
+          .map(e => {
+            if (typeof e === "object" && e !== null && "message" in e) {
+              return (e as { message?: string }).message;
+            } else {
+              return String(e);
+            }
+          })
           .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
-        if (messages.length > 0) return messages.join(", ");
+        if (messages.length > 0) {
+          return messages.join(", ");
+        }
       } else if (typeof errors === "object" && errors !== null) {
         const fieldErrors = Object.values(errors).filter(
           msg => typeof msg === "string" && msg.trim() !== ""
         );
-        if (fieldErrors.length > 0) return fieldErrors.join(", ");
+        if (fieldErrors.length > 0) {
+          return fieldErrors.join(", ");
+        }
       }
     }
 
@@ -240,9 +268,12 @@ class ApiClient {
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
-      const body = config.method === "GET" || config.method === "DELETE" 
-        ? undefined 
-        : this.prepareRequestBody(config.data, isFormData);
+      let body: BodyInit | undefined;
+      if (config.method === "GET" || config.method === "DELETE") {
+        body = undefined;
+      } else {
+        body = this.prepareRequestBody(config.data, isFormData);
+      }
 
       const response = await fetch(this.buildUrl(config.endpoint), {
         method: config.method,
