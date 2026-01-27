@@ -220,30 +220,30 @@ class ApiClient {
 
     // Check errors array or object
     if ("errors" in errorObject) {
-          const errors = errorObject.errors;
-          if (Array.isArray(errors)) {
-            const messages = errors
-              .map((e) => {
+      const errors = errorObject.errors;
+      if (Array.isArray(errors)) {
+        const messages = errors
+          .map(e => {
             if (
               typeof e === "object" &&
               e !== null &&
               "message" in e &&
               typeof (e as { message?: string }).message === "string"
             ) {
-                  return (e as { message?: string }).message;
-                }
-                return String(e);
-              })
-              .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
-            if (messages.length > 0) {
-          return messages.join(", ");
+              return (e as { message?: string }).message;
             }
-          } else if (typeof errors === "object" && errors !== null) {
-            // Handle object with field errors like { field1: "error1", field2: "error2" }
+            return String(e);
+          })
+          .filter((msg): msg is string => typeof msg === "string" && msg.trim() !== "");
+        if (messages.length > 0) {
+          return messages.join(", ");
+        }
+      } else if (typeof errors === "object" && errors !== null) {
+        // Handle object with field errors like { field1: "error1", field2: "error2" }
         const fieldErrors = Object.values(errors).filter(
-          (msg): msg is string => typeof msg === "string" && msg.trim() !== ""
+          msg => typeof msg === "string" && msg.trim() !== ""
         );
-            if (fieldErrors.length > 0) {
+        if (fieldErrors.length > 0) {
           return fieldErrors.join(", ");
         }
       }
