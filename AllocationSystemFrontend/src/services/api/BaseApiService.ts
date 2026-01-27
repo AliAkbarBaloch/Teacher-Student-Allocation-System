@@ -14,7 +14,7 @@ export class BaseApiService<T, CreateDto, UpdateDto> {
     this.resourceUrl = resourceUrl;
   }
 
-  protected buildQueryParams<T extends Record<string, any>>(params: T): URLSearchParams {
+  protected buildQueryParams<T extends Record<string, string | number | boolean | undefined | null>>(params: T): URLSearchParams {
     return buildQueryParams(params);
   }
 
