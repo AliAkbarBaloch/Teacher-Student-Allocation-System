@@ -7,6 +7,8 @@ import type {
   TeacherAssignmentsListParams,
 } from "../types/teacherAssignment.types";
 
+import { buildQueryParams } from "@/lib/utils/query-params";
+
 type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -29,23 +31,7 @@ export class TeacherAssignmentService {
    * Get paginated teacherAssignments
    */
   static async getPaginated(params: TeacherAssignmentsListParams = {}): Promise<PaginatedTeacherAssignmentsResponse["data"]> {
-    const queryParams = new URLSearchParams();
-    
-    if (params.page !== undefined) {
-      queryParams.append("page", String(params.page));
-    }
-    if (params.pageSize !== undefined) {
-      queryParams.append("pageSize", String(params.pageSize));
-    }
-    if (params.sortBy) {
-      queryParams.append("sortBy", params.sortBy);
-    }
-    if (params.sortOrder) {
-      queryParams.append("sortOrder", params.sortOrder);
-    }
-    if (params.searchValue) {
-      queryParams.append("searchValue", params.searchValue);
-    }
+    const queryParams = buildQueryParams(params);
 
     const response = await apiClient.get<ApiResponse<PaginatedTeacherAssignmentsResponse["data"]>>(
       `/teacher-assignments/paginate?${queryParams.toString()}`

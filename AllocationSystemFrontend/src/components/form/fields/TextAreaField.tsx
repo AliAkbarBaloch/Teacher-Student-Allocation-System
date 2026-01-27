@@ -1,5 +1,8 @@
 import React from "react";
 
+/**
+ * Text area field component Props
+ */
 interface TextAreaFieldProps {
   id: string;
   label: string;

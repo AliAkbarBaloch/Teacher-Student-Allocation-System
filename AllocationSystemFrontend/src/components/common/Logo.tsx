@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { cn } from "@/lib/utils";
 
+/**
+ * Props for the Logo component.
+ */
 interface LogoProps {
   className?: string;
   showText?: boolean;

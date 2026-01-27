@@ -10,6 +10,8 @@ import type {
   SortField,
 } from "../types/creditHourTracking.types";
 
+import { buildQueryParams } from "@/lib/utils/query-params";
+
 /**
  * Service for handling credit hour tracking operations
  */
@@ -18,29 +20,7 @@ export class CreditHourTrackingService {
    * Get paginated credit hour tracking entries with filters
    */
   static async list(params: CreditHourTrackingListParams = {}): Promise<PaginatedCreditHourTrackingResponse["data"]> {
-    const queryParams = new URLSearchParams();
-
-    if (params.page !== undefined) {
-      queryParams.append("page", String(params.page));
-    }
-    if (params.pageSize !== undefined) {
-      queryParams.append("pageSize", String(params.pageSize));
-    }
-    if (params.sortBy) {
-      queryParams.append("sortBy", params.sortBy);
-    }
-    if (params.sortOrder) {
-      queryParams.append("sortOrder", params.sortOrder);
-    }
-    if (params.searchValue) {
-      queryParams.append("searchValue", params.searchValue);
-    }
-    if (params.academicYearId !== undefined) {
-      queryParams.append("academicYearId", String(params.academicYearId));
-    }
-    if (params.teacherId !== undefined) {
-      queryParams.append("teacherId", String(params.teacherId));
-    }
+    const queryParams = buildQueryParams(params);
 
     const response = await apiClient.get<PaginatedCreditHourTrackingResponse>(
       `/credit-hour-tracking/paginate?${queryParams.toString()}`

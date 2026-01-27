@@ -8,6 +8,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface ThemeItemProps {
+  themeValue: "light" | "dark" | "system";
+  label: string;
+  icon: React.ReactNode;
+  activeTheme: string;
+  onSetTheme: (theme: "light" | "dark" | "system") => void;
+}
+
+/**
+ * A sub-component for rendering a single theme item in the dropdown.
+ */
+function ThemeItem({
+  themeValue,
+  label,
+  icon,
+  activeTheme,
+  onSetTheme,
+}: ThemeItemProps) {
+  return (
+    <DropdownMenuItem
+      onClick={() => onSetTheme(themeValue)}
+      className="cursor-pointer"
+    >
+      {icon}
+      <span>{label}</span>
+      {activeTheme === themeValue && <span className="ml-auto text-xs">✓</span>}
+    </DropdownMenuItem>
+  );
+}
+
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
@@ -16,47 +46,38 @@ export function ThemeToggle() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           <Sun
-            className={`h-[1.2rem] w-[1.2rem] transition-all ${
-              resolvedTheme === "dark"
-                ? "rotate-90 scale-0"
-                : "rotate-0 scale-100"
-            }`}
+            className={`h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === "dark" ? "rotate-90 scale-0" : "rotate-0 scale-100"
+              }`}
           />
           <Moon
-            className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${
-              resolvedTheme === "dark"
-                ? "rotate-0 scale-100"
-                : "-rotate-90 scale-0"
-            }`}
+            className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === "dark" ? "rotate-0 scale-100" : "-rotate-90 scale-0"
+              }`}
           />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => setTheme("light")}
-          className="cursor-pointer"
-        >
-          <Sun className="mr-2 h-4 w-4" />
-          <span>Light</span>
-          {theme === "light" && <span className="ml-auto text-xs">✓</span>}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("dark")}
-          className="cursor-pointer"
-        >
-          <Moon className="mr-2 h-4 w-4" />
-          <span>Dark</span>
-          {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className="cursor-pointer"
-        >
-          <Monitor className="mr-2 h-4 w-4" />
-          <span>System</span>
-          {theme === "system" && <span className="ml-auto text-xs">✓</span>}
-        </DropdownMenuItem>
+        <ThemeItem
+          themeValue="light"
+          label="Light"
+          icon={<Sun className="mr-2 h-4 w-4" />}
+          activeTheme={theme}
+          onSetTheme={setTheme}
+        />
+        <ThemeItem
+          themeValue="dark"
+          label="Dark"
+          icon={<Moon className="mr-2 h-4 w-4" />}
+          activeTheme={theme}
+          onSetTheme={setTheme}
+        />
+        <ThemeItem
+          themeValue="system"
+          label="System"
+          icon={<Monitor className="mr-2 h-4 w-4" />}
+          activeTheme={theme}
+          onSetTheme={setTheme}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );

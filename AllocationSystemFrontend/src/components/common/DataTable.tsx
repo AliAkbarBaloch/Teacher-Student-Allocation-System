@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type TableOptions,
 } from "@tanstack/react-table";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type {
@@ -27,6 +28,34 @@ import { useDataTableDialogs } from "@/hooks/useDataTableDialogs";
 
 // Re-export types for convenience
 export type { ColumnConfig, DataTableActions, DataTableProps };
+
+const FIT_CONTENT = "fit-content";
+
+/**
+ * Calculates the styles for a table head cell based on its configuration.
+ */
+function getTableHeadStyles(
+  isActionsColumn: boolean,
+  width?: string | number,
+  maxWidth?: string | number
+): React.CSSProperties {
+  if (isActionsColumn) {
+    return {
+      width: FIT_CONTENT,
+      minWidth: FIT_CONTENT,
+    };
+  }
+
+  return {
+    minWidth: FIT_CONTENT,
+    ...(width && {
+      width: typeof width === "number" ? `${width}px` : width,
+    }),
+    ...(maxWidth && {
+      maxWidth: typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth,
+    }),
+  };
+}
 
 /**
  * Main DataTable component - refactored to use extracted hooks and components
@@ -79,7 +108,9 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
     (columns || generatedColumns) as ColumnDef<TData, TValue>[];
 
   const tableColumns = React.useMemo<ColumnDef<TData, TValue>[]>(() => {
-    if (!actions) return baseColumns;
+    if (!actions) {
+      return baseColumns;
+    }
     return [
       ...baseColumns,
       createActionsColumn<TData, TValue>({
@@ -111,45 +142,50 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
     [tableState]
   );
 
-  // Initialize TanStack Table
-  const table = useReactTable({
+  // Build table options to avoid large ternary structures
+  const tableOptions: TableOptions<TData> = {
     data,
     columns: tableColumns,
     onSortingChange: tableState.setSorting,
     onColumnFiltersChange: tableState.setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    ...(enablePagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: tableState.setColumnVisibility,
-    ...(enablePagination
-      ? {
-          onPaginationChange: handlePaginationChange,
-          initialState: {
-            pagination: {
-              pageSize: defaultPageSize,
-              pageIndex: 0,
-            },
-          },
-        }
-      : {}),
-    ...(enableRowSelection && {
-      onRowSelectionChange: tableState.setRowSelection,
-      enableRowSelection: true,
-    }),
     state: {
       sorting: tableState.sorting,
       columnFilters: tableState.columnFilters,
       columnVisibility: tableState.columnVisibility,
-      ...(enablePagination && {
-        pagination: {
-          pageIndex: tableState.pageIndex,
-          pageSize: tableState.pageSize,
-        },
-      }),
-      ...(enableRowSelection && { rowSelection: tableState.rowSelection }),
     },
-  });
+  };
+
+  if (enablePagination) {
+    tableOptions.getPaginationRowModel = getPaginationRowModel();
+    tableOptions.onPaginationChange = handlePaginationChange;
+    tableOptions.initialState = {
+      pagination: {
+        pageSize: defaultPageSize,
+        pageIndex: 0,
+      },
+    };
+    if (tableOptions.state) {
+      tableOptions.state.pagination = {
+        pageIndex: tableState.pageIndex,
+        pageSize: tableState.pageSize,
+      };
+    }
+  }
+
+  if (enableRowSelection) {
+    tableOptions.onRowSelectionChange = tableState.setRowSelection;
+    tableOptions.enableRowSelection = true;
+    if (tableOptions.state) {
+      tableOptions.state.rowSelection = tableState.rowSelection;
+    }
+  }
+
+  // Initialize TanStack Table
+  const table = useReactTable(tableOptions);
 
   return (
     <div className="w-full">
@@ -186,39 +222,24 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
                     const headerColumnConfig = columnConfig?.find(
                       (c) => c.field === accessorKey || c.field === header.id
                     );
-                    const width = headerColumnConfig?.width;
-                    const maxWidth = headerColumnConfig?.maxWidth;
                     const isActionsColumn = header.id === "actions";
 
                     return (
                       <TableHead
                         key={header.id}
                         className="whitespace-nowrap px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium"
-                        style={{
-                          ...(isActionsColumn && {
-                            width: "fit-content",
-                            minWidth: "fit-content",
-                          }),
-                          ...(!isActionsColumn && {
-                            minWidth: "fit-content",
-                            ...(width && {
-                              width: typeof width === "number" ? `${width}px` : width,
-                            }),
-                            ...(maxWidth && {
-                              maxWidth:
-                                typeof maxWidth === "number"
-                                  ? `${maxWidth}px`
-                                  : maxWidth,
-                            }),
-                          }),
-                        }}
+                        style={getTableHeadStyles(
+                          isActionsColumn,
+                          headerColumnConfig?.width,
+                          headerColumnConfig?.maxWidth
+                        )}
                       >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -242,7 +263,7 @@ export function DataTable<TData = Record<string, unknown>, TValue = unknown>({
         <DataTablePagination
           table={enablePagination ? table : undefined}
           enableRowSelection={enableRowSelection}
-            pageSizeOptions={pageSizeOptions}
+          pageSizeOptions={pageSizeOptions}
           serverSidePagination={serverSidePagination}
         />
       )}

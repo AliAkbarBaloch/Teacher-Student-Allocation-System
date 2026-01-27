@@ -2,6 +2,9 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROUTES } from "@/config/routes";
 
+/**
+ * Props for the ProtectedRoute component.
+ */
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;

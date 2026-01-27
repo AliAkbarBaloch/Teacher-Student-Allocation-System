@@ -202,10 +202,6 @@ export const router = createBrowserRouter([
         path: ROUTES.reports.schoolReports,
         element: withSuspense(<SchoolReportPage />),
       },
-      {
-        path: ROUTES.reports.auditReports,
-        element: withSuspense(<div>Audit Reports</div>),
-      },
       // Legacy admin routes
       {
         path: ROUTES.admin.roles,
