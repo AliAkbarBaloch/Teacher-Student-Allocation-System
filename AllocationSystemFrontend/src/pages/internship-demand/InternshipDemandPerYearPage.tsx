@@ -119,9 +119,8 @@ const InternshipDemandPerYearPage: React.FC = () => {
       title: "School Type",
     },
     {
-      field: "subjectId",
+      field: "subject",
       title: "Subject",
-      format: (value) => subjectById.get(Number(value)) ?? String(value),
     },
     {
       field: "requiredTeachers",
@@ -171,6 +170,13 @@ const InternshipDemandPerYearPage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Set default academic year when they load for first time
+  useEffect(() => {
+    if (!filters.academicYearId && academicYears.length > 0) {
+      setFilters((f) => ({ ...f, academicYearId: academicYears[0].id }));
+    }
+  }, [academicYears, filters.academicYearId]);
 
   // School types
   useEffect(() => {
@@ -283,9 +289,15 @@ const InternshipDemandPerYearPage: React.FC = () => {
         await updateInternshipDemand(String(editing.id), payload);
       } else {
         await createInternshipDemand(payload);
+        // Sync filter to the year we just created demand for 
+        // this triggers loadData() via useEffect 
+        setFilters(prev => ({
+          ...prev,
+          academicYearId: payload.academicYearId
+        }));
       }
       setDialogOpen(false);
-      await loadData();
+      // await loadData(); // No need if filters changed, useEffect handles it
     } catch (err: unknown) {
       setBackendError(err instanceof Error ? err.message : "Failed to save internship demand");
     } finally {
@@ -310,9 +322,9 @@ const InternshipDemandPerYearPage: React.FC = () => {
 
   const tableActions: DataTableActions<InternshipDemand> | undefined = isAdmin
     ? {
-        onEdit: (row) => openEdit(row),
-        onDelete: (row) => setDeleteTarget(row),
-      }
+      onEdit: (row) => openEdit(row),
+      onDelete: (row) => setDeleteTarget(row),
+    }
     : undefined;
 
   // Duplicate detection (not implemented)
@@ -376,7 +388,7 @@ const InternshipDemandPerYearPage: React.FC = () => {
               error={error}
               emptyMessage="No internship demand found."
               enableSearch={true}
-              searchKey="subjectId"
+              searchKey="subject"
               enablePagination={true}
               actions={tableActions}
               actionsHeader="Actions"
