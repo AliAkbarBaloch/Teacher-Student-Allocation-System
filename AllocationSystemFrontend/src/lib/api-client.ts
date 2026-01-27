@@ -448,14 +448,19 @@ class ApiClient {
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
+      let requestBody: BodyInit | undefined;
+      if (isFormData) {
+        requestBody = data as FormData;
+      } else if (data) {
+        requestBody = JSON.stringify(data);
+      } else {
+        requestBody = undefined;
+      }
+
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PUT",
         headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
+        body: requestBody,
         ...options,
         signal: options?.signal || signal,
       });
@@ -467,6 +472,7 @@ class ApiClient {
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
@@ -490,14 +496,19 @@ class ApiClient {
     const { timeoutId, signal } = this.createTimeoutController();
 
     try {
+      let requestBody: BodyInit | undefined;
+      if (isFormData) {
+        requestBody = data as FormData;
+      } else if (data) {
+        requestBody = JSON.stringify(data);
+      } else {
+        requestBody = undefined;
+      }
+
       const response = await fetch(this.buildUrl(endpoint), {
         method: "PATCH",
         headers,
-        body: isFormData
-          ? (data as FormData)
-          : data
-            ? JSON.stringify(data)
-            : undefined,
+        body: requestBody,
         ...options,
         signal: options?.signal || signal,
       });
@@ -509,6 +520,7 @@ class ApiClient {
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
@@ -537,6 +549,7 @@ class ApiClient {
       return this.parseResponse<T>(response);
     } catch (error) {
       this.handleNetworkError(error);
+      return Promise.reject(error) as unknown as T;
     } finally {
       clearTimeout(timeoutId);
     }
