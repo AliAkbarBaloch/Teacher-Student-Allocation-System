@@ -103,12 +103,14 @@ class ApiClient {
     extraOptions?: { omitJsonContentType?: boolean; endpoint?: string }
   ): Record<string, string> {
     const token = this.getAuthToken();
-    const headers: Record<string, string> =
+    let headers: Record<string, string> = {};
+    if (
       options?.headers &&
       typeof options.headers === "object" &&
       !(options.headers instanceof Headers)
-        ? { ...(options.headers as Record<string, string>) }
-        : {};
+    ) {
+      headers = { ...(options.headers as Record<string, string>) };
+    }
 
     if (!extraOptions?.omitJsonContentType && !headers["Content-Type"]) {
       headers["Content-Type"] = "application/json";
@@ -172,9 +174,10 @@ class ApiClient {
    */
   private buildUrl(endpoint: string): string {
     // Remove leading slash if present to avoid double slashes
-    const cleanEndpoint = endpoint.startsWith("/")
-      ? endpoint.slice(1)
-      : endpoint;
+    let cleanEndpoint = endpoint;
+    if (endpoint.startsWith("/")) {
+      cleanEndpoint = endpoint.slice(1);
+    }
     return `${this.baseUrl}/${cleanEndpoint}`;
   }
 
