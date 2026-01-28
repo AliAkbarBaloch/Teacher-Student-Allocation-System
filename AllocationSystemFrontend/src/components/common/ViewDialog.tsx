@@ -11,6 +11,9 @@ import {
 import type { ColumnConfig } from "@/types/datatable.types";
 import type { FieldConfig } from "./types/form.types";
 
+/**
+ * Props for the ViewDialog component.
+ */
 export interface ViewDialogProps<TData> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,33 +56,36 @@ export function ViewDialog<TData>({
   maxWidth = "2xl",
   renderCustomContent,
 }: ViewDialogProps<TData>) {
-  const renderFieldValue = useCallback((_field: string, value: unknown, config?: ColumnConfig) => {
-    // If there's a format function, use it
-    if (config?.format && typeof config.format === "function") {
-      const formatted = config.format(value, data);
-      // If format returns ReactNode, return it directly
-      if (React.isValidElement(formatted) || typeof formatted === "object") {
-        return formatted;
+  const renderFieldValue = useCallback(
+    (_field: string, value: unknown, config?: ColumnConfig) => {
+      // If there's a format function, use it
+      if (config?.format && typeof config.format === "function") {
+        const formatted = config.format(value, data);
+        // If format returns ReactNode, return it directly
+        if (React.isValidElement(formatted) || typeof formatted === "object") {
+          return formatted;
+        }
+        // Otherwise convert to string
+        return String(formatted ?? "");
       }
-      // Otherwise convert to string
-      return String(formatted ?? "");
-    }
 
-    // Default rendering based on value type
-    if (value === null || value === undefined) {
-      return <span className="text-muted-foreground">—</span>;
-    }
+      // Default rendering based on value type
+      if (value === null || value === undefined) {
+        return <span className="text-muted-foreground">—</span>;
+      }
 
-    if (typeof value === "boolean") {
-      return value ? "Yes" : "No";
-    }
+      if (typeof value === "boolean") {
+        return value ? "Yes" : "No";
+      }
 
-    if (value instanceof Date) {
-      return value.toLocaleDateString();
-    }
+      if (value instanceof Date) {
+        return value.toLocaleDateString();
+      }
 
-    return String(value);
-  }, [data]);
+      return String(value);
+    },
+    [data]
+  );
 
   // Filter fields that should be shown in view mode
   const visibleFields = useMemo(
@@ -87,77 +93,93 @@ export function ViewDialog<TData>({
     [fieldConfig]
   );
 
-  // Render field from fieldConfig - memoized
-  const renderFieldFromConfig = useCallback((field: FieldConfig<TData>) => {
-    // Type assertion: data is guaranteed to be non-null when this function is called
-    // because we return early if data is null
-    if (!data) return null;
-    
-    const value = (data as Record<string, unknown>)[String(field.name)];
-    
-    // Skip fields that shouldn't be shown in view mode
-    if (field.showInView === false) {
-      return null;
-    }
+  /**
+   * Helper to determine the display value for a field based on its configuration
+   */
+  const getFieldDisplayValue = useCallback(
+    (field: FieldConfig<TData>, value: unknown): React.ReactNode => {
+      if (value === null || value === undefined || value === "") {
+        return <span className="text-muted-foreground">—</span>;
+      }
 
-    // Use custom viewFormat if provided
-    if (field.viewFormat) {
-      const formatted = field.viewFormat(value, data as TData);
+      if (typeof value === "boolean") {
+        return value ? "Yes" : "No";
+      }
+
+      if (typeof value === "string" && field.type === "datetime-local") {
+        const date = new Date(value);
+        return !isNaN(date.getTime()) ? date.toLocaleString() : value;
+      }
+
+      if (field.type === "select" && field.options) {
+        const options = Array.isArray(field.options) ? field.options : [];
+        const option = options.find((opt) => String(opt.value) === String(value));
+        return option ? option.label : String(value);
+      }
+
+      return String(value);
+    },
+    []
+  );
+
+  // Render field from fieldConfig - memoized
+  const renderFieldFromConfig = useCallback(
+    (field: FieldConfig<TData>) => {
+      if (!data) {
+        return null;
+      }
+
+      const value = (data as Record<string, unknown>)[String(field.name)];
+
+      // Skip fields that shouldn't be shown in view mode
+      if (field.showInView === false) {
+        return null;
+      }
+
+      // Use custom viewFormat if provided
+      if (field.viewFormat) {
+        const formatted = field.viewFormat(value, data as TData);
+        return (
+          <div
+            key={String(field.name)}
+            className={`grid gap-1 ${field.colSpan === 2 ? "md:col-span-2" : ""
+              }`}
+          >
+            <label className="text-sm font-medium">
+              {field.viewLabel || field.label}
+            </label>
+            <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+              {React.isValidElement(formatted)
+                ? formatted
+                : String(formatted ?? "—")}
+            </div>
+          </div>
+        );
+      }
+
+      const displayValue = getFieldDisplayValue(field, value);
+
       return (
         <div
           key={String(field.name)}
-          className={`grid gap-1 ${field.colSpan === 2 ? "md:col-span-2" : ""}`}
+          className={`grid gap-1 ${field.colSpan === 2 ? "md:col-span-2" : ""
+            }`}
         >
           <label className="text-sm font-medium">
             {field.viewLabel || field.label}
           </label>
           <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-            {React.isValidElement(formatted) ? formatted : String(formatted ?? "—")}
+            {displayValue}
           </div>
         </div>
       );
-    }
+    },
+    [data, getFieldDisplayValue]
+  );
 
-    // Default formatting based on field type
-    let displayValue: React.ReactNode = "—";
-    
-    if (value === null || value === undefined || value === "") {
-      displayValue = <span className="text-muted-foreground">—</span>;
-    } else if (typeof value === "boolean") {
-      displayValue = value ? "Yes" : "No";
-    } else if (typeof value === "string" && field.type === "datetime-local") {
-      // Try to parse as date
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        displayValue = date.toLocaleString();
-      } else {
-        displayValue = value;
-      }
-    } else if (field.type === "select" && field.options) {
-      // Try to find the label for the selected value
-      const options = Array.isArray(field.options) ? field.options : [];
-      const option = options.find((opt) => String(opt.value) === String(value));
-      displayValue = option ? option.label : String(value);
-    } else {
-      displayValue = String(value);
-    }
-
-    return (
-      <div
-        key={String(field.name)}
-        className={`grid gap-1 ${field.colSpan === 2 ? "md:col-span-2" : ""}`}
-      >
-        <label className="text-sm font-medium">
-          {field.viewLabel || field.label}
-        </label>
-        <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
-          {displayValue}
-        </div>
-      </div>
-    );
-  }, [data]);
-
-  if (!data) return null;
+  if (!data) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

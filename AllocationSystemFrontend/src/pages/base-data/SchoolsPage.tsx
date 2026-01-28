@@ -107,7 +107,9 @@ export default function SchoolsPage() {
   }, [setDeleteTarget, dialogs.delete]);
 
   const confirmStatusChange = async () => {
-    if (!statusTarget.school) return;
+    if (!statusTarget.school) {
+      return;
+    }
     try {
       await handleStatusChange(statusTarget.school, statusTarget.nextState);
       setIsStatusDialogOpen(false);
@@ -118,7 +120,9 @@ export default function SchoolsPage() {
   };
 
   const confirmDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) {
+      return;
+    }
     try {
       await handleDelete(deleteTarget);
       dialogs.delete.setIsOpen(false);

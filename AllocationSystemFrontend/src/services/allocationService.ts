@@ -6,6 +6,10 @@ type ApiResponse<T> = {
   data: T;
 };
 
+/**
+ * Response interface for allocation process execution
+ * @interface RunAllocationResponse
+ */
 export interface RunAllocationResponse {
   planId: number;
   planName: string;
@@ -29,7 +33,7 @@ export class AllocationService {
     planVersion?: string
   ): Promise<RunAllocationResponse> {
     const response = await apiClient.post<ApiResponse<RunAllocationResponse>>(
-      `/api/allocation/run/${academicYearId}`,
+      `/allocation/run/${academicYearId}`,
       {
         isCurrent: isCurrent ?? false,
         ...(planVersion && { planVersion }),

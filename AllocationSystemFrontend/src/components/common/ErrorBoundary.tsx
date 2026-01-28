@@ -2,12 +2,18 @@ import React, { Component, type ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Props for the ErrorBoundary component
+ */
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
+/**
+ * State for the ErrorBoundary internal class component
+ */
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
@@ -62,9 +68,6 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    // TODO: Send error to error reporting service (e.g., Sentry)
-    // errorReportingService.captureException(error, { extra: errorInfo });
   }
 
   handleReset = (): void => {
@@ -74,49 +77,54 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
     });
   };
 
+  /**
+   * Renders the default fallback UI when no custom fallback prop is provided
+   */
+  private renderDefaultFallback(): ReactNode {
+    const isDev = isDevelopmentMode();
+
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+        <div className="max-w-md w-full space-y-4">
+          <div className="flex items-center gap-3 text-destructive">
+            <AlertCircle className="h-6 w-6" aria-hidden="true" />
+            <h2 className="text-xl font-semibold">Something went wrong</h2>
+          </div>
+          <p className="text-muted-foreground">
+            An unexpected error occurred. Please try refreshing the page or
+            contact support if the problem persists.
+          </p>
+          {isDev && this.state.error && (
+            <details className="mt-4 p-4 bg-muted rounded-md">
+              <summary className="cursor-pointer font-medium mb-2">
+                Error Details (Development Only)
+              </summary>
+              <pre className="text-xs overflow-auto">
+                {this.state.error.toString()}
+                {this.state.error.stack && `\n\n${this.state.error.stack}`}
+              </pre>
+            </details>
+          )}
+          <div className="flex gap-2">
+            <Button onClick={this.handleReset} variant="outline">
+              Try Again
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="default">
+              Refresh Page
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      const isDev = isDevelopmentMode();
-
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
-          <div className="max-w-md w-full space-y-4">
-            <div className="flex items-center gap-3 text-destructive">
-              <AlertCircle className="h-6 w-6" aria-hidden="true" />
-              <h2 className="text-xl font-semibold">Something went wrong</h2>
-            </div>
-            <p className="text-muted-foreground">
-              An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.
-            </p>
-            {isDev && this.state.error && (
-              <details className="mt-4 p-4 bg-muted rounded-md">
-                <summary className="cursor-pointer font-medium mb-2">
-                  Error Details (Development Only)
-                </summary>
-                <pre className="text-xs overflow-auto">
-                  {this.state.error.toString()}
-                  {this.state.error.stack && `\n\n${this.state.error.stack}`}
-                </pre>
-              </details>
-            )}
-            <div className="flex gap-2">
-              <Button onClick={this.handleReset} variant="outline">
-                Try Again
-              </Button>
-              <Button
-                onClick={() => window.location.reload()}
-                variant="default"
-              >
-                Refresh Page
-              </Button>
-            </div>
-          </div>
-        </div>
-      );
+      return this.renderDefaultFallback();
     }
 
     return this.props.children;

@@ -203,8 +203,8 @@ export const router = createBrowserRouter([
         element: withSuspense(<SchoolReportPage />),
       },
       {
-        path: ROUTES.reports.auditReports,
-        element: withSuspense(<div>Audit Reports</div>),
+        path: ROUTES.reports.schoolReports,
+        element: withSuspense(<SchoolReportPage />),
       },
       // Legacy admin routes
       {

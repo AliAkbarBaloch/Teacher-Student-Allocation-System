@@ -45,6 +45,23 @@ class PlanChangeLogControllerTest {
     private final AcademicYearRepository academicYearRepository;
     private final PlanChangeLogRepository planChangeLogRepository;
     private AllocationPlan testPlan;
+    private User testUser;
+
+    @Autowired
+    PlanChangeLogControllerTest(
+            @Autowired
+            MockMvc mockMvc,
+            UserRepository userRepository,
+            AllocationPlanRepository allocationPlanRepository,
+            AcademicYearRepository academicYearRepository,
+            PlanChangeLogRepository planChangeLogRepository
+    ) {
+        this.mockMvc = mockMvc;
+        this.userRepository = userRepository;
+        this.allocationPlanRepository = allocationPlanRepository;
+        this.academicYearRepository = academicYearRepository;
+        this.planChangeLogRepository = planChangeLogRepository;
+    }
 
     @Autowired
     PlanChangeLogControllerTest(

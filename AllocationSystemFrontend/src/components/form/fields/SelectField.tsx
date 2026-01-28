@@ -7,13 +7,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface SelectFieldOption {
+/**
+ * Represents an option in a select field.
+ */
+export interface SelectFieldOption {
   value: string;
   label: React.ReactNode;
   disabled?: boolean;
 }
 
-interface SelectFieldProps {
+/**
+ * Props for the SelectField component.
+ */
+export interface SelectFieldProps {
   id: string;
   label: string;
   value: string;
@@ -25,7 +31,7 @@ interface SelectFieldProps {
   disabled?: boolean;
   className?: string;
   labelClassName?: string;
-  searchable?: boolean; // NEW
+  searchable?: boolean;
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({

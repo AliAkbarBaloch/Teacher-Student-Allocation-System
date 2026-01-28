@@ -1,7 +1,10 @@
 /**
- * AcademicYear management types
-*/
+ * AcademicYear management types.
+ */
 
+/**
+ * Represents an academic year entity.
+ */
 export interface AcademicYear {
   id: number;
   yearName: string;
@@ -15,6 +18,9 @@ export interface AcademicYear {
   updatedAt?: string | null;
 }
 
+/**
+ * Request payload for creating a new academic year.
+ */
 export interface CreateAcademicYearRequest {
   yearName: string;
   totalCreditHours: number;
@@ -25,6 +31,9 @@ export interface CreateAcademicYearRequest {
   isLocked?: boolean | null;
 }
 
+/**
+ * Request payload for updating an existing academic year.
+ */
 export interface UpdateAcademicYearRequest {
   yearName?: string;
   totalCreditHours?: number;
@@ -35,18 +44,27 @@ export interface UpdateAcademicYearRequest {
   isLocked?: boolean | null;
 }
 
+/**
+ * API response containing a single academic year.
+ */
 export interface AcademicYearResponse {
   success: boolean;
   message: string;
   data: AcademicYear;
 }
 
+/**
+ * API response containing a list of academic years.
+ */
 export interface AcademicYearsListResponse {
   success: boolean;
   message: string;
   data: AcademicYear[];
 }
 
+/**
+ * Paginated API response for academic years.
+ */
 export interface PaginatedAcademicYearsResponse {
   success: boolean;
   message: string;
@@ -59,6 +77,9 @@ export interface PaginatedAcademicYearsResponse {
   };
 }
 
+/**
+ * Query parameters for fetching a paginated list of academic years.
+ */
 export interface AcademicYearsListParams {
   page?: number;
   pageSize?: number;

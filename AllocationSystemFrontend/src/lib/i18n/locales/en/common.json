@@ -1,8 +1,8 @@
 {
     "app": {
-        "title":"Internship Allocation System",
-        "name":"Allocation System",
-        "tagline":"Streamline internship allocation and management",
+        "title": "Internship Allocation System",
+        "name": "Allocation System",
+        "tagline": "Streamline internship allocation and management",
         "description": "Efficiently match students with internship opportunities and track allocations across schools and programs"
     },
     "languages": {
@@ -46,8 +46,7 @@
         "reportsAllocationReports": "Allocation Reports",
         "reportsPlanAnalyticReport": "Plan Analytics Reports",
         "reportsTeacherReports": "Teacher Reports",
-        "reportsSchoolReports": "School Reports",
-        "reportsAuditReports": "Audit Reports"
+        "reportsSchoolReports": "School Reports"
     },
     "userMenu": {
         "settings": "Settings",
@@ -132,4 +131,3 @@
         }
     }
 }
-

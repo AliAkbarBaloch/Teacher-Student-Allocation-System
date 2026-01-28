@@ -5,10 +5,14 @@ import type { Theme, ResolvedTheme } from "@/types/theme.types"
  * Get the system theme preference
  */
 export function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light"
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light"
+  if (typeof window === "undefined") {
+    return "light";
+  }
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  } else {
+    return "light";
+  }
 }
 
 /**
@@ -25,13 +29,15 @@ export function getResolvedTheme(theme: Theme): ResolvedTheme {
  * Apply theme classes to the document root
  */
 export function applyTheme(theme: ResolvedTheme) {
-  if (typeof window === "undefined") return
+  if (typeof window === "undefined") {
+    return;
+  }
 
   const root = window.document.documentElement
   if (theme === "dark") {
-    root.classList.add("dark")
+    root.classList.add("dark");
   } else {
-    root.classList.remove("dark")
+    root.classList.remove("dark");
   }
 }
 
@@ -42,7 +48,9 @@ export function getStoredTheme(
   storageKey: string,
   defaultTheme: Theme
 ): Theme {
-  if (typeof window === "undefined") return defaultTheme
+  if (typeof window === "undefined") {
+    return defaultTheme;
+  }
   const stored = localStorage.getItem(storageKey) as Theme | null
   return stored || defaultTheme
 }
@@ -51,7 +59,9 @@ export function getStoredTheme(
  * Save theme to localStorage
  */
 export function saveTheme(storageKey: string, theme: Theme) {
-  if (typeof window === "undefined") return
+  if (typeof window === "undefined") {
+    return;
+  }
   localStorage.setItem(storageKey, theme)
 }
 
@@ -79,7 +89,9 @@ export function useThemeMode(
 
   // Listen for system theme changes when theme is "system"
   useEffect(() => {
-    if (theme !== "system") return
+    if (theme !== "system") {
+      return
+    }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
 

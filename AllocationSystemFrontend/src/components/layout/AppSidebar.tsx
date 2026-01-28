@@ -34,10 +34,32 @@ import { useAuth } from "@/features/auth/hooks/useAuth"
 // common
 import { Logo } from "../common/Logo"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+function AppSidebarHeader() {
+  const { t } = useTranslation("common")
+
+  return (
+    <SidebarHeader>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" asChild>
+            <Link to={ROUTES.main.dashboard}>
+              <div className="flex items-center gap-4 lg:gap-8">
+                <Logo size="sm" showText={false} className="shrink-0" linkTo={null} />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{t("app.name")}</span>
+              </div>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarHeader>
+  )
+}
+
+function useSidebarNav() {
   const { t } = useTranslation("common")
   const location = useLocation()
-  const { user } = useAuth()
 
   const navGroups: NavGroup[] = [
     {
@@ -177,11 +199,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: t("navigation.reportsSchoolReports"),
               url: ROUTES.reports.schoolReports,
-            },
-            {
-              title: t("navigation.reportsAuditReports"),
-              url: ROUTES.reports.auditReports,
-            },
+            }
           ],
         },
       ],
@@ -219,22 +237,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar variant="inset" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to={ROUTES.main.dashboard}>
-                <div className="flex items-center gap-4 lg:gap-8">
-                  <Logo size="sm" showText={false} className="shrink-0" linkTo={null} />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{t("app.name")}</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+      <AppSidebarHeader />
       <SidebarContent>
         <NavMain groups={navGroups} />
       </SidebarContent>
@@ -244,3 +247,4 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
+

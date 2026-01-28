@@ -12,7 +12,5 @@ type SetState<T> = (
 
 export const createUISlice = <T extends UISlice>(set: SetState<T>): UISlice => ({
   theme: 'system',
-  setTheme: (theme) => set({ theme } as Partial<T>),
+  setTheme: theme => set({ theme } as Partial<T>),
 });
-
-

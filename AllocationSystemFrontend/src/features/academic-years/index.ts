@@ -6,7 +6,7 @@ export { AcademicYearDialogs } from "./components/AcademicYearDialogs";
 export { AcademicYearForm } from "./components/AcademicYearForm";
 export { useAcademicYearsPage } from "./hooks/useSubjectsPage";
 export { useAcademicYearsColumnConfig } from "./utils/columnConfig";
-export { AcademicYearService } from "./services/academicYearService";
+export { ACADEMIC_YEAR_SERVICE as AcademicYearService } from "./services/academicYearService";
 export type {
   AcademicYear,
   CreateAcademicYearRequest,

@@ -56,7 +56,9 @@ export default function PlanChangeLogsPage() {
 
   const handleUpdate = useCallback(
     async (data: Parameters<typeof handleUpdateInternal>[0]) => {
-      if (!selectedPlanChangeLog) return;
+      if (!selectedPlanChangeLog) {
+        return;
+      }
       try {
         await handleUpdateInternal(data, selectedPlanChangeLog.id);
         dialogs.edit.setIsOpen(false);
@@ -69,7 +71,9 @@ export default function PlanChangeLogsPage() {
   );
 
   const handleDelete = useCallback(async () => {
-    if (!planChangeLogToDelete) return;
+    if (!planChangeLogToDelete) {
+      return;
+    }
     try {
       await handleDeleteInternal(planChangeLogToDelete.id);
       dialogs.delete.setIsOpen(false);

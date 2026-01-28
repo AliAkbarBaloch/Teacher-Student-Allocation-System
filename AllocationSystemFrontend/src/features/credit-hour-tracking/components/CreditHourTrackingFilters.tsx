@@ -10,7 +10,7 @@ import { Filter, Loader2, X, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 // hooks
 // services
-import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "@/features/academic-years/services/academicYearService";
 import { TeacherService } from "@/features/teachers/services/teacherService";
 // types
 import type { AcademicYear } from "@/features/academic-years/types/academicYear.types";
@@ -57,7 +57,7 @@ export function CreditHourTrackingFilters({
     const loadAcademicYears = async () => {
       setLoadingYears(true);
       try {
-        const years = await AcademicYearService.getAll();
+        const years = await ACADEMIC_YEAR_SERVICE.getAll();
         if (isMounted) {
           setAcademicYears(years);
         }

@@ -10,6 +10,8 @@ import type {
   EmploymentStatus,
 } from "../types/teacher.types";
 
+import { buildQueryParams } from "@/lib/utils/query-params";
+
 type ApiResponse<T> = {
   data: T;
 };
@@ -18,16 +20,10 @@ export class TeacherService {
   static async list(
     params: TeacherListParams = {}
   ): Promise<PaginatedTeacherResponse> {
-    const query = new URLSearchParams();
-
-    if (params.page) query.set("page", String(params.page));
-    if (params.pageSize) query.set("pageSize", String(params.pageSize));
-    if (params.sortBy) query.set("sortBy", params.sortBy);
-    if (params.sortOrder) query.set("sortOrder", params.sortOrder);
-    if (params.search) query.set("searchValue", params.search);
-    if (params.schoolId) query.set("schoolId", String(params.schoolId));
-    if (params.employmentStatus)
-      query.set("employmentStatus", params.employmentStatus);
+    const query = buildQueryParams({
+      ...params,
+      searchValue: params.search,
+    });
 
     const response = await apiClient.get<ApiResponse<PaginatedTeacherResponse>>(
       `/teachers/paginate${query.toString() ? `?${query.toString()}` : ""}`

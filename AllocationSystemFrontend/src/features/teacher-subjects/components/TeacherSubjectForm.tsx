@@ -14,7 +14,7 @@ import type { AcademicYear } from "@/features/academic-years/types/academicYear.
 // services
 import { TeacherService } from "@/features/teachers/services/teacherService";
 import { SubjectService } from "@/features/subjects/services/subjectService";
-import { AcademicYearService } from "@/features/academic-years/services/academicYearService";
+import { ACADEMIC_YEAR_SERVICE } from "@/features/academic-years/services/academicYearService";
 
 // components
 import { SelectField } from "@/components/form/fields/SelectField";
@@ -80,7 +80,7 @@ export function TeacherSubjectForm({
   useEffect(() => {
     const loadAcademicYears = async () => {
       try {
-        const data = await AcademicYearService.getAll();
+        const data = await ACADEMIC_YEAR_SERVICE.getAll();
         setAcademicYears(data ?? []);
       } catch (err) {
         console.log(err);
@@ -233,16 +233,16 @@ export function TeacherSubjectForm({
             },
             ...(academicYears.length === 0 && !loadingAcademicYears
               ? [
-                  {
-                    value: "__placeholder__",
-                    label: t("form.placeholders.noAcademicYears"),
-                    disabled: true,
-                  },
-                ]
+                {
+                  value: "__placeholder__",
+                  label: t("form.placeholders.noAcademicYears"),
+                  disabled: true,
+                },
+              ]
               : academicYears.map((year) => ({
-                  value: String(year.id),
-                  label: year.yearName,
-                }))),
+                value: String(year.id),
+                label: year.yearName,
+              }))),
           ]}
           placeholder={t("form.placeholders.academicYear")}
           disabled={isLoading || isSubmitting || loadingAcademicYears}
@@ -267,29 +267,29 @@ export function TeacherSubjectForm({
             },
             ...(teachers.length === 0 && !loadingTeachers
               ? [
-                  {
-                    value: "__placeholder__",
-                    label: t("form.placeholders.noTeachers"),
-                    disabled: true,
-                  },
-                ]
+                {
+                  value: "__placeholder__",
+                  label: t("form.placeholders.noTeachers"),
+                  disabled: true,
+                },
+              ]
               : [
-                  // Include current teacher from teacherSubject if editing and not in fetched list
-                  ...(teacherSubject &&
+                // Include current teacher from teacherSubject if editing and not in fetched list
+                ...(teacherSubject &&
                   formData.teacherId > 0 &&
                   !teachers.some((t) => t.id === formData.teacherId)
-                    ? [
-                        {
-                          value: String(formData.teacherId),
-                          label: teacherSubject.teacherTitle,
-                        },
-                      ]
-                    : []),
-                  ...teachers.map((teacher) => ({
-                    value: String(teacher.id),
-                    label: `${teacher.firstName} ${teacher.lastName} (${teacher.email})`,
-                  })),
-                ]),
+                  ? [
+                    {
+                      value: String(formData.teacherId),
+                      label: teacherSubject.teacherTitle,
+                    },
+                  ]
+                  : []),
+                ...teachers.map((teacher) => ({
+                  value: String(teacher.id),
+                  label: `${teacher.firstName} ${teacher.lastName} (${teacher.email})`,
+                })),
+              ]),
           ]}
           placeholder={t("form.placeholders.teacher")}
           disabled={isLoading || isSubmitting || loadingTeachers}
@@ -310,16 +310,16 @@ export function TeacherSubjectForm({
             },
             ...(subjects.length === 0 && !loadingSubjects
               ? [
-                  {
-                    value: "__placeholder__",
-                    label: t("form.placeholders.noSubjects"),
-                    disabled: true,
-                  },
-                ]
+                {
+                  value: "__placeholder__",
+                  label: t("form.placeholders.noSubjects"),
+                  disabled: true,
+                },
+              ]
               : subjects.map((subject) => ({
-                  value: String(subject.id),
-                  label: `${subject.subjectCode} - ${subject.subjectTitle}`,
-                }))),
+                value: String(subject.id),
+                label: `${subject.subjectCode} - ${subject.subjectTitle}`,
+              }))),
           ]}
           placeholder={t("form.placeholders.subject")}
           disabled={isLoading || isSubmitting || loadingSubjects}
@@ -354,7 +354,7 @@ export function TeacherSubjectForm({
           id="gradeLevelFrom"
           label={t("form.fields.gradeLevelFrom")}
           value={formData.gradeLevelFrom ?? ""}
-          onChange={(value: number) => handleChange("gradeLevelFrom", value)}
+          onChange={(value: number | string) => handleChange("gradeLevelFrom", typeof value === "string" ? (value === "" ? null : Number(value)) : value)}
           placeholder={t("form.placeholders.gradeLevelFrom")}
           disabled={isLoading || isSubmitting}
           error={errors.gradeLevelFrom}
@@ -365,7 +365,7 @@ export function TeacherSubjectForm({
           id="gradeLevelTo"
           label={t("form.fields.gradeLevelTo")}
           value={formData.gradeLevelTo ?? ""}
-          onChange={(value: number) => handleChange("gradeLevelTo", value)}
+          onChange={(value: number | string) => handleChange("gradeLevelTo", typeof value === "string" ? (value === "" ? null : Number(value)) : value)}
           placeholder={t("form.placeholders.gradeLevelTo")}
           disabled={isLoading || isSubmitting}
           error={errors.gradeLevelTo}

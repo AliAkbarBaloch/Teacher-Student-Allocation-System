@@ -223,6 +223,27 @@ public class AllocationPlanController {
     }
 
     /**
+     * Archive (soft-delete) an allocation plan via HTTP DELETE.
+     * Delegates to the same service method used by POST /{id}/archive.
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Archive allocation plan (soft delete)",
+            description = "Soft-delete a plan by setting its status to ARCHIVED (same as POST /{id}/archive)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Allocation plan archived successfully",
+                    content = @Content(schema = @Schema(implementation = AllocationPlanResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Allocation plan not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<?> deletePlan(@PathVariable Long id) {
+        log.info("DELETE /api/allocation-plans/{}", id);
+
+        AllocationPlanResponseDto archived = allocationPlanService.archivePlan(id);
+        return ResponseHandler.updated("Allocation plan archived successfully", archived);
+    }
+
+    /**
      * Get the current allocation plan for a specific academic year.
      */
     @GetMapping("/current")
