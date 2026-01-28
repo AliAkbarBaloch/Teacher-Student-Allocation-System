@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-import { DataTable } from "@/components/common/DataTable";
-import { UserDialogs } from "@/features/users/components/UserDialogs/UserDialogs";
-import { UsersFilters } from "@/features/users/components/UsersFilters";
 import { useUsersPage } from "@/features/users/hooks/useUsersPage";
-import type { User } from "@/features/users/types/user.types";
+import { UsersFilters } from "@/features/users/components/UsersFilters";
+import { DataTable } from "@/components/common/DataTable";
 import { useUsersColumnConfig } from "@/features/users/utils/columnConfig";
+import { UserDialogs } from "@/features/users/components/UserDialogs/UserDialogs";
+import type { User } from "@/features/users/types/user.types";
+
+import i18n from "@/lib/i18n";
+
+
 
 export default function UsersPage() {
     const {
@@ -57,9 +61,10 @@ export default function UsersPage() {
     const [isResetOpen, setIsResetOpen] = useState(false);
 
     const openCreate = () => {
-        // console.log("LANG", i18n.language);
-        // console.log("HAS users ns?", i18n.hasResourceBundle(i18n.language, "users"));
-        // console.log("t(users:filters.search)", i18n.t("users:filters.search"));
+        console.log("LANG", i18n.language);
+        console.log("HAS users ns?", i18n.hasResourceBundle(i18n.language, "users"));
+        console.log("t(users:filters.search)", i18n.t("users:filters.search"));
+
         setSelectedUser(null);
         setIsCreateOpen(true);
     };
@@ -99,17 +104,13 @@ export default function UsersPage() {
     };
 
     const confirmStatusChange = async () => {
-        if (!statusTarget.user) {
-            return;
-        }
+        if (!statusTarget.user) return;
         await handleStatusChange(statusTarget.user, statusTarget.nextState);
         setIsStatusOpen(false);
     };
 
     const confirmDelete = async () => {
-        if (!deleteTarget) {
-            return;
-        }
+        if (!deleteTarget) return;
         await handleDelete(deleteTarget);
         setIsDeleteOpen(false);
     };

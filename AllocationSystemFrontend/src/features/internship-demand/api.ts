@@ -109,15 +109,13 @@ export async function fetchInternshipDemand(
   // Attempt to robustly unpack the response, handling Spring Page<T> or direct list
   const list: InternshipDemand[] = Array.isArray(json)
     ? (json as InternshipDemand[])
-    : (Array.isArray((json as { data?: unknown })?.data)
-      ? ((json as { data: InternshipDemand[] }).data)
-      : (Array.isArray((json as { content?: unknown })?.content)
-        ? ((json as { content: InternshipDemand[] }).content)
-        : (Array.isArray((json as { data?: { content?: unknown } })?.data?.content)
-          ? ((json as { data: { content: InternshipDemand[] } }).data.content)
-          : (Array.isArray((json as { data?: { items?: unknown } })?.data?.items)
-            ? ((json as { data: { items: InternshipDemand[] } }).data.items)
-            : []))));
+    : (Array.isArray((json as { content?: unknown })?.content)
+      ? ((json as { content: InternshipDemand[] }).content)
+      : (Array.isArray((json as { data?: { content?: unknown } })?.data?.content)
+        ? ((json as { data: { content: InternshipDemand[] } }).data.content)
+        : (Array.isArray((json as { data?: { items?: unknown } })?.data?.items)
+          ? ((json as { data: { items: InternshipDemand[] } }).data.items)
+          : [])));
 
   console.log("FETCH URL", url);
   console.log("EXTRACTED rows", list.length);

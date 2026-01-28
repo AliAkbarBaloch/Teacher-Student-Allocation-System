@@ -9,8 +9,6 @@ import type {
   PasswordResetRequest,
 } from "@/features/users/types/user.types";
 
-import { buildQueryParams } from "@/lib/utils/query-params";
-
 //Backend response wrapper type 
 //{"success" : true,
 //  "message": "something",
@@ -56,7 +54,26 @@ export class UserService {
   // List users (pagination + filters)
   // GET /users
   static async getPaginated(params: UsersListParams = {}): Promise<SpringPage<User>> {
-    const query = buildQueryParams(params);
+
+    const query = new URLSearchParams();
+
+    //if role exists, add role=ADMIN or role=USER
+    if (params.role) query.append("role", params.role);
+
+    //
+    if (params.status) query.append("status", params.status);
+    //
+    if (params.enabled !== undefined) query.append("enabled", String(params.enabled));
+    //
+    if (params.search) query.append("search", params.search);
+
+    // Pagination params 
+    if (params.page !== undefined) query.append("page", String(params.page));
+    if (params.size !== undefined) query.append("size", String(params.size));
+
+    //Sorting params 
+    if (params.sortBy) query.append("sortBy", params.sortBy);
+    if (params.sortDirection) query.append("sortDirection", params.sortDirection);
 
     //build URL
     //if query has something - attach it to URL, overwise just /users 
@@ -65,7 +82,7 @@ export class UserService {
     //request 
     //backend returns wrapper with a page inside data 
     const response = await apiClient.get<ApiResponse<SpringPage<User>>>(url);
-
+    
     //return the page inside the wrapper 
     return response.data;
   }
@@ -78,7 +95,7 @@ export class UserService {
 
     const response = await apiClient.get<ApiResponse<User>>(`/users/${id}`);
 
-    return response.data;
+    return response.data; 
   }
 
   // ---------------------------
@@ -88,7 +105,7 @@ export class UserService {
   static async create(payload: CreateUserRequest): Promise<User> {
 
     const response = await apiClient.post<ApiResponse<User>>("/users", payload);
-
+    
     return response.data;
 
   }

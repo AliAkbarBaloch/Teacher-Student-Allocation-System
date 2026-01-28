@@ -10,8 +10,8 @@
         "de": "German"
     },
     "navigation": {
-        "users": "Users",
-        "roles": "Roles",
+        "users" : "Users",
+        "roles" : "Roles",
         "groups": {
             "admin": "Admin",
             "overview": "Overview",

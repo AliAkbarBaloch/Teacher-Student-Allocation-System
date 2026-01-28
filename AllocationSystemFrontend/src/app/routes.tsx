@@ -9,7 +9,7 @@ import CreditHourTrackingPage from "@/pages/allocation-planning/CreditHourTracki
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import AcademicYearPage from "@/pages/base-data/academic-years/AcademicYearPage";
+import AcademicYearPage from "@/pages/base-data/AcademicYearPage";
 import AllocationPlanPage from "@/pages/base-data/AllocationPlanPage";
 import InternshipTypesPage from "@/pages/base-data/InternshipTypesPage";
 import PlanChangeLogsPage from "@/pages/base-data/PlanChangeLogsPage";
@@ -197,6 +197,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.reports.teacherReports,
         element: withSuspense(<TeacherReportPage />),
+      },
+      {
+        path: ROUTES.reports.schoolReports,
+        element: withSuspense(<SchoolReportPage />),
       },
       {
         path: ROUTES.reports.schoolReports,

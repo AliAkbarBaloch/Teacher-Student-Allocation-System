@@ -223,26 +223,17 @@ function useSidebarNav() {
     },
   ]
 
-  return { navGroups }
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuth()
-  const { navGroups } = useSidebarNav()
-
-  let userData = {
-    name: "User",
-    email: "",
-    avatar: "",
-  }
-
-  if (user) {
-    userData = {
+  const userData = user
+    ? {
       name: user.name || user.email?.split("@")[0] || "User",
       email: user.email || "",
       avatar: "",
     }
-  }
+    : {
+      name: "User",
+      email: "",
+      avatar: "",
+    }
 
   return (
     <Sidebar variant="inset" {...props}>

@@ -224,7 +224,7 @@ export default function SchoolStatusReportView({ data }: SchoolStatusReportViewP
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">{t("allZones")}</SelectItem>
-                  {[...Array(3)].map((_, i) => (
+                  {[...Array(6)].map((_, i) => (
                     <SelectItem key={i+1} value={(i+1).toString()}>{t("zoneWithNumber", { number: i+1 })}</SelectItem>
                   ))}
                 </SelectContent>

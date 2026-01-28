@@ -68,9 +68,11 @@ class ApiClient {
   }
 
   private isAuthEndpoint(endpoint: string): boolean {
-    return endpoint.includes("/auth/login") ||
-           endpoint.includes("/auth/forgot-password") || 
-           endpoint.includes("/auth/reset-password");
+    return (
+      endpoint.includes("/auth/login") ||
+          endpoint.includes("/auth/forgot-password") || 
+      endpoint.includes("/auth/reset-password")
+    );
   }
 
   private isPublicEndpoint(endpoint: string): boolean {
